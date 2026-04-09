@@ -1,0 +1,65 @@
+# ============================================================
+# SHIELDON — Root .gitignore
+# Covers: Angular, .NET, Visual Studio, VS Code, Windows
+# ============================================================
+
+# ── SECRETS — NEVER COMMIT ──────────────────────────────────
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Staging.json
+secrets.json
+.env
+.env.local
+.env.development
+.env.production
+
+# ── .NET / Visual Studio ────────────────────────────────────
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+*.exe
+*.dll
+*.pdb
+*.cache
+*.log
+TestResults/
+*.nupkg
+*.snupkg
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ── Entity Framework Core ───────────────────────────────────
+# Do NOT ignore Migrations — they are part of version control
+
+# ── Angular / Node ──────────────────────────────────────────
+node_modules/
+dist/
+.angular/
+.cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.tsbuildinfo
+
+# ── VS Code ─────────────────────────────────────────────────
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ── macOS ────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+
+# ── Uploads (local dev only — never commit uploaded files) ──
+backend/SHIELDON.API/wwwroot/uploads/
