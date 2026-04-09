@@ -1,3 +1,4 @@
+using SHIELDON.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace SHIELDON.Infrastructure.Persistence;
@@ -16,6 +17,7 @@ public class AppDbContext : DbContext
 
     // ── Phase 1: Auth ──────────────────────────────────────────────
     // DbSets will be added in Stage 1.1 when entities are defined
+    public DbSet<User> Users { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
