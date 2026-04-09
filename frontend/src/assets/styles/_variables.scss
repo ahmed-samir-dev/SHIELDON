@@ -1,0 +1,113 @@
+// ==========================================
+// 1. COLORS
+// ==========================================
+
+// Primary Palette (Brand Identity)
+$color-primary-base: #215DAE;
+$color-primary-light: #4D8DE8;
+$color-primary-dark: #16407B;
+
+// Secondary Palette (Accents)
+$color-secondary-base: #1898A1;
+$color-secondary-light: #2BC4CF;
+$color-secondary-dark: #0F6369;
+
+// Neutral / Greyscale (Text, Backgrounds, Borders)
+$color-neutral-white: #FFFFFF;
+$color-neutral-50: #F9FAFB;
+$color-neutral-100: #F3F4F6;
+$color-neutral-200: #E5E7EB;
+$color-neutral-300: #D1D5DB;
+$color-neutral-400: #9CA3AF;
+$color-neutral-500: #6B7280;
+$color-neutral-600: #4B5563;
+$color-neutral-700: #374151;
+$color-neutral-800: #1F2937;
+$color-neutral-900: #111827;
+
+// Semantic UI Colors (Feedback)
+$color-success-base: #10B981;
+$color-success-light: #D1FAE5;
+$color-success-dark: #047857;
+
+$color-warning-base: #F59E0B;
+$color-warning-light: #FEF3C7;
+$color-warning-dark: #B45309;
+
+$color-danger-base: #EF4444;
+$color-danger-light: #FEE2E2;
+$color-danger-dark: #B91C1C;
+
+$color-info-base: #3B82F6;
+$color-info-light: #DBEAFE;
+$color-info-dark: #1D4ED8;
+
+// Dark Mode Palette
+$color-dark-bg: #0B1120;
+$color-dark-surface: #1E293B;
+
+// ==========================================
+// 2. TYPOGRAPHY
+// ==========================================
+$font-family-primary: 'Inter', sans-serif;
+$font-family-secondary: 'Outfit', sans-serif;
+$font-family-mono: 'JetBrains Mono', monospace;
+
+// Font Sizes Base 16px
+$font-size-xs: 0.75rem;    // 12px
+$font-size-sm: 0.875rem;   // 14px
+$font-size-base: 1rem;     // 16px
+$font-size-lg: 1.125rem;   // 18px
+$font-size-xl: 1.25rem;    // 20px
+$font-size-2xl: 1.5rem;    // 24px
+$font-size-3xl: 1.875rem;  // 30px
+$font-size-4xl: 2.25rem;   // 36px
+
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// ==========================================
+// 3. SPACING
+// ==========================================
+$spacing-1: 0.25rem;  // 4px
+$spacing-2: 0.5rem;   // 8px
+$spacing-3: 0.75rem;  // 12px
+$spacing-4: 1rem;     // 16px
+$spacing-5: 1.25rem;  // 20px
+$spacing-6: 1.5rem;   // 24px
+$spacing-8: 2rem;     // 32px
+$spacing-10: 2.5rem;  // 40px
+$spacing-12: 3rem;    // 48px
+$spacing-16: 4rem;    // 64px
+
+// ==========================================
+// 4. RADII (Border Radius)
+// ==========================================
+$border-radius-sm: 4px;
+$border-radius-md: 8px;
+$border-radius-lg: 12px;
+$border-radius-xl: 16px;
+$border-radius-2xl: 24px;
+$border-radius-round: 9999px;
+
+// ==========================================
+// 5. SHADOWS
+// ==========================================
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+$shadow-glow: 0 0 15px rgba($color-primary-base, 0.3);
+
+// ==========================================
+// 6. Z-INDEX SCALE
+// ==========================================
+$z-index-base: 1;
+$z-index-raised: 10;
+$z-index-dropdown: 100;
+$z-index-sticky: 1000;
+$z-index-overlay: 4000;
+$z-index-modal: 5000;
+$z-index-toast: 9999;

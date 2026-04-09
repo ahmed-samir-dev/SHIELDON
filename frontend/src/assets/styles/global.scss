@@ -1,0 +1,111 @@
+@import 'variables';
+@import 'mixins';
+@import 'animations';
+
+// External Library Styles
+@import 'ngx-toastr/toastr';
+@import 'sweetalert2/src/sweetalert2.scss';
+@import 'shepherd.js/dist/css/shepherd.css';
+
+// Font Imports (Google Fonts)
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+// Reset & Base Styles
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  font-family: $font-family-primary;
+  font-size: $font-size-base;
+  color: $color-neutral-800;
+  background-color: $color-neutral-50;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: $font-family-secondary;
+  font-weight: $font-weight-semibold;
+  color: $color-neutral-900;
+  margin-bottom: $spacing-3;
+}
+
+a {
+  color: $color-primary-base;
+  text-decoration: none;
+  transition: color 0.2s;
+  
+  &:hover {
+    color: $color-primary-dark;
+  }
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: none;
+}
+
+// Utility Classes
+.text-center { text-align: center; }
+.text-danger { color: $color-danger-base; }
+.text-success { color: $color-success-base; }
+
+.mt-4 { margin-top: $spacing-4; }
+.mb-4 { margin-bottom: $spacing-4; }
+.my-4 { margin-top: $spacing-4; margin-bottom: $spacing-4; }
+
+.w-100 { width: 100%; }
+.h-100 { height: 100%; }
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-4;
+}
+
+// Global Scrollbar Styling (Premium Feel)
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: $color-neutral-100;
+  border-radius: $border-radius-round;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $color-neutral-300;
+  border-radius: $border-radius-round;
+  
+  &:hover {
+    background: $color-neutral-400;
+  }
+}
+
+// SweetAlert2 Customization to match SHIELDON theme
+.swal2-popup {
+  border-radius: $border-radius-xl !important;
+  font-family: $font-family-primary !important;
+  box-shadow: $shadow-xl !important;
+}
+
+.swal2-confirm {
+  background-color: $color-primary-base !important;
+  border-radius: $border-radius-md !important;
+}
+
+// Toastr Customization
+.toast-container .ngx-toastr {
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-lg;
+  font-family: $font-family-primary;
+}
