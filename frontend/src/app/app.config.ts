@@ -5,6 +5,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideToastr } from 'ngx-toastr';
 
 import { routes } from './app.routes';
+import { loadingInterceptor } from './core/interceptors/loading.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -15,7 +16,7 @@ export const appConfig: ApplicationConfig = {
       withViewTransitions() // Modern feeling UI transitions
     ),
     provideHttpClient(
-      // withInterceptors([ authInterceptor, errorInterceptor ]) // Will add later
+      withInterceptors([ loadingInterceptor ])
     ),
     provideAnimationsAsync(), // Required for ngx-toastr and smooth UI
     provideToastr({
