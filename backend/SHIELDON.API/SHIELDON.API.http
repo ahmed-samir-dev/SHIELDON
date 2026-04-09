@@ -1,0 +1,6 @@
+@SHIELDON.API_HostAddress = http://localhost:5186
+
+GET {{SHIELDON.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
