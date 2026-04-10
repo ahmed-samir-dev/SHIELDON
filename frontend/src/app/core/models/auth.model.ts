@@ -5,6 +5,15 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface VerifyEmailRequest {
+  email: string;
+  token: string;
+}
+
+export interface ResendVerificationRequest {
+  email: string;
+}
+
 export interface LoginResponse {
   userId: string;
   email: string;

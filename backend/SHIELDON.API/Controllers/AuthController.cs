@@ -79,9 +79,46 @@ public class AuthController : ControllerBase
         _logger.LogInformation("User {UserId} logged out.", userId);
         return Ok(ApiResponse<object>.Ok(null, "Logged out successfully."));
     }
+
+    /// <summary>
+    /// POST /api/auth/verify-email
+    /// Verifies a user's email address using the token from their verification link.
+    /// No authentication required — this is called from the email link.
+    /// </summary>
+    [HttpPost("verify-email")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> VerifyEmail(
+        [FromBody] VerifyEmailRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _authService.VerifyEmailAsync(request, cancellationToken);
+        _logger.LogInformation("Email verified for {Email}.", request.Email);
+        return Ok(ApiResponse<object>.Ok(null, "Email verified successfully. You can now log in."));
+    }
+
+    /// <summary>
+    /// POST /api/auth/resend-verification
+    /// Re-sends the verification email for an unverified account.
+    /// Rate-limited at the service layer.
+    /// </summary>
+    [HttpPost("resend-verification")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ResendVerification(
+        [FromBody] ResendVerificationRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _authService.ResendVerificationEmailAsync(request, cancellationToken);
+        // Always return the same message to prevent email enumeration
+        return Ok(ApiResponse<object>.Ok(null,
+            "If this email is registered and unverified, a new verification email has been sent."));
+    }
 }
 
-/// <summary>
-/// Simple request body for token rotation and logout.
-/// </summary>
+/// <summary>Simple request body for token rotation and logout.</summary>
 public record RefreshTokenRequest(string RefreshToken);
+
+
