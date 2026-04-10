@@ -26,8 +26,12 @@ public class User
     public AccountStatus AccountStatus { get; set; } = AccountStatus.Unverified;
 
     // ── Email Verification ─────────────────────────────────────
-    /// <summary>6-digit OTP for email verification. Null when verified.</summary>
+    /// <summary>Secure verification token sent via email. Null when verified.</summary>
     public string? VerificationCode { get; set; }
+
+    /// <summary>UTC expiry of the verification token. Always validated before use.</summary>
+    public DateTime? VerificationCodeExpiresAt { get; set; }
+
 
     // ── Password Reset ─────────────────────────────────────────
     /// <summary>Secure reset token sent via email. Null when no reset is in progress.</summary>

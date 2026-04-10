@@ -37,6 +37,12 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login').then(m => m.Login), // Placeholder mapping
     title: 'Forgot Password — SHIELDON'
   },
+  {
+    path: 'auth/verify-email',
+    canActivate: [deviceGuard],
+    loadComponent: () => import('./features/auth/verify-email/verify-email').then(m => m.VerifyEmail),
+    title: 'Verify Email — SHIELDON'
+  },
 
   // ── Authenticated Routes (Protected by authGuard) ─────────────────────────
   // Placeholder dashboards — will be fleshed out in Phase 2+

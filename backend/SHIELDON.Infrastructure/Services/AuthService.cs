@@ -18,15 +18,20 @@ namespace SHIELDON.Infrastructure.Services;
 public class AuthService : IAuthService
 {
     private const int MaxFailedAttempts = 5;
+    private const int VerificationTokenExpiryHours = 24;
+    private const int ResendCooldownMinutes = 2;
 
     private readonly AppDbContext _db;
     private readonly IJwtService _jwtService;
+    private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
 
-    public AuthService(AppDbContext db, IJwtService jwtService, IConfiguration configuration)
+    public AuthService(AppDbContext db, IJwtService jwtService,
+        IEmailService emailService, IConfiguration configuration)
     {
         _db = db;
         _jwtService = jwtService;
+        _emailService = emailService;
         _configuration = configuration;
     }
 
@@ -63,6 +68,11 @@ public class AuthService : IAuthService
             if (user.FailedLoginAttempts >= MaxFailedAttempts)
             {
                 user.AccountStatus = AccountStatus.Locked;
+                user.UpdatedAt = DateTime.UtcNow;
+                await _db.SaveChangesAsync(ct);
+                // Fire-and-forget: notify user their account is locked
+                _ = _emailService.SendAccountLockedEmailAsync(user.Email, user.FullName);
+                throw new ForbiddenException("Your account has been locked due to too many failed login attempts. Please reset your password.");
             }
             user.UpdatedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync(ct);
@@ -155,6 +165,81 @@ public class AuthService : IAuthService
             await _db.SaveChangesAsync(ct);
         }
         // Silently succeed even if token not found — idempotent logout
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    public async Task VerifyEmailAsync(VerifyEmailRequest request, CancellationToken ct = default)
+    {
+        var email = request.Email.Trim().ToLowerInvariant();
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
+
+        // Always return a generic error to prevent email enumeration
+        if (user is null)
+            throw new BusinessRuleException("Verification link is invalid or has expired.");
+
+        if (user.AccountStatus == AccountStatus.Active)
+            throw new BusinessRuleException("This account has already been verified.");
+
+        // Validate token
+        if (user.VerificationCode != request.Token ||
+            user.VerificationCodeExpiresAt is null ||
+            user.VerificationCodeExpiresAt < DateTime.UtcNow)
+        {
+            throw new BusinessRuleException("Verification link is invalid or has expired. Please request a new one.");
+        }
+
+        // Activate the account and clear the token
+        user.AccountStatus = AccountStatus.Active;
+        user.VerificationCode = null;
+        user.VerificationCodeExpiresAt = null;
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync(ct);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    public async Task ResendVerificationEmailAsync(ResendVerificationRequest request, CancellationToken ct = default)
+    {
+        var email = request.Email.Trim().ToLowerInvariant();
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
+
+        // Silently succeed if email not found — prevents enumeration
+        if (user is null) return;
+
+        if (user.AccountStatus == AccountStatus.Active)
+            throw new BusinessRuleException("This account is already verified.");
+
+        if (user.AccountStatus == AccountStatus.Disabled)
+            throw new ForbiddenException("Your account has been disabled. Please contact support.");
+
+        // Rate limit: don't resend if a token was issued less than 2 minutes ago
+        if (user.VerificationCodeExpiresAt.HasValue &&
+            user.VerificationCodeExpiresAt.Value > DateTime.UtcNow.AddHours(VerificationTokenExpiryHours - ResendCooldownMinutes / 60.0))
+        {
+            throw new BusinessRuleException($"Please wait at least {ResendCooldownMinutes} minutes before requesting a new verification email.");
+        }
+
+        // Generate a new secure token
+        var token = GenerateSecureToken();
+        user.VerificationCode = token;
+        user.VerificationCodeExpiresAt = DateTime.UtcNow.AddHours(VerificationTokenExpiryHours);
+        user.UpdatedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync(ct);
+
+        // Send the email (fire-and-forget — don't fail the request on SMTP error)
+        _ = _emailService.SendEmailVerificationAsync(user.Email, user.FullName, token);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    /// <summary>Generates a cryptographically secure URL-safe token.</summary>
+    private static string GenerateSecureToken()
+    {
+        var randomBytes = new byte[48];
+        System.Security.Cryptography.RandomNumberGenerator.Fill(randomBytes);
+        return Convert.ToBase64String(randomBytes)
+            .Replace("+", "-")
+            .Replace("/", "_")
+            .TrimEnd('='); // URL-safe Base64
     }
 
     // ─────────────────────────────────────────────────────────────────────────

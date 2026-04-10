@@ -53,12 +53,15 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasConversion<string>()
             .HasMaxLength(50);
 
-        // ── Security OTP fields ───────────────────────────────
+        // ── Security token fields ─────────────────────────────
         builder.Property(u => u.VerificationCode)
-            .HasMaxLength(10);
+            .HasMaxLength(512); // URL-safe base64 token (~64 chars)
+
+        builder.Property(u => u.VerificationCodeExpiresAt)
+            .HasColumnType("datetime2");
 
         builder.Property(u => u.ResetPasswordCode)
-            .HasMaxLength(256);
+            .HasMaxLength(512);
 
         // ── Timestamps (UTC) ──────────────────────────────────
         builder.Property(u => u.CreatedAt)

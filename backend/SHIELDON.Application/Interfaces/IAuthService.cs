@@ -4,7 +4,7 @@ namespace SHIELDON.Application.Interfaces;
 
 /// <summary>
 /// Authentication service contract.
-/// Handles login, token refresh, and logout operations.
+/// Handles login, token refresh, logout, and email verification operations.
 /// Lives in the Application layer — no dependency on ASP.NET Core.
 /// </summary>
 public interface IAuthService
@@ -25,4 +25,19 @@ public interface IAuthService
     /// Revokes the given refresh token for the specified user — used on logout.
     /// </summary>
     Task LogoutAsync(Guid userId, string refreshToken, CancellationToken ct = default);
+
+    /// <summary>
+    /// Verifies a user's email address using the token from their verification email.
+    /// Sets AccountStatus to Active on success.
+    /// Throws DomainException if token is invalid, expired, or already used.
+    /// </summary>
+    Task VerifyEmailAsync(VerifyEmailRequest request, CancellationToken ct = default);
+
+    /// <summary>
+    /// Re-sends the verification email for an unverified account.
+    /// Rate-limited: only sends if no active token exists within the last 2 minutes.
+    /// Throws DomainException if the account is already verified or does not exist.
+    /// </summary>
+    Task ResendVerificationEmailAsync(ResendVerificationRequest request, CancellationToken ct = default);
 }
+

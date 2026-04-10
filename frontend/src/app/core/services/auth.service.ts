@@ -68,6 +68,14 @@ export class AuthService {
     );
   }
 
+  verifyEmail(request: { email: string, token: string }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/verify-email`, request);
+  }
+
+  resendVerification(request: { email: string }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/resend-verification`, request);
+  }
+
   // ── Storage Helpers ───────────────────────────────────────────────────────
 
   private _persist(user: LoginResponse): void {
