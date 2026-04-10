@@ -68,6 +68,12 @@ public class ExceptionHandlingMiddleware
                 _logger.LogWarning("Conflict: {Message}", conflict.Message);
                 break;
 
+            case UnauthorizedException unauthorized:
+                statusCode = HttpStatusCode.Unauthorized;
+                message = unauthorized.Message;
+                _logger.LogWarning("Unauthorized: {Message}", unauthorized.Message);
+                break;
+
             case UnauthorizedAccessException:
                 statusCode = HttpStatusCode.Unauthorized;
                 message = "Authentication is required to access this resource.";

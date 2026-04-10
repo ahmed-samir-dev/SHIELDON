@@ -46,3 +46,14 @@ public class ConflictException : DomainException
 {
     public ConflictException(string message) : base(message) { }
 }
+
+/// <summary>
+/// Thrown when authentication credentials are invalid or missing.
+/// Maps to HTTP 401.
+/// </summary>
+public class UnauthorizedException : DomainException
+{
+    public UnauthorizedException(string message = "Authentication is required.")
+        : base(message) { }
+}
+

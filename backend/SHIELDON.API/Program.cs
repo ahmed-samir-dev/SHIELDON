@@ -32,8 +32,10 @@ try
     // ── INFRASTRUCTURE: Register all services (DB, Email, JWT, Files, etc.) ─
     builder.Services.AddInfrastructure(builder.Configuration);
 
-    // ── CONTROLLERS ────────────────────────────────────────────────────────
+    // ── CONTROLLERS & UTILITIES ──────────────────────────────────────────
     builder.Services.AddControllers();
+    builder.Services.AddResponseCompression();
+
 
     // ── FLUENTVALIDATION: Auto-register all validators from Application layer
     builder.Services.AddFluentValidationAutoValidation();
@@ -153,6 +155,10 @@ try
 
     // ──────────────────────────────────────────────────────────────────────
     var app = builder.Build();
+
+    // ── DATABASE INITIALIZATION & SEEDING ────────────────────────────────
+    await SHIELDON.Infrastructure.Persistence.DbInitializer.InitAsync(app.Services);
+
     // ──────────────────────────────────────────────────────────────────────
 
     // ── GLOBAL EXCEPTION HANDLER: Must be FIRST in pipeline ────────────────
