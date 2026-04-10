@@ -20,19 +20,22 @@ export const routes: Routes = [
         path: '',
         loadComponent: () => import('./features/public/landing/landing').then(m => m.Landing),
         title: 'SHIELDON — Next-Gen LMS & Anti-Cheating Engine'
-      },
-      {
-        path: 'login',
-        loadComponent: () => import('./features/auth/login/login').then(m => m.Login),
-        title: 'Login — SHIELDON'
-      },
-      {
-        path: 'forgot-password',
-        // Placeholder — will be implemented in Stage 1.4
-        loadComponent: () => import('./features/auth/login/login').then(m => m.Login),
-        title: 'Forgot Password — SHIELDON'
       }
     ]
+  },
+
+  // ── Auth Standalone Routes ────────────────────────────────────────────────
+  {
+    path: 'login',
+    canActivate: [deviceGuard],
+    loadComponent: () => import('./features/auth/login/login').then(m => m.Login),
+    title: 'Login — SHIELDON'
+  },
+  {
+    path: 'forgot-password',
+    canActivate: [deviceGuard],
+    loadComponent: () => import('./features/auth/login/login').then(m => m.Login), // Placeholder mapping
+    title: 'Forgot Password — SHIELDON'
   },
 
   // ── Authenticated Routes (Protected by authGuard) ─────────────────────────
