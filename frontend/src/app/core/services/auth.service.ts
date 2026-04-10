@@ -84,6 +84,17 @@ export class AuthService {
     return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/reset-password`, request);
   }
 
+  updateUserIdentity(update: Partial<LoginResponse>): void {
+    const current = this._currentUser();
+    if (current) {
+      const updated = { ...current, ...update };
+      // Update cache
+      localStorage.setItem(USER_KEY, JSON.stringify(updated));
+      // Update signal state
+      this._currentUser.set(updated);
+    }
+  }
+
   // ── Storage Helpers ───────────────────────────────────────────────────────
 
   private _persist(user: LoginResponse): void {
