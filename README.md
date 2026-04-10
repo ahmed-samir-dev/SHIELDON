@@ -93,7 +93,7 @@ frontend/src/app/
 | 1.2 | F1: Secure Login & Role-Based Redirect | ✅ Complete |
 | 1.3 | F2: Email Verification | ✅ Complete |
 | 1.4 | F3: Password Reset Via Email | ✅ Complete |
-| 1.5 | F4: Profile Management | ⬜ Pending |
+| 1.5 | F4: Profile Management | ✅ Complete |
 
 ### Phase 2 — Core Learning Management System
 | Stage | Feature | Status |
@@ -213,6 +213,10 @@ ng serve --port 4201
 | POST | `/api/auth/resend-verification` | No | Resend verification email |
 | POST | `/api/auth/forgot-password` | No | Initiate password reset flow |
 | POST | `/api/auth/reset-password` | No | Commit password reset |
+| GET | `/api/profile` | Yes | Get authenticated user profile |
+| PATCH | `/api/profile` | Yes | Update text profile info |
+| POST | `/api/profile/picture` | Yes | Upload/resize WebP profile picture |
+| GET | `/uploads/profile-pictures/*` | No | Securely fetch profile picture |
 
 ---
 
@@ -240,6 +244,7 @@ fix/*      → Bug fixes
 | 1.2.0 | Stage 1.2 | 2026-04-10 | Secure Login & JWT Implementation |
 | 1.3.0 | Stage 1.3 | 2026-04-10 | Email Verification & Mailtrap Setup |
 | 1.4.0 | Stage 1.4 | 2026-04-10 | Password Reset (Forgot/Reset Flow) |
+| 1.5.0 | Stage 1.5 | 2026-04-10 | Profile Management & Dashboard Shell |
 
 ---
 

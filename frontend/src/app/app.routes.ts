@@ -51,24 +51,22 @@ export const routes: Routes = [
   },
 
   // ── Authenticated Routes (Protected by authGuard) ─────────────────────────
-  // Placeholder dashboards — will be fleshed out in Phase 2+
   {
-    path: 'student',
+    path: '',
     canActivate: [deviceGuard, authGuard],
     loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayout),
     children: [
-      { path: 'dashboard', loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayout), title: 'Student Dashboard — SHIELDON' }
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile').then(m => m.ProfileComponent),
+        title: 'My Profile — SHIELDON'
+      },
+      // Keep old placeholders for testing
+      { path: 'student/dashboard', loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayout) }
     ]
   },
   {
-    path: 'tutor',
-    canActivate: [deviceGuard, authGuard],
-    loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayout),
-    children: [
-      { path: 'dashboard', loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayout), title: 'Tutor Dashboard — SHIELDON' }
-    ]
-  },
-  {
+
     path: 'admin',
     canActivate: [deviceGuard, authGuard],
     loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayout),
