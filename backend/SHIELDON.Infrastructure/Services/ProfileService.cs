@@ -3,6 +3,7 @@ using SHIELDON.Application.Interfaces;
 using SHIELDON.Domain.Exceptions;
 using SHIELDON.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using SHIELDON.Domain.Entities;
 
 namespace SHIELDON.Infrastructure.Services;
 
@@ -42,7 +43,7 @@ public class ProfileService : IProfileService
         user.LastName = request.LastName.Trim();
         user.UpdatedAt = DateTime.UtcNow;
 
-        await RecordActivityLog(userId, "ProfileUpdate", ct);
+        RecordActivityLog(userId, "ProfileUpdate");
         await _db.SaveChangesAsync(ct);
 
         return await GetProfileAsync(userId, ct);
@@ -60,13 +61,13 @@ public class ProfileService : IProfileService
         user.ProfilePictureUrl = relativePath;
         user.UpdatedAt = DateTime.UtcNow;
 
-        await RecordActivityLog(userId, "PictureUpload", ct);
+        RecordActivityLog(userId, "PictureUpload");
         await _db.SaveChangesAsync(ct);
 
         return await GetProfileAsync(userId, ct);
     }
 
-    private async Task RecordActivityLog(Guid userId, string eventType, CancellationToken ct)
+    private void RecordActivityLog(Guid userId, string eventType)
     {
         var log = new UserActivityLog
         {
