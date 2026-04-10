@@ -40,7 +40,7 @@ public class FileService : IFileService
     {
         ValidateMimeType(contentType, AllowedProfilePictureTypes);
 
-        var folder = Path.Combine(_env.ContentRootPath, "Storage", "Uploads", "ProfilePictures");
+        var folder = Path.Combine(_env.ContentRootPath, "Storage", "Uploads", "profile-pictures");
         Directory.CreateDirectory(folder);
 
         // Delete existing profile picture for this user (any extension, though we now standardize on webp)
@@ -76,7 +76,7 @@ public class FileService : IFileService
             .Replace(" ", "_")
             .Replace("..", ""); // Prevent path traversal
 
-        var folder = Path.Combine(_env.ContentRootPath, "Storage", "Uploads", "CourseMaterials", courseId.ToString());
+        var folder = Path.Combine(_env.ContentRootPath, "Storage", "Uploads", "course-materials", courseId.ToString());
         Directory.CreateDirectory(folder);
 
         var uniqueFileName = $"{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}_{safeFileName}{extension}";

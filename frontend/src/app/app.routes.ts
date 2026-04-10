@@ -56,22 +56,16 @@ export const routes: Routes = [
     canActivate: [deviceGuard, authGuard],
     loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayout),
     children: [
+      { path: '', redirectTo: 'profile', pathMatch: 'full' },
       {
         path: 'profile',
         loadComponent: () => import('./features/profile/profile').then(m => m.ProfileComponent),
         title: 'My Profile — SHIELDON'
       },
-      // Keep old placeholders for testing
-      { path: 'student/dashboard', loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayout) }
-    ]
-  },
-  {
-
-    path: 'admin',
-    canActivate: [deviceGuard, authGuard],
-    loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayout),
-    children: [
-      { path: 'dashboard', loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayout), title: 'Admin Dashboard — SHIELDON' }
+      // Fallbacks until Phase 2 builds out the role-specific dashboards
+      { path: 'admin/dashboard', redirectTo: 'profile' },
+      { path: 'student/dashboard', redirectTo: 'profile' },
+      { path: 'tutor/dashboard', redirectTo: 'profile' }
     ]
   },
 
