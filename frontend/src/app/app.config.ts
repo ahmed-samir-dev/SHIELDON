@@ -6,6 +6,7 @@ import { provideToastr } from 'ngx-toastr';
 
 import { routes } from './app.routes';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,7 +17,7 @@ export const appConfig: ApplicationConfig = {
       withViewTransitions() // Modern feeling UI transitions
     ),
     provideHttpClient(
-      withInterceptors([ loadingInterceptor ])
+      withInterceptors([ authInterceptor, loadingInterceptor ])
     ),
     provideAnimationsAsync(), // Required for ngx-toastr and smooth UI
     provideToastr({

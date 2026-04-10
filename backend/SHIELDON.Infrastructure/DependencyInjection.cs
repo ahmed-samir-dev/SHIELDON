@@ -35,9 +35,11 @@ public static class DependencyInjection
                 }));
 
         // ── Services ──────────────────────────────────────────────────────
+        services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IFileService, FileService>();
+
 
         // ── AutoMapper 13.x ── AddAutoMapper scans assemblies for Profile classes
         services.AddAutoMapper(
