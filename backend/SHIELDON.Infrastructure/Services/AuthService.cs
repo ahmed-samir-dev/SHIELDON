@@ -56,6 +56,7 @@ public class AuthService : IAuthService
             case AccountStatus.Locked:
                 throw new ForbiddenException("Your account has been locked. Please reset your password.");
             case AccountStatus.Disabled:
+                await RecordLoginLog(user, false, ct);
                 throw new ForbiddenException("Your account has been disabled. Please contact support.");
         }
 
@@ -68,30 +69,49 @@ public class AuthService : IAuthService
             if (user.FailedLoginAttempts >= MaxFailedAttempts)
             {
                 user.AccountStatus = AccountStatus.Locked;
+                user.LockedAt = DateTime.UtcNow;
                 user.UpdatedAt = DateTime.UtcNow;
                 await _db.SaveChangesAsync(ct);
                 // Fire-and-forget: notify user their account is locked
                 _ = _emailService.SendAccountLockedEmailAsync(user.Email, user.FullName);
+                await RecordLoginLog(user, false, ct);
                 throw new ForbiddenException("Your account has been locked due to too many failed login attempts. Please reset your password.");
             }
             user.UpdatedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync(ct);
 
+            await RecordLoginLog(user, false, ct);
             throw new UnauthorizedException("Invalid email or password.");
         }
 
-        // 5. Reset failed attempts on successful login
+        // 5. Reset failed attempts and generate role IDs if missing
         user.FailedLoginAttempts = 0;
+        user.LockedAt = null; // Ensure null if now active
         user.LastLoginAt = DateTime.UtcNow;
         user.UpdatedAt = DateTime.UtcNow;
 
-        // 6. Issue tokens
+        if (string.IsNullOrEmpty(user.AdminId) && user.Role == UserRole.Admin) user.AdminId = GenerateRoleId("ADM");
+        if (string.IsNullOrEmpty(user.TutorId) && user.Role == UserRole.Tutor) user.TutorId = GenerateRoleId("TUT");
+        if (string.IsNullOrEmpty(user.StudentId) && user.Role == UserRole.Student) user.StudentId = GenerateRoleId("STU");
+
+        // 6. Security: Invalidate all existing tokens for this user (Single Session Rule)
+        var existingTokens = await _db.RefreshTokens
+            .Where(t => t.UserId == user.Id && t.RevokedAt == null && t.ExpiresAt > DateTime.UtcNow)
+            .ToListAsync(ct);
+        
+        foreach (var t in existingTokens)
+        {
+            t.RevokedAt = DateTime.UtcNow;
+            t.RevokedReason = "New Login Session";
+        }
+
+        // 7. Issue new tokens
         var accessToken = _jwtService.GenerateAccessToken(user);
         var rawRefreshToken = _jwtService.GenerateRefreshToken();
         var refreshTokenExpiry = int.Parse(
             _configuration["JwtSettings:RefreshTokenExpiryDays"] ?? "7");
 
-        // 7. Persist refresh token
+        // 8. Persist refresh token and login log
         var refreshTokenEntity = new RefreshToken
         {
             Id = Guid.NewGuid(),
@@ -102,6 +122,7 @@ public class AuthService : IAuthService
         };
 
         _db.RefreshTokens.Add(refreshTokenEntity);
+        await RecordLoginLog(user, true, ct);
         await _db.SaveChangesAsync(ct);
 
         var accessExpiryMinutes = int.Parse(
@@ -190,6 +211,7 @@ public class AuthService : IAuthService
 
         // Activate the account and clear the token
         user.AccountStatus = AccountStatus.Active;
+        user.EmailVerifiedAt = DateTime.UtcNow; // Record verification timestamp
         user.VerificationCode = null;
         user.VerificationCodeExpiresAt = null;
         user.UpdatedAt = DateTime.UtcNow;
@@ -326,5 +348,26 @@ public class AuthService : IAuthService
             RefreshToken: refreshToken,
             AccessTokenExpiresAt: accessExpiresAt
         );
+    }
+
+    private async Task RecordLoginLog(User user, bool success, CancellationToken ct)
+    {
+        var log = new LoginActivityLog
+        {
+            UserId = user.Id,
+            IsSuccess = success,
+            CreatedAt = DateTime.UtcNow,
+            // In a real production app, we would get the IP from IHttpContextAccessor
+            IpAddress = "127.0.0.1" 
+        };
+        _db.LoginActivityLogs.Add(log);
+    }
+
+    private static string GenerateRoleId(string prefix)
+    {
+        // Generates a simple ID like ADM-2026-X1Y2
+        var year = DateTime.UtcNow.Year;
+        var random = Guid.NewGuid().ToString("N").Substring(0, 4).ToUpper();
+        return $"{prefix}-{year}-{random}";
     }
 }
