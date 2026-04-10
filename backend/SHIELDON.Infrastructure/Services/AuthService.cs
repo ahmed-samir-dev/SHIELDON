@@ -56,7 +56,7 @@ public class AuthService : IAuthService
             case AccountStatus.Locked:
                 throw new ForbiddenException("Your account has been locked. Please reset your password.");
             case AccountStatus.Disabled:
-                await RecordLoginLog(user, false, ct);
+                RecordLoginLog(user, false);
                 throw new ForbiddenException("Your account has been disabled. Please contact support.");
         }
 
@@ -74,13 +74,13 @@ public class AuthService : IAuthService
                 await _db.SaveChangesAsync(ct);
                 // Fire-and-forget: notify user their account is locked
                 _ = _emailService.SendAccountLockedEmailAsync(user.Email, user.FullName);
-                await RecordLoginLog(user, false, ct);
+                RecordLoginLog(user, false);
                 throw new ForbiddenException("Your account has been locked due to too many failed login attempts. Please reset your password.");
             }
             user.UpdatedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync(ct);
 
-            await RecordLoginLog(user, false, ct);
+            RecordLoginLog(user, false);
             throw new UnauthorizedException("Invalid email or password.");
         }
 
@@ -122,7 +122,7 @@ public class AuthService : IAuthService
         };
 
         _db.RefreshTokens.Add(refreshTokenEntity);
-        await RecordLoginLog(user, true, ct);
+        RecordLoginLog(user, true);
         await _db.SaveChangesAsync(ct);
 
         var accessExpiryMinutes = int.Parse(
@@ -350,7 +350,7 @@ public class AuthService : IAuthService
         );
     }
 
-    private async Task RecordLoginLog(User user, bool success, CancellationToken ct)
+    private void RecordLoginLog(User user, bool success)
     {
         var log = new LoginActivityLog
         {
