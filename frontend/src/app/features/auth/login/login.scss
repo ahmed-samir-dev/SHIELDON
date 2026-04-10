@@ -291,4 +291,27 @@
   animation: spin 0.7s linear infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+
+// ── Footer ───────────────────────────────────────────────────────────────────
+.auth-footer {
+  margin-top: $spacing-8;
+  text-align: center;
+  
+  p {
+    color: $color-neutral-600;
+    font-size: $font-size-sm;
+  }
+}
+
+.signup-link {
+  color: $color-primary-base;
+  font-weight: $font-weight-bold;
+  text-decoration: none;
+  margin-left: $spacing-1;
+  transition: color 0.2s;
+  
+  &:hover {
+    color: $color-primary-dark;
+    text-decoration: underline;
+  }
+}
