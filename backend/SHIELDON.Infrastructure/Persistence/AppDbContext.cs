@@ -19,6 +19,8 @@ public class AppDbContext : DbContext
     // ── Phase 1: Auth ──────────────────────────────────────────────
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+    public DbSet<LoginActivityLog> LoginActivityLogs { get; set; } = null!;
+    public DbSet<UserActivityLog> UserActivityLogs { get; set; } = null!;
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

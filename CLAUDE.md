@@ -151,12 +151,12 @@ The SHIELDON logo (file: `logo.png`) consists of:
 
 | Technology | Choice | Reason |
 |-----------|--------|--------|
-| Framework | **.NET 10 ASP.NET Core Web API** | Latest LTS, high performance, built for APIs |
+| Framework | **.NET 9 ASP.NET Core Web API** | Latest LTS, high performance, built for APIs |
 | Language | **C#** (nullable reference types ON) | Type-safe, modern, excellent tooling |
 | Architecture | **Clean Architecture + Vertical Slice** | See Section 4 for full explanation |
 | Authentication | **JWT Bearer Tokens** (Access + Refresh Token) | Stateless, scalable, industry standard |
 | Authorization | **ASP.NET Core Identity** + **Custom Role Policies** | Fine-grained, role-based access control |
-| ORM | **Entity Framework Core 10** (Code-First) | Productive, migrations-based, LINQ support |
+| ORM | **Entity Framework Core 9** (Code-First) | Productive, migrations-based, LINQ support |
 | Email | **MailKit / MimeKit** | Robust SMTP email sending |
 | Validation | **FluentValidation** | Clean, testable, expressive validation rules |
 | Mapping | **AutoMapper** | Clean DTO ↔ Entity mapping |
@@ -1527,7 +1527,7 @@ CreatedAt             DateTime (auto-set on creation, UTC)
 **Sub-Feature 4.3 — Profile Picture Upload:**
 - Accepted formats: JPG, PNG, WebP (validated server-side by MIME type)
 - Maximum size: 2MB
-- Storage path: `wwwroot/uploads/profile-pictures/{userId}.{extension}`
+- Storage path: `/backend/SHIELDON.API/Storage/Uploads/profile-pictures/{userId}.webp` (optimized via ImageSharp)
 - Old picture deleted when new one uploaded
 
 **Sub-Feature 4.4 — Security Activity Log:**
@@ -1587,7 +1587,7 @@ CreatedAt             DateTime (auto-set on creation, UTC)
 - Allowed: PDF, DOC, DOCX, PPT, PPTX, JPG, PNG
 - Max size: 20MB per file
 - Validate MIME type server-side (not just file extension)
-- Storage: `wwwroot/uploads/course-materials/{courseId}/{uniqueFileName}`
+- Storage: `/backend/SHIELDON.API/Storage/Uploads/course-materials/{courseId}/{uniqueFileName}`
 - Files served through API controller endpoint (never expose raw server path to client)
 - Secure download: only enrolled students can download
 

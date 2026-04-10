@@ -42,6 +42,7 @@ public class ProfileService : IProfileService
         user.LastName = request.LastName.Trim();
         user.UpdatedAt = DateTime.UtcNow;
 
+        await RecordActivityLog(userId, "ProfileUpdate", ct);
         await _db.SaveChangesAsync(ct);
 
         return await GetProfileAsync(userId, ct);
@@ -59,8 +60,21 @@ public class ProfileService : IProfileService
         user.ProfilePictureUrl = relativePath;
         user.UpdatedAt = DateTime.UtcNow;
 
+        await RecordActivityLog(userId, "PictureUpload", ct);
         await _db.SaveChangesAsync(ct);
 
         return await GetProfileAsync(userId, ct);
+    }
+
+    private async Task RecordActivityLog(Guid userId, string eventType, CancellationToken ct)
+    {
+        var log = new UserActivityLog
+        {
+            UserId = userId,
+            EventType = eventType,
+            CreatedAt = DateTime.UtcNow,
+            IpAddress = "127.0.0.1" // Placeholder
+        };
+        _db.UserActivityLogs.Add(log);
     }
 }

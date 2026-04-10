@@ -25,6 +25,10 @@ public class User
     public UserRole Role { get; set; }
     public AccountStatus AccountStatus { get; set; } = AccountStatus.Unverified;
 
+    public string? StudentId { get; set; }
+    public string? TutorId { get; set; }
+    public string? AdminId { get; set; }
+
     // ── Email Verification ─────────────────────────────────────
     /// <summary>Secure verification token sent via email. Null when verified.</summary>
     public string? VerificationCode { get; set; }
@@ -46,6 +50,12 @@ public class User
 
     /// <summary>UTC timestamp of the user's most recent login. Null if never logged in.</summary>
     public DateTime? LastLoginAt { get; set; }
+
+    /// <summary>UTC timestamp when the account was locked due to too many failed attempts.</summary>
+    public DateTime? LockedAt { get; set; }
+
+    /// <summary>UTC timestamp when the user's email was successfully verified.</summary>
+    public DateTime? EmailVerifiedAt { get; set; }
 
     // ── Timestamps ─────────────────────────────────────────────
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
