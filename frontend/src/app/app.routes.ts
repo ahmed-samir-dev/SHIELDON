@@ -34,7 +34,7 @@ export const routes: Routes = [
   {
     path: 'forgot-password',
     canActivate: [deviceGuard],
-    loadComponent: () => import('./features/auth/login/login').then(m => m.Login), // Placeholder mapping
+    loadComponent: () => import('./features/auth/forgot-password/forgot-password').then(m => m.ForgotPassword),
     title: 'Forgot Password — SHIELDON'
   },
   {
@@ -42,6 +42,12 @@ export const routes: Routes = [
     canActivate: [deviceGuard],
     loadComponent: () => import('./features/auth/verify-email/verify-email').then(m => m.VerifyEmail),
     title: 'Verify Email — SHIELDON'
+  },
+  {
+    path: 'auth/reset-password',
+    canActivate: [deviceGuard],
+    loadComponent: () => import('./features/auth/reset-password/reset-password').then(m => m.ResetPassword),
+    title: 'Reset Password — SHIELDON'
   },
 
   // ── Authenticated Routes (Protected by authGuard) ─────────────────────────

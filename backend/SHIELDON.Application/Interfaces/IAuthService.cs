@@ -39,5 +39,19 @@ public interface IAuthService
     /// Throws DomainException if the account is already verified or does not exist.
     /// </summary>
     Task ResendVerificationEmailAsync(ResendVerificationRequest request, CancellationToken ct = default);
+
+    /// <summary>
+    /// Initiates the password reset flow. Generates a secure token and sends an email.
+    /// Silently succeeds if the email doesn't exist, to prevent email enumeration.
+    /// Rate-limited: ignores consecutive requests within a short timeframe.
+    /// </summary>
+    Task ForgotPasswordAsync(ForgotPasswordRequest request, CancellationToken ct = default);
+
+    /// <summary>
+    /// Validates the secure token and updates the user's password.
+    /// Unlocks the account and resets failed login attempts upon success.
+    /// Throws DomainException if the token is invalid or expired.
+    /// </summary>
+    Task ResetPasswordAsync(ResetPasswordRequest request, CancellationToken ct = default);
 }
 

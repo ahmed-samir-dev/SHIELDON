@@ -231,6 +231,74 @@ public class AuthService : IAuthService
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    public async Task ForgotPasswordAsync(ForgotPasswordRequest request, CancellationToken ct = default)
+    {
+        var email = request.Email.Trim().ToLowerInvariant();
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
+
+        // Silently succeed if email not found to prevent enumeration attacks
+        if (user is null) return;
+
+        // Rate limit: prevent spamming reset emails
+        if (user.ResetPasswordCodeExpiresAt.HasValue &&
+            user.ResetPasswordCodeExpiresAt.Value > DateTime.UtcNow.AddMinutes(60 - ResendCooldownMinutes))
+        {
+            return; // Silently ignore fast subsequent requests
+        }
+
+        // Generate a new secure token
+        var resetToken = GenerateSecureToken();
+        user.ResetPasswordCode = resetToken;
+        user.ResetPasswordCodeExpiresAt = DateTime.UtcNow.AddMinutes(60); // 1 hour expiry
+        user.UpdatedAt = DateTime.UtcNow;
+        
+        await _db.SaveChangesAsync(ct);
+
+        // Fire-and-forget email
+        _ = _emailService.SendPasswordResetEmailAsync(user.Email, user.FullName, resetToken);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    public async Task ResetPasswordAsync(ResetPasswordRequest request, CancellationToken ct = default)
+    {
+        var email = request.Email.Trim().ToLowerInvariant();
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
+
+        // Generic error to prevent enumeration
+        if (user is null)
+            throw new BusinessRuleException("The password reset link is invalid or has expired.");
+
+        // Validate token
+        if (user.ResetPasswordCode != request.Token ||
+            user.ResetPasswordCodeExpiresAt is null ||
+            user.ResetPasswordCodeExpiresAt < DateTime.UtcNow)
+        {
+            throw new BusinessRuleException("The password reset link is invalid or has expired. Please request a new one.");
+        }
+
+        // Hash new password
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+
+        // Clear the token
+        user.ResetPasswordCode = null;
+        user.ResetPasswordCodeExpiresAt = null;
+
+        // Unlock account and reset failed attempts if necessary
+        if (user.AccountStatus == AccountStatus.Locked)
+        {
+            user.AccountStatus = AccountStatus.Active;
+        }
+        user.FailedLoginAttempts = 0;
+        
+        user.UpdatedAt = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync(ct);
+        
+        // Notify user about password change
+        _ = _emailService.SendSecurityNotificationEmailAsync(user.Email, user.FullName, "Your password was successfully reset.");
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     /// <summary>Generates a cryptographically secure URL-safe token.</summary>
     private static string GenerateSecureToken()
     {

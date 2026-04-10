@@ -22,16 +22,16 @@ All violations are recorded in real-time and displayed in a **Session Timeline**
 ## Technology Stack
 
 ![Angular](https://img.shields.io/badge/Angular-21-DD0031?logo=angular&logoColor=white)
-![.NET](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet&logoColor=white)
+![.NET](https://img.shields.io/badge/.NET-9-512BD4?logo=dotnet&logoColor=white)
 ![SQL Server](https://img.shields.io/badge/SQL_Server-2022-CC2927?logo=microsoftsqlserver&logoColor=white)
-![EF Core](https://img.shields.io/badge/EF_Core-10-512BD4?logo=dotnet&logoColor=white)
+![EF Core](https://img.shields.io/badge/EF_Core-9-512BD4?logo=dotnet&logoColor=white)
 ![JWT](https://img.shields.io/badge/JWT-Auth-000000?logo=jsonwebtokens&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)
 
 | Layer | Technology |
 |-------|-----------|
 | Frontend | Angular 21 (Standalone Components), TypeScript, SCSS |
-| Backend | .NET 10 ASP.NET Core Web API, C# |
+| Backend | .NET 9 ASP.NET Core Web API, C# |
 | Database | Microsoft SQL Server 2022, EF Core Code-First |
 | Auth | JWT Bearer Tokens (Access + Refresh) |
 | Icons | Lucide Icons (exclusively) |
@@ -78,21 +78,21 @@ frontend/src/app/
 | Stage | Feature | Status |
 |-------|---------|--------|
 | 0.1 | Repository & Folder Structure | ✅ Complete |
-| 0.2 | Backend .NET Solution Scaffold | ⬜ Pending |
-| 0.3 | Database Initialization | ⬜ Pending |
-| 0.4 | Angular Frontend Scaffold | ⬜ Pending |
-| 0.5 | Design System Verification | ⬜ Pending |
-| 0.6 | Landing Page | ⬜ Pending |
-| 0.7 | Global Loading System | ⬜ Pending |
-| 0.8 | Device Guard + Placeholder Assets | ⬜ Pending |
+| 0.2 | Backend .NET Solution Scaffold | ✅ Complete |
+| 0.3 | Database Initialization | ✅ Complete |
+| 0.4 | Angular Frontend Scaffold | ✅ Complete |
+| 0.5 | Design System Verification | ✅ Complete |
+| 0.6 | Landing Page | ✅ Complete |
+| 0.7 | Global Loading System | ✅ Complete |
+| 0.8 | Device Guard + Placeholder Assets | ✅ Complete |
 
 ### Phase 1 — Authentication & User Management
 | Stage | Feature | Status |
 |-------|---------|--------|
-| 1.1 | Auth Domain Entities + Database | ⬜ Pending |
-| 1.2 | F1: Secure Login & Role-Based Redirect | ⬜ Pending |
-| 1.3 | F2: Email Verification | ⬜ Pending |
-| 1.4 | F3: Password Reset Via Email | ⬜ Pending |
+| 1.1 | Auth Domain Entities + Database | ✅ Complete |
+| 1.2 | F1: Secure Login & Role-Based Redirect | ✅ Complete |
+| 1.3 | F2: Email Verification | ✅ Complete |
+| 1.4 | F3: Password Reset Via Email | ✅ Complete |
 | 1.5 | F4: Profile Management | ⬜ Pending |
 
 ### Phase 2 — Core Learning Management System
@@ -158,7 +158,7 @@ frontend/src/app/
 
 ### Prerequisites
 
-- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
 - [Node.js 24+](https://nodejs.org)
 - [SQL Server 2022](https://www.microsoft.com/sql-server/sql-server-downloads)
 - [Angular CLI 21](https://angular.io/cli) — `npm install -g @angular/cli@latest`
@@ -181,11 +181,11 @@ cp docs/SECRETS_TEMPLATE.md .  # Read setup guide
 # 2. Create appsettings.Development.json with your connection string, JWT key, SMTP creds
 # 3. Apply database migrations
 dotnet ef database update --project SHIELDON.Infrastructure --startup-project SHIELDON.API
-# 4. Run the API
+# 4. Run the API (Watch Mode)
 cd SHIELDON.API
-dotnet run
-# API available at: https://localhost:7001
-# Swagger UI at: https://localhost:7001/swagger
+dotnet watch run
+# API available at: http://localhost:5000
+# Swagger UI at: http://localhost:5000/swagger
 ```
 
 ### Frontend Setup
@@ -194,8 +194,8 @@ dotnet run
 cd frontend
 npm install
 # Update src/environments/environment.ts if API port differs
-ng serve
-# App available at: http://localhost:4200
+ng serve --port 4201
+# App available at: http://localhost:4201
 ```
 
 ---
@@ -206,7 +206,13 @@ ng serve
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| — | — | — | *Coming in Stage 1.2* |
+| POST | `/api/auth/login` | No | Authenticate user & return tokens |
+| POST | `/api/auth/refresh` | No | Rotate Refresh & Access tokens |
+| POST | `/api/auth/logout` | Yes | Revoke active refresh token |
+| POST | `/api/auth/verify-email` | No | Validate email verification token |
+| POST | `/api/auth/resend-verification` | No | Resend verification email |
+| POST | `/api/auth/forgot-password` | No | Initiate password reset flow |
+| POST | `/api/auth/reset-password` | No | Commit password reset |
 
 ---
 
@@ -228,6 +234,12 @@ fix/*      → Bug fixes
 | Version | Stage | Date | What Was Added |
 |---------|-------|------|----------------|
 | 0.1.0 | Stage 0.1 | 2026-04-09 | Repository structure, .gitignore, README |
+| 0.5.0 | Stage 0.5 | 2026-04-09 | .NET Solution, DB, Angular Scaffold, Design System |
+| 0.8.0 | Stage 0.8 | 2026-04-10 | Landing Page, Global Loading, Device Guard |
+| 1.1.0 | Stage 1.1 | 2026-04-10 | Auth Domain Entities & Expansion |
+| 1.2.0 | Stage 1.2 | 2026-04-10 | Secure Login & JWT Implementation |
+| 1.3.0 | Stage 1.3 | 2026-04-10 | Email Verification & Mailtrap Setup |
+| 1.4.0 | Stage 1.4 | 2026-04-10 | Password Reset (Forgot/Reset Flow) |
 
 ---
 

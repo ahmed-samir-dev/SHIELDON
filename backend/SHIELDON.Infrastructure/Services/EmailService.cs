@@ -37,7 +37,8 @@ public class EmailService : IEmailService
     /// <inheritdoc />
     public async Task SendEmailVerificationAsync(string toEmail, string toName, string verificationToken)
     {
-        var verifyUrl = $"{FrontendUrl}/auth/verify-email?token={verificationToken}";
+        var encodedEmail = Uri.EscapeDataString(toEmail);
+        var verifyUrl = $"{FrontendUrl}/auth/verify-email?email={encodedEmail}&token={verificationToken}";
         var subject = "Verify Your SHIELDON Account";
         var htmlBody = BuildVerificationEmailHtml(toName, verifyUrl);
         await SendEmailAsync(toEmail, toName, subject, htmlBody);
@@ -46,7 +47,8 @@ public class EmailService : IEmailService
     /// <inheritdoc />
     public async Task SendPasswordResetEmailAsync(string toEmail, string toName, string resetToken)
     {
-        var resetUrl = $"{FrontendUrl}/auth/reset-password?token={resetToken}";
+        var encodedEmail = Uri.EscapeDataString(toEmail);
+        var resetUrl = $"{FrontendUrl}/auth/reset-password?email={encodedEmail}&token={resetToken}";
         var subject = "Reset Your SHIELDON Password";
         var htmlBody = BuildPasswordResetEmailHtml(toName, resetUrl);
         await SendEmailAsync(toEmail, toName, subject, htmlBody);
