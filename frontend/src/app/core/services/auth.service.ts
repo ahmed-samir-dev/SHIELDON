@@ -76,6 +76,14 @@ export class AuthService {
     return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/resend-verification`, request);
   }
 
+  forgotPassword(request: { email: string }): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/forgot-password`, request);
+  }
+
+  resetPassword(request: any): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/auth/reset-password`, request);
+  }
+
   // ── Storage Helpers ───────────────────────────────────────────────────────
 
   private _persist(user: LoginResponse): void {

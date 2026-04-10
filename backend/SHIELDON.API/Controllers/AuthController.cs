@@ -116,6 +116,40 @@ public class AuthController : ControllerBase
         return Ok(ApiResponse<object>.Ok(null,
             "If this email is registered and unverified, a new verification email has been sent."));
     }
+
+    /// <summary>
+    /// POST /api/auth/forgot-password
+    /// Initiates password reset by sending a secure link via email.
+    /// </summary>
+    [HttpPost("forgot-password")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ForgotPassword(
+        [FromBody] ForgotPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _authService.ForgotPasswordAsync(request, cancellationToken);
+        _logger.LogInformation("Password reset requested for {Email}.", request.Email);
+        return Ok(ApiResponse<object>.Ok(null,
+            "If this email is registered, a password reset link has been sent."));
+    }
+
+    /// <summary>
+    /// POST /api/auth/reset-password
+    /// Resets the user's password using the link token.
+    /// </summary>
+    [HttpPost("reset-password")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ResetPassword(
+        [FromBody] ResetPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _authService.ResetPasswordAsync(request, cancellationToken);
+        _logger.LogInformation("Password reset successful for {Email}.", request.Email);
+        return Ok(ApiResponse<object>.Ok(null, "Password has been successfully reset."));
+    }
 }
 
 /// <summary>Simple request body for token rotation and logout.</summary>

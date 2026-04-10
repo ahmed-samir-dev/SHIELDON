@@ -53,9 +53,31 @@ export class Login {
         this.isLoading.set(false);
         const msg = err.error?.message || 'An unexpected error occurred. Please try again.';
         this.errorMessage.set(msg);
+        
+        // Premium touch: if account is unverified, toast a helpful message
+        if (msg.toLowerCase().includes('verify')) {
+          this.toastr.info('Need a new link? Check the error message below.', 'Account Unverified');
+        }
       },
       complete: () => {
         this.isLoading.set(false);
+      }
+    });
+  }
+
+  resendVerification(): void {
+    const email = this.loginForm.get('email')?.value;
+    if (!email) return;
+
+    this.isLoading.set(true);
+    this.authService.resendVerification({ email }).subscribe({
+      next: (res: any) => {
+        this.isLoading.set(false);
+        this.toastr.success(res.message || 'Verification email sent! Please check Mailtrap.', 'Success');
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.toastr.error(err.error?.message || 'Failed to resend email.', 'Error');
       }
     });
   }
