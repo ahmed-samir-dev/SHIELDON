@@ -11,15 +11,15 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using System.Reflection;
 
-// ── SERILOG: Configure early so startup errors are also logged ──────────────
+// ── SERILOG: Configure bootstrap logger ────────────────────────────────────
+// NOTE: Only wraps app.Run() so WebApplicationFactory can propagate startup
+// exceptions correctly during integration testing.
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .WriteTo.File("logs/shieldon-.log", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
-try
-{
-    var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
     // ── SERILOG: Replace default Microsoft logging with Serilog ────────────
     builder.Host.UseSerilog((context, services, configuration) => configuration
@@ -157,60 +157,69 @@ try
         options.RejectionStatusCode = 429; // Too Many Requests
     });
 
-    // ──────────────────────────────────────────────────────────────────────
-    var app = builder.Build();
+// ──────────────────────────────────────────────────────────────────────
+var app = builder.Build();
 
-    // ── DATABASE INITIALIZATION & SEEDING ────────────────────────────────
+// ── DATABASE INITIALIZATION & SEEDING ────────────────────────────────
+if (app.Environment.EnvironmentName != "Testing")
+{
     await SHIELDON.Infrastructure.Persistence.DbInitializer.InitAsync(app.Services);
+}
 
-    // ──────────────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────────────────
 
-    // ── GLOBAL EXCEPTION HANDLER: Must be FIRST in pipeline ────────────────
-    app.UseMiddleware<ExceptionHandlingMiddleware>();
+// ── GLOBAL EXCEPTION HANDLER: Must be FIRST in pipeline ────────────────
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-    // ── RESPONSE COMPRESSION ───────────────────────────────────────────────
-    app.UseResponseCompression();
+// ── RESPONSE COMPRESSION ───────────────────────────────────────────────
+app.UseResponseCompression();
 
-    // ── SWAGGER: Only in development ──────────────────────────────────────
-    if (app.Environment.IsDevelopment())
+// ── SWAGGER: Only in development ──────────────────────────────────────
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
     {
-        app.UseSwagger();
-        app.UseSwaggerUI(options =>
-        {
-            options.SwaggerEndpoint("/swagger/v1/swagger.json", "SHIELDON API v1");
-            options.RoutePrefix = "swagger";
-            options.DocumentTitle = "SHIELDON API — Swagger UI";
-        });
-    }
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "SHIELDON API v1");
+        options.RoutePrefix = "swagger";
+        options.DocumentTitle = "SHIELDON API — Swagger UI";
+    });
+}
 
-    // ── STATIC FILES: Serves wwwroot (but files are protected by controllers)
-    app.UseStaticFiles();
+// ── STATIC FILES: Serves wwwroot (but files are protected by controllers)
+app.UseStaticFiles();
 
-    // ── HTTPS REDIRECTION ──────────────────────────────────────────────────
-    app.UseHttpsRedirection();
+// ── HTTPS REDIRECTION ──────────────────────────────────────────────────
+app.UseHttpsRedirection();
 
-    // ── CORS: Must be before Auth ──────────────────────────────────────────
-    app.UseCors("ShieldonCorsPolicy");
+// ── CORS: Must be before Auth ──────────────────────────────────────────
+app.UseCors("ShieldonCorsPolicy");
 
-    // ── RATE LIMITER ───────────────────────────────────────────────────────
-    app.UseRateLimiter();
+// ── RATE LIMITER ───────────────────────────────────────────────────────
+app.UseRateLimiter();
 
-    // ── AUTHENTICATION & AUTHORIZATION ────────────────────────────────────
-    app.UseAuthentication();
-    app.UseAuthorization();
+// ── AUTHENTICATION & AUTHORIZATION ────────────────────────────────────
+app.UseAuthentication();
+app.UseAuthorization();
 
-    // ── SERILOG: Log every HTTP request ───────────────────────────────────
-    app.UseSerilogRequestLogging();
+// ── SERILOG: Log every HTTP request ───────────────────────────────────
+app.UseSerilogRequestLogging();
 
-    // ── CONTROLLERS ───────────────────────────────────────────────────────
-    app.MapControllers();
+// ── CONTROLLERS ───────────────────────────────────────────────────────
+app.MapControllers();
 
-    Log.Information("SHIELDON API starting — environment: {Env}", app.Environment.EnvironmentName);
+Log.Information("SHIELDON API starting — environment: {Env}", app.Environment.EnvironmentName);
+
+// Serilog try/catch only wraps Run() — not the full build pipeline.
+// This lets WebApplicationFactory propagate startup exceptions in integration tests.
+try
+{
     app.Run();
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex, "SHIELDON API failed to start.");
+    Log.Fatal(ex, "SHIELDON API crashed at runtime.");
+    throw; // Re-throw so the process exits with a non-zero code
 }
 finally
 {

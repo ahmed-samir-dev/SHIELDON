@@ -36,6 +36,49 @@ public class AuthService : IAuthService
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    public async Task RegisterAsync(RegisterRequest request, CancellationToken ct = default)
+    {
+        var email = request.Email.Trim().ToLowerInvariant();
+
+        // 1. Check if email exists
+        var existingUser = await _db.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
+        if (existingUser != null)
+        {
+            // For security, don't tell the user that the email exists. Instead, send them a "reset password" or "account exists" email, 
+            // OR just return generic error. But for registration, it's common to throw an error or send an email.
+            // Let's stick to CLAUDE.md standard: throw business rule exception.
+            throw new BusinessRuleException("An account with this email already exists.");
+        }
+
+        // 2. Hash Password
+        var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+
+        // 3. Create User
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            FirstName = request.FirstName.Trim(),
+            LastName = request.LastName.Trim(),
+            Email = email,
+            PasswordHash = passwordHash,
+            Role = request.Role,
+            AccountStatus = AccountStatus.Unverified,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        // 4. Generate Verification Token
+        var token = GenerateSecureToken();
+        user.VerificationCode = token;
+        user.VerificationCodeExpiresAt = DateTime.UtcNow.AddHours(VerificationTokenExpiryHours);
+
+        _db.Users.Add(user);
+        await _db.SaveChangesAsync(ct);
+
+        // 5. Send Email Verification
+        _ = _emailService.SendEmailVerificationAsync(user.Email, user.FullName, token);
+    }
+
     public async Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken ct = default)
     {
         // 1. Normalise the email to prevent case-sensitive duplicates

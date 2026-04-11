@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { UserProfileResponse, UpdateProfileRequest } from '../models/profile.model';
+import { UserProfileResponse, UpdateProfileRequest, ChangePasswordRequest } from '../models/profile.model';
 import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
@@ -29,6 +29,10 @@ export class ProfileService {
     return this.http.post<{ data: UserProfileResponse, message: string }>(`${environment.apiUrl}/profile/picture`, formData).pipe(
       tap(res => this.updateAuthIdentity(res.data))
     );
+  }
+
+  changePassword(request: ChangePasswordRequest): Observable<{ message: string }> {
+    return this.http.patch<{ message: string }>(`${environment.apiUrl}/profile/password`, request);
   }
 
   // ── Sync with Auth Identity ──────────────────────────────────────────────

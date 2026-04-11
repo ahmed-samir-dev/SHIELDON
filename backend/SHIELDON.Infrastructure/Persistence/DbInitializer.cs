@@ -23,8 +23,12 @@ public static class DbInitializer
 
         try
         {
-            // 1. Ensure database is created and migrations are applied
-            await context.Database.MigrateAsync();
+            // 1. Apply migrations for relational DBs (SQL Server, etc.)
+            //    For InMemory (integration tests), use EnsureCreated() instead.
+            if (context.Database.IsRelational())
+                await context.Database.MigrateAsync();
+            else
+                await context.Database.EnsureCreatedAsync();
 
             // 2. Seed Admin User if not exists
             await SeedAdminAsync(context, configuration, logger);

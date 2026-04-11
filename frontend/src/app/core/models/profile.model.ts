@@ -7,10 +7,18 @@ export interface UserProfileResponse {
   email: string;
   profilePictureUrl: string | null;
   role: UserRole;
+  displayId: string | null;
+  accountStatus: string;
   createdAt: string;
 }
 
 export interface UpdateProfileRequest {
   firstName: string;
   lastName: string;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
 }

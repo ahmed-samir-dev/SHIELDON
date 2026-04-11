@@ -20,23 +20,26 @@ export const routes: Routes = [
         path: '',
         loadComponent: () => import('./features/public/landing/landing').then(m => m.Landing),
         title: 'SHIELDON — Next-Gen LMS & Anti-Cheating Engine'
+      },
+      {
+        path: 'login',
+        loadComponent: () => import('./features/auth/login/login').then(m => m.Login),
+        title: 'Login — SHIELDON'
+      },
+      {
+        path: 'register',
+        loadComponent: () => import('./features/auth/register/register').then(m => m.Register),
+        title: 'Register — SHIELDON'
+      },
+      {
+        path: 'forgot-password',
+        loadComponent: () => import('./features/auth/forgot-password/forgot-password').then(m => m.ForgotPassword),
+        title: 'Forgot Password — SHIELDON'
       }
     ]
   },
 
-  // ── Auth Standalone Routes ────────────────────────────────────────────────
-  {
-    path: 'login',
-    canActivate: [deviceGuard],
-    loadComponent: () => import('./features/auth/login/login').then(m => m.Login),
-    title: 'Login — SHIELDON'
-  },
-  {
-    path: 'forgot-password',
-    canActivate: [deviceGuard],
-    loadComponent: () => import('./features/auth/forgot-password/forgot-password').then(m => m.ForgotPassword),
-    title: 'Forgot Password — SHIELDON'
-  },
+  // ── Auth Verification Routes (Standalone) ─────────────────────────────────
   {
     path: 'auth/verify-email',
     canActivate: [deviceGuard],
