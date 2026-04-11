@@ -63,3 +63,4 @@ Thumbs.db
 
 # ── Uploads (local dev only — never commit uploaded files) ──
 backend/SHIELDON.API/wwwroot/uploads/
+backend/SHIELDON.API/Storage/

@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { LoginRequest, LoginResponse } from '../models/auth.model';
+import { LoginRequest, LoginResponse, RegisterRequest } from '../models/auth.model';
 import { UserRole } from '../models/user-role.enum';
 
 const ACCESS_TOKEN_KEY = 'shieldon_access_token';
@@ -27,6 +27,10 @@ export class AuthService {
   readonly isStudent = computed(() => this._currentUser()?.role === UserRole.Student);
 
   // ── Public API ────────────────────────────────────────────────────────────
+
+  register(request: RegisterRequest): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/auth/register`, request);
+  }
 
   login(request: LoginRequest): Observable<{ data: LoginResponse }> {
     return this.http.post<{ data: LoginResponse }>(`${environment.apiUrl}/auth/login`, request).pipe(

@@ -75,4 +75,19 @@ public class ProfileController : ControllerBase
 
         return Ok(ApiResponse<UserProfileResponse>.Ok(profile, "Profile picture updated successfully."));
     }
+
+    /// <summary>
+    /// PATCH /api/profile/password
+    /// Securely changes the user's password.
+    /// </summary>
+    [HttpPatch("password")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ChangePassword(
+        [FromBody] ChangePasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        var userId = GetUserId();
+        await _profileService.ChangePasswordAsync(userId, request, cancellationToken);
+        return Ok(ApiResponse<object>.Ok(null, "Password changed successfully."));
+    }
 }

@@ -25,6 +25,24 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
+    /// POST /api/auth/register
+    /// Registers a new Student or Tutor.
+    /// Sends a verification email upon success.
+    /// </summary>
+    [HttpPost("register")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Register(
+        [FromBody] RegisterRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _authService.RegisterAsync(request, cancellationToken);
+        _logger.LogInformation("New user registered: {Email}", request.Email);
+        return Created(string.Empty, ApiResponse<object>.Ok(null, "Registration successful. Please check your email to verify your account."));
+    }
+
+    /// <summary>
     /// POST /api/auth/login
     /// Authenticates a user with email and password.
     /// Returns JWT access token + refresh token on success.

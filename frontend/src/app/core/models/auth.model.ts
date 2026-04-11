@@ -1,5 +1,14 @@
 import { UserRole } from './user-role.enum';
 
+export interface RegisterRequest {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  role: UserRole;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;

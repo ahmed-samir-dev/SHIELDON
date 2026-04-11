@@ -1331,18 +1331,19 @@ Frontend: Student result page with score ring animation + confetti on pass + Tut
 > A stage is complete ONLY when confirmed with "Stage done and run correctly with no errors."
 
 ### Project Setup
-- [ ] **Stage 0.1** — Repository & folder structure
-- [ ] **Stage 0.2** — Backend solution scaffold (.NET 10, Clean Architecture)
-- [ ] **Stage 0.3** — Database initialization (SQL Server + EF Core + AppDbContext)
-- [ ] **Stage 0.4** — Angular frontend scaffold (Angular 21 standalone + all packages)
-- [ ] **Stage 0.5** — Design system verification
+- [x] **Stage 0.1** — Repository & folder structure
+- [x] **Stage 0.2** — Backend solution scaffold (.NET 9, Clean Architecture)
+- [x] **Stage 0.3** — Database initialization (SQL Server + EF Core + AppDbContext)
+- [x] **Stage 0.4** — Angular frontend scaffold (Angular 21 standalone + all packages)
+- [x] **Stage 0.5** — Design system verification
 
 ### Phase 1 — Authentication & User Management
-- [ ] **Stage 1.1** — Auth domain entities + database migration
-- [ ] **Stage 1.2** — F1: Secure Login & Role-Based Redirect
-- [ ] **Stage 1.3** — F2: Email Verification
-- [ ] **Stage 1.4** — F3: Password Reset Via Email
-- [ ] **Stage 1.5** — F4: Profile Management
+- [x] **Stage 1.1** — Auth domain entities + database migration
+- [x] **Stage 1.2** — F1: Secure Login & Role-Based Redirect
+- [x] **Stage 1.3** — F2: Email Verification
+- [x] **Stage 1.4** — F3: Password Reset Via Email
+- [x] **Stage 1.5** — F4: Profile Management
+- [x] **Stage 1.6** — Fx: Public Registration (Student/Tutor)
 
 ### Phase 2 — Core LMS
 - [ ] **Stage 2.1** — LMS domain entities + database migration

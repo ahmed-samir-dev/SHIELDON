@@ -10,6 +10,12 @@ namespace SHIELDON.Application.Interfaces;
 public interface IAuthService
 {
     /// <summary>
+    /// Registers a new Student or Tutor account. Sets AccountStatus to Unverified and sends verification email.
+    /// Throws DomainException if email is already in use or role is invalid.
+    /// </summary>
+    Task RegisterAsync(RegisterRequest request, CancellationToken ct = default);
+
+    /// <summary>
     /// Validates credentials and returns JWT tokens on success.
     /// Throws DomainException on invalid credentials, unverified or locked accounts.
     /// </summary>
