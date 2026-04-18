@@ -335,7 +335,10 @@ These rules apply to every line of code, every file, every decision made in this
 - Use **Code-First** with Entity Framework Core migrations
 - Use **Vertical Slice** — each feature implemented end-to-end before moving to the next
 - Follow the **12-step Mandatory Development Pattern** for every feature
-- Wait for explicit confirmation ("Stage done and run correctly with no errors") before proceeding
+- **THE AI MODEL SPLIT (NEW GOLDEN RULE):** Every feature must be split into two halves. 
+  - **Half 1 (Backend):** Implement steps 1-8. Stop, verify the backend is complete, and explicitly ask the user to **switch the AI model to Gemini 3.1 Pro (High)**.
+  - **Half 2 (Frontend):** Wait for user confirmation of the model switch. Only THEN proceed with steps 9-12 (Angular implementation). NEVER write frontend code while in the backend phase model.
+- Wait for explicit confirmation ("Stage done and run correctly with no errors") before proceeding to the next stage
 - Test every stage manually before considering it complete
 
 ### Angular Rules
@@ -374,6 +377,9 @@ These rules apply to every line of code, every file, every decision made in this
 
 Every single feature must follow these 12 steps **in order**. Do not skip steps. Do not reorder steps.
 
+### PART 1: THE BACKEND (Current Model)
+
+
 ```
 Step 1  → Domain Model (Entity)
           Define the C# entity class in SHIELDON.Domain/Entities/
@@ -411,6 +417,15 @@ Step 8  → Swagger / Postman Testing (API Only)
           Test every endpoint in Swagger or Postman
           Verify: correct status codes, correct response body, correct error handling
           Verify database updated correctly after mutations
+
+---
+⏸️ **CRITICAL PAUSE: AI MODEL SWITCH**
+          At this point, the backend is complete. The AI MUST STOP and output:
+          "The backend is completely implemented and tested. Please change the AI model to Gemini 3.1 Pro (High) so we can start the frontend implementation."
+          Wait for the user to confirm the switch before continuing to Step 9.
+---
+
+### PART 2: THE FRONTEND (Gemini 3.1 Pro)
 
 Step 9  → Angular Service
           Create the Angular service in features/{feature-name}/services/
@@ -458,6 +473,9 @@ This protocol is **mandatory** and must be followed after every stage.
 3. Only proceed when everything works correctly
 4. Respond with: **"Stage done and run correctly with no errors"**
 5. If there are errors: describe the error so we can fix it before moving on
+
+### The Model Switch Rule:
+If the AI reaches Step 8 of a feature, it MUST stop, confirm backend completion, and ask the user to switch the model to Gemini 3.1 Pro to handle the frontend. It cannot proceed to the frontend (Steps 9-12) until the user says "I changed the model to Gemini 3.1 Pro. Proceed with frontend."
 
 ### What Happens On Error:
 
