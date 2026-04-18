@@ -1,0 +1,60 @@
+@if (isLoading()) {
+  <div class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading Course Data...</p>
+  </div>
+} @else if (course(); as courseData) {
+  <div class="course-hub">
+    <!-- Hub Header -->
+    <header class="hub-header">
+      <div class="header-overlay"></div>
+      
+      <div class="nav-back">
+        <a routerLink="/courses" class="back-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          Back to Courses
+        </a>
+      </div>
+
+      <div class="header-content">
+        <div class="course-badges">
+          <span class="badge-code">{{ courseData.courseCode }}</span>
+          @if (courseData.isActive) {
+            <span class="badge-status active">Active</span>
+          } @else {
+            <span class="badge-status archived">Archived</span>
+          }
+        </div>
+        
+        <h1 class="course-title">{{ courseData.title }}</h1>
+        <p class="course-description">{{ courseData.description || 'No description provided for this course.' }}</p>
+        
+        <div class="course-stats">
+          <div class="stat-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>{{ courseData.enrolledStudentCount }} Students</span>
+          </div>
+          <div class="stat-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span>{{ courseData.materialCount }} Materials</span>
+          </div>
+          @if (courseData.assignedTutorName) {
+            <div class="stat-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              <span>{{ courseData.assignedTutorName }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </header>
+
+    <!-- Hub Content Area -->
+    <div class="hub-body">
+      <div class="placeholder-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        <h3>Course Environment</h3>
+        <p>In the upcoming stages, this space will populate with Announcements, Course Materials, and Active Exams.</p>
+      </div>
+    </div>
+  </div>
+}

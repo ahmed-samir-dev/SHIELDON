@@ -65,10 +65,25 @@ export const routes: Routes = [
         loadComponent: () => import('./features/profile/profile').then(m => m.ProfileComponent),
         title: 'My Profile — SHIELDON'
       },
-      // Fallbacks until Phase 2 builds out the role-specific dashboards
-      { path: 'admin/dashboard', redirectTo: 'profile' },
-      { path: 'student/dashboard', redirectTo: 'profile' },
-      { path: 'tutor/dashboard', redirectTo: 'profile' }
+      {
+        path: 'courses',
+        loadComponent: () => import('./features/courses/course-list/course-list').then(m => m.CourseList),
+        title: 'Manage Courses — SHIELDON'
+      },
+      {
+        path: 'courses/:id',
+        loadComponent: () => import('./features/courses/course-detail/course-detail').then(m => m.CourseDetail),
+        title: 'Course Hub — SHIELDON'
+      },
+      {
+        path: 'enrollments',
+        loadComponent: () => import('./features/courses/enrollment-panel/enrollment-panel').then(m => m.EnrollmentPanel),
+        title: 'Enrollment Requests — SHIELDON'
+      },
+      // Dashboards fallback to courses view for now
+      { path: 'admin/dashboard', redirectTo: 'courses' },
+      { path: 'student/dashboard', redirectTo: 'courses' },
+      { path: 'tutor/dashboard', redirectTo: 'courses' }
     ]
   },
 

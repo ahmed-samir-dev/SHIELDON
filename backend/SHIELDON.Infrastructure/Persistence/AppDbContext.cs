@@ -22,6 +22,13 @@ public class AppDbContext : DbContext
     public DbSet<LoginActivityLog> LoginActivityLogs { get; set; } = null!;
     public DbSet<UserActivityLog> UserActivityLogs { get; set; } = null!;
 
+    // ── Phase 2: Core LMS ──────────────────────────────────────────
+    public DbSet<Course> Courses { get; set; } = null!;
+    public DbSet<CourseEnrollment> CourseEnrollments { get; set; } = null!;
+    public DbSet<CourseMaterial> CourseMaterials { get; set; } = null!;
+    public DbSet<Announcement> Announcements { get; set; } = null!;
+    public DbSet<Notification> Notifications { get; set; } = null!;
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

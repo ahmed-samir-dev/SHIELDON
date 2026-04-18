@@ -62,6 +62,15 @@ frontend/src/app/
 
 ---
 
+## AI-Assisted Development Workflow
+
+This project enforces a strict **AI Model Split** for all feature development:
+1. **Backend Phase (Steps 1-8):** Database changes, Domain Entities, Application logic, and API Controllers are built and tested.
+2. **Model Switch Pause:** The AI explicitly stops and asks the user to switch the AI Model to **Gemini 3.1 Pro (High)**.
+3. **Frontend Phase (Steps 9-12):** Angular services, standalone components, and UI/UX are built natively by Gemini 3.1 Pro. The frontend is never started until the backend is fully confirmed and the model is switched.
+
+---
+
 ## System Roles
 
 | Role | Access |
