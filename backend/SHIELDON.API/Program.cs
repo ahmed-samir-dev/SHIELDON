@@ -71,7 +71,8 @@ var builder = WebApplication.CreateBuilder(args);
                     builder.Configuration["AppSettings:FrontendUrl"] ?? "http://localhost:4200")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .AllowCredentials();
+                .AllowCredentials()
+                .WithExposedHeaders("Content-Disposition");
         });
     });
 
