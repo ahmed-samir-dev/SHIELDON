@@ -108,7 +108,7 @@
         <div class="form-group" style="margin-top: -8px;">
           <label class="file-drop-label">
             <div class="upload-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
                 <polyline points="13 2 13 9 20 9" />
@@ -120,28 +120,27 @@
           </label>
 
           @if (selectedFile) {
-          <div class="selected-file-info animated fadeIn">
-            <div class="file-icon-wrapper">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-                <polyline points="14 2 14 8 20 8" />
-              </svg>
-            </div>
-            <div class="file-details">
-              <span class="file-name" [title]="selectedFile.name">
-                {{ selectedFile.name }} <span class="file-size">({{ formatBytes(selectedFile.size) }})</span>
-              </span>
-            </div>
-            <button type="button" class="remove-file-btn" (click)="clearFile()" title="Remove file">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          </div>
-          }
+<div class="selected-file-info animated fadeIn">
+  <div class="file-icon-wrapper">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+      <polyline points="14 2 14 8 20 8" />
+    </svg>
+  </div>
+  <div class="file-details">
+    <span class="file-name" [title]="selectedFile.name">{{ selectedFile.name }}</span>
+    <span class="file-size">({{ formatBytes(selectedFile.size) }})</span>
+  </div>
+  <button type="button" class="remove-file-btn" (click)="clearFile()" title="Remove file">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  </button>
+</div>
+}
 
           @if (fileError()) {
           <span class="error-msg file-error">{{ fileError() }}</span>
@@ -212,7 +211,7 @@
   } @else {
   <div class="materials-list">
     @for (material of materials(); track material.id) {
-    <div class="material-card box-panel">
+    <div class="material-card box-panel" [class.centered-layout]="!material.description">
 
       <div class="material-icon-side">
         @if (material.materialType === 'Link') {
@@ -251,69 +250,43 @@
         @if (material.description) {
         <p class="material-desc">{{ material.description }}</p>
         }
-
-        <div class="material-meta">
-          <div class="meta-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-            Uploaded by {{ material.uploadedByName }}
-          </div>
-          <div class="meta-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12 6 12 12 16 14" />
-            </svg>
-            {{ material.createdAt | date:'MMM d, y, h:mm a' }}
-          </div>
-          @if (material.materialType === 'File' && material.fileSizeBytes) {
-          <div class="meta-item file-size">
-            {{ formatBytes(material.fileSizeBytes) }}
-          </div>
-          }
-        </div>
       </div>
 
       <div class="material-actions">
-        <!-- Download / Open Button -->
-        <button class="btn btn-outline-primary action-btn main-action" (click)="downloadMaterial(material)">
-          @if (material.materialType === 'Link') {
-          <svg class="action-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-            <polyline points="15 3 21 3 21 9" />
-            <line x1="10" x2="21" y1="14" y2="3" />
-          </svg>
-          <span class="action-text">Open</span>
-          } @else {
-          <svg class="action-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" x2="12" y1="15" y2="3" />
-          </svg>
-          <span class="action-text">Download</span>
-          }
-        </button>
+  <button class="modern-btn primary-action" (click)="downloadMaterial(material)">
+    @if (material.materialType === 'Link') {
+    <svg class="action-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      <polyline points="15 3 21 3 21 9" />
+      <line x1="10" x2="21" y1="14" y2="3" />
+    </svg>
+    <span class="action-text">Open</span>
+    } @else {
+    <svg class="action-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" x2="12" y1="15" y2="3" />
+    </svg>
+    <span class="action-text">Download</span>
+    }
+  </button>
 
-        <!-- Delete Button (Only for Admin/Tutor) -->
-        @if (canManageMaterials()) {
-        <button class="btn btn-outline-danger icon-btn action-btn delete-btn" (click)="deleteMaterial(material.id)"
-          title="Delete Material">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 6h18" />
-            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-            <line x1="10" x2="10" y1="11" y2="17" />
-            <line x1="14" x2="14" y1="11" y2="17" />
-          </svg>
-        </button>
-        }
-      </div>
+  @if (canManageMaterials()) {
+  <button class="modern-btn danger-action" (click)="deleteMaterial(material.id)" title="Delete Material">
+    <svg class="action-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 6h18" />
+      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+      <line x1="10" x2="10" y1="11" y2="17" />
+      <line x1="14" x2="14" y1="11" y2="17" />
+    </svg>
+    <span class="action-text">Delete</span>
+  </button>
+  }
+</div>
     </div>
     }
   </div>
