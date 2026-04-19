@@ -32,6 +32,7 @@ public record CourseDetailResponse(
     bool IsActive,
     int EnrolledStudentCount,
     int MaterialCount,
+    int AnnouncementCount,
     DateTime CreatedAt
 );
 
