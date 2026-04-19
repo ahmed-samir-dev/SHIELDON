@@ -12,25 +12,26 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  border-bottom: 1px solid var(--color-light-grey-blue);
-  padding-bottom: var(--spacing-4);
+  border-bottom: 1px solid $color-neutral-200;
+  padding-bottom: $spacing-4;
 
   .header-title {
     h2 {
-      font-size: var(--font-size-xl);
-      color: var(--color-deep-ocean-blue);
-      margin-bottom: var(--spacing-1);
+      font-size: $font-size-xl;
+      color: $color-neutral-900;
+      margin-bottom: $spacing-1;
+      font-weight: $font-weight-bold;
     }
     .subtitle {
-      font-size: var(--font-size-sm);
-      color: var(--color-text-slogan);
+      font-size: $font-size-sm;
+      color: $color-neutral-500;
     }
   }
 
   .upload-btn {
     display: flex;
     align-items: center;
-    gap: var(--spacing-2);
+    gap: $spacing-2;
   }
 }
 

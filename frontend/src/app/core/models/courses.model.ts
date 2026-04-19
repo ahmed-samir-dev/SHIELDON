@@ -57,6 +57,7 @@ export interface CourseDetailResponse {
   isActive: boolean;
   enrolledStudentCount: number;
   materialCount: number;
+  announcementCount: number;
   createdAt: string;
 }
 
