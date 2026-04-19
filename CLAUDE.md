@@ -82,11 +82,11 @@ All violations are recorded and displayed in a **Session Timeline** and **Violat
 | Phase | Name | Features | Count |
 |-------|------|----------|-------|
 | Phase 1 | Authentication & User Management | F1 (Login), F2 (Email Verify), F3 (Password Reset), F4 (Profile) | 4 |
-| Phase 2 | Core Learning Management System | F5 (Courses/Enrollment), F6 (Files), F7 (Announcements), F8 (Notifications) | 4 |
+| Phase 2 | Core Learning Management System | F5 (Courses/Enrollment), F6 (Files), F6b (Assignments), F7 (Announcements), F8 (Notifications) | 5 |
 | Phase 3 | Examination Management System | F9 (Exam Mgmt), F10 (Question Bank), F11 (Randomization), F12 (Timer), F13 (Secure Token), F14 (Results) | 6 |
 | Phase 4 | Anti-Cheating Engine | F15 (Full Anti-Cheat Engine) | 1 |
 | Phase 5 | Monitoring & Dashboards | F16 (Presence Tracking), F17 (Session Timeline), F18 (Violation Timeline), F19 (Manual Review), F20 (Tutor Dashboard), F21 (Admin Dashboard) | 6 |
-| **Total** | | | **21 Features** |
+| **Total** | | | **22 Features** |
 
 ---
 
@@ -1244,6 +1244,29 @@ Frontend: Drag-and-drop upload + material cards + download/link buttons
 Backend: CRUD for announcements + priority handling (Important bypasses notification aggregation)
 
 Frontend: Announcement list with Important announcements pinned + priority visual distinction
+
+---
+
+#### Stage 2.4b — Feature 6b: Student Assignment Submission
+
+**Goal:** Allow enrolled students to submit assignment files for their Tutor's courses. Tutors and Admins can view and download all submissions. Students manage only their own.
+
+**Entity:** `CourseAssignment` (Guid Id, Guid CourseId, Guid StudentId, string Title, string? Description, string OriginalFileName, string StoredFileName, string FilePath, long FileSizeBytes, string ContentType, DateTime SubmittedAt, DateTime UpdatedAt)
+
+**Allowed file types:** PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, JPG, JPEG, PNG, GIF, MP4, MOV, AVI, ZIP, RAR
+
+**Max file size:** 100 MB
+
+**Storage path:** `uploads/assignments/{courseId}/{studentId}/`
+
+**RBAC:**
+- Student (enrolled): upload own, view own, download own, delete own
+- Tutor (assigned to course): view all, download all, delete all
+- Admin: view all, download all, delete all
+
+Backend: `CourseAssignment` entity + EF migration + `IAssignmentService` + `AssignmentsController` (POST upload, GET list, GET download, DELETE)
+
+Frontend: 3rd tab in Course Hub (Assignments), reuses upload modal patterns from Course Materials, split view (Student upload vs Tutor read-only table)
 
 ---
 

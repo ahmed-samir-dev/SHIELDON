@@ -107,10 +107,11 @@ This project enforces a strict **AI Model Split** for all feature development:
 ### Phase 2 — Core Learning Management System
 | Stage | Feature | Status |
 |-------|---------|--------|
-| 2.1 | LMS Domain Entities + Database | ⬜ Pending |
-| 2.2 | F5: Course Management & Enrollment | ⬜ Pending |
-| 2.3 | F6: File Sharing (Course Materials) | ⬜ Pending |
-| 2.4 | F7: Announcements | ⬜ Pending |
+| 2.1 | LMS Domain Entities + Database | ✅ Complete |
+| 2.2 | F5: Course Management & Enrollment | ✅ Complete |
+| 2.3 | F6: File Sharing (Course Materials) | ✅ Complete |
+| 2.4 | F7: Announcements | ✅ Complete |
+| 2.4b | F6b: Student Assignment Submission | ⬜ Planned |
 | 2.5 | F8: Notifications System | ⬜ Pending |
 
 ### Phase 3 — Examination Management System
@@ -254,6 +255,8 @@ fix/*      → Bug fixes
 | 1.3.0 | Stage 1.3 | 2026-04-10 | Email Verification & Mailtrap Setup |
 | 1.4.0 | Stage 1.4 | 2026-04-10 | Password Reset (Forgot/Reset Flow) |
 | 1.5.0 | Stage 1.5 | 2026-04-10 | Profile Management & Dashboard Shell |
+| 2.4.0 | Stage 2.4 | 2026-04-19 | Course Materials, Announcements, Tabbed Hub UI |
+| 2.4b-plan | Stage 2.4b | 2026-04-19 | Student Assignments — planned, pending approval |
 
 ---
 
