@@ -79,6 +79,17 @@ public class CourseService : ICourseService
         if (requestingUserRole == "Student")
         {
             q = q.Where(c => c.IsActive);
+
+            if (!string.IsNullOrEmpty(query.EnrollmentStatus))
+            {
+                var filter = query.EnrollmentStatus.Trim().ToLower();
+                if (filter == "enrolled")
+                    q = q.Where(c => c.Enrollments.Any(e => e.StudentId == requestingUserId && e.Status == CourseEnrollmentStatus.Approved));
+                else if (filter == "pending")
+                    q = q.Where(c => c.Enrollments.Any(e => e.StudentId == requestingUserId && e.Status == CourseEnrollmentStatus.Pending));
+                else if (filter == "unenrolled")
+                    q = q.Where(c => !c.Enrollments.Any(e => e.StudentId == requestingUserId && (e.Status == CourseEnrollmentStatus.Approved || e.Status == CourseEnrollmentStatus.Pending)));
+            }
         }
 
         // Admin can filter by IsActive

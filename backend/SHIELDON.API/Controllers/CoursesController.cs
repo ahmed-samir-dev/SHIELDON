@@ -41,9 +41,10 @@ public class CoursesController : ControllerBase
         [FromQuery] int pageSize = 10,
         [FromQuery] string? search = null,
         [FromQuery] bool? isActive = null,
+        [FromQuery] string? enrollmentStatus = null,
         CancellationToken cancellationToken = default)
     {
-        var query = new CourseQueryParams(page, pageSize, search, isActive);
+        var query = new CourseQueryParams(page, pageSize, search, isActive, enrollmentStatus);
         var result = await _courseService.GetCoursesAsync(query, GetUserId(), GetUserRole(), cancellationToken);
         return Ok(ApiResponse<PagedResponse<CourseResponse>>.Ok(result, "Courses retrieved successfully."));
     }
