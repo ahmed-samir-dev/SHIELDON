@@ -23,6 +23,7 @@ export class CourseDetail implements OnInit {
 
   course = signal<CourseDetailResponse | null>(null);
   isLoading = signal(true);
+  activeTab = signal<'announcements' | 'materials'>('announcements');
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -45,5 +46,9 @@ export class CourseDetail implements OnInit {
         this.isLoading.set(false);
       }
     });
+  }
+
+  setActiveTab(tab: 'announcements' | 'materials') {
+    this.activeTab.set(tab);
   }
 }
