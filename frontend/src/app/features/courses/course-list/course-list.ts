@@ -50,6 +50,10 @@ export class CourseList implements OnInit {
   });
 
   ngOnInit() {
+    if (this.authService.isStudent()) {
+      this.query.enrollmentStatus = 'enrolled';
+    }
+
     this.loadCourses();
     if (this.authService.isAdmin() || this.authService.isTutor()) {
       this.loadTutors();
