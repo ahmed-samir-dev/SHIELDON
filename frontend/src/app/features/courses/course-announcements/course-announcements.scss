@@ -1,0 +1,328 @@
+@import '../../../../assets/styles/variables';
+@import '../../../../assets/styles/mixins';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Announcements Component Styles
+// ─────────────────────────────────────────────────────────────────────────────
+
+.announcements-container {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+  margin-top: $spacing-8;
+}
+
+// ── Header ──────────────────────────────────────────────────────────────────
+.announcements-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 1px solid $color-neutral-200;
+  padding-bottom: $spacing-4;
+
+  .header-title {
+    h2 {
+      font-size: $font-size-xl;
+      color: $color-neutral-900;
+      margin-bottom: $spacing-1;
+      font-weight: $font-weight-bold;
+    }
+    .subtitle {
+      font-size: $font-size-sm;
+      color: $color-neutral-500;
+    }
+  }
+
+  .post-btn {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+  }
+}
+
+// ── Priority Type Cards (reused from course-materials pattern) ───────────────
+.type-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-4;
+
+  .type-card {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    padding: $spacing-3 $spacing-4;
+    border: 2px solid $color-neutral-200;
+    border-radius: $border-radius-lg;
+    cursor: pointer;
+    background-color: $color-neutral-white;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+      border-color: $color-primary-light;
+      background-color: $color-neutral-50;
+      transform: translateY(-2px);
+      box-shadow: $shadow-sm;
+    }
+
+    &.selected {
+      border-color: $color-primary-base;
+      background-color: rgba($color-primary-base, 0.05);
+      box-shadow: $shadow-md;
+
+      .type-icon { color: $color-primary-base; }
+    }
+
+    // Important-specific selected state
+    &.important-card.selected {
+      border-color: #f59e0b;
+      background-color: rgba(245, 158, 11, 0.06);
+
+      .type-icon { color: #d97706; }
+      .type-name { color: #92400e; }
+    }
+
+    .hidden-radio { display: none; }
+
+    .type-icon {
+      color: $color-neutral-400;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background-color: $color-neutral-100;
+      border-radius: $border-radius-md;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .type-info {
+      .type-name {
+        font-weight: $font-weight-semibold;
+        color: $color-neutral-700;
+        font-size: $font-size-sm;
+      }
+    }
+  }
+}
+
+// ── Empty State ──────────────────────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-12 $spacing-6;
+  text-align: center;
+
+  .empty-icon {
+    color: $color-neutral-300;
+    margin-bottom: $spacing-4;
+  }
+
+  h3 {
+    color: $color-neutral-700;
+    margin-bottom: $spacing-2;
+    font-size: $font-size-lg;
+  }
+
+  p {
+    color: $color-neutral-500;
+    font-size: $font-size-sm;
+    max-width: 380px;
+  }
+}
+
+// ── Announcements Feed ───────────────────────────────────────────────────────
+.announcements-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.announcement-card {
+  position: relative;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: all 0.3s ease-out;
+
+  // Left accent bar
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: $color-primary-base;
+    border-radius: 4px 0 0 4px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(29, 53, 87, 0.1);
+    border-color: transparent;
+
+    &::before { opacity: 1; }
+  }
+
+  // Important card overrides
+  &.important {
+    border-color: rgba(245, 158, 11, 0.4);
+    background: linear-gradient(135deg, #fffbeb 0%, #ffffff 60%);
+
+    &::before {
+      background-color: #f59e0b;
+      opacity: 1;
+    }
+
+    &:hover {
+      box-shadow: 0 10px 24px rgba(245, 158, 11, 0.12);
+    }
+  }
+
+  .important-ribbon {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background-color: #fef3c7;
+    color: #92400e;
+    font-size: 11px;
+    font-weight: $font-weight-bold;
+    letter-spacing: 0.5px;
+    padding: 5px 14px;
+    border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+    width: 100%;
+    text-transform: uppercase;
+
+    svg { color: #f59e0b; }
+  }
+
+  .card-body {
+    padding: 20px;
+  }
+
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .ann-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background-color: rgba($color-primary-base, 0.1);
+    color: $color-primary-base;
+    flex-shrink: 0;
+    transition: transform 0.3s ease;
+
+    &.important-icon {
+      background-color: rgba(245, 158, 11, 0.12);
+      color: #d97706;
+    }
+  }
+
+  &:hover .ann-icon {
+    transform: scale(1.07);
+  }
+
+  .ann-content {
+    flex: 1;
+    min-width: 0;
+
+    .ann-title {
+      font-size: $font-size-md;
+      font-weight: $font-weight-semibold;
+      color: $color-neutral-900;
+      margin: 0 0 6px;
+      line-height: 1.4;
+    }
+
+    .ann-message {
+      font-size: $font-size-sm;
+      color: $color-neutral-600;
+      line-height: 1.6;
+      margin: 0;
+      white-space: pre-wrap;
+    }
+  }
+
+  .delete-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 10px;
+    background-color: transparent;
+    color: $color-neutral-400;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+
+    &:hover {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      transform: scale(1.1);
+    }
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid $color-neutral-100;
+
+    .meta-author,
+    .meta-date {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: $color-neutral-500;
+
+      svg { opacity: 0.7; }
+    }
+
+    .meta-dot {
+      color: $color-neutral-300;
+      font-size: 14px;
+    }
+  }
+}
+
+// ── Loading State ─────────────────────────────────────────────────────────────
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-12;
+  gap: $spacing-3;
+  color: $color-neutral-500;
+
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid $color-neutral-200;
+    border-top-color: $color-primary-base;
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
