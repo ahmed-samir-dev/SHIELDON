@@ -33,12 +33,26 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddInfrastructure(builder.Configuration);
 
     // ── CONTROLLERS & UTILITIES ──────────────────────────────────────────
-    builder.Services.AddControllers()
+    builder.Services.AddControllers(options =>
+    {
+        // Increase the default multipart body size limit to 100 MB for file uploads
+        options.Filters.Add(new Microsoft.AspNetCore.Mvc.RequestSizeLimitAttribute(105_000_000));
+    })
         .AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
         });
     builder.Services.AddResponseCompression();
+
+    // Allow large file uploads (up to 100 MB) through Kestrel and IIS
+    builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+    {
+        options.MultipartBodyLengthLimit = 105_000_000; // 100 MB + overhead
+    });
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.Limits.MaxRequestBodySize = 105_000_000;
+    });
 
 
     // ── FLUENTVALIDATION: Auto-register all validators from Application layer
