@@ -50,11 +50,7 @@
 
     <!-- Hub Content Area -->
     <div class="hub-body">
-      <div class="placeholder-box">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-        <h3>Course Environment</h3>
-        <p>In the upcoming stages, this space will populate with Announcements, Course Materials, and Active Exams.</p>
-      </div>
+      <app-course-materials [course]="courseData"></app-course-materials>
     </div>
   </div>
 }

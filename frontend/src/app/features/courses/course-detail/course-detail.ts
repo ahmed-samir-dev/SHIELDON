@@ -5,11 +5,12 @@ import { CourseService } from '../services/course.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CourseDetailResponse } from '../../../core/models/courses.model';
 import { ToastrService } from 'ngx-toastr';
+import { CourseMaterialsComponent } from '../course-materials/course-materials';
 
 @Component({
   selector: 'app-course-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, CourseMaterialsComponent],
   templateUrl: './course-detail.html',
   styleUrl: './course-detail.scss'
 })
