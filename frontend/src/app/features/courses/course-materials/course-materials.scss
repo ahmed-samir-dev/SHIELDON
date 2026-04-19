@@ -277,17 +277,19 @@
 .materials-list {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-3);
+  gap: 16px;
+  margin-top: 16px;
 }
 
 .material-card {
   display: flex;
   align-items: flex-start;
-  gap: var(--spacing-4);
-  padding: var(--spacing-4) var(--spacing-5);
-  border-radius: var(--radius-md);
-  background-color: var(--color-white);
-  border: 1px solid var(--color-light-grey-blue);
+  gap: 16px;
+  padding: 20px;
+  border-radius: 12px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
   transition: all 0.3s ease-out;
   position: relative;
   z-index: 1;
@@ -305,8 +307,8 @@
   }
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(29, 53, 87, 0.08);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(29, 53, 87, 0.1);
     border-color: transparent;
 
     &::before {
