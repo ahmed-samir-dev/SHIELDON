@@ -151,7 +151,7 @@
 
   p {
     color: $color-neutral-500;
-    font-size: $font-size-md;
+    font-size: $font-size-base;
     max-width: 420px;
   }
 }
@@ -263,7 +263,7 @@
     min-width: 0;
 
     .ann-title {
-      font-size: $font-size-md;
+      font-size: $font-size-base;
       font-weight: $font-weight-semibold;
       color: $color-neutral-900;
       margin: 0 0 6px;
