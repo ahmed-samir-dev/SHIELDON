@@ -201,45 +201,6 @@
   gap: $spacing-3;
   margin-top: $spacing-2;
 
-  .btn {
-    padding: $spacing-2 $spacing-6;
-    border-radius: $border-radius-md;
-    font-weight: $font-weight-medium;
-    cursor: pointer;
-    border: none;
-    font-size: $font-size-sm;
-    transition: all 0.2s;
-
-    &:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-
-    &.btn-secondary {
-      background: $color-neutral-200;
-      color: $color-neutral-700;
-      &:hover:not(:disabled) { background: $color-neutral-300; }
-    }
-
-    &.btn-primary {
-      background: $color-primary-base;
-      color: white;
-      display: flex;
-      align-items: center;
-      gap: $spacing-2;
-      &:hover:not(:disabled) { background: $color-primary-dark; }
-    }
-
-    &.btn-danger {
-      background: $color-danger-base;
-      color: white;
-      display: flex;
-      align-items: center;
-      gap: $spacing-2;
-      &:hover:not(:disabled) { background: $color-danger-dark; }
-    }
-  }
-
   .loader-ring {
     width: 14px;
     height: 14px;
@@ -247,5 +208,45 @@
     border-top-color: white;
     border-radius: 50%;
     animation: spin 1s linear infinite;
+  }
+}
+
+/* Global Button Styles extracted from Modal */
+.btn {
+  padding: $spacing-2 $spacing-6;
+  border-radius: $border-radius-md;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  border: none;
+  font-size: $font-size-sm;
+  transition: all 0.2s;
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  &.btn-secondary {
+    background: $color-neutral-200;
+    color: $color-neutral-700;
+    &:hover:not(:disabled) { background: $color-neutral-300; }
+  }
+
+  &.btn-primary {
+    background: $color-primary-base;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    &:hover:not(:disabled) { background: $color-primary-dark; }
+  }
+
+  &.btn-danger {
+    background: $color-danger-base;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    &:hover:not(:disabled) { background: $color-danger-dark; }
   }
 }
