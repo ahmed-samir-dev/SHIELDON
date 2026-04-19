@@ -32,6 +32,7 @@ export interface CourseQueryParams {
   pageSize?: number;
   search?: string | null;
   isActive?: boolean | null;
+  enrollmentStatus?: string | null;
 }
 
 export interface CourseResponse {

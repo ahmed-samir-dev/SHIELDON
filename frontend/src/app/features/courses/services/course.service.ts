@@ -38,6 +38,10 @@ export class CourseService {
       params = params.set('isActive', query.isActive);
     }
 
+    if (query.enrollmentStatus) {
+      params = params.set('enrollmentStatus', query.enrollmentStatus);
+    }
+
     return this.http.get<ApiResponse<PagedResponse<CourseResponse>>>(this.baseUrl, { params });
   }
 

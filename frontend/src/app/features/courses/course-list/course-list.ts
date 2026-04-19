@@ -28,9 +28,13 @@ export class CourseList implements OnInit {
   
   query: CourseQueryParams = {
     page: 1,
-    pageSize: 12,
+    pageSize: 6,
     search: '',
   };
+
+  // ── Pagination State ─────────────────────────────────────────────────────
+  totalPages = signal(1);
+  currentPage = signal(1);
 
   // ── Modal State ──────────────────────────────────────────────────────────
   isModalOpen = signal(false);
@@ -74,6 +78,8 @@ export class CourseList implements OnInit {
     this.courseService.getCourses(this.query).subscribe({
       next: (res) => {
         this.courses.set(res.data.items);
+        this.totalPages.set(Math.ceil(res.data.totalCount / res.data.pageSize));
+        this.currentPage.set(res.data.pageNumber);
         this.isLoading.set(false);
       },
       error: () => {
@@ -86,6 +92,29 @@ export class CourseList implements OnInit {
   onSearchChange() {
     this.query.page = 1;
     this.loadCourses();
+  }
+
+  setStudentFilter(filter: 'all' | 'enrolled' | 'pending' | 'unenrolled') {
+    if (filter === 'all') {
+      this.query.enrollmentStatus = null;
+    } else {
+      this.query.enrollmentStatus = filter;
+    }
+    this.onSearchChange();
+  }
+
+  nextPage() {
+    if (this.currentPage() < this.totalPages()) {
+      this.query.page = this.currentPage() + 1;
+      this.loadCourses();
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage() > 1) {
+      this.query.page = this.currentPage() - 1;
+      this.loadCourses();
+    }
   }
 
   canManageCourse(course: CourseResponse): boolean {
