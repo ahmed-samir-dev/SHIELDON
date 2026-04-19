@@ -6,11 +6,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { CourseDetailResponse } from '../../../core/models/courses.model';
 import { ToastrService } from 'ngx-toastr';
 import { CourseMaterialsComponent } from '../course-materials/course-materials';
+import { CourseAnnouncementsComponent } from '../course-announcements/course-announcements';
 
 @Component({
   selector: 'app-course-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, CourseMaterialsComponent],
+  imports: [CommonModule, RouterLink, CourseMaterialsComponent, CourseAnnouncementsComponent],
   templateUrl: './course-detail.html',
   styleUrl: './course-detail.scss'
 })
