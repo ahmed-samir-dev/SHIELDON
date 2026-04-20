@@ -1247,50 +1247,57 @@ Frontend: Announcement list with Important announcements pinned + priority visua
 
 ---
 
-#### Stage 2.4b — Feature 6b: Student Assignment Submission
+#### Stage 2.4b — Feature 6b: Assignment Management System
 
-**Goal:** Allow enrolled students to submit assignment files for their Tutor's courses. Tutors and Admins can view and download all submissions. Students manage only their own.
+**Concept — Two-Entity Design:**
+1. **Tutor/Admin** creates a course `Assignment` — giving it a title, optional instructions (problem description, rubric, etc.), an optional reference file attachment, and an optional due date.
+2. **Student** views the published assignments in the Assignments tab, reads the instructions, optionally downloads the reference file, and uploads an `AssignmentSubmission` (their own answer/work file) against that specific assignment.
+3. **Tutor/Admin** views all student submissions per assignment and can download them individually or bulk as ZIP.
 
-**Entity:** `CourseAssignment` (Guid Id, Guid CourseId, Guid StudentId, string Title, string? Description, string OriginalFileName, string StoredFileName, string FilePath, long FileSizeBytes, string ContentType, DateTime? DueDate, DateTime SubmittedAt, DateTime UpdatedAt)
+**Goal:** Build a first-class assignment lifecycle: Tutor publishes task → Student submits answer → Tutor reviews and downloads.
 
-**Allowed file types:** PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, JPG, JPEG, PNG, GIF, MP4, MOV, AVI, ZIP, RAR
+**Entities:**
 
-**Max file size:** 100 MB
+`Assignment` (Guid Id, Guid CourseId, Guid CreatedByUserId, string Title, string? Instructions, string? ReferenceFileName, string? ReferenceStoredFileName, string? ReferenceFilePath, long? ReferenceFileSizeBytes, string? ReferenceContentType, DateTime? DueDate, DateTime CreatedAt, DateTime UpdatedAt)
 
-**Storage path:** `uploads/assignments/{courseId}/{studentId}/`
+`AssignmentSubmission` (Guid Id, Guid AssignmentId, Guid StudentId, string OriginalFileName, string StoredFileName, string FilePath, long FileSizeBytes, string ContentType, DateTime SubmittedAt, DateTime UpdatedAt)
 
-**Due Date Rules:**
-- Due dates are **optional** — Tutor/Admin may set, update, or clear them at any time.
-- If a due date is set and has **passed**: students are **blocked from uploading or deleting** their own submission.
-- Students see a countdown badge ("Due in X days") while deadline is active; a "Past Due" badge after expiry.
-- Tutors and Admins are **never blocked** by due dates — they can download and delete freely regardless.
+**Storage paths:**
+- Reference files: `uploads/assignments/{courseId}/reference/{assignmentId}.{ext}`
+- Student submissions: `uploads/assignments/{courseId}/submissions/{assignmentId}/{studentId}.{ext}`
 
-**Bulk ZIP Download Rules (Tutor/Admin only):**
-- A single endpoint/button collects all submitted files for the course into an in-memory ZIP archive on demand.
-- ZIP internal structure: `{StudentDisplayId}_{StudentName}/{OriginalFileName}`.
-- ZIP filename served to browser: `{CourseCode}_assignments_{yyyy-MM-dd}.zip`.
-- Returns `204 No Content` if no submissions exist yet.
+**File constraints:**
+- Reference file (Tutor upload): PDF, DOCX, PPTX, XLSX, JPG, PNG, ZIP — max **50 MB**
+- Student submission: PDF, DOCX, PPTX, XLSX, JPG, PNG, GIF, MP4, MOV, AVI, ZIP, RAR — max **100 MB**
+
+**Due Date Rules:** Optional, set on `Assignment` by Tutor/Admin. If passed: students cannot upload or delete submissions. Tutors/Admins are never blocked.
+
+**Bulk ZIP Download Rules (Tutor/Admin, per assignment):** Builds in-memory `ZipArchive` from all submission files. ZIP structure: `{StudentDisplayId}_{StudentName}/{OriginalFileName}`. ZIP filename: `{CourseCode}_{AssignmentTitle}_{yyyy-MM-dd}.zip`. Returns `204` if no submissions.
 
 **RBAC:**
-- Student (enrolled): upload own (before deadline), view own, download own, delete own (before deadline)
-- Tutor (assigned to course): view all, download single, **download all as ZIP**, delete all, set/clear due dates
-- Admin: view all, download single, **download all as ZIP**, delete all, set/clear due dates
+- Student (enrolled): view assignments, download reference file, submit answer (before deadline), view/download/delete own submission (delete before deadline only)
+- Tutor (assigned): create/edit/delete assignments, view all submissions, download (single + ZIP), delete any submission, set/clear due dates
+- Admin: same as Tutor for all actions
 
-**API Endpoints (6):**
+**API Endpoints (9):**
 ```
-POST   /api/courses/{courseId}/assignments                  [Student only]
-GET    /api/courses/{courseId}/assignments                  [Student=own | Tutor/Admin=all]
-GET    /api/courses/{courseId}/assignments/{id}/download    [RBAC: own / all]
-GET    /api/courses/{courseId}/assignments/download-all     [Tutor/Admin only — streams ZIP]
-DELETE /api/courses/{courseId}/assignments/{id}            [Student=own (before deadline) | Tutor/Admin=all]
-PATCH  /api/courses/{courseId}/assignments/{id}/due-date   [Tutor/Admin only]
+POST   /api/courses/{courseId}/assignments                                     [Tutor/Admin]
+GET    /api/courses/{courseId}/assignments                                     [All enrolled/assigned]
+PATCH  /api/courses/{courseId}/assignments/{assignmentId}                      [Tutor/Admin]
+DELETE /api/courses/{courseId}/assignments/{assignmentId}                      [Tutor/Admin]
+GET    /api/courses/{courseId}/assignments/{assignmentId}/reference            [Enrolled + Tutor/Admin]
+POST   /api/courses/{courseId}/assignments/{assignmentId}/submissions          [Student only]
+DELETE /api/courses/{courseId}/assignments/{assignmentId}/submissions/{id}     [Student=own (before deadline) | Tutor/Admin]
+GET    /api/courses/{courseId}/assignments/{assignmentId}/submissions/{id}/download  [Student=own | Tutor/Admin]
+GET    /api/courses/{courseId}/assignments/{assignmentId}/submissions/download-all   [Tutor/Admin — ZIP]
 ```
 
-Backend: `CourseAssignment` entity + EF migration + `IAssignmentService` + `AssignmentsController`
+Backend: `Assignment` + `AssignmentSubmission` entities + EF migration `AddAssignmentSystem` + `IAssignmentService` + `AssignmentsController`
 
-Frontend: 3rd tab in Course Hub, reuses upload modal patterns from Course Materials, split view (Student upload with due date lock vs Tutor read-only table with ZIP download and due date picker)
+Frontend: 3rd tab "Assignments" in Course Hub — Tutor view: assignment creator + per-assignment submissions table + bulk ZIP button + due date picker; Student view: assignment cards with instructions + reference file download + submission upload + due date countdown + submission status badges
 
 ---
+
 
 #### Stage 2.5 — Feature 8: Notifications System
 

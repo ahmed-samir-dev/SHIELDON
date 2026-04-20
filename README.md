@@ -111,7 +111,7 @@ This project enforces a strict **AI Model Split** for all feature development:
 | 2.2 | F5: Course Management & Enrollment | ✅ Complete |
 | 2.3 | F6: File Sharing (Course Materials) | ✅ Complete |
 | 2.4 | F7: Announcements | ✅ Complete |
-| 2.4b | F6b: Student Assignment Submission (Due Dates + Bulk ZIP Download) | ⬜ Planned |
+| 2.4b | F6b: Assignment Management System (Tutor publishes task → Student submits answer; Due Dates + Bulk ZIP Download) | ⬜ Planned |
 | 2.5 | F8: Notifications System | ⬜ Pending |
 
 ### Phase 3 — Examination Management System
