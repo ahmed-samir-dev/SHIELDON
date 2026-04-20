@@ -45,4 +45,5 @@ public class Course
     public ICollection<CourseEnrollment> Enrollments { get; set; } = [];
     public ICollection<CourseMaterial> Materials { get; set; } = [];
     public ICollection<Announcement> Announcements { get; set; } = [];
+    public ICollection<Assignment> Assignments { get; set; } = [];
 }

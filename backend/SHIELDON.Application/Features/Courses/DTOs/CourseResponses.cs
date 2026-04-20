@@ -33,6 +33,7 @@ public record CourseDetailResponse(
     int EnrolledStudentCount,
     int MaterialCount,
     int AnnouncementCount,
+    int AssignmentCount,
     DateTime CreatedAt
 );
 

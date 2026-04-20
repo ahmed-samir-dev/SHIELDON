@@ -131,6 +131,7 @@ public class CourseService : ICourseService
             .Include(c => c.Enrollments)
             .Include(c => c.Materials)
             .Include(c => c.Announcements)
+            .Include(c => c.Assignments)
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Id == courseId, ct)
             ?? throw new NotFoundException("Course", courseId);
@@ -153,6 +154,7 @@ public class CourseService : ICourseService
             approvedEnrollments,
             course.Materials.Count,
             course.Announcements.Count,
+            course.Assignments.Count,
             course.CreatedAt
         );
     }

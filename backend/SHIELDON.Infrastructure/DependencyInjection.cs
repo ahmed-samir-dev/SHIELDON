@@ -43,6 +43,7 @@ public static class DependencyInjection
         services.AddScoped<ICourseService, CourseService>();
         services.AddScoped<IMaterialService, MaterialService>();
         services.AddScoped<IAnnouncementService, AnnouncementService>();
+        services.AddScoped<IAssignmentService, AssignmentService>();
 
 
         // ── AutoMapper 13.x ── AddAutoMapper scans assemblies for Profile classes
