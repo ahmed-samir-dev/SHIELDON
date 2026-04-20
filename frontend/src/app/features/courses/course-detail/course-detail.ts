@@ -7,11 +7,12 @@ import { CourseDetailResponse } from '../../../core/models/courses.model';
 import { ToastrService } from 'ngx-toastr';
 import { CourseMaterialsComponent } from '../course-materials/course-materials';
 import { CourseAnnouncementsComponent } from '../course-announcements/course-announcements';
+import { CourseAssignmentsComponent } from '../course-assignments/course-assignments';
 
 @Component({
   selector: 'app-course-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, CourseMaterialsComponent, CourseAnnouncementsComponent],
+  imports: [CommonModule, RouterLink, CourseMaterialsComponent, CourseAnnouncementsComponent, CourseAssignmentsComponent],
   templateUrl: './course-detail.html',
   styleUrl: './course-detail.scss'
 })
@@ -23,7 +24,7 @@ export class CourseDetail implements OnInit {
 
   course = signal<CourseDetailResponse | null>(null);
   isLoading = signal(true);
-  activeTab = signal<'announcements' | 'materials'>('announcements');
+  activeTab = signal<'announcements' | 'materials' | 'assignments'>('announcements');
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -48,7 +49,7 @@ export class CourseDetail implements OnInit {
     });
   }
 
-  setActiveTab(tab: 'announcements' | 'materials') {
+  setActiveTab(tab: 'announcements' | 'materials' | 'assignments') {
     this.activeTab.set(tab);
   }
 }

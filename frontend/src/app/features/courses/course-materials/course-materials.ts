@@ -31,7 +31,32 @@ export class CourseMaterialsComponent implements OnInit {
   uploadForm!: FormGroup;
   selectedFile: File | null = null;
   fileError = signal<string | null>(null);
-  uploadProgress = signal<number>(0);
+
+isDragging = signal<boolean>(false);
+
+  onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragging.set(true);
+  }
+
+  onDragLeave(): void {
+    this.isDragging.set(false);
+  }
+
+  onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragging.set(false);
+    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+      const file = event.dataTransfer.files[0];
+      if (file.size > 100 * 1024 * 1024) {
+        this.fileError.set('File size exceeds 100 MB limit.');
+        this.selectedFile = null;
+        return;
+      }
+      this.fileError.set(null);
+      this.selectedFile = file;
+    }
+  }
 
   // Computed properties for access control
   canManageMaterials = computed(() => {
@@ -116,7 +141,6 @@ export class CourseMaterialsComponent implements OnInit {
       this.uploadForm.reset({ materialType: 'File' });
       this.selectedFile = null;
       this.fileError.set(null);
-      this.uploadProgress.set(0);
     }
   }
 
@@ -138,15 +162,6 @@ export class CourseMaterialsComponent implements OnInit {
     }
 
     this.isSubmitting.set(true);
-    this.uploadProgress.set(0);
-
-    // Simulate progress while waiting for HTTP response
-    const progressInterval = setInterval(() => {
-      this.uploadProgress.update(val => {
-        if (val >= 90) return 90;
-        return val + Math.floor(Math.random() * 15) + 5;
-      });
-    }, 200);
 
     const formData = new FormData();
     formData.append('title', this.uploadForm.value.title);
@@ -164,25 +179,16 @@ export class CourseMaterialsComponent implements OnInit {
 
     this.materialService.addMaterial(this.course.id, formData).subscribe({
       next: (res) => {
-        clearInterval(progressInterval);
-        this.uploadProgress.set(100);
-        
-        // Small delay to let user see 100%
-        setTimeout(() => {
-          if (res.success && res.data) {
-            this.toastr.success(res.message || 'Material added successfully');
-            this.materials.update(docs => [res.data!, ...docs]);
-            this.toggleUploadForm();
-          }
-          this.isSubmitting.set(false);
-          this.uploadProgress.set(0);
-        }, 400);
+        if (res.success && res.data) {
+          this.toastr.success(res.message || 'Material added successfully');
+          this.materials.update(docs => [res.data!, ...docs]);
+          this.toggleUploadForm();
+        }
+        this.isSubmitting.set(false);
       },
       error: (err) => {
-        clearInterval(progressInterval);
         this.toastr.error(err.error?.message || 'Failed to add material');
         this.isSubmitting.set(false);
-        this.uploadProgress.set(0);
       }
     });
   }

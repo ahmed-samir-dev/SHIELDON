@@ -58,6 +58,7 @@ export interface CourseDetailResponse {
   enrolledStudentCount: number;
   materialCount: number;
   announcementCount: number;
+  assignmentCount: number;
   createdAt: string;
 }
 

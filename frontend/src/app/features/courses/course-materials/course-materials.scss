@@ -4,8 +4,8 @@
 .materials-container {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-6);
-  margin-top: var(--spacing-8);
+  gap: $spacing-6;
+  margin-top: $spacing-8;
 }
 
 .materials-header {
@@ -32,6 +32,12 @@
     display: flex;
     align-items: center;
     gap: $spacing-2;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($color-primary-base, 0.25);
+    }
   }
 }
 
@@ -263,36 +269,6 @@
   }
 }
 
-  /* Progress Button in Modal */
-  .submit-btn-progress {
-    position: relative;
-    overflow: hidden;
-
-    .progress-bar-bg {
-      position: absolute;
-      top: 0; left: 0; bottom: 0;
-      width: 100%;
-      background-color: var(--color-primary-dark);
-      opacity: 0.1;
-      z-index: 1;
-    }
-
-    .progress-bar-fill {
-      position: absolute;
-      top: 0; left: 0; bottom: 0;
-      background-color: rgba(255, 255, 255, 0.2);
-      transition: width 0.3s ease;
-      z-index: 2;
-    }
-
-    .progress-content {
-      position: relative;
-      z-index: 3;
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-2);
-    }
-  }
   
   .file-error {
     display: block;
@@ -305,21 +281,38 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-12) var(--spacing-6);
+  padding: $spacing-12 $spacing-6;
   text-align: center;
+  border: 2px dashed $color-neutral-200;
+  border-radius: $border-radius-xl;
+  background: linear-gradient(180deg, $color-neutral-50 0%, rgba($color-neutral-white, 0.4) 100%);
   
   .empty-icon {
-    color: var(--color-light-grey-blue);
-    margin-bottom: var(--spacing-4);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: rgba($color-primary-base, 0.1);
+    color: $color-primary-base;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: $spacing-5;
+    
+    svg {
+      width: 40px;
+      height: 40px;
+    }
   }
 
   h3 {
-    color: var(--color-deep-ocean-blue);
-    margin-bottom: var(--spacing-2);
+    font-size: $font-size-lg;
+    color: $color-neutral-800;
+    margin-bottom: $spacing-2;
+    font-weight: $font-weight-semibold;
   }
 
   p {
-    color: var(--color-text-slogan);
+    color: $color-neutral-500;
     max-width: 400px;
   }
 }
