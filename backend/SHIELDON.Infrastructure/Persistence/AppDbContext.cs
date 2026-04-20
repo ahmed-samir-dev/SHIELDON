@@ -28,6 +28,8 @@ public class AppDbContext : DbContext
     public DbSet<CourseMaterial> CourseMaterials { get; set; } = null!;
     public DbSet<Announcement> Announcements { get; set; } = null!;
     public DbSet<Notification> Notifications { get; set; } = null!;
+    public DbSet<Assignment> Assignments { get; set; } = null!;
+    public DbSet<AssignmentSubmission> AssignmentSubmissions { get; set; } = null!;
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
