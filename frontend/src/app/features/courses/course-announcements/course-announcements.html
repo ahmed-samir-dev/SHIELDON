@@ -112,10 +112,10 @@
             [disabled]="isSubmitting()">Cancel</button>
           <button type="submit" class="btn btn-primary" [disabled]="postForm.invalid || isSubmitting()">
             @if (isSubmitting()) {
-            <div class="loader-ring"></div>
-            <span>Posting...</span>
+              <div class="loader-ring"></div>
+              <span>Posting...</span>
             } @else {
-            <span>Post Announcement</span>
+              <span>Post Announcement</span>
             }
           </button>
         </div>

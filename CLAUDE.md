@@ -83,6 +83,7 @@ All violations are recorded and displayed in a **Session Timeline** and **Violat
 |-------|------|----------|-------|
 | Phase 1 | Authentication & User Management | F1 (Login), F2 (Email Verify), F3 (Password Reset), F4 (Profile) | 4 |
 | Phase 2 | Core Learning Management System | F5 (Courses/Enrollment), F6 (Files), F6b (Assignments), F7 (Announcements), F8 (Notifications) | 5 |
+| Phase 2b | Assignments System | F6b: Assignment Task Lifecycle (Tutor Task → Student Answer), Real-time Due Date Countdown, Bulk ZIP Submission Exports | 1 |
 | Phase 3 | Examination Management System | F9 (Exam Mgmt), F10 (Question Bank), F11 (Randomization), F12 (Timer), F13 (Secure Token), F14 (Results) | 6 |
 | Phase 4 | Anti-Cheating Engine | F15 (Full Anti-Cheat Engine) | 1 |
 | Phase 5 | Monitoring & Dashboards | F16 (Presence Tracking), F17 (Session Timeline), F18 (Violation Timeline), F19 (Manual Review), F20 (Tutor Dashboard), F21 (Admin Dashboard) | 6 |
@@ -1157,7 +1158,6 @@ EF Core configurations for all three entities.
 
 Migration: `AddAuthEntities`
 
-Seed data: One Admin user with hashed password for immediate testing.
 
 ---
 

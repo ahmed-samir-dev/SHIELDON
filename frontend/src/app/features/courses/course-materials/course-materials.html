@@ -44,7 +44,7 @@
       </div>
 
       <form [formGroup]="uploadForm" (ngSubmit)="onSubmit()" class="modal-body">
-        <div class="form-group mb-4">
+        <div class="form-group">
           <label>Title <span class="required">*</span></label>
           <div class="input-wrapper">
             <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
@@ -59,7 +59,7 @@
           }
         </div>
 
-        <div class="form-group mb-4">
+        <div class="form-group">
           <label>Material Type</label>
           <div class="type-cards-grid">
             <label class="type-card" [class.selected]="uploadForm.get('materialType')?.value === 'File'">
@@ -104,46 +104,35 @@
           </div>
         </div>
 
-        @if (uploadForm.get('materialType')?.value === 'File') {
-        <div class="form-group" style="margin-top: -8px;">
-          <label class="file-drop-label">
-            <div class="upload-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="42" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
-                <polyline points="13 2 13 9 20 9" />
-              </svg>
-            </div>
-            <span class="instruction">Browse or drag a file here</span>
-            <span class="limits">Max size: 100 MB <br> Allowed types: PDF, Word, PPT, Excel, Images, Video, Zip</span>
-            <input type="file" (change)="onFileSelected($event)" class="hidden-input" />
-          </label>
-
-          @if (selectedFile) {
-<div class="selected-file-info animated fadeIn">
-  <div class="file-icon-wrapper">
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-      <polyline points="14 2 14 8 20 8" />
-    </svg>
-  </div>
-  <div class="file-details">
-    <span class="file-name" [title]="selectedFile.name">{{ selectedFile.name }}</span>
-    <span class="file-size">({{ formatBytes(selectedFile.size) }})</span>
-  </div>
-  <button type="button" class="remove-file-btn" (click)="clearFile()" title="Remove file">
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
-  </button>
-</div>
-}
-
+@if (uploadForm.get('materialType')?.value === 'File') {
+        <div class="form-group">
+          <div class="drop-zone" [class.dragging]="isDragging()"
+            (dragover)="onDragOver($event)" (dragleave)="onDragLeave()" (drop)="onDrop($event)">
+            @if (selectedFile) {
+              <div class="file-selected-badge">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>
+                <span>{{ selectedFile.name }} ({{ formatBytes(selectedFile.size) }})</span>
+                <button type="button" class="remove-file-btn" (click)="clearFile()">✕</button>
+              </div>
+            } @else {
+              <label class="drop-label" for="matFileInput">
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+                  <polyline points="13 2 13 9 20 9" />
+                </svg>
+                <span>Browse or <strong>drag a file here</strong></span>
+                <span class="limits">Max size: 100 MB <br> Allowed types: PDF, Word, PPT, Excel, Images, Video, Zip</span>
+                <input id="matFileInput" type="file" hidden (change)="onFileSelected($event)" />
+              </label>
+            }
+          </div>
           @if (fileError()) {
-          <span class="error-msg file-error">{{ fileError() }}</span>
+            <span class="error-msg file-error">{{ fileError() }}</span>
           }
         </div>
         } @else {
@@ -170,18 +159,12 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="toggleUploadForm()"
             [disabled]="isSubmitting()">Cancel</button>
-          <button type="submit" class="btn btn-primary submit-btn-progress"
-            [disabled]="uploadForm.invalid || isSubmitting() || (uploadForm.get('materialType')?.value === 'File' && !selectedFile)">
+          <button type="submit" class="btn btn-primary" [disabled]="uploadForm.invalid || isSubmitting() || (uploadForm.get('materialType')?.value === 'File' && !selectedFile)">
             @if (isSubmitting()) {
-            <div class="progress-bar-bg">
-              <div class="progress-bar-fill" [style.width.%]="uploadProgress()"></div>
-            </div>
-            <div class="progress-content">
               <div class="loader-ring"></div>
-              <span>Uploading {{ uploadProgress() }}%</span>
-            </div>
+              <span>Uploading...</span>
             } @else {
-            <span>Add Material</span>
+              <span>Upload Material</span>
             }
           </button>
         </div>
@@ -196,10 +179,10 @@
     <p>Loading materials...</p>
   </div>
   } @else if (materials().length === 0) {
-  <div class="empty-state box-panel">
+  <div class="empty-state animated fadeIn">
     <div class="empty-icon">
-      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
         <polyline points="14 2 14 8 20 8" />
         <circle cx="12" cy="13" r="3" />

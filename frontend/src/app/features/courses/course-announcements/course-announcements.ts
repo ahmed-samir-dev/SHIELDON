@@ -71,23 +71,20 @@ export class CourseAnnouncementsComponent implements OnInit {
     }
   }
 
-  onSubmit(): void {
+onSubmit(): void {
     if (this.postForm.invalid) {
       this.postForm.markAllAsTouched();
       return;
     }
 
     this.isSubmitting.set(true);
+
     this.announcementService.createAnnouncement(this.course.id, this.postForm.value).subscribe({
       next: (res) => {
         if (res.success && res.data) {
           this.toastr.success('Announcement posted successfully!');
-          // Important announcements pin to top; Normal ones also at top (API returns sorted)
           this.announcements.update(list => {
-            if (res.data!.priority === 'Important') {
-              return [res.data!, ...list];
-            }
-            // Insert after any existing Important announcements
+            if (res.data!.priority === 'Important') return [res.data!, ...list];
             const firstNormal = list.findIndex(a => a.priority === 'Normal');
             if (firstNormal === -1) return [...list, res.data!];
             return [...list.slice(0, firstNormal), res.data!, ...list.slice(firstNormal)];
