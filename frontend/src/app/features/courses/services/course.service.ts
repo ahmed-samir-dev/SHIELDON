@@ -79,6 +79,16 @@ export class CourseService {
     return this.http.get<ApiResponse<EnrollmentResponse[]>>(`${this.baseUrl}/enrollments/pending`, { params });
   }
 
+  getApprovedEnrollments(params: { page?: number, pageSize?: number, search?: string, courseId?: string } = {}): Observable<ApiResponse<PagedResponse<EnrollmentResponse>>> {
+    let httpParams = new HttpParams();
+    if (params.page) httpParams = httpParams.set('page', params.page);
+    if (params.pageSize) httpParams = httpParams.set('pageSize', params.pageSize);
+    if (params.search) httpParams = httpParams.set('search', params.search);
+    if (params.courseId) httpParams = httpParams.set('courseId', params.courseId);
+
+    return this.http.get<ApiResponse<PagedResponse<EnrollmentResponse>>>(`${this.baseUrl}/enrollments/approved`, { params: httpParams });
+  }
+
   reviewEnrollment(enrollmentId: string, request: ReviewEnrollmentRequest): Observable<ApiResponse<EnrollmentResponse>> {
     return this.http.patch<ApiResponse<EnrollmentResponse>>(`${this.baseUrl}/enrollments/${enrollmentId}/review`, request);
   }

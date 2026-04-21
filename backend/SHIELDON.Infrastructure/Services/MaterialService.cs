@@ -19,6 +19,7 @@ public class MaterialService : IMaterialService
 {
     private readonly AppDbContext _db;
     private readonly IWebHostEnvironment _env;
+    private readonly INotificationService _notificationService;
 
     // ── Allowed File Types ────────────────────────────────────────────────
     private static readonly HashSet<string> AllowedMimeTypes = new(StringComparer.OrdinalIgnoreCase)
@@ -43,10 +44,11 @@ public class MaterialService : IMaterialService
 
     private const long MaxFileSizeBytes = 100 * 1024 * 1024; // 100 MB
 
-    public MaterialService(AppDbContext db, IWebHostEnvironment env)
+    public MaterialService(AppDbContext db, IWebHostEnvironment env, INotificationService notificationService)
     {
         _db = db;
         _env = env;
+        _notificationService = notificationService;
     }
 
     // ── Add Material ──────────────────────────────────────────────────────
@@ -145,6 +147,25 @@ public class MaterialService : IMaterialService
 
         _db.CourseMaterials.Add(material);
         await _db.SaveChangesAsync(ct);
+
+        // Notify enrolled students
+        var enrolledStudentIds = await _db.CourseEnrollments
+            .Where(e => e.CourseId == courseId && e.Status == CourseEnrollmentStatus.Approved)
+            .Select(e => e.StudentId)
+            .ToListAsync(ct);
+
+        foreach (var studentId in enrolledStudentIds)
+        {
+            await _notificationService.TriggerNotificationAsync(
+                studentId,
+                "New Course Material",
+                $"New material '{material.Title}' was added to '{course.Title}'.",
+                $"/courses/{course.Id}?tab=materials",
+                NotificationType.NewCourseMaterial,
+                course.Id,
+                sendEmail: false, // No email spam for materials
+                ct);
+        }
 
         return await BuildResponseAsync(material.Id, ct);
     }

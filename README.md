@@ -111,8 +111,8 @@ This project enforces a strict **AI Model Split** for all feature development:
 | 2.2 | F5: Course Management & Enrollment | ✅ Complete |
 | 2.3 | F6: File Sharing (Course Materials) | ✅ Complete |
 | 2.4 | F7: Announcements | ✅ Complete |
-| 2.4b | F6b: Assignment Management System (Tutor publishes task → Student submits answer; Due Dates + Bulk ZIP Download) | ⬜ Planned |
-| 2.5 | F8: Notifications System | ⬜ Pending |
+| 2.4b | F6b: Assignment Management System | ✅ Complete |
+| 2.5 | F8: Notifications & Advanced Enrollment (Bulk Review, Filter/Paging) | ✅ Complete |
 
 ### Phase 3 — Examination Management System
 | Stage | Feature | Status |
@@ -257,6 +257,7 @@ fix/*      → Bug fixes
 | 1.5.0 | Stage 1.5 | 2026-04-10 | Profile Management & Dashboard Shell |
 | 2.4.0 | Stage 2.4 | 2026-04-19 | Course Materials, Announcements, Tabbed Hub UI |
 | 2.4b-plan | Stage 2.4b | 2026-04-19 | Student Assignments — planned, pending approval |
+| 2.5.0 | Stage 2.5 | 2026-04-21 | In-App Notifications, Email Templates, Advanced Enrollment (Paging, Filtering) |
 
 ---
 

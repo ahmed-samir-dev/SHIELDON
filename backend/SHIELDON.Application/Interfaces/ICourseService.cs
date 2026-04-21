@@ -42,6 +42,12 @@ public interface ICourseService
     Task<IReadOnlyList<EnrollmentResponse>> GetPendingEnrollmentsAsync(Guid reviewerId, string reviewerRole, Guid? courseId, CancellationToken ct = default);
 
     /// <summary>
+    /// Returns approved enrollment records (enrolled students data).
+    /// Admin: all courses. Tutor: only their assigned courses.
+    /// </summary>
+    Task<PagedResponse<EnrollmentResponse>> GetApprovedEnrollmentsAsync(Guid reviewerId, string reviewerRole, EnrollmentQueryParams query, CancellationToken ct = default);
+
+    /// <summary>
     /// Admin/Tutor approves or rejects a single enrollment request.
     /// On approval: status → Approved, student gets notification.
     /// On rejection: RejectionCount++, applies 24h cooldown if ≥ 2 consecutive rejections.

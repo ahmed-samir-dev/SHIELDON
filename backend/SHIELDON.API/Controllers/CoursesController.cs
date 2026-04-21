@@ -146,6 +146,23 @@ public class CoursesController : ControllerBase
     }
 
     /// <summary>
+    /// GET /api/courses/enrollments/approved?courseId=guid&page=1&pageSize=10&search=...
+    /// Returns approved enrollment records (enrolled students). Admin sees all; Tutor sees their courses only.
+    /// </summary>
+    [HttpGet("enrollments/approved")]
+    [Authorize(Roles = "Admin,Tutor")]
+    [ProducesResponseType(typeof(ApiResponse<PagedResponse<EnrollmentResponse>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetApprovedEnrollments(
+        [FromQuery] EnrollmentQueryParams query,
+        CancellationToken cancellationToken)
+    {
+        var result = await _courseService.GetApprovedEnrollmentsAsync(
+            GetUserId(), GetUserRole(), query, cancellationToken);
+
+        return Ok(ApiResponse<PagedResponse<EnrollmentResponse>>.Ok(result, "Approved enrollments retrieved successfully."));
+    }
+
+    /// <summary>
     /// PATCH /api/courses/enrollments/{enrollmentId}/review
     /// Approve or reject a single pending enrollment. Admin or Tutor only.
     /// </summary>

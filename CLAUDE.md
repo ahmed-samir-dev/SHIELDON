@@ -82,7 +82,7 @@ All violations are recorded and displayed in a **Session Timeline** and **Violat
 | Phase | Name | Features | Count |
 |-------|------|----------|-------|
 | Phase 1 | Authentication & User Management | F1 (Login), F2 (Email Verify), F3 (Password Reset), F4 (Profile) | 4 |
-| Phase 2 | Core Learning Management System | F5 (Courses/Enrollment), F6 (Files), F6b (Assignments), F7 (Announcements), F8 (Notifications) | 5 |
+| Phase 2 | Core Learning Management System | F5 (Courses/Enrollment), F6 (Files), F6b (Assignments), F7 (Announcements), F8 (Notifications & Polish) | 5 |
 | Phase 2b | Assignments System | F6b: Assignment Task Lifecycle (Tutor Task → Student Answer), Real-time Due Date Countdown, Bulk ZIP Submission Exports | 1 |
 | Phase 3 | Examination Management System | F9 (Exam Mgmt), F10 (Question Bank), F11 (Randomization), F12 (Timer), F13 (Secure Token), F14 (Results) | 6 |
 | Phase 4 | Anti-Cheating Engine | F15 (Full Anti-Cheat Engine) | 1 |
@@ -1301,9 +1301,51 @@ Frontend: 3rd tab "Assignments" in Course Hub — Tutor view: assignment creator
 
 #### Stage 2.5 — Feature 8: Notifications System
 
-Backend: Notification generation service + aggregation logic + exam reminder scheduler + mark-as-read
+**Concept:**
+A centralized, intelligent notification system delivering both **In-App Notifications** and **Email Notifications** to students, tutors, and admins. To prevent spam, the system groups similar rapid events into a single notification. Important events trigger both in-app and email notifications with direct action links.
 
-Frontend: Bell icon with unread badge + dropdown panel + full notifications page
+**Entities:**
+`Notification` (Guid Id, Guid UserId, string Title, string Message, string? ActionUrl, NotificationType Type, bool IsRead, DateTime CreatedAt, Guid? RelatedEntityId)
+
+**Enums:**
+`NotificationType`: EnrollmentApproved, EnrollmentRejected, NewCourseAnnouncement, ImportantCourseAnnouncement, NewCourseMaterial, NewCourseAssignment, ExamScheduled, UpcomingExamReminder, ExamResultReleased, CourseUpdate, GeneralSystem
+
+**Triggers & RBAC:**
+- **Students Receive:** Enrollment Approval/Rejection, New Announcements (Normal/Important), New Materials, New Assignments. (Future hook ready: Exam Scheduled, Result Release, Exam Reminder).
+- **Tutors Receive:** New Enrollment Requests for their assigned courses.
+- **Admins Receive:** Course updates, any overarching system events, enrollment requests.
+
+**Aggregation Logic (Batching):**
+To prevent notification spam:
+- When a trigger fires (e.g., student uploads second material to a course within 1 hour).
+- Backend checks for an existing, unread `Notification` of the same Type/RelatedEntityId for the target user.
+- If it exists, the system *updates* the existing notification message to a plural summary (e.g., "Multiple materials have been added to [Course Name]") rather than creating a new database row.
+- **Email Aggregation Strategy:** Rapid successive events (like uploading 3 materials at once) trigger an internal grouping window or just immediate generation if no unread local notification exists.
+
+**Delivery Modalities:**
+1. **In-App Notifications:** 
+   - Available to all roles.
+   - UI features: Navbar Bell Icon with unread count badge, Dropdown list (showing latest first), and a dedicated "View All" page.
+   - Status tracking: Marked as "Read" automatically when clicked/opened. Ability to manually toggle Read/Unread.
+   - Order: Descending by `CreatedAt`.
+2. **Email Notifications (Important Events):**
+   - Dispatched immediately for critical events: `ImportantCourseAnnouncement`, `EnrollmentApproved`, `EnrollmentRejected`.
+   - Security: Emails must NOT expose sensitive system information.
+   - UX: Emails contain a direct Action URL button to redirect the user directly to the relevant system page.
+
+**API Endpoints:**
+```
+GET    /api/notifications                  [Get own notifications, paginated]
+GET    /api/notifications/unread-count     [Get count for badge]
+PATCH  /api/notifications/{id}/read        [Mark single as read]
+PATCH  /api/notifications/mark-all-read    [Mark all as read]
+```
+
+**Frontend:**
+- **Shared Layout:** Navbar bell icon + unread counter badge.
+- **Component:** Notification dropdown panel. Highlights unread items.
+- **Service:** `notification.service.ts` (polls or retrieves on load/navigation).
+- **Navigation:** Clicking a notification marks it read and routes via `ActionUrl`.
 
 ---
 
@@ -1420,7 +1462,7 @@ Frontend: Student result page with score ring animation + confetti on pass + Tut
 - [ ] **Stage 2.2** — F5: Course Management & Enrollment
 - [ ] **Stage 2.3** — F6: File Sharing (Course Materials)
 - [ ] **Stage 2.4** — F7: Announcements
-- [ ] **Stage 2.5** — F8: Notifications System
+- [x] **Stage 2.5** — F8: Notifications System (Completed with Post-Test Bug Fixes)
 
 ### Phase 3 — Examination Management
 - [ ] **Stage 3.1** — Exam domain entities + database migration

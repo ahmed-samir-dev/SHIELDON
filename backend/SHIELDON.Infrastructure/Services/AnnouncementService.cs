@@ -17,10 +17,12 @@ namespace SHIELDON.Infrastructure.Services;
 public class AnnouncementService : IAnnouncementService
 {
     private readonly AppDbContext _db;
+    private readonly INotificationService _notificationService;
 
-    public AnnouncementService(AppDbContext db)
+    public AnnouncementService(AppDbContext db, INotificationService notificationService)
     {
         _db = db;
+        _notificationService = notificationService;
     }
 
     // ── Create ────────────────────────────────────────────────────────────
@@ -69,6 +71,28 @@ public class AnnouncementService : IAnnouncementService
 
         _db.Announcements.Add(announcement);
         await _db.SaveChangesAsync(ct);
+
+        // Notify enrolled students
+        var enrolledStudentIds = await _db.CourseEnrollments
+            .Where(e => e.CourseId == courseId && e.Status == CourseEnrollmentStatus.Approved)
+            .Select(e => e.StudentId)
+            .ToListAsync(ct);
+
+        bool isImportant = priority == AnnouncementPriority.Important;
+        var notifType = isImportant ? NotificationType.ImportantCourseAnnouncement : NotificationType.NewCourseAnnouncement;
+
+        foreach (var studentId in enrolledStudentIds)
+        {
+            await _notificationService.TriggerNotificationAsync(
+                studentId,
+                isImportant ? "Important Course Announcement" : "New Course Announcement",
+                $"An announcement '{announcement.Title}' was posted in '{course.Title}'.",
+                $"/courses/{course.Id}?tab=announcements",
+                notifType,
+                course.Id,
+                sendEmail: isImportant, // Only send email if Important
+                ct);
+        }
 
         return MapToResponse(announcement, creator);
     }

@@ -10,6 +10,9 @@ using System.Threading.RateLimiting;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 
 // ── SERILOG: Configure bootstrap logger ────────────────────────────────────
 // NOTE: Only wraps app.Run() so WebApplicationFactory can propagate startup
@@ -41,6 +44,7 @@ var builder = WebApplication.CreateBuilder(args);
         .AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+            options.JsonSerializerOptions.Converters.Add(new UtcDateTimeConverter());
         });
     builder.Services.AddResponseCompression();
 
@@ -243,3 +247,19 @@ finally
 
 // Needed so WebApplicationFactory can use this in integration tests
 public partial class Program { }
+
+public class UtcDateTimeConverter : JsonConverter<DateTime>
+{
+    public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        return reader.GetDateTime().ToUniversalTime();
+    }
+
+    public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+    {
+        // When EF Core loads from SQL Server datetime2, Kind is Unspecified. Assume UTC.
+        var utcValue = value.Kind == DateTimeKind.Unspecified ? DateTime.SpecifyKind(value, DateTimeKind.Utc) : value.ToUniversalTime();
+        // The framework's default ToString("O") or equivalent appending Z
+        writer.WriteStringValue(utcValue.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ"));
+    }
+}

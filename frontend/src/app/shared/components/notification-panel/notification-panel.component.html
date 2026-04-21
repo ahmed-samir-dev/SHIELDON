@@ -1,0 +1,61 @@
+<div class="notification-indicator">
+  <button #bellButton class="bell-btn" [class.has-unread]="notificationService.unreadCount() > 0" (click)="togglePanel($event)">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    <span class="badge" *ngIf="notificationService.unreadCount() > 0">
+      {{ notificationService.unreadCount() > 99 ? '99+' : notificationService.unreadCount() }}
+    </span>
+  </button>
+
+  <!-- The Dropdown Panel -->
+  <div #panelContainer class="panel-dropdown" [@panelState]="isOpen() ? 'open' : 'closed'">
+    <div class="panel-header">
+      <h3>Notifications</h3>
+      <div class="header-actions">
+        <button class="mark-read-btn" (click)="markAllAsRead($event)" *ngIf="notificationService.unreadCount() > 0">
+          Mark all as read
+        </button>
+        <button class="clear-all-btn" (click)="clearAll($event)" *ngIf="notificationService.notifications().length > 0" title="Delete all notifications">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="panel-state-msg" *ngIf="notificationService.isLoading() && notificationService.notifications().length === 0">
+      <div class="spinner"></div>
+      <p>Loading notifications...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div class="panel-state-msg empty" *ngIf="!notificationService.isLoading() && notificationService.notifications().length === 0">
+      <div class="empty-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+      </div>
+      <p>No notifications yet</p>
+      <span>You're all caught up!</span>
+    </div>
+
+    <!-- Notification List -->
+    <div class="notification-list" *ngIf="notificationService.notifications().length > 0">
+      <div class="notification-item" 
+           *ngFor="let notif of notificationService.notifications()"
+           [class.unread]="!notif.isRead"
+           [class.clickable]="!!notif.actionUrl"
+           (click)="handleNotificationClick(notif)">
+        
+        <div class="notif-icon" [style.color]="getColorForType(notif.type)" [style.backgroundColor]="getColorForType(notif.type) + '1A'" [innerHTML]="getSvgForType(notif.type)">
+        </div>
+
+        <div class="notif-content">
+          <div class="notif-top">
+            <h4>{{ notif.title }}</h4>
+            <span class="time">{{ notif.createdAt | date:'MMM d, h:mm a' }}</span>
+          </div>
+          <p>{{ notif.message }}</p>
+        </div>
+
+        <div class="notif-unread-dot" *ngIf="!notif.isRead"></div>
+      </div>
+    </div>
+  </div>
+</div>

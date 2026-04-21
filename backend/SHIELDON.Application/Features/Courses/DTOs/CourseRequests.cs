@@ -46,3 +46,11 @@ public record CourseQueryParams(
     bool? IsActive = null,
     string? EnrollmentStatus = null
 );
+
+/// <summary>Query parameters for paginated enrollment listing.</summary>
+public record EnrollmentQueryParams(
+    int Page = 1,
+    int PageSize = 10,
+    string? Search = null,
+    Guid? CourseId = null
+);

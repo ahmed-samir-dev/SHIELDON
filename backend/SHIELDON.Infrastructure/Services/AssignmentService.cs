@@ -25,6 +25,7 @@ public class AssignmentService : IAssignmentService
 {
     private readonly AppDbContext _db;
     private readonly IWebHostEnvironment _env;
+    private readonly INotificationService _notificationService;
 
     // ── Allowed file types ─────────────────────────────────────────────────
 
@@ -69,10 +70,11 @@ public class AssignmentService : IAssignmentService
     private const long MaxReferenceSizeBytes  = 50L  * 1024 * 1024; // 50 MB
     private const long MaxSubmissionSizeBytes = 100L * 1024 * 1024; // 100 MB
 
-    public AssignmentService(AppDbContext db, IWebHostEnvironment env)
+    public AssignmentService(AppDbContext db, IWebHostEnvironment env, INotificationService notificationService)
     {
         _db  = db;
         _env = env;
+        _notificationService = notificationService;
     }
 
     // ── Create Assignment ──────────────────────────────────────────────────
@@ -167,6 +169,25 @@ public class AssignmentService : IAssignmentService
             assignment.UpdatedAt               = DateTime.UtcNow;
 
             await _db.SaveChangesAsync(ct);
+        }
+
+        // Notify enrolled students
+        var enrolledStudentIds = await _db.CourseEnrollments
+            .Where(e => e.CourseId == courseId && e.Status == CourseEnrollmentStatus.Approved)
+            .Select(e => e.StudentId)
+            .ToListAsync(ct);
+
+        foreach (var studentId in enrolledStudentIds)
+        {
+            await _notificationService.TriggerNotificationAsync(
+                studentId,
+                "New Assignment",
+                $"A new assignment '{assignment.Title}' was published in '{course.Title}'.",
+                $"/courses/{course.Id}?tab=assignments",
+                NotificationType.NewCourseAssignment,
+                course.Id,
+                sendEmail: false,
+                ct);
         }
 
         return MapAssignmentToResponse(assignment, creator, submissionCount: 0, mySubmission: null);
