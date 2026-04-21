@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CourseService } from '../services/course.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CourseDetailResponse } from '../../../core/models/courses.model';
@@ -18,6 +18,7 @@ import { CourseAssignmentsComponent } from '../course-assignments/course-assignm
 })
 export class CourseDetail implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private courseService = inject(CourseService);
   public authService = inject(AuthService);
   private toastr = inject(ToastrService);
@@ -31,6 +32,14 @@ export class CourseDetail implements OnInit {
       const id = params.get('id');
       if (id) {
         this.loadCourse(id);
+      }
+    });
+
+    // Listen for query parameter changes to activate the correct tab
+    this.route.queryParamMap.subscribe(queryParams => {
+      const tab = queryParams.get('tab');
+      if (tab && ['announcements', 'materials', 'assignments'].includes(tab)) {
+        this.activeTab.set(tab as any);
       }
     });
   }
@@ -51,5 +60,11 @@ export class CourseDetail implements OnInit {
 
   setActiveTab(tab: 'announcements' | 'materials' | 'assignments') {
     this.activeTab.set(tab);
+    // Sync the active tab backward to the URL to allow sharable URLs and persistent state
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab },
+      queryParamsHandling: 'merge'
+    });
   }
 }

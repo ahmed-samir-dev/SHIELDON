@@ -16,15 +16,17 @@ namespace SHIELDON.Infrastructure.Services;
 public class CourseService : ICourseService
 {
     private readonly AppDbContext _db;
+    private readonly INotificationService _notificationService;
 
     // Rejection limits per CLAUDE.md spec
     private const int ConsecutiveRejectionsBeforeCooldown = 2;
     private const int MaxTotalRejectionsBeforePermanentBlock = 3;
     private static readonly TimeSpan CooldownDuration = TimeSpan.FromHours(24);
 
-    public CourseService(AppDbContext db)
+    public CourseService(AppDbContext db, INotificationService notificationService)
     {
         _db = db;
+        _notificationService = notificationService;
     }
 
     // ── Course CRUD ──────────────────────────────────────────────────────
@@ -243,6 +245,7 @@ public class CourseService : ICourseService
                     // DO NOT reset RejectionCount — it accumulates for the block check
 
                     await _db.SaveChangesAsync(ct);
+                    await NotifyAdminsAndTutorOfRequestAsync(course.Id, course.Title, studentId, ct);
                     return MapToStudentStatus(existing, course.Title);
 
                 case CourseEnrollmentStatus.Dropped:
@@ -257,6 +260,7 @@ public class CourseService : ICourseService
                     existing.UpdatedAt = DateTime.UtcNow;
 
                     await _db.SaveChangesAsync(ct);
+                    await NotifyAdminsAndTutorOfRequestAsync(course.Id, course.Title, studentId, ct);
                     return MapToStudentStatus(existing, course.Title);
             }
         }
@@ -275,7 +279,42 @@ public class CourseService : ICourseService
         _db.CourseEnrollments.Add(enrollment);
         await _db.SaveChangesAsync(ct);
 
+        await NotifyAdminsAndTutorOfRequestAsync(course.Id, course.Title, studentId, ct);
+
         return MapToStudentStatus(enrollment, course.Title);
+    }
+
+    private async Task NotifyAdminsAndTutorOfRequestAsync(Guid courseId, string courseTitle, Guid studentId, CancellationToken ct)
+    {
+        var student = await _db.Users.FindAsync(new object[] { studentId }, ct);
+        var studentName = student != null ? $"{student.FirstName} {student.LastName}" : "A student";
+
+        var course = await _db.Courses.FindAsync(new object[] { courseId }, ct);
+        var tutorId = course?.AssignedTutorId;
+
+        var adminIds = await _db.Users
+            .Where(u => u.Role == UserRole.Admin)
+            .Select(u => u.Id)
+            .ToListAsync(ct);
+
+        var recipientIds = new HashSet<Guid>(adminIds);
+        if (tutorId.HasValue)
+        {
+            recipientIds.Add(tutorId.Value);
+        }
+
+        foreach (var recipientId in recipientIds)
+        {
+            await _notificationService.TriggerNotificationAsync(
+                recipientId,
+                "New Enrollment Request",
+                $"{studentName} has requested to enroll in '{courseTitle}'.",
+                "/enrollments",
+                NotificationType.CourseUpdate,
+                courseId,
+                sendEmail: false,
+                ct);
+        }
     }
 
     public async Task<IReadOnlyList<EnrollmentResponse>> GetPendingEnrollmentsAsync(
@@ -300,6 +339,59 @@ public class CourseService : ICourseService
         return enrollments.Select(e => MapToEnrollmentResponse(e)).ToList();
     }
 
+    public async Task<PagedResponse<EnrollmentResponse>> GetApprovedEnrollmentsAsync(
+        Guid reviewerId, string reviewerRole, EnrollmentQueryParams query, CancellationToken ct = default)
+    {
+        var q = _db.CourseEnrollments
+            .Include(e => e.Student)
+            .Include(e => e.Course)
+            .Include(e => e.ReviewedBy)
+            .AsNoTracking()
+            .Where(e => e.Status == CourseEnrollmentStatus.Approved);
+
+        // Tutor can only see enrollments for courses they are assigned to
+        if (reviewerRole == "Tutor")
+            q = q.Where(e => e.Course!.AssignedTutorId == reviewerId);
+
+        if (query.CourseId.HasValue)
+            q = q.Where(e => e.CourseId == query.CourseId.Value);
+
+        // ── 1. Filtering ───────────────────────────────────────────────────────
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            var search = query.Search.Trim().ToLower();
+            q = q.Where(e => 
+                (e.Student!.FirstName + " " + e.Student!.LastName).ToLower().Contains(search) ||
+                e.Student!.Email.ToLower().Contains(search) ||
+                e.Student!.StudentId!.ToLower().Contains(search) ||
+                e.Course!.Title.ToLower().Contains(search) ||
+                e.Course!.CourseCode.ToLower().Contains(search) ||
+                (e.ReviewedBy != null && (e.ReviewedBy.FirstName + " " + e.ReviewedBy.LastName).ToLower().Contains(search)) ||
+                (e.ReviewedAt.HasValue && (
+                    e.ReviewedAt.Value.Year.ToString().Contains(search) ||
+                    e.ReviewedAt.Value.Month.ToString().Contains(search) ||
+                    e.ReviewedAt.Value.Day.ToString().Contains(search)
+                ))
+            );
+        }
+
+        // ── 2. Pagination ──────────────────────────────────────────────────────
+        var totalCount = await q.CountAsync(ct);
+        var enrollments = await q
+            .OrderByDescending(e => e.ReviewedAt)
+            .Skip((query.Page - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .ToListAsync(ct);
+
+        return new PagedResponse<EnrollmentResponse>
+        {
+            Items = enrollments.Select(e => MapToEnrollmentResponse(e)).ToList(),
+            TotalCount = totalCount,
+            PageNumber = query.Page,
+            PageSize = query.PageSize
+        };
+    }
+
     public async Task<EnrollmentResponse> ReviewEnrollmentAsync(
         Guid enrollmentId, Guid reviewerId, ReviewEnrollmentRequest request, CancellationToken ct = default)
     {
@@ -321,7 +413,17 @@ public class CourseService : ICourseService
         {
             enrollment.Status = CourseEnrollmentStatus.Approved;
             enrollment.RejectionReason = null;
-            // Notify student: EnrollmentApproved (notification service in Stage 2.5)
+            
+            // Notify student: EnrollmentApproved
+            await _notificationService.TriggerNotificationAsync(
+                enrollment.StudentId,
+                "Enrollment Approved",
+                $"Your enrollment for '{enrollment.Course!.Title}' has been approved.",
+                $"/courses/{enrollment.CourseId}", // Direct link to course
+                NotificationType.EnrollmentApproved,
+                enrollment.CourseId,
+                sendEmail: true,
+                ct);
         }
         else
         {
@@ -333,7 +435,16 @@ public class CourseService : ICourseService
             if (enrollment.RejectionCount % ConsecutiveRejectionsBeforeCooldown == 0)
                 enrollment.CooldownUntil = DateTime.UtcNow.Add(CooldownDuration);
 
-            // Notify student: EnrollmentRejected (notification service in Stage 2.5)
+            // Notify student: EnrollmentRejected
+            await _notificationService.TriggerNotificationAsync(
+                enrollment.StudentId,
+                "Enrollment Rejected",
+                $"Your enrollment for '{enrollment.Course!.Title}' was rejected. " + (string.IsNullOrEmpty(request.RejectionReason) ? "" : $"Reason: {request.RejectionReason}"),
+                null, // No valid link
+                NotificationType.EnrollmentRejected,
+                enrollment.CourseId,
+                sendEmail: true,
+                ct);
         }
 
         await _db.SaveChangesAsync(ct);
@@ -344,6 +455,8 @@ public class CourseService : ICourseService
         BulkReviewEnrollmentRequest request, Guid reviewerId, CancellationToken ct = default)
     {
         var enrollments = await _db.CourseEnrollments
+            .Include(e => e.Course)
+            .Include(e => e.Student)
             .Where(e => request.EnrollmentIds.Contains(e.Id) && e.Status == CourseEnrollmentStatus.Pending)
             .ToListAsync(ct);
 
@@ -365,6 +478,36 @@ public class CourseService : ICourseService
 
                 if (enrollment.RejectionCount % ConsecutiveRejectionsBeforeCooldown == 0)
                     enrollment.CooldownUntil = DateTime.UtcNow.Add(CooldownDuration);
+            }
+        }
+
+        
+        // Notify the students in bulk
+        foreach (var enrollment in enrollments)
+        {
+            if (request.Approved)
+            {
+                await _notificationService.TriggerNotificationAsync(
+                    enrollment.StudentId,
+                    "Enrollment Approved",
+                    $"Your enrollment for '{enrollment.Course!.Title}' has been approved.",
+                    $"/courses/{enrollment.CourseId}",
+                    NotificationType.EnrollmentApproved,
+                    enrollment.CourseId,
+                    sendEmail: true,
+                    ct);
+            }
+            else
+            {
+                await _notificationService.TriggerNotificationAsync(
+                    enrollment.StudentId,
+                    "Enrollment Rejected",
+                    $"Your enrollment for '{enrollment.Course!.Title}' was rejected.",
+                    null,
+                    NotificationType.EnrollmentRejected,
+                    enrollment.CourseId,
+                    sendEmail: true,
+                    ct);
             }
         }
 

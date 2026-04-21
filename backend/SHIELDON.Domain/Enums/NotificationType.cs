@@ -6,27 +6,20 @@ namespace SHIELDON.Domain.Enums;
 /// </summary>
 public enum NotificationType
 {
-    // ── Announcements ───────────────────────────────────────
-    AnnouncementCreated = 0,
-    AnnouncementUpdated = 1,
-
-    // ── Enrollment ──────────────────────────────────────────
     EnrollmentApproved = 10,
     EnrollmentRejected = 11,
-
-    // ── Materials ───────────────────────────────────────────
-    MaterialUploaded = 20,
-
-    // ── Exams ───────────────────────────────────────────────
-    ExamCreated = 30,
-    ExamUpdated = 31,
-    ExamReminder24h = 32,
-    ExamReminder1h = 33,
-
-    // ── Results ─────────────────────────────────────────────
-    ResultReleased = 40,
-
-    // ── Re-Attempt Requests ──────────────────────────────────
-    ReAttemptApproved = 50,
-    ReAttemptRejected = 51
+    
+    NewCourseAnnouncement = 20,
+    ImportantCourseAnnouncement = 21,
+    
+    NewCourseMaterial = 30,
+    
+    NewCourseAssignment = 40,
+    
+    ExamScheduled = 50,
+    UpcomingExamReminder = 51,
+    ExamResultReleased = 52,
+    
+    CourseUpdate = 90,
+    GeneralSystem = 100
 }

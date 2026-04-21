@@ -6,7 +6,7 @@ namespace SHIELDON.Infrastructure.Persistence.Configurations;
 
 /// <summary>
 /// EF Core table configuration for Notifications.
-/// Includes index on RecipientUserId + IsRead for efficient unread-count queries.
+/// Includes index on UserId + IsRead for efficient unread-count queries.
 /// </summary>
 public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
 {
@@ -24,7 +24,10 @@ public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
 
         builder.Property(n => n.Message)
             .IsRequired()
-            .HasMaxLength(1000);
+            .HasMaxLength(1500);
+
+        builder.Property(n => n.ActionUrl)
+            .HasMaxLength(500);
 
         builder.Property(n => n.Type)
             .IsRequired()
@@ -36,26 +39,25 @@ public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
             .IsRequired()
             .HasDefaultValue(false);
 
-        builder.Property(n => n.ReadAt)
-            .HasColumnType("DATETIME2");
-
         // ── Context Links ────────────────────────────────────────
-        builder.Property(n => n.RelatedCourseId);
-        builder.Property(n => n.RelatedExamId);
+        builder.Property(n => n.RelatedEntityId);
 
         // ── Timestamps ──────────────────────────────────────────
         builder.Property(n => n.CreatedAt)
             .IsRequired()
             .HasColumnType("DATETIME2");
 
-        // ── Index: fast unread count + user notification queries ─
-        builder.HasIndex(n => new { n.RecipientUserId, n.IsRead })
-            .HasDatabaseName("IX_Notifications_RecipientUserId_IsRead");
+        // ── Index: fast unread count + aggregation queries ───────
+        builder.HasIndex(n => new { n.UserId, n.IsRead })
+            .HasDatabaseName("IX_Notifications_UserId_IsRead");
 
-        // ── FK: RecipientUser ────────────────────────────────────
-        builder.HasOne(n => n.RecipientUser)
+        builder.HasIndex(n => new { n.UserId, n.Type, n.RelatedEntityId })
+            .HasDatabaseName("IX_Notifications_AggregationTarget");
+
+        // ── FK: User ─────────────────────────────────────────────
+        builder.HasOne(n => n.User)
             .WithMany()
-            .HasForeignKey(n => n.RecipientUserId)
+            .HasForeignKey(n => n.UserId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
     }

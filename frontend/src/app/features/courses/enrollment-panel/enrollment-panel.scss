@@ -64,6 +64,55 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+.tabs-container {
+  display: flex;
+  gap: $spacing-2;
+  margin-bottom: $spacing-6;
+  border-bottom: 2px solid $color-neutral-200;
+
+  .tab-btn {
+    background: transparent;
+    border: none;
+    font-size: $font-size-base;
+    font-weight: $font-weight-medium;
+    color: $color-neutral-500;
+    padding: $spacing-3 $spacing-4;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+
+    &:hover { color: $color-primary-base; }
+
+    &.active {
+      color: $color-primary-base;
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: $color-primary-base;
+        border-radius: 2px 2px 0 0;
+      }
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.4rem;
+      border-radius: 12px;
+      font-weight: bold;
+      color: white;
+
+      &.badge-warning { background: $color-warning-base; }
+      &.badge-success { background: $color-success-base; }
+    }
+  }
+}
+
 .panel-container {
   transition: opacity 0.3s;
 
@@ -195,23 +244,26 @@
     margin-top: $spacing-1;
   }
 
-  .col-actions {
-    width: 120px;
+.col-actions {
+    width: 220px; /* Increased from 120px to fit the new text buttons */
     
     .action-buttons {
       display: flex;
       gap: $spacing-2;
 
-      .btn-icon {
+      /* Replaced .btn-icon with .btn-action */
+      .btn-action {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 32px;
-        height: 32px;
-        border-radius: $border-radius-round;
+        gap: $spacing-1; /* Space between icon and text */
+        padding: $spacing-1 $spacing-3; /* Uses padding instead of fixed width/height */
+        border-radius: $border-radius-md; /* Changed from round to md for a pill/rectangle shape */
         background: transparent;
         cursor: pointer;
         transition: all 0.2s;
+        font-weight: $font-weight-medium;
+        font-size: $font-size-sm;
 
         &.btn-outline-success {
           border: 1px solid $color-success-base;
@@ -224,6 +276,93 @@
           color: $color-danger-base;
           &:hover { background: $color-danger-base; color: white; }
         }
+      }
+    }
+  }
+}
+.table-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: $spacing-4;
+
+  .search-box {
+    position: relative;
+    width: 300px;
+    
+    svg {
+      position: absolute;
+      left: $spacing-3;
+      top: 50%;
+      transform: translateY(-50%);
+      color: $color-neutral-400;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: $spacing-2 $spacing-3 $spacing-2 $spacing-10;
+      border: 1px solid $color-neutral-300;
+      border-radius: $border-radius-md;
+      font-size: $font-size-sm;
+      transition: all 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: $color-primary-base;
+        box-shadow: 0 0 0 3px rgba($color-primary-base, 0.1);
+      }
+    }
+  }
+}
+
+.pagination-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-4;
+  border-top: 1px solid $color-neutral-200;
+  background: $color-neutral-50;
+
+  .pagination-info {
+    font-size: $font-size-sm;
+    color: $color-neutral-600;
+  }
+
+  .pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+
+    .page-current {
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      color: $color-neutral-700;
+      min-width: 100px;
+      text-align: center;
+    }
+
+    .btn-page {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border: 1px solid $color-neutral-300;
+      background: white;
+      border-radius: $border-radius-md;
+      cursor: pointer;
+      color: $color-neutral-600;
+      transition: all 0.2s;
+
+      &:hover:not(:disabled) {
+        border-color: $color-primary-base;
+        color: $color-primary-base;
+        background: rgba($color-primary-base, 0.05);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: $color-neutral-100;
       }
     }
   }

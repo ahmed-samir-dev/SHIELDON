@@ -26,7 +26,19 @@
   
   <!-- ── ADMIN / TUTOR VIEW ── -->
   @if (!authService.isStudent()) {
-    @if (!isLoading() && pendingRequests().length === 0) {
+    <div class="tabs-container">
+      <button class="tab-btn" [class.active]="activeTab() === 'pending'" (click)="setTab('pending')">
+        Pending Requests
+        <span class="badge badge-warning" *ngIf="pendingRequests().length > 0">{{ pendingRequests().length }}</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'approved'" (click)="setTab('approved')">
+        Approved Students
+        <span class="badge badge-success" *ngIf="approvedTotalCount() > 0">{{ approvedTotalCount() }}</span>
+      </button>
+    </div>
+
+    @if (activeTab() === 'pending') {
+      @if (!isLoading() && pendingRequests().length === 0) {
       <div class="empty-state">
         <div class="empty-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -71,19 +83,103 @@
                 </td>
                 <td class="col-actions">
                   <div class="action-buttons">
-                    <button class="btn btn-sm btn-icon btn-outline-success" title="Approve" (click)="reviewSingle(req.id, true)">
+                    <button class="btn btn-sm btn-action btn-outline-success" title="Approve" (click)="reviewSingle(req.id, true)">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                      Approve
                     </button>
-                    <button class="btn btn-sm btn-icon btn-outline-danger" title="Reject" (click)="reviewSingle(req.id, false)">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                    </button>
-                  </div>
-                </td>
+                    <button class="btn btn-sm btn-action btn-outline-danger" title="Reject" (click)="reviewSingle(req.id, false)">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      Reject
+    </button>
+  </div>
+</td>
               </tr>
             }
           </tbody>
         </table>
       </div>
+    }
+  }
+
+  @if (activeTab() === 'approved') {
+    <div class="table-actions">
+      <div class="search-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" 
+              placeholder="Search by name, course, reviewer ..." 
+              [ngModel]="approvedSearch()"
+              (ngModelChange)="onApprovedSearch($event)"
+              class="search-input">
+      </div>
+    </div>
+
+    @if (!isApprovedLoading() && approvedStudents().length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h3>No students yet</h3>
+        <p>Approved students will appear here.</p>
+      </div>
+      } @else {
+        <div class="table-card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Course</th>
+                <th>Approved By</th>
+                <th>Approval Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (req of approvedStudents(); track req.id) {
+                <tr>
+                  <td>
+                    <div class="cell-stack">
+                      <span class="primary-text fw-medium">{{ req.studentName }}</span>
+                      <span class="secondary-text">{{ req.studentDisplayId || req.studentEmail }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="cell-stack">
+                      <span class="primary-text">{{ req.courseTitle }}</span>
+                      <span class="secondary-text">{{ req.courseCode }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="secondary-text">{{ req.reviewedByName || 'System' }}</span>
+                  </td>
+                  <td>
+                    <span class="date-text">{{ req.reviewedAt | date:'medium' }}</span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        @if (approvedTotalCount() > approvedPageSize) {
+          <div class="pagination-footer">
+            <div class="pagination-info">
+              Showing {{ (approvedPage() - 1) * approvedPageSize + 1 }} - 
+              {{ mathMin(approvedPage() * approvedPageSize, approvedTotalCount()) }} 
+              of {{ approvedTotalCount() }} students
+            </div>
+            <div class="pagination-controls">
+              <button class="btn-page" [disabled]="approvedPage() === 1" (click)="onApprovedPageChange(approvedPage() - 1)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              
+              <span class="page-current">Page {{ approvedPage() }} of {{ totalPages }}</span>
+
+              <button class="btn-page" [disabled]="approvedPage() >= totalPages" (click)="onApprovedPageChange(approvedPage() + 1)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+          </div>
+        }
+      }
     }
   }
 

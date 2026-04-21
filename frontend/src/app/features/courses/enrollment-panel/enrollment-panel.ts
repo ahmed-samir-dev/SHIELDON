@@ -20,34 +20,96 @@ export class EnrollmentPanel implements OnInit {
   private toastr = inject(ToastrService);
 
   pendingRequests = signal<EnrollmentResponse[]>([]);
+  approvedStudents = signal<EnrollmentResponse[]>([]);
   studentRequests = signal<StudentEnrollmentStatusResponse[]>([]);
   isLoading = signal(true);
   selectedIds = signal<Set<string>>(new Set<string>());
+  activeTab = signal<'pending' | 'approved'>('pending');
+
+  // Pagination & Filtering for Approved tab
+  approvedPage = signal(1);
+  approvedPageSize = 10;
+  approvedTotalCount = signal(0);
+  approvedSearch = signal('');
+  isApprovedLoading = signal(false);
 
   ngOnInit() {
     this.loadData();
   }
 
   loadData() {
-    this.isLoading.set(true);
     if (this.authService.isStudent()) {
-      this.courseService.getMyEnrollments().subscribe({
-        next: (res) => {
-          this.studentRequests.set(res.data);
-          this.isLoading.set(false);
-        },
-        error: () => this.handleError()
-      });
+      this.loadStudentData();
     } else {
-      this.courseService.getPendingEnrollments().subscribe({
-        next: (res) => {
-          this.pendingRequests.set(res.data);
-          this.selectedIds.set(new Set<string>());
-          this.isLoading.set(false);
-        },
-        error: () => this.handleError()
-      });
+      this.loadPendingData();
+      this.loadApprovedData();
     }
+  }
+
+  loadStudentData() {
+    this.isLoading.set(true);
+    this.courseService.getMyEnrollments().subscribe({
+      next: (res) => {
+        this.studentRequests.set(res.data);
+        this.isLoading.set(false);
+      },
+      error: () => this.handleError()
+    });
+  }
+
+  loadPendingData() {
+    this.isLoading.set(true);
+    this.courseService.getPendingEnrollments().subscribe({
+      next: (res) => {
+        this.pendingRequests.set(res.data);
+        this.selectedIds.set(new Set<string>());
+        this.isLoading.set(false);
+      },
+      error: () => this.handleError()
+    });
+  }
+
+  loadApprovedData() {
+    this.isApprovedLoading.set(true);
+    this.courseService.getApprovedEnrollments({
+      page: this.approvedPage(),
+      pageSize: this.approvedPageSize,
+      search: this.approvedSearch()
+    }).subscribe({
+      next: (res) => {
+        this.approvedStudents.set(res.data.items);
+        this.approvedTotalCount.set(res.data.totalCount);
+        this.isApprovedLoading.set(false);
+      },
+      error: () => {
+        this.isApprovedLoading.set(false);
+        this.handleError();
+      }
+    });
+  }
+
+  onApprovedSearch(term: string) {
+    this.approvedSearch.set(term);
+    this.approvedPage.set(1);
+    this.loadApprovedData();
+  }
+
+  onApprovedPageChange(page: number) {
+    this.approvedPage.set(page);
+    this.loadApprovedData();
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.approvedTotalCount() / this.approvedPageSize);
+  }
+
+  mathMin(a: number, b: number): number {
+    return Math.min(a, b);
+  }
+
+  setTab(tab: 'pending' | 'approved') {
+    this.activeTab.set(tab);
+    this.selectedIds.set(new Set<string>());
   }
 
   private handleError() {
