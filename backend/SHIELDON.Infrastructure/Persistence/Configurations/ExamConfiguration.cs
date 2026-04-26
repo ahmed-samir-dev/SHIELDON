@@ -27,7 +27,7 @@ public class ExamConfiguration : IEntityTypeConfiguration<Exam>
             .HasPrecision(5, 2);
 
         builder.HasOne(e => e.Course)
-            .WithMany()
+            .WithMany(c => c.Exams)
             .HasForeignKey(e => e.CourseId)
             .OnDelete(DeleteBehavior.Restrict);
 

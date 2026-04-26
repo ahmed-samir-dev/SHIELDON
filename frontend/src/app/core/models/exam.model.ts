@@ -3,6 +3,7 @@ export interface ExamSummaryResponse {
   courseId: string;
   courseTitle: string;
   title: string;
+  instructions?: string;
   timeLimit: number;
   maxAttempts: number;
   passScore: number;

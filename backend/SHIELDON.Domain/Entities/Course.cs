@@ -46,4 +46,5 @@ public class Course
     public ICollection<CourseMaterial> Materials { get; set; } = [];
     public ICollection<Announcement> Announcements { get; set; } = [];
     public ICollection<Assignment> Assignments { get; set; } = [];
+    public ICollection<Exam> Exams { get; set; } = [];
 }

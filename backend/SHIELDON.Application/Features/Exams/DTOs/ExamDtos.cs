@@ -42,6 +42,7 @@ public record ExamSummaryResponse(
     Guid CourseId,
     string CourseTitle,
     string Title,
+    string? Instructions,
     int TimeLimit,
     int MaxAttempts,
     decimal PassScore,
