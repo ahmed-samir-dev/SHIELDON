@@ -17,6 +17,7 @@ import { CourseExamsComponent } from '../course-exams/course-exams';
   templateUrl: './course-detail.html',
   styleUrl: './course-detail.scss'
 })
+// Main course detail component
 export class CourseDetail implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);

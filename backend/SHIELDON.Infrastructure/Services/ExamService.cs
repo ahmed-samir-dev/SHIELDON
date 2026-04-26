@@ -304,37 +304,38 @@ public class ExamService : IExamService
     }
 
     private static ExamSummaryResponse MapToSummary(Exam e, string courseTitle, int questionCount) => new(
-        e.Id,
-        e.CourseId,
-        courseTitle,
-        e.Title,
-        e.TimeLimit,
-        e.MaxAttempts,
-        e.PassScore,
-        e.Status.ToString(),
-        e.ResultVisibility.ToString(),
-        e.ScheduledAt,
-        e.ScheduledReleaseAt,
-        questionCount,
-        e.CreatedAt
+        Id: e.Id,
+        CourseId: e.CourseId,
+        CourseTitle: courseTitle,
+        Title: e.Title,
+        Instructions: e.Instructions,
+        TimeLimit: e.TimeLimit,
+        MaxAttempts: e.MaxAttempts,
+        PassScore: e.PassScore,
+        Status: e.Status.ToString(),
+        ResultVisibility: e.ResultVisibility.ToString(),
+        ScheduledAt: e.ScheduledAt,
+        ScheduledReleaseAt: e.ScheduledReleaseAt,
+        QuestionCount: questionCount,
+        CreatedAt: e.CreatedAt
     );
 
     private static ExamDetailResponse MapToDetail(Exam e, string courseTitle, int questionCount, string createdByName) => new(
-        e.Id,
-        e.CourseId,
-        courseTitle,
-        e.Title,
-        e.Instructions,
-        e.TimeLimit,
-        e.MaxAttempts,
-        e.PassScore,
-        e.Status.ToString(),
-        e.ResultVisibility.ToString(),
-        e.ScheduledAt,
-        e.ScheduledReleaseAt,
-        questionCount,
-        createdByName,
-        e.CreatedAt,
-        e.UpdatedAt
+        Id: e.Id,
+        CourseId: e.CourseId,
+        CourseTitle: courseTitle,
+        Title: e.Title,
+        Instructions: e.Instructions,
+        TimeLimit: e.TimeLimit,
+        MaxAttempts: e.MaxAttempts,
+        PassScore: e.PassScore,
+        Status: e.Status.ToString(),
+        ResultVisibility: e.ResultVisibility.ToString(),
+        ScheduledAt: e.ScheduledAt,
+        ScheduledReleaseAt: e.ScheduledReleaseAt,
+        QuestionCount: questionCount,
+        CreatedByName: createdByName,
+        CreatedAt: e.CreatedAt,
+        UpdatedAt: e.UpdatedAt
     );
 }
