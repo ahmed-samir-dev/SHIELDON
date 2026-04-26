@@ -1,0 +1,175 @@
+<div class="exams-container">
+  
+  <div class="exams-header">
+    <div class="header-content">
+      <h2>Course Exams</h2>
+      <p>Assessments and structured tests for this course.</p>
+    </div>
+    
+    @if (canManageExams()) {
+      <button class="btn-primary" (click)="openCreateModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        Create Exam
+      </button>
+    }
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading exams...</p>
+    </div>
+  } @else {
+    @if (exams().length === 0) {
+      <div class="empty-state">
+        <div class="empty-icon">📝</div>
+        <h3>No Exams Found</h3>
+        <p>There are currently no exams available for this course.</p>
+      </div>
+    } @else {
+      <div class="exams-grid">
+        @for (exam of exams(); track exam.id) {
+          <div class="exam-card" [class.draft]="exam.status === 'Draft'">
+            <div class="card-header">
+              <div class="status-badge" [ngClass]="exam.status.toLowerCase()">
+                {{ exam.status }}
+              </div>
+              @if (exam.scheduledAt) {
+                <div class="schedule-badge">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  Scheduled
+                </div>
+              }
+            </div>
+
+            <h3 class="exam-title">{{ exam.title }}</h3>
+            
+            <div class="exam-meta">
+              <div class="meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                {{ exam.timeLimit }} mins
+              </div>
+              <div class="meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                {{ exam.maxAttempts }} Attempt{{ exam.maxAttempts !== 1 ? 's' : '' }}
+              </div>
+              <div class="meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Pass: {{ exam.passScore }}%
+              </div>
+              <div class="meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+                {{ exam.questionCount }} Questions
+              </div>
+            </div>
+
+            <div class="exam-schedule">
+              @if (exam.scheduledAt) {
+                <p>Starts: {{ exam.scheduledAt | date:'medium' }}</p>
+              }
+            </div>
+
+            <div class="card-actions">
+              <!-- Student Actions -->
+              @if (!canManageExams()) {
+                <button class="btn-secondary full-width" [disabled]="exam.status !== 'Published'">
+                  View Details
+                </button>
+              }
+              
+              <!-- Tutor/Admin Actions -->
+              @if (canManageExams()) {
+                <div class="tutor-actions">
+                  <button class="btn-icon" title="View/Edit Details">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  
+                  @if (exam.status === 'Draft') {
+                    <button class="btn-icon text-success" title="Publish Exam" (click)="publishExam(exam.id)">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                    </button>
+                    <button class="btn-icon text-danger" title="Delete Exam" (click)="deleteExam(exam.id)">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>
+
+<!-- Create Exam Modal -->
+@if (isModalOpen()) {
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Create New Exam</h2>
+        <button class="close-btn" (click)="closeModal()">&times;</button>
+      </div>
+
+      <form [formGroup]="examForm" (ngSubmit)="onSubmit()" class="exam-form">
+        <div class="form-group">
+          <label for="title">Exam Title *</label>
+          <input id="title" type="text" formControlName="title" placeholder="e.g. Midterm Assessment" />
+          @if (examForm.get('title')?.touched && examForm.get('title')?.invalid) {
+            <span class="error-msg">Title is required</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="instructions">Instructions</label>
+          <textarea id="instructions" formControlName="instructions" rows="3" placeholder="Provide instructions for students..."></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="timeLimit">Time Limit (mins) *</label>
+            <input id="timeLimit" type="number" formControlName="timeLimit" />
+          </div>
+
+          <div class="form-group">
+            <label for="maxAttempts">Max Attempts *</label>
+            <input id="maxAttempts" type="number" formControlName="maxAttempts" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="passScore">Passing Score (%) *</label>
+            <input id="passScore" type="number" formControlName="passScore" />
+          </div>
+
+          <div class="form-group">
+            <label for="resultVisibility">Result Visibility *</label>
+            <select id="resultVisibility" formControlName="resultVisibility">
+              <option value="Immediate">Immediate (After submission)</option>
+              <option value="Scheduled">Scheduled (On a specific date)</option>
+              <option value="ManualRelease">Manual (Tutor will release)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="scheduledAt">Scheduled Start Date (Optional)</label>
+          <input id="scheduledAt" type="datetime-local" formControlName="scheduledAt" />
+          <small class="hint-text">Leave blank to make available immediately upon publishing.</small>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-text" (click)="closeModal()" [disabled]="isSubmitting()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="isSubmitting()">
+            @if (isSubmitting()) {
+              <span class="spinner-small"></span> Creating...
+            } @else {
+              Create Draft Exam
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}
