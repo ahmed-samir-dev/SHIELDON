@@ -31,6 +31,15 @@ public class AppDbContext : DbContext
     public DbSet<Assignment> Assignments { get; set; } = null!;
     public DbSet<AssignmentSubmission> AssignmentSubmissions { get; set; } = null!;
 
+    // ── Phase 3: Examination & Grading ──────────────────────────────
+    public DbSet<Exam> Exams { get; set; } = null!;
+    public DbSet<ExamQuestion> ExamQuestions { get; set; } = null!;
+    public DbSet<QuestionOption> QuestionOptions { get; set; } = null!;
+    public DbSet<ExamAttempt> ExamAttempts { get; set; } = null!;
+    public DbSet<AttemptAnswer> AttemptAnswers { get; set; } = null!;
+    public DbSet<ExamToken> ExamTokens { get; set; } = null!;
+    public DbSet<GradeRecord> GradeRecords { get; set; } = null!;
+    public DbSet<ReattemptRequest> ReattemptRequests { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

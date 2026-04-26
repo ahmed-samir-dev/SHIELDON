@@ -84,10 +84,10 @@ All violations are recorded and displayed in a **Session Timeline** and **Violat
 | Phase 1 | Authentication & User Management | F1 (Login), F2 (Email Verify), F3 (Password Reset), F4 (Profile) | 4 |
 | Phase 2 | Core Learning Management System | F5 (Courses/Enrollment), F6 (Files), F6b (Assignments), F7 (Announcements), F8 (Notifications & Polish) | 5 |
 | Phase 2b | Assignments System | F6b: Assignment Task Lifecycle (Tutor Task → Student Answer), Real-time Due Date Countdown, Bulk ZIP Submission Exports | 1 |
-| Phase 3 | Examination Management System | F9 (Exam Mgmt), F10 (Question Bank), F11 (Randomization), F12 (Timer), F13 (Secure Token), F14 (Results) | 6 |
-| Phase 4 | Anti-Cheating Engine | F15 (Full Anti-Cheat Engine) | 1 |
-| Phase 5 | Monitoring & Dashboards | F16 (Presence Tracking), F17 (Session Timeline), F18 (Violation Timeline), F19 (Manual Review), F20 (Tutor Dashboard), F21 (Admin Dashboard) | 6 |
-| **Total** | | | **22 Features** |
+| Phase 3 | Examination Management System | F9 (Exam Mgmt + Notifications), F10 (Re-Attempt), F11 (Question Bank), F12/F13 (Randomization + Timer + Token), F14 (Results), F15 (Grade Panel) | **8** |
+| Phase 4 | Anti-Cheating Engine | F16 (Full Anti-Cheat Engine) | 1 |
+| Phase 5 | Monitoring & Dashboards | F17 (Presence Tracking), F18 (Session Timeline), F19 (Violation Timeline), F20 (Manual Review), F21 (Tutor Dashboard), F22 (Admin Dashboard) | 6 |
+| **Total** | | | **25 Features** |
 
 ---
 
@@ -1775,186 +1775,214 @@ ReAttemptApproved | ReAttemptRejected
 
 ## 18. PHASE 3 — EXAMINATION MANAGEMENT SYSTEM
 
-### Feature 9 — Exam Management
+> Phase 3 is expanded to **9 stages** as of 2026-04-26.
+> New additions: Exam Notification System (in-app + email + 3-hour reminder), Re-Attempt Requests as a dedicated stage, and the Grade Management Panel (F15) combining exam and assignment grades with weight control.
 
-**Purpose:** Allow tutors and admins to create, schedule, and manage exams within a course.
+### Stage 3.1 — Exam & Grade Domain Entities
 
-**Exam Entity:** `Id`, `CourseId`, `Title`, `Description`, `ExamType` (Midterm|Final|Quiz), `TotalMarks`, `DurationMinutes`, `StartDateTime`, `EndDateTime`, `MaxViolationsAllowed` (default 3), `ResultVisibility` (Immediate|Scheduled|ManualRelease), `ResultReleaseAt`, `CreatedByUserId`, `CreatedAt`
+**Purpose:** Define all database entities needed for the full examination and grade system.
 
-**Exam Status (Computed — not stored in DB):**
-- `Upcoming` → `now < StartDateTime`
-- `Available` → `StartDateTime <= now <= EndDateTime`
-- `Expired` → `now > EndDateTime`
+**Exam Entity:** `Id`, `CourseId` (FK), `Title`, `Instructions`, `TimeLimit` (minutes), `MaxAttempts`, `PassScore` (%), `Status` (Draft|Published|Closed), `ScheduledAt`?, `ResultVisibility` (Immediate|Scheduled|ManualRelease), `ScheduledReleaseAt`?, `CreatedByUserId`, `CreatedAt`
 
-**Re-Attempt Request Entity:** `Id`, `StudentId`, `ExamId`, `Justification`, `Status` (Pending|Approved|Rejected), `RequestedAt`, `ReviewedAt`, `ReviewedById`
+**ExamQuestion Entity:** `Id`, `ExamId` (FK), `QuestionText`, `Type` (MCQ|TrueFalse|ShortAnswer), `Points`, `OrderIndex`, `IsRandomized`
+
+**QuestionOption Entity:** `Id`, `QuestionId` (FK), `OptionText`, `IsCorrect`
+
+**ExamAttempt Entity:** `Id`, `ExamId` (FK), `StudentId` (FK), `StartedAt`, `SubmittedAt`?, `Score`?, `Status` (InProgress|Submitted|Graded|ForceSubmitted)
+
+**AttemptAnswer Entity:** `Id`, `AttemptId` (FK), `QuestionId` (FK), `SelectedOptionId`? (FK, nullable), `TextAnswer`? (for short answer), `IsCorrect`?, `PointsAwarded`?
+
+**ExamToken Entity:** `Id`, `AttemptId` (FK), `Token` (GUID, unique indexed), `ExpiresAt`, `IsRevoked`
+
+**GradeRecord Entity:** `Id`, `StudentId` (FK), `CourseId` (FK), `ExamId`? (FK, nullable), `AssignmentId`? (FK, nullable), `Type` (Exam|Assignment), `Score` (decimal), `MaxScore` (decimal), `Weight` (decimal 0.0–100.0 — set by tutor), `IsPublished` (bool), `PublishedAt`?, `Notes`? (tutor override note), `CreatedAt`, `UpdatedAt`
+
+**Security Rules:**
+- `IsCorrect` on `QuestionOption` is NEVER included in any student-facing API response
+- Correct answers evaluated server-side only; never sent to client
+- `ExamToken.Token` must be validated on every exam submission API call
+
+---
+
+### Feature 9 — Exam Management & Notifications
+
+**Purpose:** Allow Tutors/Admins to create, publish, and manage exams. Automatically notify students when exams are created and send a reminder 3 hours before.
+
+**Exam CRUD Rules:**
+- Draft exams: fully editable
+- Published exams: cannot delete (can archive/close only)
+- Only Tutor assigned to the course or Admin can create/edit exams for that course
+
+**Exam Notification Rules:**
+- On exam **published**: trigger in-app notification + HTML email to ALL enrolled students
+- **3-hour reminder**: background hosted service (IHostedService) polls every 15 minutes for exams with `ScheduledAt` within 3 hours from now → sends in-app notification + email to students who haven't started yet
+- Email templates must use SHIELDON brand colors and match the existing notification email style
+
+**Status Computed Fields (never stored):**
+- `Upcoming` → `now < ScheduledAt`
+- `Open` → `ScheduledAt <= now` and status is Published
+- `Closed` → status is Closed
+
+**API Endpoints:**
+- `POST /api/courses/{id}/exams` — create exam
+- `GET /api/courses/{id}/exams` — list exams (role-filtered)
+- `GET /api/exams/{id}` — get exam details
+- `PATCH /api/exams/{id}` — update exam
+- `DELETE /api/exams/{id}` — delete (draft only)
+- `PATCH /api/exams/{id}/publish` — publish exam (triggers notifications)
+
+---
+
+### Feature 10 — Re-Attempt Requests
+
+**Purpose:** Allow students to formally request a re-attempt after failing, with admin approval workflow.
+
+**Re-Attempt Request Entity:** `Id`, `StudentId`, `ExamId`, `Justification`, `Status` (Pending|Approved|Rejected), `RequestedAt`, `ReviewedAt`?, `ReviewedById`?
 
 **Attempt Rules:**
 - Default: 1 attempt per student per exam
-- Re-attempt request must include a justification reason
-- If approved: grants exactly 1 additional attempt (max total = 2)
-- 2nd attempt generates a DIFFERENT random question set
-- After 2 consecutive rejections: 24-hour cooldown on new requests
+- Re-attempt request must include a justification reason (min 20 chars)
+- If approved: grants exactly 1 additional attempt
+- 2nd attempt generates a DIFFERENT randomized question set
+- After 2 rejections: 24-hour cooldown on new requests for same exam
 
-**Notifications triggered by exam events:**
-- Exam created → notify all enrolled students
-- Exam updated → notify all enrolled students
-- Result released → notify all students who took the exam
-- Re-attempt approved/rejected → notify the requesting student
+**Notifications:**
+- Re-attempt requested → notify Admin
+- Re-attempt approved/rejected → notify the requesting student (in-app + email)
 
----
-
-### Feature 10 — Question Bank
-
-**Purpose:** Allow tutors and admins to create and manage exam questions within a course.
-
-**Question Entity:** `Id`, `CourseId`, `QuestionTitle`, `QuestionText`, `QuestionType` (MCQ|TrueFalse), `Marks`, `Category`, `CreatedByUserId`, `CreatedAt`
-
-**QuestionOption Entity:** `Id`, `QuestionId`, `OptionText`, `IsCorrect`
-
-**MCQ Rules:**
-- Minimum 2 answer options (typically 4)
-- Exactly 1 option marked as `IsCorrect = true`
-- System validates exactly one correct answer on creation/update
-
-**True/False Rules:**
-- Always exactly 2 options: "True" and "False"
-- One marked as correct
-
-**Security Rules:**
-- `IsCorrect` field is NEVER included in any student-facing API response
-- Correct answers are only evaluated on the server during grading (never sent to client)
-- Question categories are visible only to Tutor/Admin, never to students
-
-**Operations:**
-- Create, Edit, Delete questions
-- Filter by: Question Type, Category
-- Search by: keyword in question text
-- Prevent deletion if question is already used in a submitted exam attempt
+**API Endpoints:**
+- `POST /api/exam-attempts/{id}/reattempt-request` — student submits request
+- `GET /api/reattempt-requests` — admin lists all pending requests
+- `PATCH /api/reattempt-requests/{id}` — admin approves or rejects
 
 ---
 
-### Feature 11 — Question Randomization
+### Feature 11 — Question Bank Management
 
-**Purpose:** Generate a unique, fair, randomized question set for each student exam attempt.
+**Purpose:** Allow Tutors/Admins to create and manage exam questions with full type support.
 
-**Randomization Process (server-side):**
-1. Retrieve all questions for the exam's course matching the exam's category filter
-2. Apply Fisher-Yates shuffle algorithm to question order
-3. For each MCQ question: independently shuffle the answer options order
-4. Determine the required number of questions:
-   - If more available than needed: pick the required number after shuffling
-   - If fewer available than needed: use all available questions (or block exam start if 0)
-5. Store the generated set as JSON in `ExamSession.QuestionSetJson`: `[{ questionId, optionOrder: [optId1, optId2...] }, ...]`
-6. On reconnect: return the SAME stored question set (no re-randomization for same attempt)
+**Question Types:**
+- **MCQ**: 4 options, exactly 1 marked `IsCorrect`
+- **True/False**: exactly 2 options ("True" / "False"), 1 marked correct
+- **Short Answer**: no options — tutor grades manually after submission
 
-**Guarantees:**
-- No duplicate questions within one attempt
-- The same question may appear for different students (but in different order)
-- Answer option order differs per student
+**Rules:**
+- `IsCorrect` field NEVER included in student-facing responses
+- Questions cannot be deleted if used in a submitted `ExamAttempt`
+- Bulk reorder via `PATCH /api/exams/{id}/questions/reorder` (updates `OrderIndex`)
+
+**API Endpoints:**
+- `POST /api/exams/{id}/questions` — add question + options
+- `GET /api/exams/{id}/questions` — list all questions (with options, role-aware)
+- `PATCH /api/questions/{id}` — update question
+- `DELETE /api/questions/{id}` — delete (with guard)
+- `PATCH /api/exams/{id}/questions/reorder` — update order indices
 
 ---
 
-### Feature 12 — Timed Exam Engine
+### Feature 12 / Feature 13 — Question Randomization + Timed Exam Engine + Secure Token
 
-**Purpose:** Control exam timing, enforce duration, and handle auto-submission.
+**Purpose:** Three tightly coupled features that activate together at exam start.
 
-**Timer Logic:**
+**F12 — Randomization:**
+- Fisher-Yates shuffle applied to question order and option order (per attempt)
+- Locked in `AttemptAnswer` records on exam start — no re-randomization on reconnect
+
+**F12b — Timed Engine:**
 ```
-Session start: StartedAt = server UTC now
-ExpiresAt = MIN(
-  StartedAt + DurationMinutes,
-  Exam.EndDateTime
-)
-Remaining = ExpiresAt - server UTC now (in seconds)
+ExpiresAt = StartedAt + TimeLimit (minutes)
+Remaining = ExpiresAt - now (server UTC)
 ```
+- Frontend countdown syncs to server time on reconnect (`GET /api/exam-attempts/{id}/remaining`)
+- Color changes: Green (>50%) → Orange (<10 min) → Red (<5 min)
+- Warnings: ngx-toastr at 50% elapsed, 5 min remaining, 2 min remaining
+- Backend hosted service auto-submits expired in-progress attempts every 60 seconds
 
-**Late Start Handling:**
-- If student starts exam after `StartDateTime`:
-  - Remaining time = `MIN(DurationMinutes, EndDateTime - now)` in minutes
-  - If remaining < full duration: show SweetAlert2 warning: "You have only {X} minutes remaining for this exam. The full duration is {Y} minutes. Do you want to proceed?"
-  - Student can proceed or cancel
+**F13 — Secure Token:**
+- `ExamToken` (UUID) generated on `StartExam` — one per attempt
+- Stored in Angular service memory ONLY (never `localStorage`)
+- Header: `X-Exam-Token` required on all exam data endpoints
+- Revoked on submit, force-submit, or expiry
 
-**Auto-Submit Background Service:**
-- Runs every 60 seconds
-- Finds all `Active` exam sessions where `ExpiresAt <= now`
-- For each: grade saved answers, create ExamResult, set session status to `AutoExpired`
-- This runs independently of the frontend
-
-**In-Exam Time Warnings (Frontend):**
-- At 50% of time elapsed: ngx-toastr info toast: "You have used half of your exam time."
-- At 5 minutes remaining: ngx-toastr warning toast (persistent, not auto-dismissed): "Only 5 minutes remaining!"
-- At 2 minutes remaining: ngx-toastr error toast (persistent): "2 minutes remaining — your exam will auto-submit soon!"
-
-**Timer Display (Frontend):**
-- Prominent countdown timer showing HH:MM:SS
-- Color changes: Green (>50% time left) → Orange (5–10 min left) → Red (<5 min left)
-- Timer animates last 5 minutes (subtle pulse effect)
-
-**Session Continuity:**
-- On page refresh: frontend requests `GET /api/sessions/{token}` → backend returns remaining time (server-calculated)
-- Frontend timer resets to server-returned remaining seconds (never client-side timer)
+**API Endpoints:**
+- `POST /api/exams/{id}/start` — create attempt, shuffle questions, generate token → return locked set
+- `GET /api/exam-attempts/{id}/remaining` — server-calculated remaining seconds
+- `PATCH /api/exam-attempts/{id}/answer` — save/update one answer (requires token)
+- `POST /api/exam-attempts/{id}/submit` — finalize attempt, revoke token, trigger grading
+- `POST /api/exam-attempts/{id}/force-submit` — backend auto-submit on expiry
 
 ---
 
-### Feature 13 — Secure Exam Token
-
-**Purpose:** Ensure each exam attempt is uniquely and securely tied to one session, preventing duplicates or unauthorized access.
-
-**ExamSession Entity:** `Id`, `Token` (GUID — unique, indexed), `StudentId`, `ExamId`, `Status` (Active|Submitted|ForceSubmitted|Expired|AutoExpired), `QuestionSetJson`, `ViolationCount`, `IsFirstViolationWarned`, `StartedAt`, `ExpiresAt`, `SubmittedAt`, `SubmissionType` (Manual|AutoExpired|ForceSubmitted), `ForceSubmittedAt`, `LastHeartbeatAt`
-
-**Token Generation:**
-- Generated using `Guid.NewGuid()` — cryptographically random
-- Stored in `ExamSessions` table with a unique index
-- Returned to client ONCE on session start — client stores in Angular service (NOT localStorage)
-
-**Session Validation (Applied to Every Exam API Call):**
-1. Extract token from `X-Exam-Session-Token` request header
-2. Find session in database by token
-3. Validate: exists, `Status = Active`, `StudentId = currentUserId`, `ExpiresAt > now`
-4. If any validation fails: return `403 Forbidden`
-
-**One Session Per Student Per Exam:**
-- Before creating a new session: check if student already has an `Active` session for this exam
-- If yes: return the existing session (resume, don't create new)
-- If no: create a new session
-
----
-
-### Feature 14 — Exam Results
+### Feature 14 — Exam Results & Auto-Grading
 
 **Purpose:** Grade submitted exams and present results with controlled visibility.
 
-**ExamResult Entity:** `Id`, `ExamSessionId`, `StudentId`, `ExamId`, `TotalMarks`, `ScoreObtained`, `Percentage`, `IsForceSubmitted`, `IsReleased`, `ReleasedAt`, `SubmittedAt`, `GradedAt`
-
-**StudentAnswer Entity:** `Id`, `ExamSessionId`, `QuestionId`, `SelectedOptionId`, `SavedAt`
-
 **Grading Logic:**
 ```
-For each question in the exam session's question set:
-  Find StudentAnswer where QuestionId = question.Id and ExamSessionId = session.Id
-  If answer exists AND SelectedOptionId.IsCorrect = true:
-    scoreObtained += question.Marks
-  Else:
-    scoreObtained += 0 (no negative marking)
-percentage = (scoreObtained / totalMarks) * 100
+For each question in attempt:
+  MCQ/TF: if SelectedOptionId.IsCorrect = true → pointsAwarded = question.Points
+  ShortAnswer: pointsAwarded set manually by tutor via PATCH /api/attempt-answers/{id}/grade
+Score = SUM(pointsAwarded)
+Percentage = (Score / TotalPoints) × 100
+Pass = Percentage >= Exam.PassScore
 ```
 
-**Result Visibility Control:**
-- `Immediate`: result visible to student right after submission
-- `Scheduled`: result visible after `ResultReleaseAt` datetime (auto-released by background service)
-- `ManualRelease`: Tutor/Admin must manually click "Release Results" button
+**Result Visibility Modes:**
+- `Immediate` — student sees result immediately after submission
+- `Scheduled` — auto-released after `ScheduledReleaseAt` by background service
+- `ManualRelease` — Tutor clicks "Release Results"
 
-**Student Result Display:**
-- Score obtained / Total marks
-- Percentage (e.g., 85%)
-- Animated circular progress ring (fills up to percentage)
-- If percentage >= pass threshold (e.g., 50%): fire canvas-confetti celebration
-- Submission type badge: "Manual", "Auto-Expired", "Force-Submitted (Suspicious)"
+**Notifications:**
+- Results released → in-app + email to all students who took the exam
 
-**Multiple Attempts:**
-- Store result per ExamSession separately
-- When displaying final result to student: show highest score between approved attempts
-- Tutor/Admin can see all attempt results
+**Student Result Page:**
+- Score ring animation (fills to percentage), pass/fail badge, confetti on pass
+- Per-question review (which were correct/incorrect — only if released)
+- Submission type badge: Manual | Auto-Submitted | Force-Submitted
+
+**API Endpoints:**
+- `GET /api/exam-attempts/{id}/results` — student's result (respects visibility)
+- `GET /api/exams/{id}/results` — tutor views all attempts + scores
+- `POST /api/exams/{id}/release-results` — tutor manual release
+- `PATCH /api/attempt-answers/{id}/grade` — tutor grades short answer
+
+---
+
+### Feature 15 — Grade Management Panel
+
+**Purpose:** Unified grade panel per course combining exam scores and assignment grades with tutor-controlled weighting and publish control.
+
+**Core Concepts:**
+- Each exam and each assignment in a course has a **weight** (set by tutor, decimal 0–100)
+- Total weight across all grade components should sum to 100%
+- `GradeRecord` entries are auto-created when:
+  - An exam attempt is graded → one `GradeRecord` (Type=Exam) per student
+  - An assignment submission is reviewed → one `GradeRecord` (Type=Assignment) per student
+- Final Course Grade = Σ (componentScore / componentMaxScore × componentWeight)
+
+**Tutor/Admin View:**
+- Full grade sheet table: rows = students, columns = each exam + each assignment
+- Inline weight editor per component (validates sum ≤ 100%)
+- Override individual student scores with notes
+- Per-student Publish button OR bulk "Publish All" button
+- Calculated final grade column
+- CSV export of full grade sheet
+
+**Student View (only for published grades):**
+- Their own grades per component (hidden until published)
+- Weight per component shown
+- Calculated final course grade with pass/fail status
+- Unpublished components shown as "Pending"
+
+**Notifications:**
+- Grade published → in-app + email notification to each student when their grade is published
+
+**API Endpoints:**
+- `GET /api/courses/{id}/grades` — tutor/admin: full grade sheet
+- `GET /api/courses/{id}/grades/my` — student: own published grades
+- `PATCH /api/grade-records/{id}` — update weight, override score, add notes
+- `PATCH /api/grade-records/{id}/publish` — publish individual grade record
+- `POST /api/courses/{id}/grades/publish-all` — bulk publish all for a course
+- `GET /api/courses/{id}/grades/export` — CSV export
 
 ---
 

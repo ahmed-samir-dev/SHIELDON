@@ -1,9 +1,11 @@
 using SHIELDON.Application.Interfaces;
+using SHIELDON.Infrastructure.BackgroundServices;
 using SHIELDON.Infrastructure.Persistence;
 using SHIELDON.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace SHIELDON.Infrastructure;
 
@@ -45,6 +47,10 @@ public static class DependencyInjection
         services.AddScoped<IAnnouncementService, AnnouncementService>();
         services.AddScoped<IAssignmentService, AssignmentService>();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<IExamService, ExamService>();
+
+        // ── Background Services ────────────────────────────────────────────
+        services.AddHostedService<ExamReminderBackgroundService>();
 
 
         // ── AutoMapper 13.x ── AddAutoMapper scans assemblies for Profile classes

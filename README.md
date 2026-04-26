@@ -117,12 +117,14 @@ This project enforces a strict **AI Model Split** for all feature development:
 ### Phase 3 — Examination Management System
 | Stage | Feature | Status |
 |-------|---------|--------|
-| 3.1 | Exam Domain Entities + Database | ⬜ Pending |
-| 3.2 | F9: Exam Management & Re-Attempt Requests | ⬜ Pending |
-| 3.3 | F10: Question Bank | ⬜ Pending |
-| 3.4 | F11/F12: Question Randomization + Timed Exam Engine | ⬜ Pending |
-| 3.5 | F13: Secure Exam Token | ⬜ Pending |
-| 3.6 | F14: Exam Results | ⬜ Pending |
+| 3.1 | Exam & Grade Domain Entities + Database | ⬜ Pending |
+| 3.2 | F9: Exam Management + Exam Notifications (in-app & email) | ⬜ Pending |
+| 3.3 | F10: Re-Attempt Requests | ⬜ Pending |
+| 3.4 | F11: Question Bank Management | ⬜ Pending |
+| 3.5 | F12/F13: Question Randomization + Timed Engine + Secure Token | ⬜ Pending |
+| 3.6 | F14: Exam Results & Auto-Grading | ⬜ Pending |
+| 3.7 | F15: Grade Management Panel (Student + Tutor/Admin, weighted grades) | ⬜ Pending |
+| 3.8 | Phase 3 Integration & Polish | ⬜ Pending |
 
 ### Testing Stages
 | Stage | Feature | Status |
@@ -258,6 +260,7 @@ fix/*      → Bug fixes
 | 2.4.0 | Stage 2.4 | 2026-04-19 | Course Materials, Announcements, Tabbed Hub UI |
 | 2.4b-plan | Stage 2.4b | 2026-04-19 | Student Assignments — planned, pending approval |
 | 2.5.0 | Stage 2.5 | 2026-04-21 | In-App Notifications, Email Templates, Advanced Enrollment (Paging, Filtering) |
+| 3.0-plan | Phase 3 | 2026-04-26 | Phase 3 plan revised: 9 stages — Exam Mgmt, Notifications, Re-Attempt, Question Bank, Randomization, Token, Results, Grade Panel, Integration |
 
 ---
 

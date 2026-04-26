@@ -62,4 +62,6 @@ public class Assignment
     public Course? Course { get; set; }
     public User? CreatedByUser { get; set; }
     public ICollection<AssignmentSubmission> Submissions { get; set; } = [];
+    public ICollection<GradeRecord> GradeRecords { get; set; } = [];
+
 }
