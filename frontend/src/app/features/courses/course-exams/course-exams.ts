@@ -7,11 +7,12 @@ import Swal from 'sweetalert2';
 import { ToastrService } from 'ngx-toastr';
 import { ExamSummaryResponse } from '../../../core/models/exam.model';
 import { CourseDetailResponse } from '../../../core/models/courses.model';
+import { ExamQuestionsComponent } from '../exam-questions/exam-questions';
 
 @Component({
   selector: 'app-course-exams',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, ExamQuestionsComponent],
   templateUrl: './course-exams.html',
   styleUrl: './course-exams.scss'
 })
@@ -28,6 +29,9 @@ export class CourseExamsComponent implements OnInit {
   isSubmitting = signal(false);
   isModalOpen = signal(false);
   editingExamId = signal<string | null>(null);
+
+  // When set, the questions panel is shown instead of the exams list
+  selectedExamForQuestions = signal<ExamSummaryResponse | null>(null);
 
   examForm: FormGroup;
 
@@ -98,6 +102,15 @@ export class CourseExamsComponent implements OnInit {
   closeModal() {
     this.isModalOpen.set(false);
     this.editingExamId.set(null);
+  }
+
+  openQuestions(exam: ExamSummaryResponse) {
+    this.selectedExamForQuestions.set(exam);
+  }
+
+  closeQuestions() {
+    this.selectedExamForQuestions.set(null);
+    this.loadExams(); // Refresh to get updated question count
   }
 
   onSubmit() {

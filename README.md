@@ -117,14 +117,17 @@ This project enforces a strict **AI Model Split** for all feature development:
 ### Phase 3 — Examination Management System
 | Stage | Feature | Status |
 |-------|---------|--------|
-| 3.1 | Exam & Grade Domain Entities + Database | ⬜ Pending |
-| 3.2 | F9: Exam Management + Exam Notifications (in-app & email) | ⬜ Pending |
-| 3.3 | F10: Re-Attempt Requests | ⬜ Pending |
-| 3.4 | F11: Question Bank Management | ⬜ Pending |
-| 3.5 | F12/F13: Question Randomization + Timed Engine + Secure Token | ⬜ Pending |
+| 3.1 | Exam & Grade Domain Entities + Database | ✅ Complete |
+| 3.2 | F9: Exam Management + Exam Notifications (in-app & email) | ✅ Complete |
+| 3.3 Backend | F10: Re-Attempt Requests — Backend | ✅ Complete |
+| 3.4 | F11: Question Bank Management (MCQ / True-False / Short Answer) | ⬛ Next |
+| 3.5 | F12/F13: Question Randomization + Timed Exam Engine + Secure Token | ⬜ Pending |
 | 3.6 | F14: Exam Results & Auto-Grading | ⬜ Pending |
-| 3.7 | F15: Grade Management Panel (Student + Tutor/Admin, weighted grades) | ⬜ Pending |
-| 3.8 | Phase 3 Integration & Polish | ⬜ Pending |
+| 3.7 | F10 Frontend: Re-Attempt Requests — Frontend (backend done in 3.3) | ⬜ Pending |
+| 3.8 | F15: Grade Management Panel (Student + Tutor/Admin, weighted grades) | ⬜ Pending |
+| 3.9 | Phase 3 Integration & Polish | ⬜ Pending |
+
+> **Why this order?** Publishing an exam requires at least 1 question (enforced by the API). So Question Bank (3.4) must come before the Exam Engine (3.5). The "Request Re-attempt" button belongs on the student result page (3.6), so Re-Attempt Frontend (3.7) comes last.
 
 ### Testing Stages
 | Stage | Feature | Status |
