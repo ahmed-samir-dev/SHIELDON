@@ -49,6 +49,7 @@ public static class DependencyInjection
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IExamService, ExamService>();
         services.AddScoped<IReattemptService, ReattemptService>();
+        services.AddScoped<IExamAttemptService, ExamAttemptService>();
         services.AddScoped<IQuestionService, QuestionService>();
 
         // ── Background Services ────────────────────────────────────────────

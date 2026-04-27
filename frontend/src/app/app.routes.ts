@@ -53,6 +53,14 @@ export const routes: Routes = [
     title: 'Reset Password — SHIELDON'
   },
 
+  // ── Exam Engine (Distraction-Free Authenticated) ────────────────────────
+  {
+    path: 'exam-engine/:examId',
+    canActivate: [deviceGuard, authGuard],
+    loadComponent: () => import('./features/courses/exam-engine/exam-engine').then(m => m.ExamEngine),
+    title: 'Exam Engine — SHIELDON'
+  },
+
   // ── Authenticated Routes (Protected by authGuard) ─────────────────────────
   {
     path: '',
