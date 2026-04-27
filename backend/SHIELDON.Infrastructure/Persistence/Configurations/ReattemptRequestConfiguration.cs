@@ -17,6 +17,9 @@ public class ReattemptRequestConfiguration : IEntityTypeConfiguration<ReattemptR
         builder.Property(e => e.Status)
             .HasMaxLength(50);
 
+        builder.Property(e => e.RejectionReason)
+            .HasMaxLength(1000);
+
         builder.HasOne(e => e.Student)
             .WithMany()
             .HasForeignKey(e => e.StudentId)

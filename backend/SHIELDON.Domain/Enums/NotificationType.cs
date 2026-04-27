@@ -19,7 +19,10 @@ public enum NotificationType
     ExamScheduled = 50,
     UpcomingExamReminder = 51,
     ExamResultReleased = 52,
-    
+    ReattemptRequestReceived = 60,
+    ReattemptApproved = 61,
+    ReattemptRejected = 62,
+
     CourseUpdate = 90,
     GeneralSystem = 100
 }

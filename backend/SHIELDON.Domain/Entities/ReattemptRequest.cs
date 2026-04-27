@@ -11,6 +11,9 @@ public class ReattemptRequest
     
     /// <summary>Status of the request (e.g. Pending, Approved, Rejected).</summary>
     public string Status { get; set; } = "Pending";
+
+    /// <summary>Optional reason provided when the request is rejected.</summary>
+    public string? RejectionReason { get; set; }
     
     public DateTime RequestedAt { get; set; } = DateTime.UtcNow;
     public DateTime? ReviewedAt { get; set; }

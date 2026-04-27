@@ -1353,51 +1353,80 @@ PATCH  /api/notifications/mark-all-read    [Mark all as read]
 
 ---
 
-#### Stage 3.1 — Domain Entities: Exam Foundation
+#### Stage 3.1 — Domain Entities: Exam Foundation ✅ COMPLETE
 
-Entities: `Exam`, `Question`, `QuestionOption`, `ExamSession`, `StudentAnswer`, `ExamResult`, `ReAttemptRequest`
+Entities: `Exam`, `ExamQuestion`, `QuestionOption`, `ExamAttempt`, `AttemptAnswer`, `ExamToken`, `GradeRecord`, `ReattemptRequest`
 
-Migration: `AddExamEntities`
-
----
-
-#### Stage 3.2 — Feature 9: Exam Management & Re-Attempt Requests
-
-Backend: Exam CRUD + status computation + re-attempt request workflow + attempt limits
-
-Frontend: Exam cards with status badges + re-attempt request form for students + review panel for Tutor/Admin
+Migrations: `AddExamSystemEntities`, `AddReattemptRejectionReason`
 
 ---
 
-#### Stage 3.3 — Feature 10: Question Bank
+#### Stage 3.2 — F9: Exam Management & Notifications ✅ COMPLETE
 
-Backend: Question CRUD (MCQ + True/False) + category tagging + correct answers never exposed to students
+Backend: Exam CRUD + publish workflow + in-app/email notifications on publish + 3-hour reminder background service
 
-Frontend: Question bank management + dynamic form for MCQ vs True/False + filter/search
-
----
-
-#### Stage 3.4 — Feature 11 & 12: Question Randomization + Timed Exam Engine
-
-Backend: Fisher-Yates randomization at session start + server-side timer + auto-submit background service + late start handling
-
-Frontend: Exam taking UI + countdown timer display + auto-save after each answer + in-exam time warnings
+Frontend: Exam cards with status badges + Create/Edit modal (Tutor/Admin) + Exam count stat in course header
 
 ---
 
-#### Stage 3.5 — Feature 13: Secure Exam Token
+#### Stage 3.3 Backend — F10: Re-Attempt Requests (Backend Only) ✅ COMPLETE
 
-Backend: Cryptographic GUID token per session + one-session-per-student enforcement + token validation middleware
+Backend: Re-attempt request flow (student submits → admin reviews → approve/reject) + in-app/email notifications
 
-Frontend: Exam start flow with rules → token received → exam wrapper component + token in-memory storage
+> ⚠️ **Frontend deferred to Stage 3.7** — The "Request Re-attempt" button belongs on the Student Result Page. That page doesn't exist until Stage 3.6. Building the frontend here requires manual DB hacks to test.
 
 ---
 
-#### Stage 3.6 — Feature 14: Exam Results
+#### Stage 3.4 — F11: Question Bank Management ⬛ NEXT
 
-Backend: Auto-grading for MCQ and True/False + result visibility control (Immediate/Scheduled/ManualRelease) + result release endpoint
+> **⚠️ DEPENDENCY BLOCKER:** The publish endpoint enforces `QuestionCount > 0`. Without questions, no exam can be published and the entire exam lifecycle is blocked.
 
-Frontend: Student result page with score ring animation + confetti on pass + Tutor results table with release control
+Backend: Question CRUD (MCQ / TrueFalse / ShortAnswer) + options management + correct answers NEVER exposed to students + reorder support
+
+Frontend: Question builder form per type (MCQ / True-False / Short Answer) + question list with type badge and points + drag-to-reorder
+
+---
+
+#### Stage 3.5 — F12/F13: Exam Engine + Secure Token
+
+> **⚠️ DEPENDENCY:** Requires Stage 3.4 complete (questions must exist to start an exam).
+
+Backend: `StartExam` (randomize + issue token) + `SaveAnswer` (token-validated) + `SubmitExam` (auto-grade + revoke token) + `ForceSubmit` (timer expiry) + token validation middleware
+
+Frontend: Exam start flow + countdown timer (orange <10min, red <5min) + question navigator sidebar + auto-save answers + auto-submit on timer zero + `ExamToken` in memory only (NEVER localStorage)
+
+---
+
+#### Stage 3.6 — F14: Exam Results & Auto-Grading
+
+> **⚠️ DEPENDENCY:** Requires Stage 3.5 complete (attempts must exist to have results).
+
+Backend: Auto-grading for MCQ/TF + result visibility enforcement (Immediate/Scheduled/ManualRelease) + `GradeShortAnswer` endpoint + `ReleaseResults` endpoint + in-app/email notification on release
+
+Frontend: Student result page (score ring animation + pass/fail badge + per-question review + confetti on pass + **"Request Re-attempt" button** if failed & attempts exhausted) + Tutor results table + short answer review panel
+
+---
+
+#### Stage 3.7 — F10 Frontend: Re-Attempt Requests (Frontend)
+
+> **⚠️ DEPENDENCY:** Requires Stage 3.6 complete (Result page must exist). Backend is already live from Stage 3.3.
+
+Frontend: Re-attempt request modal on Result Page + Admin/Tutor Re-attempt Management Panel (`/reattempt-requests`) with approve/reject + sidebar link + route registration
+
+---
+
+#### Stage 3.8 — F15: Grade Management Panel
+
+Backend: `IGradeService` / `GradeService` (weight validation, final grade, CSV export) + `GradesController` + grade-published notification
+
+Frontend (Tutor/Admin): Grade table + weight editor + override + publish + CSV export
+Frontend (Student): Own grades only (when published)
+
+---
+
+#### Stage 3.9 — Phase 3 Integration & Polish
+
+End-to-end verification: full exam lifecycle + all notification triggers + ExamToken security + UI polish
 
 ---
 
@@ -1465,12 +1494,15 @@ Frontend: Student result page with score ring animation + confetti on pass + Tut
 - [x] **Stage 2.5** — F8: Notifications System (Completed with Post-Test Bug Fixes)
 
 ### Phase 3 — Examination Management
-- [ ] **Stage 3.1** — Exam domain entities + database migration
-- [ ] **Stage 3.2** — F9: Exam Management & Re-Attempt Requests
-- [ ] **Stage 3.3** — F10: Question Bank
-- [ ] **Stage 3.4** — F11/F12: Question Randomization + Timed Exam Engine
-- [ ] **Stage 3.5** — F13: Secure Exam Token
-- [ ] **Stage 3.6** — F14: Exam Results
+- [x] **Stage 3.1** — Exam domain entities + database migration ✅ Complete
+- [x] **Stage 3.2** — F9: Exam Management & Notifications ✅ Complete
+- [/] **Stage 3.3 Backend** — F10: Re-Attempt Requests (Backend only) ✅ Complete; Frontend deferred to 3.7
+- [ ] **Stage 3.4** — F11: Question Bank ⬛ NEXT
+- [ ] **Stage 3.5** — F12/F13: Question Randomization + Timed Exam Engine + Secure Token
+- [ ] **Stage 3.6** — F14: Exam Results & Auto-Grading
+- [ ] **Stage 3.7** — F10 Frontend: Re-Attempt Requests (Frontend Phase; backend done in 3.3)
+- [ ] **Stage 3.8** — F15: Grade Management Panel
+- [ ] **Stage 3.9** — Phase 3 Integration & Polish
 
 ### Phase 4 — Anti-Cheating Engine
 - [ ] **Stage 4.1** — Pre-Exam Rules Acknowledgment
@@ -1775,8 +1807,9 @@ ReAttemptApproved | ReAttemptRejected
 
 ## 18. PHASE 3 — EXAMINATION MANAGEMENT SYSTEM
 
-> Phase 3 is expanded to **9 stages** as of 2026-04-26.
-> New additions: Exam Notification System (in-app + email + 3-hour reminder), Re-Attempt Requests as a dedicated stage, and the Grade Management Panel (F15) combining exam and assignment grades with weight control.
+> Phase 3 is expanded to **9 stages** as of 2026-04-26 and **reordered on 2026-04-27** to fix dependency issues.
+> **Reorder Rationale:** Publishing an exam requires at least 1 question (QuestionCount > 0), so Question Bank (3.4) must come before the Exam Engine (3.5). The Re-Attempt button belongs on the Student Result Page, so Re-Attempt Frontend (3.7) must come after Exam Results (3.6). Stage 3.3 is Backend-only; its Frontend moves to 3.7.
+> **Stage order:** 3.1 Domain → 3.2 Exam Mgmt → 3.3 Backend Re-Attempt → **3.4 Question Bank → 3.5 Exam Engine → 3.6 Results → 3.7 Re-Attempt Frontend** → 3.8 Grade Panel → 3.9 Integration
 
 ### Stage 3.1 — Exam & Grade Domain Entities
 
