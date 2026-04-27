@@ -8,6 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 import { ExamSummaryResponse } from '../../../core/models/exam.model';
 import { CourseDetailResponse } from '../../../core/models/courses.model';
 import { ExamQuestionsComponent } from '../exam-questions/exam-questions';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-course-exams',
@@ -23,6 +24,7 @@ export class CourseExamsComponent implements OnInit {
   public authService = inject(AuthService);
   private toastr = inject(ToastrService);
   private fb = inject(FormBuilder);
+  private router = inject(Router);
 
   exams = signal<ExamSummaryResponse[]>([]);
   isLoading = signal(true);
@@ -212,5 +214,9 @@ publishExam(examId: string) {
     if (role === 'Admin') return true;
     if (role === 'Tutor' && this.course.assignedTutorId === this.authService.currentUser()?.userId) return true;
     return false;
+  }
+
+  takeExam(examId: string) {
+    this.router.navigate(['/exam-engine', examId]);
   }
 }
