@@ -5,6 +5,10 @@ using SHIELDON.Domain.Enums;
 
 namespace SHIELDON.Infrastructure.Persistence.Configurations;
 
+/// <summary>
+/// Configuration for ExamQuestion — the centralized course question bank.
+/// Questions are now course-scoped (CourseId FK) and can be reused across exams.
+/// </summary>
 public class ExamQuestionConfiguration : IEntityTypeConfiguration<ExamQuestion>
 {
     public void Configure(EntityTypeBuilder<ExamQuestion> builder)
@@ -21,6 +25,13 @@ public class ExamQuestionConfiguration : IEntityTypeConfiguration<ExamQuestion>
         builder.Property(e => e.Points)
             .HasPrecision(5, 2);
 
+        // FK → Course (centralized bank, not exam-scoped)
+        builder.HasOne(e => e.Course)
+            .WithMany(c => c.QuestionBankItems)
+            .HasForeignKey(e => e.CourseId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Options cascade with the question
         builder.HasMany(e => e.Options)
             .WithOne(o => o.Question)
             .HasForeignKey(o => o.QuestionId)

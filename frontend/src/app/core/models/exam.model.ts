@@ -1,3 +1,9 @@
+export interface ExamSelectionRule {
+  id?: string;
+  questionType: string;
+  count: number;
+}
+
 export interface ExamSummaryResponse {
   id: string;
   courseId: string;
@@ -10,8 +16,10 @@ export interface ExamSummaryResponse {
   status: 'Draft' | 'Published' | 'Closed';
   resultVisibility: 'Immediate' | 'Scheduled' | 'ManualRelease';
   scheduledAt?: string;
+  scheduledEndAt?: string;
   scheduledReleaseAt?: string;
-  questionCount: number;
+  bankQuestionCount: number;
+  selectionRules: ExamSelectionRule[];
   createdAt: string;
 }
 
@@ -27,8 +35,10 @@ export interface ExamDetailResponse {
   status: 'Draft' | 'Published' | 'Closed';
   resultVisibility: 'Immediate' | 'Scheduled' | 'ManualRelease';
   scheduledAt?: string;
+  scheduledEndAt?: string;
   scheduledReleaseAt?: string;
-  questionCount: number;
+  bankQuestionCount: number;
+  selectionRules: ExamSelectionRule[];
   createdByName: string;
   createdAt: string;
   updatedAt: string;
@@ -42,7 +52,9 @@ export interface CreateExamRequest {
   passScore: number;
   resultVisibility: 'Immediate' | 'Scheduled' | 'ManualRelease';
   scheduledAt?: string | null;
+  scheduledEndAt?: string | null;
   scheduledReleaseAt?: string | null;
+  selectionRules?: ExamSelectionRule[];
 }
 
 export interface UpdateExamRequest {
@@ -53,5 +65,7 @@ export interface UpdateExamRequest {
   passScore?: number;
   resultVisibility?: 'Immediate' | 'Scheduled' | 'ManualRelease';
   scheduledAt?: string | null;
+  scheduledEndAt?: string | null;
   scheduledReleaseAt?: string | null;
+  selectionRules?: ExamSelectionRule[];
 }

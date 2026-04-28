@@ -21,6 +21,7 @@ public class Exam
     // ── Status & Scheduling ─────────────────────────────────────
     public ExamStatus Status { get; set; } = ExamStatus.Draft;
     public DateTime? ScheduledAt { get; set; }
+    public DateTime? ScheduledEndAt { get; set; }
     
     // ── Results ─────────────────────────────────────────────────
     public ResultVisibility ResultVisibility { get; set; } = ResultVisibility.Immediate;
@@ -34,7 +35,7 @@ public class Exam
     // ── Navigation Properties ────────────────────────────────────
     public Course? Course { get; set; }
     public User? CreatedByUser { get; set; }
-    public ICollection<ExamQuestion> Questions { get; set; } = [];
+    public ICollection<ExamSelectionRule> SelectionRules { get; set; } = [];
     public ICollection<ExamAttempt> Attempts { get; set; } = [];
     public ICollection<GradeRecord> GradeRecords { get; set; } = [];
 }

@@ -89,6 +89,20 @@
     transform: rotate(45deg);
     z-index: -1;
   }
+
+  &.maximized {
+    width: 600px;
+    max-width: 90vw;
+    
+    .notification-list {
+      max-height: 70vh;
+    }
+
+    .notif-content p {
+      -webkit-line-clamp: unset;
+      display: block;
+    }
+  }
 }
 
 .panel-header {
@@ -255,6 +269,32 @@
   margin-left: 0.75rem;
   margin-top: 0.25rem;
   box-shadow: 0 0 8px rgba($color-primary-base, 0.5);
+}
+
+.panel-footer {
+  padding: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.4);
+  display: flex;
+  justify-content: center;
+
+  .view-all-btn {
+    background: transparent;
+    border: none;
+    color: $color-primary-base;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    border-radius: $border-radius-md;
+    transition: all 0.2s ease-in-out;
+    width: 100%;
+
+    &:hover {
+      background: rgba($color-primary-base, 0.08);
+      color: $color-primary-dark;
+    }
+  }
 }
 
 .panel-state-msg {

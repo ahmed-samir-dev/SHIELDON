@@ -126,7 +126,7 @@ export class ExamEngine implements OnInit, OnDestroy {
     this.attemptService.startExam(this.examId()).subscribe({
       next: (res) => {
         this.attemptData.set(res.data);
-        this.initializeAnswers(res.data.questions);
+        this.initializeAnswers(res.data);
         this.startTimer(res.data.expiresAt);
         this.state.set('active');
         this.toastr.success('Exam started! Good luck.');
@@ -138,9 +138,19 @@ export class ExamEngine implements OnInit, OnDestroy {
     });
   }
 
-  private initializeAnswers(questions: StudentQuestionDto[]): void {
+  private initializeAnswers(data: StartExamResponse): void {
     const initialAnswers: Record<string, string | null> = {};
-    questions.forEach(q => initialAnswers[q.id] = null);
+    
+    // Default to null
+    data.questions.forEach(q => initialAnswers[q.id] = null);
+    
+    // Override with saved answers from DB
+    if (data.savedAnswers && data.savedAnswers.length > 0) {
+      data.savedAnswers.forEach(ans => {
+        initialAnswers[ans.questionId] = ans.selectedOptionId || ans.textAnswer || null;
+      });
+    }
+    
     this.answers.set(initialAnswers);
   }
 
@@ -162,7 +172,6 @@ export class ExamEngine implements OnInit, OnDestroy {
     if (remainingMs <= 0) {
       this.timeRemainingSeconds.set(0);
       this.timerSub?.unsubscribe();
-      this.toastr.warning('Time is up! Auto-submitting your exam.');
       this.forceSubmit();
     } else {
       this.timeRemainingSeconds.set(Math.floor(remainingMs / 1000));
@@ -270,11 +279,20 @@ export class ExamEngine implements OnInit, OnDestroy {
     this.attemptService.forceSubmitExam(attemptId).subscribe({
       next: () => {
         this.toastr.success('Exam was auto-submitted due to time expiry.');
-        this.router.navigate(['/courses', this.examDetails()?.courseId]);
+        setTimeout(() => {
+          this.router.navigate(['/courses', this.examDetails()?.courseId]);
+        }, 1500);
       },
       error: () => {
-        this.router.navigate(['/courses', this.examDetails()?.courseId]);
+        setTimeout(() => {
+          this.router.navigate(['/courses', this.examDetails()?.courseId]);
+        }, 1500);
       }
     });
+  }
+
+  getExamQuestionCount(exam: ExamDetailResponse | null): number {
+    if (!exam || !exam.selectionRules) return 0;
+    return exam.selectionRules.reduce((sum, rule) => sum + rule.count, 0);
   }
 }

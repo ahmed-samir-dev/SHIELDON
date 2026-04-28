@@ -6,7 +6,7 @@ export interface QuestionOption {
 
 export interface ExamQuestion {
   id: string;
-  examId: string;
+  courseId: string;
   questionText: string;
   type: string; // "MCQ" | "TrueFalse" | "ShortAnswer"
   points: number;
@@ -33,6 +33,8 @@ export interface UpdateQuestionRequest {
   questionText?: string;
   points?: number;
   isRandomized?: boolean;
+  options?: AddOptionRequest[];
+  trueFalseCorrectAnswer?: boolean;
 }
 
 export interface ReorderQuestionsRequest {

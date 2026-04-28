@@ -9,11 +9,12 @@ import { CourseMaterialsComponent } from '../course-materials/course-materials';
 import { CourseAnnouncementsComponent } from '../course-announcements/course-announcements';
 import { CourseAssignmentsComponent } from '../course-assignments/course-assignments';
 import { CourseExamsComponent } from '../course-exams/course-exams';
+import { CourseQuestionBankComponent } from '../question-bank/course-question-bank.component';
 
 @Component({
   selector: 'app-course-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, CourseMaterialsComponent, CourseAnnouncementsComponent, CourseAssignmentsComponent, CourseExamsComponent],
+  imports: [CommonModule, RouterLink, CourseMaterialsComponent, CourseAnnouncementsComponent, CourseAssignmentsComponent, CourseExamsComponent, CourseQuestionBankComponent],
   templateUrl: './course-detail.html',
   styleUrl: './course-detail.scss'
 })
@@ -27,7 +28,7 @@ export class CourseDetail implements OnInit {
 
   course = signal<CourseDetailResponse | null>(null);
   isLoading = signal(true);
-  activeTab = signal<'announcements' | 'materials' | 'assignments' | 'exams'>('announcements');
+  activeTab = signal<'announcements' | 'materials' | 'assignments' | 'exams' | 'question-bank'>('announcements');
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -40,7 +41,7 @@ export class CourseDetail implements OnInit {
     // Listen for query parameter changes to activate the correct tab
     this.route.queryParamMap.subscribe(queryParams => {
       const tab = queryParams.get('tab');
-      if (tab && ['announcements', 'materials', 'assignments', 'exams'].includes(tab)) {
+      if (tab && ['announcements', 'materials', 'assignments', 'exams', 'question-bank'].includes(tab)) {
         this.activeTab.set(tab as any);
       }
     });
@@ -60,7 +61,7 @@ export class CourseDetail implements OnInit {
     });
   }
 
-  setActiveTab(tab: 'announcements' | 'materials' | 'assignments' | 'exams') {
+  setActiveTab(tab: 'announcements' | 'materials' | 'assignments' | 'exams' | 'question-bank') {
     this.activeTab.set(tab);
     // Sync the active tab backward to the URL to allow sharable URLs and persistent state
     this.router.navigate([], {

@@ -9,12 +9,12 @@ using SHIELDON.Infrastructure.Persistence;
 namespace SHIELDON.Infrastructure.Services;
 
 /// <summary>
-/// Implements the Question Bank for each exam.
+/// Implements the centralized question bank per course.
 ///
 /// Security contract:
 ///   - Correct answers (IsCorrect) are NEVER returned in student-facing calls.
-///   - All write operations block Published/Closed exams.
-///   - Tutor access is scoped to their assigned course only.
+///   - Only the assigned Tutor or any Admin can modify the bank.
+///   - Questions are course-scoped — no exam locking required.
 /// </summary>
 public class QuestionService : IQuestionService
 {
@@ -28,15 +28,14 @@ public class QuestionService : IQuestionService
     // ── Add Question ──────────────────────────────────────────────────────────
 
     public async Task<QuestionResponse> AddQuestionAsync(
-        Guid examId,
+        Guid courseId,
         AddQuestionRequest request,
         Guid requestingUserId,
         string requestingUserRole,
         CancellationToken ct = default)
     {
-        var exam = await LoadExamWithCourseAsync(examId, ct);
-        AuthorizeForExam(exam, requestingUserId, requestingUserRole);
-        EnsureExamIsDraft(exam);
+        var course = await LoadCourseAsync(courseId, ct);
+        AuthorizeForCourse(course, requestingUserId, requestingUserRole);
 
         if (!Enum.TryParse<QuestionType>(request.Type, ignoreCase: true, out var questionType))
             throw new BusinessRuleException($"Invalid question type '{request.Type}'. Use: MCQ, TrueFalse, ShortAnswer.");
@@ -47,20 +46,21 @@ public class QuestionService : IQuestionService
         if (string.IsNullOrWhiteSpace(request.QuestionText))
             throw new BusinessRuleException("Question text cannot be empty.");
 
-        // Assign next OrderIndex
+        // Assign next OrderIndex in this course's bank
         var nextOrder = await _db.ExamQuestions
-            .Where(q => q.ExamId == examId)
+            .Where(q => q.CourseId == courseId)
             .MaxAsync(q => (int?)q.OrderIndex, ct) ?? 0;
         nextOrder++;
 
         var question = new ExamQuestion
         {
-            ExamId = examId,
+            CourseId = courseId,
             QuestionText = request.QuestionText.Trim(),
             Type = questionType,
             Points = request.Points,
             OrderIndex = nextOrder,
-            IsRandomized = request.IsRandomized
+            IsRandomized = request.IsRandomized,
+            CreatedByUserId = requestingUserId
         };
 
         _db.ExamQuestions.Add(question);
@@ -115,29 +115,42 @@ public class QuestionService : IQuestionService
     // ── Get Questions ─────────────────────────────────────────────────────────
 
     public async Task<List<QuestionResponse>> GetQuestionsAsync(
-        Guid examId,
+        Guid courseId,
         Guid requestingUserId,
         string requestingUserRole,
         CancellationToken ct = default)
     {
-        var exam = await _db.Exams
-            .Include(e => e.Course)
-            .FirstOrDefaultAsync(e => e.Id == examId, ct)
-            ?? throw new NotFoundException("Exam", examId);
-
-        // Students can only see Published exams
-        if (requestingUserRole == "Student" && exam.Status != ExamStatus.Published)
-            throw new ForbiddenException("This exam is not available.");
+        var course = await LoadCourseAsync(courseId, ct);
+        AuthorizeForCourse(course, requestingUserId, requestingUserRole);
 
         var questions = await _db.ExamQuestions
             .Include(q => q.Options)
-            .Where(q => q.ExamId == examId)
+            .Where(q => q.CourseId == courseId)
             .OrderBy(q => q.OrderIndex)
             .AsNoTracking()
             .ToListAsync(ct);
 
-        var includeIsCorrect = requestingUserRole is "Admin" or "Tutor";
-        return questions.Select(q => MapToResponse(q, includeIsCorrect)).ToList();
+        return questions.Select(q => MapToResponse(q, includeIsCorrect: true)).ToList();
+    }
+
+    // ── Get Bank Counts ───────────────────────────────────────────────────────
+
+    public async Task<Dictionary<string, int>> GetBankCountsAsync(
+        Guid courseId,
+        Guid requestingUserId,
+        string requestingUserRole,
+        CancellationToken ct = default)
+    {
+        var course = await LoadCourseAsync(courseId, ct);
+        AuthorizeForCourse(course, requestingUserId, requestingUserRole);
+
+        var counts = await _db.ExamQuestions
+            .Where(q => q.CourseId == courseId)
+            .GroupBy(q => q.Type)
+            .Select(g => new { Type = g.Key.ToString(), Count = g.Count() })
+            .ToListAsync(ct);
+
+        return counts.ToDictionary(x => x.Type, x => x.Count);
     }
 
     // ── Update Question ───────────────────────────────────────────────────────
@@ -149,9 +162,8 @@ public class QuestionService : IQuestionService
         string requestingUserRole,
         CancellationToken ct = default)
     {
-        var question = await LoadQuestionWithExamAsync(questionId, ct);
-        AuthorizeForExam(question.Exam!, requestingUserId, requestingUserRole);
-        EnsureExamIsDraft(question.Exam!);
+        var question = await LoadQuestionAsync(questionId, ct);
+        AuthorizeForCourse(question.Course!, requestingUserId, requestingUserRole);
 
         if (request.QuestionText is not null)
         {
@@ -170,8 +182,40 @@ public class QuestionService : IQuestionService
         if (request.IsRandomized.HasValue)
             question.IsRandomized = request.IsRandomized.Value;
 
+        if (request.Options is not null && question.Type == QuestionType.MCQ)
+        {
+            ValidateMcqOptions(request.Options);
+            await _db.Entry(question).Collection(q => q.Options).LoadAsync(ct);
+            _db.QuestionOptions.RemoveRange(question.Options);
+
+            foreach (var opt in request.Options)
+            {
+                _db.QuestionOptions.Add(new QuestionOption
+                {
+                    QuestionId = question.Id,
+                    OptionText = opt.OptionText.Trim(),
+                    IsCorrect = opt.IsCorrect
+                });
+            }
+        }
+        else if (request.TrueFalseCorrectAnswer.HasValue && question.Type == QuestionType.TrueFalse)
+        {
+            await _db.Entry(question).Collection(q => q.Options).LoadAsync(ct);
+            var trueOpt = question.Options.FirstOrDefault(o => o.OptionText == "True");
+            var falseOpt = question.Options.FirstOrDefault(o => o.OptionText == "False");
+
+            if (trueOpt != null && falseOpt != null)
+            {
+                trueOpt.IsCorrect = request.TrueFalseCorrectAnswer.Value;
+                falseOpt.IsCorrect = !request.TrueFalseCorrectAnswer.Value;
+            }
+        }
+
         await _db.SaveChangesAsync(ct);
-        await _db.Entry(question).Collection(q => q.Options).LoadAsync(ct);
+
+        // Refresh options safely
+        question.Options = await _db.QuestionOptions.Where(o => o.QuestionId == question.Id).ToListAsync(ct);
+
         return MapToResponse(question, includeIsCorrect: true);
     }
 
@@ -183,16 +227,15 @@ public class QuestionService : IQuestionService
         string requestingUserRole,
         CancellationToken ct = default)
     {
-        var question = await LoadQuestionWithExamAsync(questionId, ct);
-        AuthorizeForExam(question.Exam!, requestingUserId, requestingUserRole);
-        EnsureExamIsDraft(question.Exam!);
+        var question = await LoadQuestionAsync(questionId, ct);
+        AuthorizeForCourse(question.Course!, requestingUserId, requestingUserRole);
 
         _db.ExamQuestions.Remove(question);
         await _db.SaveChangesAsync(ct);
 
         // Re-normalize OrderIndex for remaining questions
         var remaining = await _db.ExamQuestions
-            .Where(q => q.ExamId == question.ExamId)
+            .Where(q => q.CourseId == question.CourseId)
             .OrderBy(q => q.OrderIndex)
             .ToListAsync(ct);
 
@@ -205,22 +248,21 @@ public class QuestionService : IQuestionService
     // ── Reorder Questions ─────────────────────────────────────────────────────
 
     public async Task ReorderQuestionsAsync(
-        Guid examId,
+        Guid courseId,
         ReorderQuestionsRequest request,
         Guid requestingUserId,
         string requestingUserRole,
         CancellationToken ct = default)
     {
-        var exam = await LoadExamWithCourseAsync(examId, ct);
-        AuthorizeForExam(exam, requestingUserId, requestingUserRole);
-        EnsureExamIsDraft(exam);
+        var course = await LoadCourseAsync(courseId, ct);
+        AuthorizeForCourse(course, requestingUserId, requestingUserRole);
 
         var questions = await _db.ExamQuestions
-            .Where(q => q.ExamId == examId)
+            .Where(q => q.CourseId == courseId)
             .ToListAsync(ct);
 
         if (request.Items.Count != questions.Count)
-            throw new BusinessRuleException($"Reorder payload must include all {questions.Count} questions in this exam.");
+            throw new BusinessRuleException($"Reorder payload must include all {questions.Count} questions in this bank.");
 
         foreach (var item in request.Items)
         {
@@ -241,9 +283,8 @@ public class QuestionService : IQuestionService
         string requestingUserRole,
         CancellationToken ct = default)
     {
-        var question = await LoadQuestionWithExamAsync(questionId, ct);
-        AuthorizeForExam(question.Exam!, requestingUserId, requestingUserRole);
-        EnsureExamIsDraft(question.Exam!);
+        var question = await LoadQuestionAsync(questionId, ct);
+        AuthorizeForCourse(question.Course!, requestingUserId, requestingUserRole);
 
         if (question.Type != QuestionType.MCQ)
             throw new BusinessRuleException("Options can only be added to MCQ questions.");
@@ -253,7 +294,6 @@ public class QuestionService : IQuestionService
 
         await _db.Entry(question).Collection(q => q.Options).LoadAsync(ct);
 
-        // If marking this new option as correct, unmark all existing ones
         if (request.IsCorrect)
         {
             foreach (var existing in question.Options)
@@ -283,15 +323,13 @@ public class QuestionService : IQuestionService
     {
         var option = await _db.QuestionOptions
             .Include(o => o.Question)
-                .ThenInclude(q => q!.Exam)
-                    .ThenInclude(e => e!.Course)
+                .ThenInclude(q => q!.Course)
             .Include(o => o.Question)
                 .ThenInclude(q => q!.Options)
             .FirstOrDefaultAsync(o => o.Id == optionId, ct)
             ?? throw new NotFoundException("Option", optionId);
 
-        AuthorizeForExam(option.Question!.Exam!, requestingUserId, requestingUserRole);
-        EnsureExamIsDraft(option.Question!.Exam!);
+        AuthorizeForCourse(option.Question!.Course!, requestingUserId, requestingUserRole);
 
         if (option.Question.Type == QuestionType.TrueFalse)
             throw new BusinessRuleException("True/False options cannot be edited individually. Use the question update endpoint.");
@@ -305,7 +343,6 @@ public class QuestionService : IQuestionService
 
         if (request.IsCorrect.HasValue && request.IsCorrect.Value)
         {
-            // Move "correct" to this option — unmark all siblings
             foreach (var sibling in option.Question.Options)
                 sibling.IsCorrect = false;
             option.IsCorrect = true;
@@ -325,15 +362,13 @@ public class QuestionService : IQuestionService
     {
         var option = await _db.QuestionOptions
             .Include(o => o.Question)
-                .ThenInclude(q => q!.Exam)
-                    .ThenInclude(e => e!.Course)
+                .ThenInclude(q => q!.Course)
             .Include(o => o.Question)
                 .ThenInclude(q => q!.Options)
             .FirstOrDefaultAsync(o => o.Id == optionId, ct)
             ?? throw new NotFoundException("Option", optionId);
 
-        AuthorizeForExam(option.Question!.Exam!, requestingUserId, requestingUserRole);
-        EnsureExamIsDraft(option.Question!.Exam!);
+        AuthorizeForCourse(option.Question!.Course!, requestingUserId, requestingUserRole);
 
         if (option.Question.Type != QuestionType.MCQ)
             throw new BusinessRuleException("Only MCQ options can be deleted individually.");
@@ -347,35 +382,25 @@ public class QuestionService : IQuestionService
 
     // ── Private Helpers ───────────────────────────────────────────────────────
 
-    private async Task<Exam> LoadExamWithCourseAsync(Guid examId, CancellationToken ct)
+    private async Task<Course> LoadCourseAsync(Guid courseId, CancellationToken ct)
     {
-        return await _db.Exams
-            .Include(e => e.Course)
-            .FirstOrDefaultAsync(e => e.Id == examId, ct)
-            ?? throw new NotFoundException("Exam", examId);
+        return await _db.Courses
+            .FirstOrDefaultAsync(c => c.Id == courseId, ct)
+            ?? throw new NotFoundException("Course", courseId);
     }
 
-    private async Task<ExamQuestion> LoadQuestionWithExamAsync(Guid questionId, CancellationToken ct)
+    private async Task<ExamQuestion> LoadQuestionAsync(Guid questionId, CancellationToken ct)
     {
         return await _db.ExamQuestions
-            .Include(q => q.Exam)
-                .ThenInclude(e => e!.Course)
+            .Include(q => q.Course)
             .FirstOrDefaultAsync(q => q.Id == questionId, ct)
             ?? throw new NotFoundException("Question", questionId);
     }
 
-    private static void AuthorizeForExam(Exam exam, Guid userId, string role)
+    private static void AuthorizeForCourse(Course course, Guid userId, string role)
     {
-        if (role == "Tutor" && exam.Course?.AssignedTutorId != userId)
-            throw new ForbiddenException("You can only manage questions for exams in your assigned courses.");
-    }
-
-    private static void EnsureExamIsDraft(Exam exam)
-    {
-        if (exam.Status != ExamStatus.Draft)
-            throw new BusinessRuleException(
-                $"This exam is '{exam.Status}' and can no longer be modified. " +
-                "Questions can only be added, edited, or deleted on Draft exams.");
+        if (role == "Tutor" && course.AssignedTutorId != userId)
+            throw new ForbiddenException("You can only manage questions for courses assigned to you.");
     }
 
     private static void ValidateMcqOptions(List<AddOptionRequest>? options)
@@ -397,12 +422,12 @@ public class QuestionService : IQuestionService
             .Select(o => new OptionResponse(
                 o.Id,
                 o.OptionText,
-                includeIsCorrect ? o.IsCorrect : false))  // SECURITY: mask correct answer from students
+                includeIsCorrect ? o.IsCorrect : false))
             .ToList();
 
         return new QuestionResponse(
             Id: q.Id,
-            ExamId: q.ExamId,
+            CourseId: q.CourseId,
             QuestionText: q.QuestionText,
             Type: q.Type.ToString(),
             Points: q.Points,

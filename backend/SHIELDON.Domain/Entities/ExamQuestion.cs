@@ -2,16 +2,29 @@ using SHIELDON.Domain.Enums;
 
 namespace SHIELDON.Domain.Entities;
 
+/// <summary>
+/// A single question that lives in a course's centralized question bank.
+/// Questions are no longer exam-specific; any exam in the course can draw from this bank.
+/// </summary>
 public class ExamQuestion
 {
     public Guid Id { get; set; }
-    public Guid ExamId { get; set; }
+
+    // ── Ownership (course-level, not exam-level) ─────────────────
+    public Guid CourseId { get; set; }
+
+    // ── Content ─────────────────────────────────────────────────
     public string QuestionText { get; set; } = string.Empty;
     public QuestionType Type { get; set; }
     public decimal Points { get; set; }
     public int OrderIndex { get; set; }
     public bool IsRandomized { get; set; } = true;
 
-    public Exam? Exam { get; set; }
+    // ── Tracking ─────────────────────────────────────────────────
+    public Guid CreatedByUserId { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+    // ── Navigation Properties ────────────────────────────────────
+    public Course? Course { get; set; }
     public ICollection<QuestionOption> Options { get; set; } = [];
 }

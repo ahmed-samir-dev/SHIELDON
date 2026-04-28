@@ -171,16 +171,51 @@
     }
   }
 
-  .schedule-badge {
-    display: inline-flex;
+  // Real-time timing badge group (right side of card header)
+  .timing-badges {
+    display: flex;
     align-items: center;
     gap: $spacing-1;
-    padding: 4px 10px;
+  }
+
+  .timing-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
     border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: $font-weight-medium;
-    background: rgba($color-warning-base, 0.1);
-    color: $color-warning-dark;
+    font-size: 0.7rem;
+    font-weight: $font-weight-semibold;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+
+    &.scheduled {
+      background: rgba($color-warning-base, 0.12);
+      color: darken(#F59E0B, 15%);
+      border-color: rgba($color-warning-base, 0.3);
+    }
+
+    &.active {
+      background: rgba($color-success-base, 0.1);
+      color: $color-success-dark;
+      border-color: rgba($color-success-base, 0.3);
+    }
+
+    &.expired {
+      background: rgba($color-danger-base, 0.1);
+      color: $color-danger-dark;
+      border-color: rgba($color-danger-base, 0.25);
+    }
+
+    // Pulsing green dot for "Active" state
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: $color-success-base;
+      animation: livePulse 1.8s ease-in-out infinite;
+    }
   }
 
   .exam-title {
@@ -215,12 +250,14 @@
 
 .tutor-actions.full-width {
       display: flex;
+      flex-direction: row;
+      justify-content: space-between;
       width: 100%;
       gap: $spacing-2;
       margin-top: $spacing-2;
 
       .modern-action-btn {
-        flex: 1; /* This makes the buttons stretch evenly to fill 100% of the space */
+        flex: 1;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -244,13 +281,13 @@
           svg { transform: scale(1.1); }
         }
 
-/* Edit Button Style */
-        &.edit {
+        /* Questions Button Style (Blue/Primary) */
+        &.questions {
           color: $color-primary-base;
           background: rgba($color-primary-base, 0.08);
           
           svg {
-            stroke: $color-primary-base; // Force the icon to be visible
+            stroke: $color-primary-base; 
           }
 
           &:hover { 
@@ -264,7 +301,27 @@
           }
         }
 
-        /* Publish Button Style */
+        /* Edit Button Style (Yellow/Warning) */
+        &.edit {
+          color: $color-warning-dark;
+          background: rgba($color-warning-base, 0.15);
+          
+          svg {
+            stroke: $color-warning-dark; 
+          }
+
+          &:hover { 
+            background: $color-warning-base; 
+            color: $color-neutral-white; 
+            box-shadow: 0 4px 12px rgba($color-warning-base, 0.25);
+            
+            svg {
+              stroke: $color-neutral-white;
+            }
+          }
+        }
+
+        /* Publish Button Style (Green) */
         &.publish {
           color: $color-success-base;
           background: rgba($color-success-base, 0.08);
@@ -275,7 +332,7 @@
           }
         }
 
-        /* Delete Button Style */
+        /* Delete Button Style (Red) */
         &.delete {
           color: $color-danger-base;
           background: rgba($color-danger-base, 0.08);
@@ -291,9 +348,42 @@
 
 // ── Modal Specific Overrides ───────────────────────────────────────────────
 
-// Defined here because it might be missing from global or needs specific width
+// Base wide modal (Always scrolling enabled to prevent vertical overflow)
 .wide-modal {
-  max-width: 650px;
+  max-width: 980px; // Made significantly wider horizontally
+  display: flex;
+  flex-direction: column;
+  
+  // Scroller applied globally to avoid modal getting cut off on standard screens
+  &.has-scroller {
+    max-height: 80vh; // Reduced from 85vh so it safely fits within smaller laptops
+    
+    .modal-body {
+      overflow-y: auto; 
+      overflow-x: hidden;
+      padding-right: $spacing-4; 
+      scroll-behavior: smooth; // Added smooth scrolling UX
+      
+      // Custom slim scrollbar
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+      &::-webkit-scrollbar-track {
+        background: rgba($color-neutral-100, 0.5);
+        border-radius: $border-radius-round;
+        margin-top: $spacing-2;
+        margin-bottom: $spacing-2;
+      }
+      &::-webkit-scrollbar-thumb {
+        background: $color-neutral-300;
+        border-radius: $border-radius-round;
+        
+        &:hover {
+          background: $color-neutral-400;
+        }
+      }
+    }
+  }
 }
 
 // Ensure the select dropdown looks good in the input-wrapper
@@ -315,7 +405,6 @@
   }
 }
 
-
 // ── Form UI Enhancements ───────────────────────────────────────────────────
 
 .form-row {
@@ -330,14 +419,20 @@
       grid-template-columns: 1fr 1fr;
       gap: $spacing-4;
     }
+    
+    // NEW: Added 3-column grid to hold Time Limit, Attempts, and Pass Score side-by-side
+    &.three-col-equal {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: $spacing-4;
+    }
   }
 }
 
 .type-cards-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: $spacing-4;
-  margin-top: $spacing-2;
+  gap: $spacing-3; // Slightly reduced gap
 
   @media (min-width: 640px) {
     &.three-col {
@@ -348,22 +443,23 @@
   .type-card {
     position: relative;
     display: flex;
-    flex-direction: column;
+    flex-direction: row; // Changed from column to row to save vertical space
     align-items: center;
-    text-align: center;
-    gap: $spacing-2;
-    padding: $spacing-4 $spacing-3;
+    justify-content: flex-start; // Align to the left
+    text-align: left;
+    gap: $spacing-3;
+    padding: $spacing-2 $spacing-3; // Reduced top/bottom padding
     border: 2px solid $color-neutral-200;
     border-radius: $border-radius-lg;
     cursor: pointer;
     background-color: $color-neutral-white;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s ease-in-out;
     overflow: hidden;
 
     &:hover {
       border-color: $color-primary-light;
       background-color: $color-neutral-50;
-      transform: translateY(-2px);
+      transform: translateY(-1px); // More subtle hover lift
       box-shadow: $shadow-sm;
 
       .type-icon {
@@ -376,13 +472,11 @@
       border-color: $color-primary-base;
       background-color: rgba($color-primary-base, 0.04);
       box-shadow: $shadow-md;
-      transform: translateY(-2px);
 
       .type-icon {
         color: $color-primary-base;
         background-color: $color-neutral-white;
         box-shadow: $shadow-sm;
-        transform: scale(1.1);
       }
 
       .type-info .type-name {
@@ -399,15 +493,16 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 44px;
-      height: 44px;
+      width: 32px; // Reduced from 44px
+      height: 32px; // Reduced from 44px
       background-color: $color-neutral-100;
       border-radius: $border-radius-md;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.2s ease-in-out;
+      flex-shrink: 0; // Prevent the icon from getting squished
       
       svg {
-        width: 22px;
-        height: 22px;
+        width: 16px; // Reduced from 22px
+        height: 16px; // Reduced from 22px
       }
     }
 
@@ -418,10 +513,10 @@
 
       .type-name {
         font-family: $font-family-primary;
-        font-weight: $font-weight-semibold;
+        font-weight: $font-weight-medium; // Slightly lighter weight for compact feel
         color: $color-neutral-700;
         font-size: $font-size-sm;
-        transition: color 0.3s ease;
+        transition: color 0.2s ease;
       }
     }
   }
@@ -431,3 +526,97 @@
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+// ── Re-open Expired Exam Banner ─────────────────────────────────────────────
+.reopen-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-3;
+  padding: $spacing-3 $spacing-4;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(245, 158, 11, 0.08));
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  border-left: 3px solid #F59E0B;
+  border-radius: $border-radius-lg;
+  margin-bottom: $spacing-4;
+  animation: fadeIn 0.25s ease;
+
+  .reopen-banner-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    color: #D97706;
+    margin-top: 1px;
+  }
+
+  .reopen-banner-text {
+    font-size: $font-size-sm;
+    color: #92400E;
+    line-height: 1.5;
+
+    strong {
+      display: block;
+      font-weight: $font-weight-semibold;
+      color: #B45309;
+      margin-bottom: 2px;
+    }
+
+    em {
+      font-style: normal;
+      font-weight: $font-weight-semibold;
+      text-decoration: underline;
+      text-decoration-style: dotted;
+    }
+  }
+}
+
+// ── Re-open field highlight (End Date input when exam is expired) ────────────
+.reopen-highlight {
+  .datetime-premium-wrapper {
+    border: 1px solid rgba(245, 158, 11, 0.6) !important;
+    border-radius: $border-radius-md;
+    background-color: rgba(251, 191, 36, 0.04);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12);
+    animation: pulseAmber 2s ease-in-out infinite;
+  }
+}
+
+.reopen-label-hint {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  color: #D97706;
+  margin-left: $spacing-2;
+  vertical-align: middle;
+}
+
+@keyframes pulseAmber {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12); }
+  50%       { box-shadow: 0 0 0 5px rgba(245, 158, 11, 0.22); }
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.75); }
+}
+
+// ── Result Visibility Hint ──────────────────────────────────────────────────
+.visibility-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  margin-top: $spacing-2;
+  padding: $spacing-2 $spacing-3;
+  background: linear-gradient(135deg, rgba($color-primary-base, 0.06), rgba($color-primary-light, 0.04));
+  border: 1px solid rgba($color-primary-base, 0.15);
+  border-radius: $border-radius-lg;
+  font-size: $font-size-xs;
+  color: $color-primary-dark;
+  font-weight: $font-weight-medium;
+
+  svg {
+    flex-shrink: 0;
+    color: $color-primary-base;
+    opacity: 0.8;
+  }
+}
+
+

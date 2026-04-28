@@ -1377,7 +1377,7 @@ Backend: Re-attempt request flow (student submits → admin reviews → approve/
 
 ---
 
-#### Stage 3.4 — F11: Question Bank Management ⬛ NEXT
+#### Stage 3.4 — F11: Question Bank Management ✅ COMPLETE
 
 > **⚠️ DEPENDENCY BLOCKER:** The publish endpoint enforces `QuestionCount > 0`. Without questions, no exam can be published and the entire exam lifecycle is blocked.
 
@@ -1487,17 +1487,17 @@ End-to-end verification: full exam lifecycle + all notification triggers + ExamT
 - [x] **Stage 1.6** — Fx: Public Registration (Student/Tutor)
 
 ### Phase 2 — Core LMS
-- [ ] **Stage 2.1** — LMS domain entities + database migration
-- [ ] **Stage 2.2** — F5: Course Management & Enrollment
-- [ ] **Stage 2.3** — F6: File Sharing (Course Materials)
-- [ ] **Stage 2.4** — F7: Announcements
+- [x] **Stage 2.1** — LMS domain entities + database migration
+- [x] **Stage 2.2** — F5: Course Management & Enrollment
+- [x] **Stage 2.3** — F6: File Sharing (Course Materials)
+- [x] **Stage 2.4** — F7: Announcements
 - [x] **Stage 2.5** — F8: Notifications System (Completed with Post-Test Bug Fixes)
 
 ### Phase 3 — Examination Management
 - [x] **Stage 3.1** — Exam domain entities + database migration ✅ Complete
 - [x] **Stage 3.2** — F9: Exam Management & Notifications ✅ Complete
 - [/] **Stage 3.3 Backend** — F10: Re-Attempt Requests (Backend only) ✅ Complete; Frontend deferred to 3.7
-- [ ] **Stage 3.4** — F11: Question Bank ⬛ NEXT
+- [x] **Stage 3.4** — F11: Question Bank ✅ COMPLETE
 - [ ] **Stage 3.5** — F12/F13: Question Randomization + Timed Exam Engine + Secure Token
 - [ ] **Stage 3.6** — F14: Exam Results & Auto-Grading
 - [ ] **Stage 3.7** — F10 Frontend: Re-Attempt Requests (Frontend Phase; backend done in 3.3)

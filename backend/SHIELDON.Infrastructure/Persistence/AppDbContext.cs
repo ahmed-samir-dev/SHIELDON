@@ -33,9 +33,17 @@ public class AppDbContext : DbContext
 
     // ── Phase 3: Examination & Grading ──────────────────────────────
     public DbSet<Exam> Exams { get; set; } = null!;
+
+    // Question Bank — course-level, shared across exams
     public DbSet<ExamQuestion> ExamQuestions { get; set; } = null!;
     public DbSet<QuestionOption> QuestionOptions { get; set; } = null!;
+
+    // Exam configuration
+    public DbSet<ExamSelectionRule> ExamSelectionRules { get; set; } = null!;
+
+    // Attempt lifecycle
     public DbSet<ExamAttempt> ExamAttempts { get; set; } = null!;
+    public DbSet<ExamAttemptQuestion> ExamAttemptQuestions { get; set; } = null!;
     public DbSet<AttemptAnswer> AttemptAnswers { get; set; } = null!;
     public DbSet<ExamToken> ExamTokens { get; set; } = null!;
     public DbSet<GradeRecord> GradeRecords { get; set; } = null!;

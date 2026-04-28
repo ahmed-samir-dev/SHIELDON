@@ -36,9 +36,9 @@ public class ExamConfiguration : IEntityTypeConfiguration<Exam>
             .HasForeignKey(e => e.CreatedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
             
-        builder.HasMany(e => e.Questions)
-            .WithOne(q => q.Exam)
-            .HasForeignKey(q => q.ExamId)
+        builder.HasMany(e => e.SelectionRules)
+            .WithOne(r => r.Exam)
+            .HasForeignKey(r => r.ExamId)
             .OnDelete(DeleteBehavior.Cascade);
             
         builder.HasMany(e => e.Attempts)

@@ -146,6 +146,8 @@ public class CourseService : ICourseService
         var approvedEnrollments = course.Enrollments
             .Count(e => e.Status == CourseEnrollmentStatus.Approved);
 
+        var publishedExamCount = course.Exams.Count(e => e.Status == ExamStatus.Published);
+
         return new CourseDetailResponse(
             course.Id,
             course.Title,
@@ -159,6 +161,7 @@ public class CourseService : ICourseService
             course.Announcements.Count,
             course.Assignments.Count,
             course.Exams.Count,
+            publishedExamCount,
             course.CreatedAt
         );
     }

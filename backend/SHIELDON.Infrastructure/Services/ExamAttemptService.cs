@@ -21,21 +21,31 @@ public class ExamAttemptService : IExamAttemptService
     public async Task<ApiResponse<StartExamResponse>> StartExamAsync(Guid examId, Guid studentId, CancellationToken ct = default)
     {
         var exam = await _db.Exams
-            .Include(e => e.Questions)
-                .ThenInclude(q => q.Options)
+            .Include(e => e.SelectionRules)
             .FirstOrDefaultAsync(e => e.Id == examId, ct)
             ?? throw new NotFoundException("Exam", examId);
 
         if (exam.Status != ExamStatus.Published)
             throw new BusinessRuleException("You cannot start an exam that is not published.");
 
+        if (exam.ScheduledAt.HasValue && exam.ScheduledAt.Value > DateTime.UtcNow)
+        {
+            var scheduledFor = exam.ScheduledAt.Value.ToString("MMM d, yyyy, h:mm tt UTC");
+            throw new BusinessRuleException($"This exam is scheduled to start on {scheduledFor}. Please wait.");
+        }
+
+        if (exam.ScheduledEndAt.HasValue && exam.ScheduledEndAt.Value < DateTime.UtcNow)
+        {
+            throw new BusinessRuleException("The deadline for this exam has passed. You can no longer start it.");
+        }
+
         var isEnrolled = await _db.CourseEnrollments.AnyAsync(
             e => e.CourseId == exam.CourseId && e.StudentId == studentId && e.Status == CourseEnrollmentStatus.Approved, ct);
         if (!isEnrolled)
             throw new ForbiddenException("You must be enrolled in the course to take this exam.");
 
-        if (exam.Questions.Count == 0)
-            throw new BusinessRuleException("This exam has no questions.");
+        if (!exam.SelectionRules.Any())
+            throw new BusinessRuleException("This exam has no question selection rules.");
 
         // Check attempts made
         var completedAttempts = await _db.ExamAttempts
@@ -51,6 +61,10 @@ public class ExamAttemptService : IExamAttemptService
         // Check for active attempt
         var activeAttempt = await _db.ExamAttempts
             .Include(a => a.Token)
+            .Include(a => a.Answers)
+            .Include(a => a.AttemptQuestions)
+                .ThenInclude(aq => aq.Question)
+                    .ThenInclude(q => q!.Options)
             .FirstOrDefaultAsync(a => a.ExamId == examId && a.StudentId == studentId && a.Status == AttemptStatus.InProgress, ct);
 
         if (activeAttempt != null)
@@ -71,6 +85,31 @@ public class ExamAttemptService : IExamAttemptService
         if (attemptsMade >= totalAllowed)
             throw new BusinessRuleException($"You have exhausted all attempts for this exam. (Max: {totalAllowed})");
 
+        // ── Draw questions from the bank (random selection per type) ──────────
+        var selectedQuestions = new List<ExamQuestion>();
+        var rng = new Random();
+
+        foreach (var rule in exam.SelectionRules)
+        {
+            var bankQuestions = await _db.ExamQuestions
+                .Include(q => q.Options)
+                .Where(q => q.CourseId == exam.CourseId && q.Type == rule.QuestionType)
+                .ToListAsync(ct);
+
+            if (bankQuestions.Count < rule.Count)
+                throw new BusinessRuleException(
+                    $"Not enough {rule.QuestionType} questions in the bank. Need {rule.Count}, found {bankQuestions.Count}.");
+
+            // Fisher-Yates shuffle and take Count
+            for (int i = bankQuestions.Count - 1; i > 0; i--)
+            {
+                int j = rng.Next(i + 1);
+                (bankQuestions[i], bankQuestions[j]) = (bankQuestions[j], bankQuestions[i]);
+            }
+
+            selectedQuestions.AddRange(bankQuestions.Take(rule.Count));
+        }
+
         // Create new attempt
         var attempt = new ExamAttempt
         {
@@ -83,12 +122,31 @@ public class ExamAttemptService : IExamAttemptService
         var token = new ExamToken
         {
             AttemptId = attempt.Id,
-            ExpiresAt = DateTime.UtcNow.AddMinutes(exam.TimeLimit).AddMinutes(2) // 2 min grace period
+            ExpiresAt = DateTime.UtcNow.AddMinutes(exam.TimeLimit)
         };
 
         attempt.Token = token;
         _db.ExamAttempts.Add(attempt);
+
+        // Save the snapshot of selected questions for this attempt
+        int orderIdx = 1;
+        foreach (var q in selectedQuestions)
+        {
+            _db.ExamAttemptQuestions.Add(new ExamAttemptQuestion
+            {
+                AttemptId = attempt.Id,
+                QuestionId = q.Id,
+                OrderIndex = orderIdx++
+            });
+        }
+
         await _db.SaveChangesAsync(ct);
+
+        // Reload with options for the response
+        await _db.Entry(attempt).Collection(a => a.AttemptQuestions).Query()
+            .Include(aq => aq.Question)
+                .ThenInclude(q => q!.Options)
+            .LoadAsync(ct);
 
         return ApiResponse<StartExamResponse>.Ok(CreateStartResponse(attempt, exam));
     }
@@ -97,8 +155,11 @@ public class ExamAttemptService : IExamAttemptService
     {
         var attempt = await GetValidAttemptAsync(attemptId, token, ct);
 
-        var question = await _db.ExamQuestions.FirstOrDefaultAsync(q => q.Id == request.QuestionId && q.ExamId == attempt.ExamId, ct)
-            ?? throw new BusinessRuleException("Question not found in this exam.");
+        // Validate against the attempt snapshot (not the whole bank)
+        var isValidQuestion = await _db.ExamAttemptQuestions
+            .AnyAsync(aq => aq.AttemptId == attemptId && aq.QuestionId == request.QuestionId, ct);
+        if (!isValidQuestion)
+            throw new BusinessRuleException("Question not found in this exam attempt.");
 
         var existingAnswer = await _db.AttemptAnswers.FirstOrDefaultAsync(a => a.AttemptId == attemptId && a.QuestionId == request.QuestionId, ct);
 
@@ -128,8 +189,9 @@ public class ExamAttemptService : IExamAttemptService
         var attempt = await _db.ExamAttempts
             .Include(a => a.Token)
             .Include(a => a.Exam)
-                .ThenInclude(e => e!.Questions)
-                    .ThenInclude(q => q.Options)
+            .Include(a => a.AttemptQuestions)
+                .ThenInclude(aq => aq.Question)
+                    .ThenInclude(q => q!.Options)
             .Include(a => a.Answers)
             .FirstOrDefaultAsync(a => a.Id == attemptId, ct)
             ?? throw new NotFoundException("Exam Attempt", attemptId);
@@ -144,12 +206,16 @@ public class ExamAttemptService : IExamAttemptService
         if (!isForceSubmit && attempt.Token.ExpiresAt < DateTime.UtcNow.AddMinutes(-5))
             throw new BusinessRuleException("Time limit has expired.");
 
-        // Grade MCQ/TF
+        // Grade using the snapshot questions
+        var snapshotQuestions = attempt.AttemptQuestions
+            .Select(aq => aq.Question!)
+            .ToList();
+
         decimal totalScore = 0;
-        decimal maxPoints = attempt.Exam!.Questions.Sum(q => q.Points);
+        decimal maxPoints = snapshotQuestions.Sum(q => q.Points);
         bool requiresManualReview = false;
 
-        foreach (var question in attempt.Exam.Questions)
+        foreach (var question in snapshotQuestions)
         {
             var answer = attempt.Answers.FirstOrDefault(a => a.QuestionId == question.Id);
             if (answer == null) continue; // Unanswered
@@ -213,53 +279,42 @@ public class ExamAttemptService : IExamAttemptService
 
     private StartExamResponse CreateStartResponse(ExamAttempt attempt, Exam exam)
     {
-        var ordered = exam.Questions.OrderBy(q => q.OrderIndex).ToList();
-        var randomQuestions = ordered.Where(q => q.IsRandomized).ToList();
-        var random = new Random(attempt.Id.GetHashCode());
+        // Read questions from the snapshot, ordered by the attempt's OrderIndex
+        var snapshotQuestions = attempt.AttemptQuestions
+            .OrderBy(aq => aq.OrderIndex)
+            .Select(aq => aq.Question!)
+            .ToList();
 
-        for (int i = randomQuestions.Count - 1; i > 0; i--)
-        {
-            int j = random.Next(i + 1);
-            var temp = randomQuestions[i];
-            randomQuestions[i] = randomQuestions[j];
-            randomQuestions[j] = temp;
-        }
-
-        int rIndex = 0;
+        var rng = new Random(attempt.Id.GetHashCode());
         var finalOrder = new List<StudentQuestionDto>();
-        
-        foreach (var q in ordered)
+
+        foreach (var q in snapshotQuestions)
         {
-            var qToAdd = q.IsRandomized ? randomQuestions[rIndex++] : q;
-            
-            // Mask options (remove IsCorrect) and shuffle options too if you want, but for now just mask
-            var maskedOptions = qToAdd.Options
-                .OrderBy(o => o.Id) // Stable sort for options, could shuffle with the same random seed if desired
+            var maskedOptions = q.Options
+                .OrderBy(o => o.Id)
                 .Select(o => new StudentOptionDto(o.Id, o.OptionText))
                 .ToList();
 
-            // Optional: Shuffle options for MCQ deterministically
-            if (qToAdd.Type == QuestionType.MCQ && qToAdd.IsRandomized)
+            // Shuffle MCQ options deterministically per attempt
+            if (q.Type == QuestionType.MCQ && q.IsRandomized)
             {
-                var optionsArray = maskedOptions.ToArray();
-                for (int i = optionsArray.Length - 1; i > 0; i--)
+                var arr = maskedOptions.ToArray();
+                for (int i = arr.Length - 1; i > 0; i--)
                 {
-                    int j = random.Next(i + 1);
-                    var temp = optionsArray[i];
-                    optionsArray[i] = optionsArray[j];
-                    optionsArray[j] = temp;
+                    int j = rng.Next(i + 1);
+                    (arr[i], arr[j]) = (arr[j], arr[i]);
                 }
-                maskedOptions = optionsArray.ToList();
+                maskedOptions = arr.ToList();
             }
 
-            finalOrder.Add(new StudentQuestionDto(
-                qToAdd.Id,
-                qToAdd.QuestionText,
-                qToAdd.Type,
-                qToAdd.Points,
-                maskedOptions
-            ));
+            finalOrder.Add(new StudentQuestionDto(q.Id, q.QuestionText, q.Type, q.Points, maskedOptions));
         }
+
+        var savedAnswers = attempt.Answers?.Select(a => new SavedAnswerDto(
+            a.QuestionId,
+            a.SelectedOptionId,
+            a.TextAnswer
+        )).ToList() ?? new List<SavedAnswerDto>();
 
         return new StartExamResponse(
             attempt.Id,
@@ -267,7 +322,8 @@ public class ExamAttemptService : IExamAttemptService
             exam.TimeLimit,
             exam.PassScore,
             attempt.Token.ExpiresAt,
-            finalOrder
+            finalOrder,
+            savedAnswers
         );
     }
 }
