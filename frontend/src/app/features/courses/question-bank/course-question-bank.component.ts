@@ -1,28 +1,30 @@
-import { Component, EventEmitter, Input, OnInit, Output, inject, signal } from '@angular/core';
+import { Component, Input, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { QuestionService } from '../services/question.service';
+import { QuestionBankService } from '../services/question-bank.service';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
-import { ExamSummaryResponse } from '../../../core/models/exam.model';
-import { AddOptionRequest, AddQuestionRequest, ExamQuestion, ReorderQuestionsRequest, UpdateQuestionRequest } from '../../../core/models/question.model';
+import { AddOptionRequest, AddQuestionRequest, ExamQuestion, UpdateQuestionRequest } from '../../../core/models/question.model';
 
 @Component({
-  selector: 'app-exam-questions',
+  selector: 'app-course-question-bank',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './exam-questions.html',
-  styleUrl: './exam-questions.scss'
+  templateUrl: './course-question-bank.component.html',
+  styleUrl: './course-question-bank.component.scss'
 })
-export class ExamQuestionsComponent implements OnInit {
-  @Input({ required: true }) exam!: ExamSummaryResponse;
-  @Output() close = new EventEmitter<void>();
+export class CourseQuestionBankComponent implements OnInit {
+  @Input({ required: true }) courseId!: string;
 
-  private questionService = inject(QuestionService);
+  private questionBankService = inject(QuestionBankService);
   private toastr = inject(ToastrService);
   private fb = inject(FormBuilder);
 
   questions = signal<ExamQuestion[]>([]);
+  mcqCount = computed(() => this.questions().filter(q => q.type === 'MCQ').length);
+  tfCount = computed(() => this.questions().filter(q => q.type === 'TrueFalse').length);
+  saCount = computed(() => this.questions().filter(q => q.type === 'ShortAnswer').length);
+
   isLoading = signal(true);
   isSubmitting = signal(false);
   
@@ -31,14 +33,25 @@ export class ExamQuestionsComponent implements OnInit {
 
   questionForm: FormGroup;
 
-  // Track drag and drop state for reordering
-  draggedIndex: number | null = null;
+  // Pagination
+  currentPage = signal(1);
+  pageSize = signal(12);
+
+  paginatedQuestions = computed(() => {
+    const start = (this.currentPage() - 1) * this.pageSize();
+    return this.questions().slice(start, start + this.pageSize());
+  });
+
+  totalPages = computed(() => Math.ceil(this.questions().length / this.pageSize()) || 1);
+
+  // View Details Modal
+  viewingQuestion = signal<ExamQuestion | null>(null);
 
   constructor() {
     this.questionForm = this.fb.group({
       type: ['MCQ', Validators.required],
       questionText: ['', Validators.required],
-      points: [1, [Validators.required, Validators.min(0.1)]],
+      points: [1, [Validators.required, Validators.min(1)]],
       isRandomized: [true],
       // For MCQ
       options: this.fb.array([]),
@@ -57,9 +70,10 @@ export class ExamQuestionsComponent implements OnInit {
 
   loadQuestions() {
     this.isLoading.set(true);
-    this.questionService.getQuestions(this.exam.id).subscribe({
+    this.questionBankService.getQuestions(this.courseId).subscribe({
       next: (res) => {
         this.questions.set(res.data || []);
+        this.currentPage.set(1);
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -70,10 +84,6 @@ export class ExamQuestionsComponent implements OnInit {
   }
 
   openCreateModal() {
-    if (this.exam.status !== 'Draft') {
-      this.toastr.warning('Questions can only be added to Draft exams.');
-      return;
-    }
     this.editingQuestionId.set(null);
     this.questionForm.reset({
       type: 'MCQ',
@@ -81,6 +91,7 @@ export class ExamQuestionsComponent implements OnInit {
       isRandomized: true,
       trueFalseCorrectAnswer: true
     });
+    this.questionForm.get('type')?.enable();
     this.optionsFormArray.clear();
     // Default 4 options for MCQ
     for (let i = 0; i < 4; i++) {
@@ -94,24 +105,33 @@ export class ExamQuestionsComponent implements OnInit {
   }
 
   openEditModal(question: ExamQuestion) {
-    if (this.exam.status !== 'Draft') {
-      this.toastr.warning('Questions can only be edited on Draft exams.');
-      return;
-    }
     this.editingQuestionId.set(question.id);
     
     // Clear options
     this.optionsFormArray.clear();
 
-    // We can only edit questionText, points, isRandomized for existing questions via PATCH
-    // Editing options for MCQ is done via separate endpoints, but for simplicity in UI, 
-    // we might just disable type changing.
+    // Pre-fill options based on the question type
+    if (question.type === 'MCQ') {
+      question.options.forEach(opt => {
+        this.optionsFormArray.push(this.fb.group({
+          optionText: [opt.optionText, Validators.required],
+          isCorrect: [opt.isCorrect]
+        }));
+      });
+    }
+
+    const isTrueCorrect = question.type === 'TrueFalse' 
+      ? question.options.find(o => o.optionText === 'True')?.isCorrect || false
+      : true;
+
     this.questionForm.patchValue({
       type: question.type,
       questionText: question.questionText,
       points: question.points,
-      isRandomized: question.isRandomized
+      isRandomized: question.isRandomized,
+      trueFalseCorrectAnswer: isTrueCorrect
     });
+    this.questionForm.get('type')?.disable();
 
     this.isModalOpen.set(true);
   }
@@ -149,6 +169,9 @@ export class ExamQuestionsComponent implements OnInit {
         for (let i = 0; i < 4; i++) this.addOptionControl();
         this.optionsFormArray.at(0).patchValue({ isCorrect: true });
       }
+    } else {
+      // Clear options so hidden empty fields don't invalidate the form
+      this.optionsFormArray.clear();
     }
   }
 
@@ -158,7 +181,7 @@ export class ExamQuestionsComponent implements OnInit {
       return;
     }
 
-    const formValue = this.questionForm.value;
+    const formValue = this.questionForm.getRawValue();
 
     this.isSubmitting.set(true);
 
@@ -170,7 +193,24 @@ export class ExamQuestionsComponent implements OnInit {
         isRandomized: formValue.isRandomized
       };
 
-      this.questionService.updateQuestion(this.exam.id, this.editingQuestionId()!, updateReq).subscribe({
+      if (formValue.type === 'MCQ') {
+        const options: AddOptionRequest[] = formValue.options.map((o: any) => ({
+          optionText: o.optionText,
+          isCorrect: !!o.isCorrect
+        }));
+        
+        const correctCount = options.filter(o => o.isCorrect).length;
+        if (correctCount !== 1) {
+          this.toastr.error('MCQ must have exactly 1 correct option.');
+          this.isSubmitting.set(false);
+          return;
+        }
+        updateReq.options = options;
+      } else if (formValue.type === 'TrueFalse') {
+        updateReq.trueFalseCorrectAnswer = formValue.trueFalseCorrectAnswer === 'true' || formValue.trueFalseCorrectAnswer === true;
+      }
+
+      this.questionBankService.updateQuestion(this.courseId, this.editingQuestionId()!, updateReq).subscribe({
         next: () => {
           this.toastr.success('Question updated successfully');
           this.finishSubmit();
@@ -206,11 +246,9 @@ export class ExamQuestionsComponent implements OnInit {
         req.trueFalseCorrectAnswer = formValue.trueFalseCorrectAnswer === 'true' || formValue.trueFalseCorrectAnswer === true;
       }
 
-      this.questionService.addQuestion(this.exam.id, req).subscribe({
+      this.questionBankService.addQuestion(this.courseId, req).subscribe({
         next: () => {
           this.toastr.success('Question added successfully');
-          // Increment the question count directly in the parent object so publish checking works
-          this.exam.questionCount++;
           this.finishSubmit();
         },
         error: (err) => {
@@ -228,11 +266,6 @@ export class ExamQuestionsComponent implements OnInit {
   }
 
   deleteQuestion(questionId: string) {
-    if (this.exam.status !== 'Draft') {
-      this.toastr.warning('Questions can only be deleted from Draft exams.');
-      return;
-    }
-
     Swal.fire({
       title: 'Delete Question?',
       text: 'Are you sure you want to delete this question? This cannot be undone.',
@@ -243,10 +276,9 @@ export class ExamQuestionsComponent implements OnInit {
       confirmButtonText: 'Yes, delete it'
     }).then((result) => {
       if (result.isConfirmed) {
-        this.questionService.deleteQuestion(this.exam.id, questionId).subscribe({
+        this.questionBankService.deleteQuestion(this.courseId, questionId).subscribe({
           next: () => {
             this.toastr.success('Question deleted successfully');
-            this.exam.questionCount--;
             this.loadQuestions();
           },
           error: (err) => {
@@ -257,45 +289,30 @@ export class ExamQuestionsComponent implements OnInit {
     });
   }
 
-  // ── Drag and Drop Reordering ──────────────────────────────────────────────
-
-  onDragStart(index: number) {
-    if (this.exam.status !== 'Draft') return;
-    this.draggedIndex = index;
-  }
-
-  onDragOver(event: DragEvent, index: number) {
-    if (this.exam.status !== 'Draft') return;
-    event.preventDefault(); // Necessary to allow dropping
-  }
-
-  onDrop(event: DragEvent, dropIndex: number) {
-    if (this.exam.status !== 'Draft') return;
-    event.preventDefault();
-    if (this.draggedIndex !== null && this.draggedIndex !== dropIndex) {
-      const qs = [...this.questions()];
-      const movedItem = qs.splice(this.draggedIndex, 1)[0];
-      qs.splice(dropIndex, 0, movedItem);
-      
-      // Update local array immediately for UI feedback
-      this.questions.set(qs);
-      
-      // Call API
-      const req: ReorderQuestionsRequest = {
-        items: qs.map((q, idx) => ({ questionId: q.id, orderIndex: idx + 1 }))
-      };
-
-      this.questionService.reorderQuestions(this.exam.id, req).subscribe({
-        next: () => {
-          // Success silently
-        },
-        error: (err) => {
-          this.toastr.error(err.error?.message || 'Failed to reorder questions');
-          this.loadQuestions(); // Reload to restore previous order
-        }
-      });
+  nextPage() {
+    if (this.currentPage() < this.totalPages()) {
+      this.currentPage.update(p => p + 1);
     }
-    this.draggedIndex = null;
+  }
+
+  prevPage() {
+    if (this.currentPage() > 1) {
+      this.currentPage.update(p => p - 1);
+    }
+  }
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages()) {
+      this.currentPage.set(page);
+    }
+  }
+
+  openViewDetailsModal(question: ExamQuestion) {
+    this.viewingQuestion.set(question);
+  }
+
+  closeViewDetailsModal() {
+    this.viewingQuestion.set(null);
   }
 
   getBadgeClass(type: string): string {

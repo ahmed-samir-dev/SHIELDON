@@ -60,6 +60,7 @@ export interface CourseDetailResponse {
   announcementCount: number;
   assignmentCount: number;
   examCount: number;
+  publishedExamCount: number;
   createdAt: string;
 }
 

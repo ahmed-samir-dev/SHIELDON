@@ -47,4 +47,5 @@ public class Course
     public ICollection<Announcement> Announcements { get; set; } = [];
     public ICollection<Assignment> Assignments { get; set; } = [];
     public ICollection<Exam> Exams { get; set; } = [];
+    public ICollection<ExamQuestion> QuestionBankItems { get; set; } = [];
 }

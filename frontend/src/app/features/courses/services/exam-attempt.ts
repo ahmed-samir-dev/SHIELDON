@@ -23,6 +23,12 @@ export interface StudentQuestionDto {
   options: StudentOptionDto[];
 }
 
+export interface SavedAnswerDto {
+  questionId: string;
+  selectedOptionId?: string | null;
+  textAnswer?: string | null;
+}
+
 export interface StartExamResponse {
   attemptId: string;
   token: string;
@@ -30,6 +36,7 @@ export interface StartExamResponse {
   passScore: number;
   expiresAt: string;
   questions: StudentQuestionDto[];
+  savedAnswers: SavedAnswerDto[];
 }
 
 export interface SaveAnswerRequest {

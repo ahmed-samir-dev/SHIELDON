@@ -44,13 +44,19 @@ public class ExamReminderBackgroundService : BackgroundService
             try
             {
                 await SendUpcomingExamRemindersAsync(stoppingToken);
+                await Task.Delay(_pollingInterval, stoppingToken);
+            }
+            catch (OperationCanceledException)
+            {
+                // Host is shutting down — exit the loop cleanly without crashing.
+                break;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in ExamReminderBackgroundService cycle.");
+                // Brief back-off before retrying so a transient error doesn't tight-loop.
+                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken).ConfigureAwait(false);
             }
-
-            await Task.Delay(_pollingInterval, stoppingToken);
         }
     }
 

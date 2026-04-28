@@ -16,4 +16,5 @@ public class ExamAttempt
     public User? Student { get; set; }
     public ExamToken? Token { get; set; }
     public ICollection<AttemptAnswer> Answers { get; set; } = [];
+    public ICollection<ExamAttemptQuestion> AttemptQuestions { get; set; } = [];
 }

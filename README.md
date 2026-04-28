@@ -120,7 +120,7 @@ This project enforces a strict **AI Model Split** for all feature development:
 | 3.1 | Exam & Grade Domain Entities + Database | ✅ Complete |
 | 3.2 | F9: Exam Management + Exam Notifications (in-app & email) | ✅ Complete |
 | 3.3 Backend | F10: Re-Attempt Requests — Backend | ✅ Complete |
-| 3.4 | F11: Question Bank Management (MCQ / True-False / Short Answer) | ⬛ Next |
+| 3.4 | F11: Question Bank Management (MCQ / True-False / Short Answer) | ✅ Complete |
 | 3.5 | F12/F13: Question Randomization + Timed Exam Engine + Secure Token | ⬜ Pending |
 | 3.6 | F14: Exam Results & Auto-Grading | ⬜ Pending |
 | 3.7 | F10 Frontend: Re-Attempt Requests — Frontend (backend done in 3.3) | ⬜ Pending |

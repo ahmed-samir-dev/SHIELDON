@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SHIELDON.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using SHIELDON.Infrastructure.Persistence;
 namespace SHIELDON.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260428004346_AddExamScheduledEndAt")]
+    partial class AddExamScheduledEndAt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -486,43 +489,13 @@ namespace SHIELDON.Infrastructure.Migrations
                     b.ToTable("ExamAttempts");
                 });
 
-            modelBuilder.Entity("SHIELDON.Domain.Entities.ExamAttemptQuestion", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("AttemptId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("OrderIndex")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AttemptId");
-
-                    b.HasIndex("QuestionId");
-
-                    b.ToTable("ExamAttemptQuestions");
-                });
-
             modelBuilder.Entity("SHIELDON.Domain.Entities.ExamQuestion", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CourseId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("CreatedByUserId")
+                    b.Property<Guid>("ExamId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsRandomized")
@@ -546,33 +519,9 @@ namespace SHIELDON.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CourseId");
-
-                    b.ToTable("ExamQuestions");
-                });
-
-            modelBuilder.Entity("SHIELDON.Domain.Entities.ExamSelectionRule", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Count")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("ExamId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("QuestionType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.HasKey("Id");
-
                     b.HasIndex("ExamId");
 
-                    b.ToTable("ExamSelectionRules");
+                    b.ToTable("ExamQuestions");
                 });
 
             modelBuilder.Entity("SHIELDON.Domain.Entities.ExamToken", b =>
@@ -1159,40 +1108,10 @@ namespace SHIELDON.Infrastructure.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("SHIELDON.Domain.Entities.ExamAttemptQuestion", b =>
-                {
-                    b.HasOne("SHIELDON.Domain.Entities.ExamAttempt", "Attempt")
-                        .WithMany("AttemptQuestions")
-                        .HasForeignKey("AttemptId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SHIELDON.Domain.Entities.ExamQuestion", "Question")
-                        .WithMany()
-                        .HasForeignKey("QuestionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Attempt");
-
-                    b.Navigation("Question");
-                });
-
             modelBuilder.Entity("SHIELDON.Domain.Entities.ExamQuestion", b =>
                 {
-                    b.HasOne("SHIELDON.Domain.Entities.Course", "Course")
-                        .WithMany("QuestionBankItems")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-                });
-
-            modelBuilder.Entity("SHIELDON.Domain.Entities.ExamSelectionRule", b =>
-                {
                     b.HasOne("SHIELDON.Domain.Entities.Exam", "Exam")
-                        .WithMany("SelectionRules")
+                        .WithMany("Questions")
                         .HasForeignKey("ExamId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1343,8 +1262,6 @@ namespace SHIELDON.Infrastructure.Migrations
                     b.Navigation("Exams");
 
                     b.Navigation("Materials");
-
-                    b.Navigation("QuestionBankItems");
                 });
 
             modelBuilder.Entity("SHIELDON.Domain.Entities.Exam", b =>
@@ -1353,14 +1270,12 @@ namespace SHIELDON.Infrastructure.Migrations
 
                     b.Navigation("GradeRecords");
 
-                    b.Navigation("SelectionRules");
+                    b.Navigation("Questions");
                 });
 
             modelBuilder.Entity("SHIELDON.Domain.Entities.ExamAttempt", b =>
                 {
                     b.Navigation("Answers");
-
-                    b.Navigation("AttemptQuestions");
 
                     b.Navigation("Token");
                 });

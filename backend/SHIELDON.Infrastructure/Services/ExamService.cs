@@ -54,6 +54,7 @@ public class ExamService : IExamService
             PassScore = request.PassScore,
             ResultVisibility = resultVisibility,
             ScheduledAt = request.ScheduledAt,
+            ScheduledEndAt = request.ScheduledEndAt,
             ScheduledReleaseAt = request.ScheduledReleaseAt,
             Status = ExamStatus.Draft,
             CreatedByUserId = requestingUserId,
@@ -62,9 +63,30 @@ public class ExamService : IExamService
         };
 
         _db.Exams.Add(exam);
+
+        // Persist selection rules
+        if (request.SelectionRules?.Count > 0)
+        {
+            foreach (var rule in request.SelectionRules)
+            {
+                if (!Enum.TryParse<QuestionType>(rule.QuestionType, ignoreCase: true, out var qt))
+                    throw new BusinessRuleException($"Invalid QuestionType '{rule.QuestionType}' in selection rule.");
+                if (rule.Count < 1)
+                    throw new BusinessRuleException($"Selection rule for {rule.QuestionType} must request at least 1 question.");
+
+                _db.ExamSelectionRules.Add(new ExamSelectionRule
+                {
+                    ExamId = exam.Id,
+                    QuestionType = qt,
+                    Count = rule.Count
+                });
+            }
+        }
+
         await _db.SaveChangesAsync(ct);
 
-        return MapToSummary(exam, course.Title, 0);
+        var bankCount = await _db.ExamQuestions.CountAsync(q => q.CourseId == courseId, ct);
+        return MapToSummary(exam, course.Title, bankCount, []);
     }
 
     // ── Get List ──────────────────────────────────────────────────────────────
@@ -108,14 +130,11 @@ public class ExamService : IExamService
             .OrderByDescending(e => e.CreatedAt)
             .Skip((query.Page - 1) * query.PageSize)
             .Take(query.PageSize)
-            .Select(e => new
-            {
-                Exam = e,
-                QuestionCount = e.Questions.Count
-            })
+            .Include(e => e.SelectionRules)
             .ToListAsync(ct);
 
-        var items = exams.Select(x => MapToSummary(x.Exam, course.Title, x.QuestionCount)).ToList();
+        var bankCount = await _db.ExamQuestions.CountAsync(q => q.CourseId == courseId, ct);
+        var items = exams.Select(e => MapToSummary(e, course.Title, bankCount, e.SelectionRules.ToList())).ToList();
 
         return new PagedResponse<ExamSummaryResponse>
         {
@@ -137,7 +156,7 @@ public class ExamService : IExamService
         var exam = await _db.Exams
             .Include(e => e.Course)
             .Include(e => e.CreatedByUser)
-            .Include(e => e.Questions)
+            .Include(e => e.SelectionRules)
             .FirstOrDefaultAsync(e => e.Id == examId, ct)
             ?? throw new NotFoundException("Exam", examId);
 
@@ -157,7 +176,8 @@ public class ExamService : IExamService
             ? $"{exam.CreatedByUser.FirstName} {exam.CreatedByUser.LastName}"
             : "Unknown";
 
-        return MapToDetail(exam, exam.Course!.Title, exam.Questions.Count, creatorName);
+        var bankCount = await _db.ExamQuestions.CountAsync(q => q.CourseId == exam.CourseId, ct);
+        return MapToDetail(exam, exam.Course!.Title, bankCount, exam.SelectionRules.ToList(), creatorName);
     }
 
     // ── Update ────────────────────────────────────────────────────────────────
@@ -171,7 +191,7 @@ public class ExamService : IExamService
     {
         var exam = await _db.Exams
             .Include(e => e.Course)
-            .Include(e => e.Questions)
+            .Include(e => e.SelectionRules)
             .FirstOrDefaultAsync(e => e.Id == examId, ct)
             ?? throw new NotFoundException("Exam", examId);
 
@@ -186,6 +206,7 @@ public class ExamService : IExamService
         if (request.MaxAttempts.HasValue) exam.MaxAttempts = request.MaxAttempts.Value;
         if (request.PassScore.HasValue) exam.PassScore = request.PassScore.Value;
         if (request.ScheduledAt.HasValue) exam.ScheduledAt = request.ScheduledAt.Value;
+        if (request.ScheduledEndAt.HasValue) exam.ScheduledEndAt = request.ScheduledEndAt.Value;
         if (request.ScheduledReleaseAt.HasValue) exam.ScheduledReleaseAt = request.ScheduledReleaseAt.Value;
 
         if (request.ResultVisibility != null)
@@ -195,14 +216,38 @@ public class ExamService : IExamService
             exam.ResultVisibility = vis;
         }
 
+        // Replace selection rules if provided
+        if (request.SelectionRules != null)
+        {
+            _db.ExamSelectionRules.RemoveRange(exam.SelectionRules);
+            foreach (var rule in request.SelectionRules)
+            {
+                if (!Enum.TryParse<QuestionType>(rule.QuestionType, ignoreCase: true, out var qt))
+                    throw new BusinessRuleException($"Invalid QuestionType '{rule.QuestionType}' in selection rule.");
+                if (rule.Count < 1)
+                    throw new BusinessRuleException($"Selection rule for {rule.QuestionType} must request at least 1 question.");
+
+                _db.ExamSelectionRules.Add(new ExamSelectionRule
+                {
+                    ExamId = exam.Id,
+                    QuestionType = qt,
+                    Count = rule.Count
+                });
+            }
+        }
+
         exam.UpdatedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync(ct);
+
+        // Reload selection rules after save
+        await _db.Entry(exam).Collection(e => e.SelectionRules).LoadAsync(ct);
 
         var creatorName = "Unknown";
         var creator = await _db.Users.FindAsync(new object[] { exam.CreatedByUserId }, ct);
         if (creator != null) creatorName = $"{creator.FirstName} {creator.LastName}";
 
-        return MapToDetail(exam, exam.Course!.Title, exam.Questions.Count, creatorName);
+        var bankCount = await _db.ExamQuestions.CountAsync(q => q.CourseId == exam.CourseId, ct);
+        return MapToDetail(exam, exam.Course!.Title, bankCount, exam.SelectionRules.ToList(), creatorName);
     }
 
     // ── Delete ────────────────────────────────────────────────────────────────
@@ -237,7 +282,7 @@ public class ExamService : IExamService
     {
         var exam = await _db.Exams
             .Include(e => e.Course)
-            .Include(e => e.Questions)
+            .Include(e => e.SelectionRules)
             .FirstOrDefaultAsync(e => e.Id == examId, ct)
             ?? throw new NotFoundException("Exam", examId);
 
@@ -246,8 +291,22 @@ public class ExamService : IExamService
         if (exam.Status != ExamStatus.Draft)
             throw new BusinessRuleException($"Exam is already '{exam.Status}' and cannot be published again.");
 
-        if (!exam.Questions.Any())
-            throw new BusinessRuleException("Cannot publish an exam with no questions. Add at least one question first.");
+        if (!exam.SelectionRules.Any())
+            throw new BusinessRuleException("Cannot publish an exam with no question selection rules. Add at least one selection rule first.");
+
+        // Validate bank has enough questions per type
+        foreach (var rule in exam.SelectionRules)
+        {
+            var available = await _db.ExamQuestions
+                .CountAsync(q => q.CourseId == exam.CourseId && q.Type == rule.QuestionType, ct);
+
+            if (available < rule.Count)
+            {
+                var typeName = rule.QuestionType.ToString();
+                throw new BusinessRuleException(
+                    $"Not enough {typeName} questions in the bank. Need {rule.Count}, found {available}.");
+            }
+        }
 
         exam.Status = ExamStatus.Published;
         exam.UpdatedAt = DateTime.UtcNow;
@@ -280,7 +339,8 @@ public class ExamService : IExamService
         var creator = await _db.Users.FindAsync(new object[] { exam.CreatedByUserId }, ct);
         if (creator != null) creatorName = $"{creator.FirstName} {creator.LastName}";
 
-        return MapToDetail(exam, exam.Course!.Title, exam.Questions.Count, creatorName);
+        var bankCount = await _db.ExamQuestions.CountAsync(q => q.CourseId == exam.CourseId, ct);
+        return MapToDetail(exam, exam.Course!.Title, bankCount, exam.SelectionRules.ToList(), creatorName);
     }
 
     // ── Private Helpers ───────────────────────────────────────────────────────
@@ -303,7 +363,7 @@ public class ExamService : IExamService
             throw new BusinessRuleException("Pass score must be between 0 and 100.");
     }
 
-    private static ExamSummaryResponse MapToSummary(Exam e, string courseTitle, int questionCount) => new(
+    private static ExamSummaryResponse MapToSummary(Exam e, string courseTitle, int bankCount, List<ExamSelectionRule> rules) => new(
         Id: e.Id,
         CourseId: e.CourseId,
         CourseTitle: courseTitle,
@@ -315,12 +375,14 @@ public class ExamService : IExamService
         Status: e.Status.ToString(),
         ResultVisibility: e.ResultVisibility.ToString(),
         ScheduledAt: e.ScheduledAt,
+        ScheduledEndAt: e.ScheduledEndAt,
         ScheduledReleaseAt: e.ScheduledReleaseAt,
-        QuestionCount: questionCount,
+        BankQuestionCount: bankCount,
+        SelectionRules: rules.Select(r => new ExamSelectionRuleResponse(r.Id, r.QuestionType.ToString(), r.Count)).ToList(),
         CreatedAt: e.CreatedAt
     );
 
-    private static ExamDetailResponse MapToDetail(Exam e, string courseTitle, int questionCount, string createdByName) => new(
+    private static ExamDetailResponse MapToDetail(Exam e, string courseTitle, int bankCount, List<ExamSelectionRule> rules, string createdByName) => new(
         Id: e.Id,
         CourseId: e.CourseId,
         CourseTitle: courseTitle,
@@ -332,8 +394,10 @@ public class ExamService : IExamService
         Status: e.Status.ToString(),
         ResultVisibility: e.ResultVisibility.ToString(),
         ScheduledAt: e.ScheduledAt,
+        ScheduledEndAt: e.ScheduledEndAt,
         ScheduledReleaseAt: e.ScheduledReleaseAt,
-        QuestionCount: questionCount,
+        BankQuestionCount: bankCount,
+        SelectionRules: rules.Select(r => new ExamSelectionRuleResponse(r.Id, r.QuestionType.ToString(), r.Count)).ToList(),
         CreatedByName: createdByName,
         CreatedAt: e.CreatedAt,
         UpdatedAt: e.UpdatedAt

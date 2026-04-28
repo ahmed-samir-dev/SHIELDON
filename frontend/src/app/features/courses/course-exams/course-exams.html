@@ -1,316 +1,443 @@
 <div class="exams-container">
 
-  @if (!selectedExamForQuestions()) {
-
-    <!-- ══ HEADER ══════════════════════════════════════════════════════ -->
-    <div class="exams-header">
-      <div class="header-title">
-        <h2>Exams</h2>
-        <p class="subtitle">
-          @if (canManageExams()) {
-            Create and manage assessment exams for this course.
-          } @else {
-            View and take available exams for your course.
-          }
-        </p>
-      </div>
-
-      @if (canManageExams()) {
-        <button class="btn btn-primary post-btn" (click)="openCreateModal()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          Create Exam
-        </button>
-      }
+  <!-- ══ HEADER ══════════════════════════════════════════════════════ -->
+  <div class="exams-header">
+    <div class="header-title">
+      <h2>Exams</h2>
+      <p class="subtitle">
+        @if (canManageExams()) {
+        Create and manage assessment exams for this course.
+        } @else {
+        View and take available exams for your course.
+        }
+      </p>
     </div>
 
-    <!-- ══ CONTENT ═══════════════════════════════════════════════════════ -->
-    @if (isLoading()) {
-      <div class="loading-state">
-        <div class="spinner"></div>
-        <p>Loading exams...</p>
-      </div>
-    } @else if (exams().length === 0) {
-      <div class="empty-state">
-        <div class="empty-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-            <polyline points="14 2 14 8 20 8"/>
-            <path d="M9 13h6"/><path d="M9 17h3"/>
-          </svg>
-        </div>
-        <h3>No Exams Found</h3>
-        <p>There are currently no exams available for this course.</p>
-      </div>
-    } @else {
-      <div class="exams-feed">
-        @for (exam of exams(); track exam.id) {
-          <div class="exam-card" [class.draft]="exam.status === 'Draft'">
-            <div class="card-accent"></div>
-            <div class="card-body">
-              
-              <div class="card-header">
-                <div class="status-badge" [ngClass]="exam.status.toLowerCase()">
-                  {{ exam.status }}
-                </div>
-                @if (exam.scheduledAt) {
-                  <div class="schedule-badge">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                    Scheduled
-                  </div>
-                }
-              </div>
-
-              <h4 class="exam-title">{{ exam.title }}</h4>
-              
-              <div class="exam-meta">
-                <div class="meta-item" title="Time Limit">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                  {{ exam.timeLimit }} mins
-                </div>
-                <div class="meta-item" title="Max Attempts">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="1 4 1 10 7 10"></polyline>
-                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-                  </svg>
-                  {{ exam.maxAttempts }} Attempt{{ exam.maxAttempts !== 1 ? 's' : '' }}
-                </div>
-                <div class="meta-item" title="Pass Score">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  {{ exam.passScore }}% Pass
-                </div>
-                <div class="meta-item" title="Question Count">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
-                  {{ exam.questionCount }} Items
-                </div>
-              </div>
-
-              @if (exam.scheduledAt) {
-                <div class="exam-schedule">
-                  <p>Starts: {{ exam.scheduledAt | date:'MMM d, y, h:mm a' }}</p>
-                </div>
-              }
-
-              <div class="card-actions">
-                <!-- Student Actions -->
-                @if (!canManageExams()) {
-                  <button class="btn btn-secondary w-100" [disabled]="exam.status !== 'Published'" (click)="takeExam(exam.id)">
-                    Take Exam
-                  </button>
-                }
-                
-                <!-- Tutor/Admin Actions -->
-                @if (canManageExams()) {
-                  <div class="tutor-actions full-width">
-                    <button class="modern-action-btn primary" title="Manage Questions" (click)="openQuestions(exam)">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="12" r="10"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                      <span>Questions</span>
-                    </button>
-                    <button class="modern-action-btn edit" title="View/Edit Details" (click)="openEditModal(exam)">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                      </svg>
-                      <span>Edit</span>
-                    </button>
-                    
-                    @if (exam.status === 'Draft') {
-                      <button class="modern-action-btn publish" title="Publish Exam" (click)="publishExam(exam.id)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <line x1="22" y1="2" x2="11" y2="13"></line>
-                          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                        </svg>
-                        <span>Publish</span>
-                      </button>
-                      <button class="modern-action-btn delete" title="Delete Exam" (click)="deleteExam(exam.id)">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <polyline points="3 6 5 6 21 6"></polyline>
-                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                          <line x1="10" y1="11" x2="10" y2="17"></line>
-                          <line x1="14" y1="11" x2="14" y2="17"></line>
-                        </svg>
-                        <span>Delete</span>
-                      </button>
-                    }
-                  </div>
-                }
-              </div>
-            </div>
-          </div>
-        }
-      </div>
+    @if (canManageExams()) {
+    <button class="btn btn-primary post-btn" (click)="openCreateModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+      </svg>
+      Create Exam
+    </button>
     }
+  </div>
 
-    <!-- ══ CREATE EXAM MODAL ══════════════════════════════════════════ -->
-    @if (isModalOpen() && canManageExams()) {
-      <div class="custom-modal-overlay fadeIn animated" (click)="closeModal()">
-        <div class="custom-modal-container slideUp animated wide-modal" (click)="$event.stopPropagation()">
-
-          <div class="modal-header">
-            <div class="modal-title-wrapper">
-              <div class="icon-box">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-                  <polyline points="9 14 11 16 15 11"></polyline>
-                </svg>
-              </div>
-              <h2>{{ editingExamId() ? 'Edit Exam Details' : 'Create New Exam' }}</h2>
-            </div>
-            <button class="close-btn" (click)="closeModal()" aria-label="Close modal">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          </div>
-
-          <form [formGroup]="examForm" (ngSubmit)="onSubmit()" class="modal-body">
-            
-            <div class="form-group">
-              <label>Title <span class="required">*</span></label>
-              <div class="input-wrapper">
-                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
-                </svg>
-                <input type="text" formControlName="title" placeholder="e.g. Midterm Assessment"
-                  [class.is-invalid]="examForm.get('title')?.touched && examForm.get('title')?.invalid" />
-              </div>
-              @if (examForm.get('title')?.touched && examForm.get('title')?.invalid) {
-                <span class="error-msg">Title is required.</span>
-              }
-            </div>
-
-            <div class="form-group">
-              <label>Instructions <span class="optional">(Optional)</span></label>
-              <div class="input-wrapper text-area-wrapper">
-                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
-                  <line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/>
-                  <line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
-                </svg>
-                <textarea formControlName="instructions" rows="3" placeholder="Provide instructions for students..."></textarea>
-              </div>
-            </div>
-
-            <div class="form-row two-col-equal">
-              <div class="form-group">
-                <label>Time Limit (minutes) <span class="required">*</span></label>
-                <div class="input-wrapper">
-                  <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                  </svg>
-                  <input type="number" formControlName="timeLimit" placeholder="e.g. 60" min="1"
-                    [class.is-invalid]="examForm.get('timeLimit')?.touched && examForm.get('timeLimit')?.invalid" />
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Attempts Allowed <span class="required">*</span></label>
-                <div class="input-wrapper">
-                  <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="1 4 1 10 7 10"></polyline>
-                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-                  </svg>
-                  <input type="number" formControlName="maxAttempts" placeholder="e.g. 1" min="1"
-                    [class.is-invalid]="examForm.get('maxAttempts')?.touched && examForm.get('maxAttempts')?.invalid" />
-                </div>
-              </div>
-            </div>
-
-            <div class="form-row two-col-equal">
-              <div class="form-group">
-                <label>Passing Score (%) <span class="required">*</span></label>
-                <div class="input-wrapper">
-                  <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                  <input type="number" formControlName="passScore" placeholder="e.g. 50" min="0" max="100"
-                    [class.is-invalid]="examForm.get('passScore')?.touched && examForm.get('passScore')?.invalid" />
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label>Scheduled Start Date <span class="optional">(Optional)</span></label>
-                <div class="datetime-premium-wrapper">
-                  <div class="icon-box-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                      <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-                      <line x1="3" y1="10" x2="21" y2="10"/>
-                    </svg>
-                  </div>
-                  <input type="datetime-local" formControlName="scheduledAt" />
-                </div>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Result Visibility <span class="required">*</span></label>
-              <div class="type-cards-grid three-col">
-                
-                <label class="type-card" [class.selected]="examForm.get('resultVisibility')?.value === 'Immediate'">
-                  <input type="radio" formControlName="resultVisibility" value="Immediate" class="hidden-radio">
-                  <div class="type-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-                    </svg>
-                  </div>
-                  <div class="type-info"><span class="type-name">Immediate</span></div>
-                </label>
-
-                <label class="type-card" [class.selected]="examForm.get('resultVisibility')?.value === 'Scheduled'">
-                  <input type="radio" formControlName="resultVisibility" value="Scheduled" class="hidden-radio">
-                  <div class="type-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                    </svg>
-                  </div>
-                  <div class="type-info"><span class="type-name">Scheduled</span></div>
-                </label>
-
-                <label class="type-card" [class.selected]="examForm.get('resultVisibility')?.value === 'ManualRelease'">
-                  <input type="radio" formControlName="resultVisibility" value="ManualRelease" class="hidden-radio">
-                  <div class="type-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                    </svg>
-                  </div>
-                  <div class="type-info"><span class="type-name">Manual</span></div>
-                </label>
-
-              </div>
-              <span class="hint-text" style="display: block; margin-top: 8px;">Choose when students can see their exam score and feedback.</span>
-            </div>
-
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" (click)="closeModal()" [disabled]="isSubmitting()">Cancel</button>
-              <button type="submit" class="btn btn-primary" [disabled]="examForm.invalid || isSubmitting()">
-                @if (isSubmitting()) {
-                  <div class="loader-ring"></div><span>{{ editingExamId() ? 'Updating...' : 'Creating...' }}</span>
-                } @else {
-                  <span>{{ editingExamId() ? 'Update Exam' : 'Create Draft Exam' }}</span>
-                }
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    }
-
+  <!-- ══ CONTENT ═══════════════════════════════════════════════════════ -->
+  @if (isLoading()) {
+  <div class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading exams...</p>
+  </div>
+  } @else if (exams().length === 0) {
+  <div class="empty-state">
+    <div class="empty-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+        <polyline points="14 2 14 8 20 8" />
+        <path d="M9 13h6" />
+        <path d="M9 17h3" />
+      </svg>
+    </div>
+    <h3>No Exams Found</h3>
+    <p>There are currently no exams available for this course.</p>
+  </div>
   } @else {
-    <app-exam-questions [exam]="selectedExamForQuestions()!" (close)="closeQuestions()"></app-exam-questions>
+  <div class="exams-feed">
+    @for (exam of exams(); track exam.id) {
+    <div class="exam-card" [class.draft]="exam.status === 'Draft'">
+      <div class="card-accent"></div>
+      <div class="card-body">
+
+        <div class="card-header">
+          <!-- Primary status badge: Draft / Published / Closed -->
+          <div class="status-badge" [ngClass]="exam.status.toLowerCase()">
+            {{ exam.status }}
+          </div>
+
+          <!-- Real-time timing badge (only for Published exams) -->
+          <div class="timing-badges">
+            @if (isExamExpired(exam)) {
+            <div class="timing-badge expired">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+                <line x1="9" y1="9" x2="15" y2="15" />
+              </svg>
+              Expired
+            </div>
+            } @else if (isExamScheduled(exam)) {
+            <div class="timing-badge scheduled">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              Scheduled
+            </div>
+            } @else if (isExamActive(exam)) {
+            <div class="timing-badge active">
+              <span class="live-dot"></span>
+              Active
+            </div>
+            }
+          </div>
+        </div>
+
+        <h4 class="exam-title">{{ exam.title }}</h4>
+
+        <div class="exam-meta">
+          <div class="meta-item" title="Time Limit">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            {{ exam.timeLimit }} mins
+          </div>
+          <div class="meta-item" title="Max Attempts">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="1 4 1 10 7 10"></polyline>
+              <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+            </svg>
+            {{ exam.maxAttempts }} Attempt{{ exam.maxAttempts !== 1 ? 's' : '' }}
+          </div>
+          <div class="meta-item" title="Pass Score">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            {{ exam.passScore }}% Pass
+          </div>
+          <div class="meta-item" title="Question Count">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+              <path d="M12 17h.01" />
+            </svg>
+            {{ getExamQuestionCount(exam) }} Questions
+          </div>
+        </div>
+
+        @if (isExamScheduled(exam)) {
+        <div class="exam-schedule">
+          <p>Starts: {{ exam.scheduledAt | date:'MMM d, y, h:mm a' }}</p>
+        </div>
+        } @else if (exam.scheduledEndAt && !isExamExpired(exam)) {
+        <div class="exam-schedule">
+          <p>Deadline: {{ exam.scheduledEndAt | date:'MMM d, y, h:mm a' }}</p>
+        </div>
+        }
+
+        <div class="card-actions">
+          <!-- Student Actions -->
+          @if (!canManageExams()) {
+          <button class="btn btn-secondary w-100"
+            [disabled]="exam.status !== 'Published' || isExamScheduled(exam) || isExamExpired(exam)"
+            (click)="takeExam(exam.id)">
+            {{ isExamExpired(exam) ? 'Deadline Passed' : (isExamScheduled(exam) ? 'Starts at ' + (exam.scheduledAt |
+            date:'MMM d, h:mm a') : 'Take Exam') }}
+          </button>
+          }
+
+          <!-- Tutor/Admin Actions -->
+          @if (canManageExams()) {
+          <div class="tutor-actions full-width">
+            @if (exam.status === 'Draft') {
+            <button class="modern-action-btn publish" title="Publish Exam" (click)="publishExam(exam.id)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+              <span>Publish</span>
+            </button>
+            }
+
+            <button class="modern-action-btn edit" title="View/Edit Details" (click)="openEditModal(exam)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              <span>Edit</span>
+            </button>
+
+            @if (exam.status === 'Draft') {
+            <button class="modern-action-btn delete" title="Delete Exam" (click)="deleteExam(exam.id)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+              <span>Delete</span>
+            </button>
+            }
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+    }
+  </div>
   }
 
-</div>
+  <!-- ══ CREATE EXAM MODAL ══════════════════════════════════════════ -->
+@if (isModalOpen() && canManageExams()) {
+  <div class="custom-modal-overlay fadeIn animated" (click)="closeModal()">
+    <div class="custom-modal-container slideUp animated wide-modal has-scroller" 
+      (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-wrapper">
+          <div class="icon-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+              <polyline points="9 14 11 16 15 11"></polyline>
+            </svg>
+          </div>
+          <h2>{{ editingExamId() ? 'Edit Exam Details' : 'Create New Exam' }}</h2>
+        </div>
+        <button class="close-btn" (click)="closeModal()" aria-label="Close modal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
 
+      <form [formGroup]="examForm" (ngSubmit)="onSubmit()" class="modal-body">
+
+        <!-- ── Re-open banner (only shown when editing an expired exam) ── -->
+        @if (isEditingExpiredExam()) {
+        <div class="reopen-banner">
+          <div class="reopen-banner-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+          </div>
+          <div class="reopen-banner-text">
+            <strong>This exam has expired.</strong>
+            Set a new Scheduled End Date in the future below to re-open it for students.
+          </div>
+        </div>
+        }
+
+<div class="form-row two-col-equal">
+          <div class="form-group">
+            <label>Title <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+              </svg>
+              <input type="text" formControlName="title" placeholder="e.g. Midterm Assessment"
+                [class.is-invalid]="examForm.get('title')?.touched && examForm.get('title')?.invalid" />
+            </div>
+            @if (examForm.get('title')?.touched && examForm.get('title')?.invalid) {
+            <span class="error-msg">Title is required.</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label>Instructions <span class="optional">(Optional)</span></label>
+            <div class="input-wrapper text-area-wrapper">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6" />
+                <line x1="8" y1="12" x2="21" y2="12" />
+                <line x1="8" y1="18" x2="21" y2="18" />
+                <line x1="3" y1="6" x2="3.01" y2="6" />
+                <line x1="3" y1="12" x2="3.01" y2="12" />
+                <line x1="3" y1="18" x2="3.01" y2="18" />
+              </svg>
+              <textarea formControlName="instructions" rows="2"
+                placeholder="Provide instructions for students..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row three-col-equal">
+          <div class="form-group">
+            <label>Time Limit <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              <input type="number" formControlName="timeLimit" placeholder="e.g. 60" min="1"
+                [class.is-invalid]="examForm.get('timeLimit')?.touched && examForm.get('timeLimit')?.invalid" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Attempts <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="1 4 1 10 7 10"></polyline>
+                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+              </svg>
+              <input type="number" formControlName="maxAttempts" placeholder="e.g. 1" min="1"
+                [class.is-invalid]="examForm.get('maxAttempts')?.touched && examForm.get('maxAttempts')?.invalid" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Pass Score (%) <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              <input type="number" formControlName="passScore" placeholder="e.g. 50" min="0" max="100"
+                [class.is-invalid]="examForm.get('passScore')?.touched && examForm.get('passScore')?.invalid" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row three-col-equal">
+          <div class="form-group">
+            <label>MCQ Questions <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+              <input type="number" formControlName="mcqCount" placeholder="0" min="0" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>True/False Questions <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <input type="number" formControlName="trueFalseCount" placeholder="0" min="0" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Short Answer Questions <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="3" x2="21" y2="7"/><path d="M21 7L13.5 14.5 9 15l.5-4.5L17 3z"/><path d="M19 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg>
+              <input type="number" formControlName="shortAnswerCount" placeholder="0" min="0" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row two-col-equal">
+          <div class="form-group">
+            <label>Scheduled Start Date <span class="optional">(Optional)</span></label>
+            <div class="datetime-premium-wrapper">
+              <div class="icon-box-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+              </div>
+              <input type="datetime-local" formControlName="scheduledAt" />
+            </div>
+          </div>
+
+          <div class="form-group" [class.reopen-highlight]="isEditingExpiredExam()">
+            <label>
+              Scheduled End Date <span class="optional">(Optional)</span>
+              @if (isEditingExpiredExam()) {
+              <span class="reopen-label-hint">← Set a future date to re-open</span>
+              }
+            </label>
+            <div class="datetime-premium-wrapper">
+              <div class="icon-box-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+              </div>
+              <input type="datetime-local" formControlName="scheduledEndAt" />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Result Visibility <span class="required">*</span></label>
+          <div class="type-cards-grid three-col">
+
+            <label class="type-card" [class.selected]="examForm.get('resultVisibility')?.value === 'Immediate'">
+              <input type="radio" formControlName="resultVisibility" value="Immediate" class="hidden-radio">
+              <div class="type-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </div>
+              <div class="type-info"><span class="type-name">Immediate</span></div>
+            </label>
+
+            <label class="type-card" [class.selected]="examForm.get('resultVisibility')?.value === 'Scheduled'">
+              <input type="radio" formControlName="resultVisibility" value="Scheduled" class="hidden-radio">
+              <div class="type-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+              </div>
+              <div class="type-info"><span class="type-name">Scheduled</span></div>
+            </label>
+
+            <label class="type-card" [class.selected]="examForm.get('resultVisibility')?.value === 'ManualRelease'">
+              <input type="radio" formControlName="resultVisibility" value="ManualRelease" class="hidden-radio">
+              <div class="type-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </div>
+              <div class="type-info"><span class="type-name">Manual</span></div>
+            </label>
+
+          </div>
+          <div class="visibility-hint">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4" />
+              <path d="M12 8h.01" />
+            </svg>
+            Controls when students can view their score and detailed feedback.
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()"
+            [disabled]="isSubmitting()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="examForm.invalid || isSubmitting()">
+            @if (isSubmitting()) {
+            <div class="loader-ring"></div><span>{{ editingExamId() ? 'Updating...' : 'Creating...' }}</span>
+            } @else {
+            <span>{{ editingExamId() ? 'Update Exam' : 'Create Draft Exam' }}</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
+</div>

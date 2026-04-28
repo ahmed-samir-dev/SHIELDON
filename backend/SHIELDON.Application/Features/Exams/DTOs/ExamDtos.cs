@@ -11,7 +11,13 @@ public record CreateExamRequest(
     decimal PassScore,
     string ResultVisibility,
     DateTime? ScheduledAt,
-    DateTime? ScheduledReleaseAt
+    DateTime? ScheduledEndAt,
+    DateTime? ScheduledReleaseAt,
+    /// <summary>
+    /// Defines how many questions of each type to draw from the course bank.
+    /// e.g. [{QuestionType:"MCQ", Count:5}, {QuestionType:"TrueFalse", Count:3}]
+    /// </summary>
+    List<ExamSelectionRuleRequest>? SelectionRules = null
 );
 
 /// <summary>Tutor/Admin updates an existing exam. All fields are optional.</summary>
@@ -23,7 +29,9 @@ public record UpdateExamRequest(
     decimal? PassScore,
     string? ResultVisibility,
     DateTime? ScheduledAt,
-    DateTime? ScheduledReleaseAt
+    DateTime? ScheduledEndAt,
+    DateTime? ScheduledReleaseAt,
+    List<ExamSelectionRuleRequest>? SelectionRules = null
 );
 
 /// <summary>Query parameters for listing exams in a course.</summary>
@@ -49,12 +57,16 @@ public record ExamSummaryResponse(
     string Status,
     string ResultVisibility,
     DateTime? ScheduledAt,
+    DateTime? ScheduledEndAt,
     DateTime? ScheduledReleaseAt,
-    int QuestionCount,
+    /// <summary>Total questions already in the course bank.</summary>
+    int BankQuestionCount,
+    /// <summary>Selection rules that determine how many of each type are drawn.</summary>
+    List<ExamSelectionRuleResponse> SelectionRules,
     DateTime CreatedAt
 );
 
-/// <summary>Full exam detail including all question metadata (no correct answers for students).</summary>
+/// <summary>Full exam detail including selection rules and bank stats.</summary>
 public record ExamDetailResponse(
     Guid Id,
     Guid CourseId,
@@ -67,8 +79,10 @@ public record ExamDetailResponse(
     string Status,
     string ResultVisibility,
     DateTime? ScheduledAt,
+    DateTime? ScheduledEndAt,
     DateTime? ScheduledReleaseAt,
-    int QuestionCount,
+    int BankQuestionCount,
+    List<ExamSelectionRuleResponse> SelectionRules,
     string CreatedByName,
     DateTime CreatedAt,
     DateTime UpdatedAt

@@ -7,7 +7,7 @@
   </button>
 
   <!-- The Dropdown Panel -->
-  <div #panelContainer class="panel-dropdown" [@panelState]="isOpen() ? 'open' : 'closed'">
+  <div #panelContainer class="panel-dropdown" [@panelState]="isOpen() ? 'open' : 'closed'" [class.maximized]="isExpanded()">
     <div class="panel-header">
       <h3>Notifications</h3>
       <div class="header-actions">
@@ -56,6 +56,13 @@
 
         <div class="notif-unread-dot" *ngIf="!notif.isRead"></div>
       </div>
+    </div>
+
+    <!-- View All Button (Fixed at bottom) -->
+    <div class="panel-footer" *ngIf="notificationService.notifications().length > 0 && !isExpanded()">
+      <button class="view-all-btn" (click)="expandPanel($event)">
+        View all notifications
+      </button>
     </div>
   </div>
 </div>

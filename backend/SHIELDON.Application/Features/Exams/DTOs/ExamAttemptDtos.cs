@@ -9,7 +9,8 @@ public record StartExamResponse(
     int TimeLimitMinutes,
     decimal PassScore,
     DateTime ExpiresAt,
-    IReadOnlyList<StudentQuestionDto> Questions
+    IReadOnlyList<StudentQuestionDto> Questions,
+    IReadOnlyList<SavedAnswerDto> SavedAnswers
 );
 
 public record StudentQuestionDto(
@@ -23,6 +24,12 @@ public record StudentQuestionDto(
 public record StudentOptionDto(
     Guid Id,
     string Text
+);
+
+public record SavedAnswerDto(
+    Guid QuestionId,
+    Guid? SelectedOptionId,
+    string? TextAnswer
 );
 
 public class SaveAnswerRequest
