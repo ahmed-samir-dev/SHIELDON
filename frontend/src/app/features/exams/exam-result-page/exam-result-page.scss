@@ -406,6 +406,21 @@
       color: $color-warning-dark;
       border: 1px solid rgba($color-warning-base, 0.3);
     }
+    &.alert-info {
+      background: rgba($color-primary-base, 0.1);
+      color: $color-primary-dark;
+      border: 1px solid rgba($color-primary-base, 0.3);
+    }
+    &.alert-success {
+      background: rgba($color-success-base, 0.1);
+      color: $color-success-dark;
+      border: 1px solid rgba($color-success-base, 0.3);
+    }
+    &.alert-danger {
+      background: rgba($color-danger-base, 0.1);
+      color: $color-danger-dark;
+      border: 1px solid rgba($color-danger-base, 0.3);
+    }
     
     p { margin: 0; font-size: $font-size-sm; font-weight: $font-weight-medium; }
   }

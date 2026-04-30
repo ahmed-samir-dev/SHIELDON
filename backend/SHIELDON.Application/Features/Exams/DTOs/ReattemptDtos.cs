@@ -14,7 +14,8 @@ public record ReattemptQueryParams(
     int PageSize = 10,
     string? Status = null,
     Guid? ExamId = null,
-    Guid? CourseId = null
+    Guid? CourseId = null,
+    string? SearchTerm = null
 );
 
 // ── Response DTOs ─────────────────────────────────────────────────────────────

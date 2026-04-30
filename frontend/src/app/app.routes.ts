@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { deviceGuard } from './core/guards/device.guard';
-import { authGuard } from './core/guards/auth.guard';
+import { authGuard, tutorGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   // ── Mobile Guard ──────────────────────────────────────────────────────────
@@ -98,6 +98,12 @@ export const routes: Routes = [
         path: 'enrollments',
         loadComponent: () => import('./features/courses/enrollment-panel/enrollment-panel').then(m => m.EnrollmentPanel),
         title: 'Enrollment Requests — SHIELDON'
+      },
+      {
+        path: 'reattempt-requests',
+        canActivate: [tutorGuard],
+        loadComponent: () => import('./features/exams/reattempt-requests/reattempt-requests').then(m => m.ReattemptRequestsComponent),
+        title: 'Re-attempt Requests — SHIELDON'
       },
       // Dashboards fallback to courses view for now
       { path: 'admin/dashboard', redirectTo: 'courses' },

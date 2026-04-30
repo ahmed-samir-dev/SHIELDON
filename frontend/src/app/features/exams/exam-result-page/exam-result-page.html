@@ -83,17 +83,42 @@
           </div>
         </ng-container>
 
-        <!-- Re-attempt Button (Only if failed and exhausted) -->
-        <div class="reattempt-action" *ngIf="res.canRequestReattempt">
-          <div class="alert alert-warning">
-            <lucide-icon [img]="AlertCircle" size="20"></lucide-icon>
-            <div>
-              <p>You have exhausted all attempts and did not pass the exam.</p>
+        <!-- Re-attempt Status & Action -->
+        <div class="reattempt-action" *ngIf="res.resultVisible && (res.canRequestReattempt || existingReattemptRequest())">
+          
+          <ng-container *ngIf="!existingReattemptRequest() && res.canRequestReattempt">
+            <div class="alert alert-warning">
+              <lucide-icon [img]="AlertCircle" size="20"></lucide-icon>
+              <div>
+                <p>You have exhausted all attempts and did not pass the exam.</p>
+              </div>
             </div>
-          </div>
-          <button class="btn btn-primary mt-3" (click)="requestReattempt()">
-            Request Re-attempt
-          </button>
+            <br>
+            <button class="btn btn-primary mt-3" (click)="requestReattempt()">
+              Request Re-attempt
+            </button>
+          </ng-container>
+
+          <ng-container *ngIf="existingReattemptRequest() as req">
+            <div class="alert mt-3" [ngClass]="{
+              'alert-info': req.status === 'Pending',
+              'alert-success': req.status === 'Approved',
+              'alert-danger': req.status === 'Rejected'
+            }">
+              <lucide-icon [img]="AlertCircle" size="20"></lucide-icon>
+              <div>
+                <strong>Re-attempt Request {{ req.status }}</strong>
+                <p class="mt-1" *ngIf="req.status === 'Pending'">Your request is currently being reviewed by your tutor.</p>
+                <p class="mt-1" *ngIf="req.status === 'Approved'">Your request was approved! You can now take the exam again.</p>
+                <div class="mt-1" *ngIf="req.status === 'Rejected'">
+                  <p>Your request was rejected.</p>
+                  <p class="rejection-reason mt-2" *ngIf="req.rejectionReason">
+                    <strong>Reason:</strong> {{ req.rejectionReason }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </ng-container>
         </div>
 
       </section>

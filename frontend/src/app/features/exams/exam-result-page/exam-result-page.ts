@@ -5,6 +5,8 @@ import { ExamResultService, ExamResultResponse, ExamAttemptSummaryDto } from '..
 import { ToastrService } from 'ngx-toastr';
 import { LucideAngularModule, CheckCircle, XCircle, ArrowLeft, Clock, FileText, Check, X, AlertCircle } from 'lucide-angular';
 import confetti from 'canvas-confetti';
+import Swal from 'sweetalert2';
+import { ReattemptService, StudentReattemptStatusResponse } from '../services/reattempt.service';
 
 @Component({
   selector: 'app-exam-result-page',
@@ -17,6 +19,7 @@ export class ExamResultPage implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private examResultService = inject(ExamResultService);
+  private reattemptService = inject(ReattemptService);
   private toastr = inject(ToastrService);
 
   // Icons
@@ -33,6 +36,8 @@ export class ExamResultPage implements OnInit, OnDestroy {
   result = signal<ExamResultResponse | null>(null);
   studentAttempts = signal<ExamAttemptSummaryDto[]>([]);
   showAttemptPicker = signal(false);
+  
+  existingReattemptRequest = signal<StudentReattemptStatusResponse | null>(null);
   
   // Circle animation state
   circumference = 2 * Math.PI * 70; // r=70
@@ -77,11 +82,24 @@ export class ExamResultPage implements OnInit, OnDestroy {
           next: (attemptsRes) => this.studentAttempts.set(attemptsRes.data),
           error: () => console.error('Failed to load student attempts')
         });
+
+        // Fetch existing re-attempt requests for this exam
+        this.loadExistingReattemptRequest(res.data.examId);
       },
       error: (err) => {
         this.toastr.error(err.error?.message || 'Failed to load exam result');
         this.isLoading.set(false);
       }
+    });
+  }
+
+  loadExistingReattemptRequest(examId: string) {
+    this.reattemptService.getMyRequests().subscribe({
+      next: (res) => {
+        const req = res.data.find(r => r.examId === examId);
+        this.existingReattemptRequest.set(req || null);
+      },
+      error: () => console.error('Failed to load re-attempt requests')
     });
   }
 
@@ -160,7 +178,40 @@ export class ExamResultPage implements OnInit, OnDestroy {
   }
 
   requestReattempt() {
-    // Stage 3.7 implementation goes here
-    this.toastr.info('Re-attempt requests will be available in the next update.', 'Coming Soon');
+    const examId = this.result()?.examId;
+    if (!examId) return;
+
+    Swal.fire({
+      title: 'Request Re-attempt',
+      text: 'Please provide a justification for why you need another attempt at this exam.',
+      input: 'textarea',
+      inputPlaceholder: 'Type your justification here... (min 20 characters)',
+      inputAttributes: {
+        'aria-label': 'Justification for re-attempt'
+      },
+      showCancelButton: true,
+      confirmButtonText: 'Submit Request',
+      cancelButtonText: 'Cancel',
+      confirmButtonColor: '#215DAE',
+      cancelButtonColor: '#87949C',
+      inputValidator: (value) => {
+        if (!value || value.trim().length < 20) {
+          return 'Justification must be at least 20 characters.';
+        }
+        return null;
+      }
+    }).then((swalResult) => {
+      if (swalResult.isConfirmed && swalResult.value) {
+        this.reattemptService.submitRequest(examId, { justification: swalResult.value }).subscribe({
+          next: (res) => {
+            this.toastr.success(res.message);
+            this.existingReattemptRequest.set(res.data);
+          },
+          error: (err) => {
+            this.toastr.error(err.error?.message || 'Failed to submit request');
+          }
+        });
+      }
+    });
   }
 }
