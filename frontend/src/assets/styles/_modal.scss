@@ -134,18 +134,23 @@
 input[type="text"], input[type="url"], input[type="number"], textarea, select {
         width: 100%;
         padding: $spacing-3 $spacing-3 $spacing-3 40px;
-        border: 1px solid $color-neutral-300;
-        border-radius: $border-radius-md;
+        border: 1px solid $color-neutral-200;
+        border-radius: $border-radius-lg;
         font-family: inherit;
         font-size: $font-size-sm;
         color: $color-neutral-900;
-        background: white;
-        transition: all 0.2s;
+        background: $color-neutral-50;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover {
+          border-color: $color-neutral-300;
+        }
 
         &:focus {
           outline: none;
+          background: white;
           border-color: $color-primary-base;
-          box-shadow: 0 0 0 3px rgba($color-primary-base, 0.15);
+          box-shadow: 0 0 0 4px rgba($color-primary-base, 0.1);
         }
 
         &.is-invalid {
@@ -201,20 +206,21 @@ input[type="text"], input[type="url"], input[type="number"], textarea, select {
   position: relative;
   display: flex;
   align-items: center;
-  background: $color-neutral-white;
-  border: 1px solid $color-neutral-300;
-  border-radius: $border-radius-md;
+  background: $color-neutral-50;
+  border: 1px solid $color-neutral-200;
+  border-radius: $border-radius-lg;
   padding: $spacing-1;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: text; // Changed to text to encourage clicking to type
 
-  &:focus-within, &:hover {
-    border-color: $color-primary-base;
-    background: rgba($color-primary-base, 0.02);
+  &:hover {
+    border-color: $color-neutral-300;
   }
 
   &:focus-within {
-    box-shadow: 0 0 0 3px rgba($color-primary-base, 0.15);
+    border-color: $color-primary-base;
+    background: white;
+    box-shadow: 0 0 0 4px rgba($color-primary-base, 0.1);
   }
 
   .icon-box-sm {

@@ -37,6 +37,8 @@ export interface StartExamResponse {
   expiresAt: string;
   questions: StudentQuestionDto[];
   savedAnswers: SavedAnswerDto[];
+  courseId: string;
+  resultVisibility: string;
 }
 
 export interface SaveAnswerRequest {
@@ -50,6 +52,8 @@ export interface SubmitExamResponse {
   status: string;
   score: number | null;
   passed: boolean;
+  resultVisibility: string;
+  courseId: string;
 }
 
 @Injectable({

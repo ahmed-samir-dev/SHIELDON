@@ -91,8 +91,8 @@
         {{ formattedTime() }}
       </div>
 
-      <button class="submit-btn" (click)="confirmSubmit()">
-        <lucide-icon [img]="CheckCircle" size="18"></lucide-icon> Submit Exam
+      <button class="submit-btn" (click)="goToReview()">
+        <lucide-icon [img]="CheckCircle" size="18"></lucide-icon> Review Answers
       </button>
     </header>
 
@@ -161,8 +161,8 @@
               <lucide-icon [img]="ChevronLeft" size="20"></lucide-icon> Previous
             </button>
             <ng-container *ngIf="currentQuestionIndex() === (attemptData()?.questions?.length || 0) - 1; else nextBtn">
-              <button class="submit-nav-btn" (click)="confirmSubmit()">
-                Submit Exam <lucide-icon [img]="CheckCircle" size="20"></lucide-icon>
+              <button class="submit-nav-btn" (click)="goToReview()">
+                Review Answers <lucide-icon [img]="CheckCircle" size="20"></lucide-icon>
               </button>
             </ng-container>
             <ng-template #nextBtn>
@@ -174,6 +174,59 @@
         </div>
       </main>
 
+    </div>
+  </ng-container>
+
+  <!-- Review State -->
+  <ng-container *ngIf="state() === 'review' && attemptData()">
+    <header class="engine-header">
+      <div class="brand">
+        SHIELDON <span class="separator">|</span> <span class="exam-title">{{ examDetails()?.title }}</span>
+      </div>
+      
+      <div class="timer-container" [ngClass]="'status-' + timerStatus()">
+        <lucide-icon [img]="Clock" size="20"></lucide-icon>
+        {{ formattedTime() }}
+      </div>
+
+      <button class="submit-btn" (click)="submitFinal()">
+        <lucide-icon [img]="CheckCircle" size="18"></lucide-icon> Submit Final
+      </button>
+    </header>
+
+    <div class="review-layout">
+      <div class="review-card">
+        <h2>Review Your Answers</h2>
+        <p class="review-subtitle">Click any question to go back and edit your answer.</p>
+
+        <div class="review-grid">
+          <div *ngFor="let q of attemptData()?.questions; let i = index" 
+               class="review-item" 
+               [class.answered]="isAnswered()(q.id)"
+               (click)="goToQuestion(i); backToExam()">
+            
+            <div class="q-number">Q{{ i + 1 }}</div>
+            
+            <div class="q-status">
+              <ng-container *ngIf="isAnswered()(q.id)">
+                <lucide-icon [img]="CheckCircle" size="18" class="text-success"></lucide-icon>
+                <span>Answered</span>
+              </ng-container>
+              <ng-container *ngIf="!isAnswered()(q.id)">
+                <lucide-icon [img]="AlertTriangle" size="18" class="text-warning"></lucide-icon>
+                <span>Pending</span>
+              </ng-container>
+            </div>
+            
+            <lucide-icon [img]="ChevronRight" size="20" class="arrow-icon"></lucide-icon>
+          </div>
+        </div>
+
+        <div class="review-actions">
+          <button class="btn btn-secondary" (click)="backToExam()">Back to Exam</button>
+          <button class="btn btn-primary" (click)="submitFinal()">Submit Final Answers</button>
+        </div>
+      </div>
     </div>
   </ng-container>
 

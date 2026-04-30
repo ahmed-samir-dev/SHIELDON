@@ -1,0 +1,179 @@
+<div class="result-page-container">
+  <!-- Loading State -->
+  <div class="loading-overlay" *ngIf="isLoading()">
+    <div class="spinner"></div>
+    <p>Loading your results...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading() && result() as res">
+    <!-- Header -->
+    <header class="result-header">
+      <div class="header-left">
+        <button class="btn-back" (click)="goBack()">
+          <lucide-icon [img]="ArrowLeft" size="20"></lucide-icon>
+          Back to Courses
+        </button>
+      </div>
+      <div class="header-center">
+        <h1>Exam Result</h1>
+        <p class="subtitle">{{ res.courseTitle }} &mdash; {{ res.examTitle }}</p>
+      </div>
+      <div class="header-right"></div>
+    </header>
+
+    <main class="result-main">
+      
+      <!-- Top Overview Card -->
+      <section class="overview-card">
+        
+        <!-- Visible Result -->
+        <ng-container *ngIf="res.resultVisible">
+          <div class="score-circle-wrapper">
+            <svg class="score-ring" width="160" height="160">
+              <circle class="ring-bg" cx="80" cy="80" r="70"></circle>
+              <circle 
+                class="ring-progress" 
+                [ngClass]="getScoreColorClass()"
+                cx="80" cy="80" r="70"
+                [attr.stroke-dasharray]="circumference"
+                [attr.stroke-dashoffset]="dashOffset()">
+              </circle>
+            </svg>
+            <div class="score-text">
+              <span class="score-value" *ngIf="res.score !== null">{{ res.score | number:'1.1-1' }}%</span>
+              <span class="score-value pending" *ngIf="res.score === null">...</span>
+              <span class="score-label">Score</span>
+            </div>
+          </div>
+
+          <div class="result-info">
+            <div class="badge" [ngClass]="res.passed ? 'badge-pass' : 'badge-fail'" *ngIf="res.score !== null">
+              <lucide-icon [img]="res.passed ? CheckCircle : XCircle" size="24"></lucide-icon>
+              <span>{{ res.passed ? 'Passed' : 'Not Passed' }}</span>
+            </div>
+            
+            <div class="badge badge-pending" *ngIf="res.score === null">
+              <lucide-icon [img]="Clock" size="24"></lucide-icon>
+              <span>Awaiting Review</span>
+            </div>
+
+            <div class="pass-requirement">
+              Passing score: {{ res.passScore }}%
+              <div class="pass-bar-container">
+                <div class="pass-bar-fill" [style.width.%]="res.score !== null ? res.score : 0" [ngClass]="getScoreColorClass()"></div>
+                <div class="pass-bar-marker" [style.left.%]="res.passScore"></div>
+              </div>
+            </div>
+            
+            <div class="attempts-actions" *ngIf="studentAttempts().length > 1">
+              <button class="btn-view-attempts" (click)="openAttemptPicker()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                View All Attempts ({{ studentAttempts().length }})
+              </button>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Hidden Result -->
+        <ng-container *ngIf="!res.resultVisible">
+          <div class="hidden-result-content">
+            <lucide-icon [img]="Clock" size="48" class="text-neutral-400 mb-4"></lucide-icon>
+            <h2>Results Not Yet Available</h2>
+            <p>Your answers have been submitted successfully. The results will be released by your tutor.</p>
+          </div>
+        </ng-container>
+
+        <!-- Re-attempt Button (Only if failed and exhausted) -->
+        <div class="reattempt-action" *ngIf="res.canRequestReattempt">
+          <div class="alert alert-warning">
+            <lucide-icon [img]="AlertCircle" size="20"></lucide-icon>
+            <div>
+              <p>You have exhausted all attempts and did not pass the exam.</p>
+            </div>
+          </div>
+          <button class="btn btn-primary mt-3" (click)="requestReattempt()">
+            Request Re-attempt
+          </button>
+        </div>
+
+      </section>
+
+      <!-- Per-Question Review List -->
+      <section class="question-review-section" *ngIf="res.resultVisible && res.questionReviews && res.questionReviews.length > 0">
+        <h3>Question Review</h3>
+        
+        <div class="review-list">
+          <div class="review-item" *ngFor="let q of res.questionReviews; let i = index" [ngClass]="{'correct': q.isCorrect === true, 'incorrect': q.isCorrect === false, 'pending': q.isCorrect === null}">
+            
+            <div class="q-header">
+              <span class="q-number">Question {{ i + 1 }}</span>
+              <span class="q-points" *ngIf="q.pointsAwarded !== null">{{ q.pointsAwarded }} / {{ q.points }} pts</span>
+              <span class="q-points pending-pts" *ngIf="q.pointsAwarded === null">Pending / {{ q.points }} pts</span>
+            </div>
+            
+            <p class="q-text">{{ q.questionText }}</p>
+
+            <!-- MCQ / TrueFalse Display -->
+            <div class="q-answers" *ngIf="!q.requiresManualGrading">
+              
+              <div class="answer-row selected" [ngClass]="q.isCorrect ? 'correct-bg' : 'incorrect-bg'">
+                <span class="label">Your Answer:</span>
+                <span class="text">{{ q.selectedOptionText || 'Not answered' }}</span>
+                <lucide-icon *ngIf="q.isCorrect" [img]="Check" size="18" class="icon-correct"></lucide-icon>
+                <lucide-icon *ngIf="q.isCorrect === false" [img]="X" size="18" class="icon-incorrect"></lucide-icon>
+              </div>
+              
+              <div class="answer-row correct-expected" *ngIf="q.isCorrect === false && q.correctOptionText">
+                <span class="label">Correct Answer:</span>
+                <span class="text">{{ q.correctOptionText }}</span>
+              </div>
+            </div>
+
+            <!-- Short Answer Display -->
+            <div class="q-answers" *ngIf="q.requiresManualGrading">
+              <div class="answer-row text-answer">
+                <span class="label">Your Answer:</span>
+                <p class="text">{{ q.textAnswer || 'Not answered' }}</p>
+              </div>
+              <div class="grading-status" *ngIf="q.pointsAwarded === null">
+                <lucide-icon [img]="Clock" size="16"></lucide-icon> Awaiting manual grading
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </ng-container>
+
+  <!-- Attempt Picker Modal -->
+  <div class="attempt-picker-overlay" *ngIf="showAttemptPicker()" (click)="closeAttemptPicker()">
+    <div class="attempt-picker-modal" (click)="$event.stopPropagation()">
+      <div class="picker-header">
+        <h3>Select an Attempt to View</h3>
+        <button class="picker-close" (click)="closeAttemptPicker()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="picker-list">
+        <button 
+          *ngFor="let attempt of studentAttempts(); let idx = index"
+          class="picker-item"
+          [class.current-attempt]="attempt.attemptId === result()?.attemptId"
+          (click)="viewAttempt(attempt.attemptId)">
+          <div class="attempt-num">Attempt {{ studentAttempts().length - idx }}</div>
+          <div class="attempt-meta">
+            <span class="attempt-score" [class.pass]="attempt.passed" [class.fail]="!attempt.passed && attempt.score !== null">
+              {{ attempt.score !== null ? (attempt.score | number:'1.1-1') + '%' : 'Pending' }}
+            </span>
+            <span class="attempt-date" *ngIf="attempt.submittedAt">{{ attempt.submittedAt | date:'MMM d, y, h:mm a' }}</span>
+          </div>
+          <svg *ngIf="attempt.attemptId === result()?.attemptId" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <svg *ngIf="attempt.attemptId !== result()?.attemptId" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

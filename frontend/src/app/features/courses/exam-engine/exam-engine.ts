@@ -12,7 +12,7 @@ import { ExamService } from '../services/exam.service';
 import { ExamDetailResponse } from '../../../core/models/exam.model';
 import { ExamAttemptService, StartExamResponse, StudentQuestionDto, QuestionType } from '../services/exam-attempt';
 
-type EngineState = 'loading' | 'rules' | 'active' | 'submitting' | 'error';
+type EngineState = 'loading' | 'rules' | 'active' | 'review' | 'submitting' | 'error';
 
 @Component({
   selector: 'app-exam-engine',
@@ -233,14 +233,22 @@ export class ExamEngine implements OnInit, OnDestroy {
 
   // ── Submit ──
 
-  confirmSubmit(): void {
+  goToReview(): void {
+    this.state.set('review');
+  }
+
+  backToExam(): void {
+    this.state.set('active');
+  }
+
+  submitFinal(): void {
     Swal.fire({
-      title: 'Ready to submit?',
+      title: 'Submit Final?',
       text: "You won't be able to change your answers after submitting.",
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Yes, submit exam!',
-      cancelButtonText: 'No, keep working'
+      cancelButtonText: 'No, return to review'
     }).then((result: any) => {
       if (result.isConfirmed) {
         this.submitExam();
@@ -258,9 +266,13 @@ export class ExamEngine implements OnInit, OnDestroy {
     this.attemptService.submitExam(attemptId).subscribe({
       next: (res) => {
         this.toastr.success('Exam submitted successfully!');
-        // Route to results page (Stage 3.6)
-        // For now, route back to course
-        this.router.navigate(['/courses', this.examDetails()?.courseId]);
+        
+        // Route conditionally based on resultVisibility and status
+        if (res.data?.resultVisibility === 'Immediate' && res.data?.status === 'Graded') {
+          this.router.navigate(['/exam-results', attemptId]);
+        } else {
+          this.router.navigate(['/courses', res.data?.courseId || this.examDetails()?.courseId], { queryParams: { tab: 'exams' } });
+        }
       },
       error: (err) => {
         this.toastr.error('Failed to submit exam. Contact support.');
@@ -280,7 +292,7 @@ export class ExamEngine implements OnInit, OnDestroy {
       next: () => {
         this.toastr.success('Exam was auto-submitted due to time expiry.');
         setTimeout(() => {
-          this.router.navigate(['/courses', this.examDetails()?.courseId]);
+          this.router.navigate(['/courses', this.examDetails()?.courseId], { queryParams: { tab: 'exams' } });
         }, 1500);
       },
       error: () => {

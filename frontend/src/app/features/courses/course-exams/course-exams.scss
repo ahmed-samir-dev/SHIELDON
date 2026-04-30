@@ -342,6 +342,27 @@
             box-shadow: 0 4px 12px rgba($color-danger-base, 0.25); 
           }
         }
+
+        /* Results Button Style (Blue/Primary) */
+        &.results {
+          color: $color-primary-base;
+          background: rgba($color-primary-base, 0.08);
+          
+          svg {
+            stroke: $color-primary-base; 
+          }
+
+          &:hover { 
+            background: $color-primary-base; 
+            color: $color-neutral-white; 
+            box-shadow: 0 4px 12px rgba($color-primary-base, 0.25);
+            
+            svg {
+              stroke: $color-neutral-white;
+            }
+          }
+        }
+
       }
     }
 }
@@ -598,25 +619,295 @@
   50%       { opacity: 0.5; transform: scale(0.75); }
 }
 
-// ── Result Visibility Hint ──────────────────────────────────────────────────
-.visibility-hint {
-  display: inline-flex;
-  align-items: center;
-  gap: $spacing-2;
-  margin-top: $spacing-2;
-  padding: $spacing-2 $spacing-3;
-  background: linear-gradient(135deg, rgba($color-primary-base, 0.06), rgba($color-primary-light, 0.04));
-  border: 1px solid rgba($color-primary-base, 0.15);
-  border-radius: $border-radius-lg;
-  font-size: $font-size-xs;
-  color: $color-primary-dark;
-  font-weight: $font-weight-medium;
+// ── Modern Radio Cards Grid ───────────────────────────────────────────────
 
-  svg {
-    flex-shrink: 0;
-    color: $color-primary-base;
-    opacity: 0.8;
+.visibility-premium-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: -2px;
+    margin-bottom: 14px;
+    padding: 6px 12px;
+    background: rgba($color-primary-base, 0.04);
+    border: 1px solid rgba($color-primary-base, 0.12);
+    border-radius: $border-radius-md;
+    
+    svg {
+      color: $color-primary-base;
+      flex-shrink: 0;
+    }
+
+    span {
+      font-size: 12px;
+      font-weight: $font-weight-medium;
+      color: $color-neutral-600;
+      line-height: 1.4;
+    }
+  }
+
+.visibility-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-4;
+
+  @media (max-width: 500px) {
+    grid-template-columns: 1fr;
+  }
+
+  .visibility-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    padding: $spacing-3 $spacing-4;
+    border: 2px solid $color-neutral-200;
+    border-radius: $border-radius-lg;
+    background: $color-neutral-white;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+
+    &:hover {
+      border-color: $color-primary-light;
+      background: $color-neutral-50;
+      transform: translateY(-2px);
+      box-shadow: $shadow-sm;
+
+      .card-icon {
+        color: $color-primary-light;
+        transform: scale(1.05);
+      }
+    }
+
+    // Active/Selected State
+    &.selected {
+      border-color: $color-primary-base;
+      background: rgba($color-primary-base, 0.04);
+      box-shadow: $shadow-md;
+
+      .card-icon {
+        color: $color-primary-base;
+        background: $color-neutral-white;
+        box-shadow: $shadow-sm;
+      }
+
+      .card-content .card-title {
+        color: $color-primary-dark;
+      }
+    }
+
+    .hidden-radio {
+      display: none;
+    }
+
+    .card-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: $border-radius-md;
+      background: $color-neutral-100;
+      color: $color-neutral-500;
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    .card-content {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      .card-title {
+        font-weight: $font-weight-bold;
+        font-size: $font-size-sm;
+        color: $color-neutral-800;
+        margin-bottom: 2px;
+        transition: color 0.2s ease;
+      }
+
+      .card-desc {
+        font-size: 11px;
+        color: $color-neutral-500;
+      }
+    }
   }
 }
 
+// ── Modern Alert Banner ──────────────────────────────────────────────────────
+.modern-alert-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-3;
+  padding: $spacing-4;
+  border-radius: $border-radius-lg;
+  margin-bottom: $spacing-4;
+  animation: slideUp 0.3s ease;
 
+  &.warning {
+    background: linear-gradient(to right, rgba($color-warning-light, 0.5), rgba($color-warning-light, 0.2));
+    border: 1px solid rgba($color-warning-base, 0.3);
+    border-left: 4px solid $color-warning-base;
+
+    .alert-icon {
+      color: $color-warning-dark;
+    }
+    .alert-title {
+      color: darken($color-warning-dark, 15%);
+    }
+    .alert-desc {
+      color: $color-warning-dark;
+    }
+  }
+
+  .alert-icon {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .alert-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    .alert-title {
+      font-weight: $font-weight-bold;
+      font-size: $font-size-base;
+    }
+
+    .alert-desc {
+      font-size: $font-size-sm;
+      line-height: 1.4;
+    }
+  }
+}
+
+// ── Attempt Picker Modal ──────────────────────────────────────────────────────
+.attempt-picker-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+
+  .attempt-picker-modal {
+    background: $color-neutral-white;
+    border-radius: $border-radius-2xl;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba($color-neutral-200, 0.8);
+    width: 100%;
+    max-width: 440px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    overflow: hidden;
+    margin: $spacing-4;
+
+    .picker-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: $spacing-5 $spacing-6;
+      border-bottom: 1px solid $color-neutral-100;
+
+      h3 {
+        font-size: $font-size-lg;
+        font-weight: $font-weight-bold;
+        color: $color-neutral-900;
+        margin: 0;
+      }
+
+      .picker-close {
+        background: $color-neutral-100;
+        border: none;
+        border-radius: $border-radius-md;
+        padding: $spacing-1;
+        cursor: pointer;
+        color: $color-neutral-500;
+        display: flex;
+        transition: all 0.15s;
+        &:hover { background: $color-neutral-200; color: $color-neutral-900; }
+      }
+    }
+
+    .picker-list {
+      overflow-y: auto;
+      padding: $spacing-3;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-2;
+
+      .picker-item {
+        display: flex;
+        align-items: center;
+        gap: $spacing-3;
+        padding: $spacing-4 $spacing-5;
+        border-radius: $border-radius-xl;
+        border: 1.5px solid $color-neutral-200;
+        background: $color-neutral-white;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: left;
+        width: 100%;
+
+        &:hover {
+          border-color: $color-primary-light;
+          background: rgba($color-primary-base, 0.03);
+          transform: translateY(-1px);
+          box-shadow: $shadow-sm;
+        }
+
+        .attempt-num {
+          font-weight: $font-weight-bold;
+          font-size: $font-size-base;
+          color: $color-neutral-800;
+          flex-shrink: 0;
+        }
+
+        .attempt-meta {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+
+          .attempt-score {
+            font-weight: $font-weight-bold;
+            font-size: $font-size-base;
+            color: $color-neutral-500;
+            &.pass { color: $color-success-dark; }
+            &.fail { color: $color-danger-dark; }
+          }
+
+          .attempt-date {
+            font-size: $font-size-xs;
+            color: $color-neutral-400;
+          }
+        }
+
+        svg { flex-shrink: 0; color: $color-neutral-400; }
+      }
+    }
+  }
+}
+
+// Ensure keyframes exist here too if not globally defined
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}

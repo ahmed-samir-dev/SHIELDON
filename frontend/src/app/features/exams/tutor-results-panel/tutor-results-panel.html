@@ -1,0 +1,186 @@
+<div class="panel-container">
+  <!-- Header -->
+  <header class="panel-header">
+    <div class="header-left">
+      <button class="btn-back" (click)="goBack()">
+        <lucide-icon [img]="ArrowLeft" size="20"></lucide-icon>
+        Back to Exams
+      </button>
+    </div>
+    <div class="header-center">
+      <h1>Results Management</h1>
+    </div>
+    <div class="header-right" style="display: flex; gap: 8px;">
+      <button class="btn-release" *ngIf="selectedStudentIds().size > 0" (click)="releaseSelectedResults()">
+        Release Selected ({{ selectedStudentIds().size }})
+      </button>
+      <button class="btn-release" *ngIf="selectedStudentIds().size === 0" (click)="releaseResults()" [disabled]="isLoading() || attempts().length === 0">
+        Release All
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="panel-main">
+    
+    <!-- Controls -->
+    <div class="controls-bar">
+      <div class="search-box">
+        <lucide-icon [img]="Search" size="18" class="search-icon"></lucide-icon>
+        <input 
+          type="text" 
+          placeholder="Search by student name or ID..." 
+          [value]="searchQuery()"
+          (input)="filterAttempts($any($event.target).value)"
+        />
+      </div>
+      <div class="stats">
+        <span>Total Attempts: <strong>{{ attempts().length }}</strong></span>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="isLoading()">
+      <div class="spinner"></div>
+      <p>Loading attempts...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!isLoading() && filteredAttempts().length === 0">
+      <p>No attempts found.</p>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-responsive" *ngIf="!isLoading() && filteredAttempts().length > 0">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width: 40px; text-align: center;">
+              <input type="checkbox" 
+                     [checked]="isAllUnreleasedSelected()" 
+                     [disabled]="unreleasedCount === 0"
+                     (change)="toggleAllUnreleased()">
+            </th>
+            <th>Student</th>
+            <th>ID</th>
+            <th>Submitted At</th>
+            <th>Status</th>
+            <th>Score</th>
+            <th>Published</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let attempt of filteredAttempts()" [class.selected-row]="selectedStudentIds().has(attempt.studentId)">
+            <td style="text-align: center;">
+              <input type="checkbox" 
+                     [checked]="selectedStudentIds().has(attempt.studentId)" 
+                     [disabled]="attempt.status !== 'Graded' || attempt.isGradePublished"
+                     (change)="toggleSelection(attempt.studentId)">
+            </td>
+            <td class="font-medium text-neutral-900">{{ attempt.studentName }}</td>
+            <td class="text-neutral-500">{{ attempt.studentDisplayId }}</td>
+            <td class="text-neutral-600">{{ attempt.submittedAt ? (attempt.submittedAt | date:'MMM d, y, h:mm a') : 'N/A' }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="'status-' + attempt.status.toLowerCase()">
+                {{ attempt.status }}
+              </span>
+            </td>
+            <td>
+              <span class="score-text" *ngIf="attempt.score !== null" [ngClass]="attempt.passed ? 'text-success' : 'text-danger'">
+                {{ attempt.score | number:'1.1-1' }}%
+              </span>
+              <span class="score-text pending" *ngIf="attempt.score === null">Pending</span>
+            </td>
+            <td>
+              <lucide-icon [img]="attempt.isGradePublished ? CheckCircle : Clock" size="18" 
+                [ngClass]="attempt.isGradePublished ? 'text-success' : 'text-warning'">
+              </lucide-icon>
+            </td>
+            <td class="actions">
+              <button class="btn-action primary" *ngIf="attempt.status === 'Submitted'" (click)="openGradingModal(attempt.attemptId)">
+                Grade
+              </button>
+              <button class="btn-action secondary" *ngIf="attempt.status === 'Graded' || attempt.status === 'ForceSubmitted'" (click)="openGradingModal(attempt.attemptId)">
+                <lucide-icon [img]="Eye" size="16"></lucide-icon> View
+              </button>
+              <button class="btn-action primary" *ngIf="attempt.status === 'Graded' && !attempt.isGradePublished" (click)="releaseStudentResult(attempt.studentId)">
+                Release
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+</div>
+
+<!-- ── Grading Modal ──────────────────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="isGradingModalOpen()">
+  <div class="modal-content grading-modal">
+    <div class="modal-header">
+      <h2>Short Answer Grading</h2>
+      <button class="btn-close" (click)="closeGradingModal()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      
+      <!-- Modal Loading -->
+      <div class="loading-state" *ngIf="isGradingLoading()">
+        <div class="spinner"></div>
+      </div>
+
+      <ng-container *ngIf="!isGradingLoading() && gradingResult() as result">
+        
+        <div class="student-info-card">
+          <p><strong>Attempt Score (Auto-graded so far):</strong> {{ result.score !== null ? (result.score | number:'1.1-1') + '%' : 'Pending' }}</p>
+        </div>
+
+        <form [formGroup]="gradingForm" (ngSubmit)="submitGrades()">
+          <div class="questions-list" formArrayName="grades">
+            
+            <ng-container *ngFor="let q of result.questionReviews; let i = index">
+              <div class="question-item" *ngIf="q.requiresManualGrading">
+                
+                <div class="q-header">
+                  <span class="q-label">Question {{ i + 1 }}</span>
+                  <span class="q-points">Max: {{ q.points }} pts</span>
+                </div>
+                
+                <p class="q-text">{{ q.questionText }}</p>
+                
+                <div class="student-answer">
+                  <strong>Student's Answer:</strong>
+                  <p>{{ q.textAnswer || '(No answer provided)' }}</p>
+                </div>
+
+                <!-- Find the form group for this question based on questionId -->
+                <ng-container *ngFor="let gradeGroup of shortAnswerGrades.controls; let j = index">
+                  <div class="grading-input-group" [formGroupName]="j" *ngIf="gradeGroup.get('questionId')?.value === q.questionId">
+                    <label>Points to Award:</label>
+                    <input type="number" formControlName="pointsAwarded" min="0" [max]="q.points" step="0.5" />
+                    
+                    <div class="error-msg" *ngIf="gradeGroup.get('pointsAwarded')?.errors?.['max']">
+                      Cannot exceed {{ q.points }} points.
+                    </div>
+                  </div>
+                </ng-container>
+
+              </div>
+            </ng-container>
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeGradingModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="isSubmittingGrades() || gradingForm.invalid">
+              {{ isSubmittingGrades() ? 'Saving...' : 'Save Grades' }}
+            </button>
+          </div>
+        </form>
+
+      </ng-container>
+    </div>
+  </div>
+</div>

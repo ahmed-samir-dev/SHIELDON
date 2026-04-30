@@ -127,6 +127,10 @@ export class NotificationPanelComponent implements OnInit {
         // Modern descriptive icon: Document with a star/sparkle for a new exam
         svg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M12 12.5l1.3 2.5 2.7.4-2 2 .5 2.6-2.5-1.3-2.5 1.3.5-2.6-2-2 2.7-.4z"/></svg>`;
         break;
+      case NotificationType.ExamResultReleased:
+        // Result chart/award icon
+        svg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15l-2 5l9-5z"/><circle cx="12" cy="8" r="5"/><path d="M7 15l-5 5l2-5z"/></svg>`;
+        break;
       default: 
         svg = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`;
         break;
@@ -143,6 +147,7 @@ export class NotificationPanelComponent implements OnInit {
       case NotificationType.NewCourseMaterial: return '#8b5cf6'; // Purple
       case NotificationType.NewCourseAssignment: return '#ec4899'; // Pink
       case NotificationType.ExamScheduled: return '#f59e0b'; // Amber
+      case NotificationType.ExamResultReleased: return '#10b981'; // Green
       default: return '#6b7280'; // Gray
     }
   }

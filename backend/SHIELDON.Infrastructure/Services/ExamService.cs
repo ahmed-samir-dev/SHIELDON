@@ -134,7 +134,27 @@ public class ExamService : IExamService
             .ToListAsync(ct);
 
         var bankCount = await _db.ExamQuestions.CountAsync(q => q.CourseId == courseId, ct);
-        var items = exams.Select(e => MapToSummary(e, course.Title, bankCount, e.SelectionRules.ToList())).ToList();
+        
+        var latestAttemptIds = new Dictionary<Guid, Guid>();
+        if (requestingUserRole == "Student")
+        {
+            var examIds = exams.Select(e => e.Id).ToList();
+            var attempts = await _db.ExamAttempts
+                .Where(a => a.StudentId == requestingUserId && examIds.Contains(a.ExamId) && a.Status != AttemptStatus.InProgress)
+                .OrderByDescending(a => a.SubmittedAt)
+                .ToListAsync(ct);
+            
+            foreach (var examId in examIds)
+            {
+                var latest = attempts.FirstOrDefault(a => a.ExamId == examId);
+                if (latest != null)
+                {
+                    latestAttemptIds[examId] = latest.Id;
+                }
+            }
+        }
+
+        var items = exams.Select(e => MapToSummary(e, course.Title, bankCount, e.SelectionRules.ToList(), latestAttemptIds.GetValueOrDefault(e.Id, Guid.Empty))).ToList();
 
         return new PagedResponse<ExamSummaryResponse>
         {
@@ -265,8 +285,12 @@ public class ExamService : IExamService
 
         AuthorizeForCourse(exam.Course!, requestingUserId, requestingUserRole);
 
-        if (exam.Status != ExamStatus.Draft)
-            throw new BusinessRuleException("Only Draft exams can be deleted. Published/Closed exams cannot be removed.");
+        bool isDraft = exam.Status == ExamStatus.Draft;
+        bool isExpired = exam.ScheduledEndAt.HasValue && exam.ScheduledEndAt.Value < DateTime.UtcNow;
+
+        if (!isDraft && !isExpired)
+            throw new BusinessRuleException(
+                "Only Draft exams or expired Published exams can be permanently deleted.");
 
         _db.Exams.Remove(exam);
         await _db.SaveChangesAsync(ct);
@@ -361,9 +385,12 @@ public class ExamService : IExamService
             throw new BusinessRuleException("Max attempts must be at least 1.");
         if (passScore < 0 || passScore > 100)
             throw new BusinessRuleException("Pass score must be between 0 and 100.");
+        if (string.Equals(resultVisibility, "Scheduled", StringComparison.OrdinalIgnoreCase))
+            throw new BusinessRuleException(
+                "'Scheduled' result visibility is no longer supported. Use 'Immediate' or 'ManualRelease'.");
     }
 
-    private static ExamSummaryResponse MapToSummary(Exam e, string courseTitle, int bankCount, List<ExamSelectionRule> rules) => new(
+    private static ExamSummaryResponse MapToSummary(Exam e, string courseTitle, int bankCount, List<ExamSelectionRule> rules, Guid latestAttemptId = default) => new(
         Id: e.Id,
         CourseId: e.CourseId,
         CourseTitle: courseTitle,
@@ -379,7 +406,8 @@ public class ExamService : IExamService
         ScheduledReleaseAt: e.ScheduledReleaseAt,
         BankQuestionCount: bankCount,
         SelectionRules: rules.Select(r => new ExamSelectionRuleResponse(r.Id, r.QuestionType.ToString(), r.Count)).ToList(),
-        CreatedAt: e.CreatedAt
+        CreatedAt: e.CreatedAt,
+        LatestAttemptId: latestAttemptId == Guid.Empty ? null : latestAttemptId
     );
 
     private static ExamDetailResponse MapToDetail(Exam e, string courseTitle, int bankCount, List<ExamSelectionRule> rules, string createdByName) => new(

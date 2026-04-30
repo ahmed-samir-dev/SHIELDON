@@ -63,7 +63,9 @@ public record ExamSummaryResponse(
     int BankQuestionCount,
     /// <summary>Selection rules that determine how many of each type are drawn.</summary>
     List<ExamSelectionRuleResponse> SelectionRules,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    /// <summary>For students: the ID of their most recent attempt (if any).</summary>
+    Guid? LatestAttemptId = null
 );
 
 /// <summary>Full exam detail including selection rules and bank stats.</summary>

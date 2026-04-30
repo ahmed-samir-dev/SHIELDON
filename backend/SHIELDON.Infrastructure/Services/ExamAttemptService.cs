@@ -6,16 +6,19 @@ using SHIELDON.Domain.Entities;
 using SHIELDON.Domain.Enums;
 using SHIELDON.Domain.Exceptions;
 using SHIELDON.Infrastructure.Persistence;
+using System.Security.Cryptography;
 
 namespace SHIELDON.Infrastructure.Services;
 
 public class ExamAttemptService : IExamAttemptService
 {
     private readonly AppDbContext _db;
+    private readonly INotificationService _notifications;
 
-    public ExamAttemptService(AppDbContext db)
+    public ExamAttemptService(AppDbContext db, INotificationService notifications)
     {
         _db = db;
+        _notifications = notifications;
     }
 
     public async Task<ApiResponse<StartExamResponse>> StartExamAsync(Guid examId, Guid studentId, CancellationToken ct = default)
@@ -87,7 +90,6 @@ public class ExamAttemptService : IExamAttemptService
 
         // ── Draw questions from the bank (random selection per type) ──────────
         var selectedQuestions = new List<ExamQuestion>();
-        var rng = new Random();
 
         foreach (var rule in exam.SelectionRules)
         {
@@ -100,14 +102,21 @@ public class ExamAttemptService : IExamAttemptService
                 throw new BusinessRuleException(
                     $"Not enough {rule.QuestionType} questions in the bank. Need {rule.Count}, found {bankQuestions.Count}.");
 
-            // Fisher-Yates shuffle and take Count
+            // Cryptographically random Fisher-Yates shuffle within each type bucket
             for (int i = bankQuestions.Count - 1; i > 0; i--)
             {
-                int j = rng.Next(i + 1);
+                int j = RandomNumberGenerator.GetInt32(i + 1);
                 (bankQuestions[i], bankQuestions[j]) = (bankQuestions[j], bankQuestions[i]);
             }
 
             selectedQuestions.AddRange(bankQuestions.Take(rule.Count));
+        }
+
+        // ── Final cross-type shuffle — ensures MCQ/TF/SA are interleaved randomly ──
+        for (int i = selectedQuestions.Count - 1; i > 0; i--)
+        {
+            int j = RandomNumberGenerator.GetInt32(i + 1);
+            (selectedQuestions[i], selectedQuestions[j]) = (selectedQuestions[j], selectedQuestions[i]);
         }
 
         // Create new attempt
@@ -250,12 +259,82 @@ public class ExamAttemptService : IExamAttemptService
 
         await _db.SaveChangesAsync(ct);
 
+        // ── Create / update GradeRecord & handle result visibility ────────────
+        // Only create GradeRecord when the attempt is fully graded (not awaiting manual review)
+        if (attempt.Status == AttemptStatus.Graded || attempt.Status == AttemptStatus.ForceSubmitted)
+        {
+            await CreateOrUpdateGradeRecordAsync(attempt, percentage, ct);
+        }
+
         return ApiResponse<SubmitExamResponse>.Ok(new SubmitExamResponse(
             attempt.Id,
             attempt.Status,
             attempt.Score,
-            attempt.Score >= attempt.Exam.PassScore
+            attempt.Score.HasValue && attempt.Exam != null && attempt.Score >= attempt.Exam.PassScore,
+            attempt.Exam!.ResultVisibility.ToString(),
+            attempt.Exam.CourseId
         ));
+    }
+
+    /// <summary>
+    /// Creates or refreshes the GradeRecord for this attempt and dispatches
+    /// a result-released notification if ResultVisibility = Immediate.
+    /// </summary>
+    private async Task CreateOrUpdateGradeRecordAsync(ExamAttempt attempt, decimal percentage, CancellationToken ct)
+    {
+        var exam = attempt.Exam!;
+        bool publishImmediately = exam.ResultVisibility == ResultVisibility.Immediate;
+
+        // Upsert: only one GradeRecord per student per exam
+        var existing = await _db.GradeRecords
+            .FirstOrDefaultAsync(g => g.ExamId == exam.Id && g.StudentId == attempt.StudentId, ct);
+
+        if (existing == null)
+        {
+            var grade = new GradeRecord
+            {
+                StudentId = attempt.StudentId,
+                CourseId = exam.CourseId,
+                ExamId = exam.Id,
+                Type = GradeType.Exam,
+                Score = Math.Round(percentage, 2),
+                MaxScore = 100,
+                Weight = 0,          // Tutor assigns weight in Grade Management Panel (Stage 3.8)
+                IsPublished = publishImmediately,
+                PublishedAt = publishImmediately ? DateTime.UtcNow : null,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            _db.GradeRecords.Add(grade);
+        }
+        else
+        {
+            // Re-attempt: update with the latest score
+            existing.Score = Math.Round(percentage, 2);
+            existing.UpdatedAt = DateTime.UtcNow;
+            if (publishImmediately && !existing.IsPublished)
+            {
+                existing.IsPublished = true;
+                existing.PublishedAt = DateTime.UtcNow;
+            }
+        }
+
+        await _db.SaveChangesAsync(ct);
+
+        // Notify student immediately only for Immediate visibility
+        if (publishImmediately)
+        {
+            bool passed = percentage >= exam.PassScore;
+            await _notifications.TriggerNotificationAsync(
+                attempt.StudentId,
+                "Exam Result Available",
+                $"Your result for '{exam.Title}' is ready. Score: {percentage:F1}%",
+                $"/exam-results/{attempt.Id}",
+                NotificationType.ExamResultReleased,
+                exam.Id,
+                sendEmail: true,
+                ct);
+        }
     }
 
     private async Task<ExamAttempt> GetValidAttemptAsync(Guid attemptId, Guid token, CancellationToken ct)
@@ -285,7 +364,6 @@ public class ExamAttemptService : IExamAttemptService
             .Select(aq => aq.Question!)
             .ToList();
 
-        var rng = new Random(attempt.Id.GetHashCode());
         var finalOrder = new List<StudentQuestionDto>();
 
         foreach (var q in snapshotQuestions)
@@ -295,13 +373,13 @@ public class ExamAttemptService : IExamAttemptService
                 .Select(o => new StudentOptionDto(o.Id, o.OptionText))
                 .ToList();
 
-            // Shuffle MCQ options deterministically per attempt
+            // Shuffle MCQ options using cryptographic randomness
             if (q.Type == QuestionType.MCQ && q.IsRandomized)
             {
                 var arr = maskedOptions.ToArray();
                 for (int i = arr.Length - 1; i > 0; i--)
                 {
-                    int j = rng.Next(i + 1);
+                    int j = RandomNumberGenerator.GetInt32(i + 1);
                     (arr[i], arr[j]) = (arr[j], arr[i]);
                 }
                 maskedOptions = arr.ToList();
@@ -323,7 +401,9 @@ public class ExamAttemptService : IExamAttemptService
             exam.PassScore,
             attempt.Token.ExpiresAt,
             finalOrder,
-            savedAnswers
+            savedAnswers,
+            exam.CourseId,
+            exam.ResultVisibility.ToString()
         );
     }
 }

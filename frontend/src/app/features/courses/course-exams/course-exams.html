@@ -138,12 +138,24 @@
         <div class="card-actions">
           <!-- Student Actions -->
           @if (!canManageExams()) {
-          <button class="btn btn-secondary w-100"
-            [disabled]="exam.status !== 'Published' || isExamScheduled(exam) || isExamExpired(exam)"
-            (click)="takeExam(exam.id)">
-            {{ isExamExpired(exam) ? 'Deadline Passed' : (isExamScheduled(exam) ? 'Starts at ' + (exam.scheduledAt |
-            date:'MMM d, h:mm a') : 'Take Exam') }}
-          </button>
+            @if (exam.latestAttemptId) {
+              <div class="action-grid" style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary flex-1"
+                  [disabled]="exam.status !== 'Published' || isExamScheduled(exam) || isExamExpired(exam)"
+                  (click)="takeExam(exam.id)">
+                  {{ isExamExpired(exam) ? 'Deadline Passed' : (isExamScheduled(exam) ? 'Starts at ' + (exam.scheduledAt | date:'MMM d, h:mm a') : 'Take Again') }}
+                </button>
+                <button class="btn btn-primary flex-1" (click)="viewResults(exam.id, exam.latestAttemptId)">
+                  View Result
+                </button>
+              </div>
+            } @else {
+              <button class="btn btn-secondary w-100"
+                [disabled]="exam.status !== 'Published' || isExamScheduled(exam) || isExamExpired(exam)"
+                (click)="takeExam(exam.id)">
+                {{ isExamExpired(exam) ? 'Deadline Passed' : (isExamScheduled(exam) ? 'Starts at ' + (exam.scheduledAt | date:'MMM d, h:mm a') : 'Take Exam') }}
+              </button>
+            }
           }
 
           <!-- Tutor/Admin Actions -->
@@ -160,6 +172,18 @@
             </button>
             }
 
+            @if (exam.status !== 'Draft') {
+            <button class="modern-action-btn results" title="Manage Results" (click)="manageResults(exam.id)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20V10"></path>
+                <path d="M18 20V4"></path>
+                <path d="M6 20v-4"></path>
+              </svg>
+              <span>Results</span>
+            </button>
+            }
+
             <button class="modern-action-btn edit" title="View/Edit Details" (click)="openEditModal(exam)">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -169,7 +193,7 @@
               <span>Edit</span>
             </button>
 
-            @if (exam.status === 'Draft') {
+            @if (exam.status === 'Draft' || isExamExpired(exam)) {
             <button class="modern-action-btn delete" title="Delete Exam" (click)="deleteExam(exam.id)">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -312,25 +336,35 @@
 
         <div class="form-row three-col-equal">
           <div class="form-group">
-            <label>MCQ Questions <span class="required">*</span></label>
+            <label>MCQ Questions <span class="optional">(Optional)</span></label>
             <div class="input-wrapper">
               <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
               <input type="number" formControlName="mcqCount" placeholder="0" min="0" />
             </div>
           </div>
           <div class="form-group">
-            <label>True/False Questions <span class="required">*</span></label>
+            <label>True/False Questions <span class="optional">(Optional)</span></label>
             <div class="input-wrapper">
               <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               <input type="number" formControlName="trueFalseCount" placeholder="0" min="0" />
             </div>
           </div>
           <div class="form-group">
-            <label>Short Answer Questions <span class="required">*</span></label>
+            <label>Short Answer Questions <span class="optional">(Optional)</span></label>
             <div class="input-wrapper">
               <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="3" x2="21" y2="7"/><path d="M21 7L13.5 14.5 9 15l.5-4.5L17 3z"/><path d="M19 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg>
               <input type="number" formControlName="shortAnswerCount" placeholder="0" min="0" />
             </div>
+          </div>
+        </div>
+
+        <div class="modern-alert-banner warning" *ngIf="examForm.errors?.['noQuestionsSelected'] && (examForm.touched || examForm.dirty)">
+          <div class="alert-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          </div>
+          <div class="alert-content">
+            <span class="alert-title">Questions Required</span>
+            <span class="alert-desc">Please include at least one question (MCQ, True/False, or Short Answer) to build a valid exam.</span>
           </div>
         </div>
 
@@ -373,55 +407,42 @@
           </div>
         </div>
 
+<!-- ── Modern Radio Cards: Result Visibility ── -->
         <div class="form-group">
           <label>Result Visibility <span class="required">*</span></label>
-          <div class="type-cards-grid three-col">
-
-            <label class="type-card" [class.selected]="examForm.get('resultVisibility')?.value === 'Immediate'">
-              <input type="radio" formControlName="resultVisibility" value="Immediate" class="hidden-radio">
-              <div class="type-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                  <circle cx="12" cy="12" r="3" />
-                </svg>
-              </div>
-              <div class="type-info"><span class="type-name">Immediate</span></div>
-            </label>
-
-            <label class="type-card" [class.selected]="examForm.get('resultVisibility')?.value === 'Scheduled'">
-              <input type="radio" formControlName="resultVisibility" value="Scheduled" class="hidden-radio">
-              <div class="type-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <polyline points="12 6 12 12 16 14" />
-                </svg>
-              </div>
-              <div class="type-info"><span class="type-name">Scheduled</span></div>
-            </label>
-
-            <label class="type-card" [class.selected]="examForm.get('resultVisibility')?.value === 'ManualRelease'">
-              <input type="radio" formControlName="resultVisibility" value="ManualRelease" class="hidden-radio">
-              <div class="type-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                </svg>
-              </div>
-              <div class="type-info"><span class="type-name">Manual</span></div>
-            </label>
-
-          </div>
-          <div class="visibility-hint">
-            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <div class="visibility-premium-hint">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10" />
-              <path d="M12 16v-4" />
-              <path d="M12 8h.01" />
+              <line x1="12" y1="16" x2="12" y2="12" />
+              <line x1="12" y1="8" x2="12.01" y2="8" />
             </svg>
-            Controls when students can view their score and detailed feedback.
+            <span>Controls when students can view their score and detailed feedback.</span>
+          </div>
+
+          <div class="visibility-cards-grid">
+            <!-- Immediate Card -->
+            <label class="visibility-card" [class.selected]="examForm.get('resultVisibility')?.value === 'Immediate'">
+              <input type="radio" formControlName="resultVisibility" value="Immediate" class="hidden-radio">
+              <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+              </div>
+              <div class="card-content">
+                <span class="card-title">Immediate</span>
+                <span class="card-desc">Right after submission</span>
+              </div>
+            </label>
+
+            <!-- Manual Release Card -->
+            <label class="visibility-card" [class.selected]="examForm.get('resultVisibility')?.value === 'ManualRelease'">
+              <input type="radio" formControlName="resultVisibility" value="ManualRelease" class="hidden-radio">
+              <div class="card-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+              </div>
+              <div class="card-content">
+                <span class="card-title">Manual Release</span>
+                <span class="card-desc">Tutor releases scores</span>
+              </div>
+            </label>
           </div>
         </div>
 
@@ -440,4 +461,31 @@
     </div>
   </div>
   }
+</div>
+
+<!-- Attempt Picker Modal -->
+<div class="attempt-picker-overlay" *ngIf="showAttemptPicker()" (click)="closeAttemptPicker()">
+  <div class="attempt-picker-modal" (click)="$event.stopPropagation()">
+    <div class="picker-header">
+      <h3>Select an Attempt to View</h3>
+      <button class="picker-close" (click)="closeAttemptPicker()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="picker-list">
+      <button 
+        *ngFor="let attempt of studentAttemptsForPicker(); let idx = index"
+        class="picker-item"
+        (click)="viewSpecificAttempt(attempt.attemptId)">
+        <div class="attempt-num">Attempt {{ studentAttemptsForPicker().length - idx }}</div>
+        <div class="attempt-meta">
+          <span class="attempt-score" [class.pass]="attempt.passed" [class.fail]="!attempt.passed && attempt.score !== null">
+            {{ attempt.score !== null ? (attempt.score | number:'1.1-1') + '%' : 'Pending' }}
+          </span>
+          <span class="attempt-date" *ngIf="attempt.submittedAt">{{ attempt.submittedAt | date:'MMM d, y, h:mm a' }}</span>
+        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+  </div>
 </div>

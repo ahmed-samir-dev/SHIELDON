@@ -10,7 +10,11 @@ public record StartExamResponse(
     decimal PassScore,
     DateTime ExpiresAt,
     IReadOnlyList<StudentQuestionDto> Questions,
-    IReadOnlyList<SavedAnswerDto> SavedAnswers
+    IReadOnlyList<SavedAnswerDto> SavedAnswers,
+    /// <summary>Course ID — used by frontend for post-submit redirect back to Exams tab.</summary>
+    Guid CourseId,
+    /// <summary>Result visibility setting — used by frontend to decide redirect destination after submit.</summary>
+    string ResultVisibility
 );
 
 public record StudentQuestionDto(
@@ -47,5 +51,9 @@ public record SubmitExamResponse(
     Guid AttemptId,
     AttemptStatus Status,
     decimal? Score,
-    bool Passed
+    bool Passed,
+    /// <summary>Exam's result visibility — used by frontend to decide redirect after submit.</summary>
+    string ResultVisibility,
+    /// <summary>Course ID — used by frontend for post-submit redirect.</summary>
+    Guid CourseId
 );
