@@ -12,6 +12,7 @@ secrets.json
 .env.local
 .env.development
 .env.production
+scratch/
 
 # ── .NET / Visual Studio ────────────────────────────────────
 *.user

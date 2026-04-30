@@ -21,6 +21,7 @@ export interface ExamSummaryResponse {
   bankQuestionCount: number;
   selectionRules: ExamSelectionRule[];
   createdAt: string;
+  latestAttemptId?: string;
 }
 
 export interface ExamDetailResponse {

@@ -1498,8 +1498,8 @@ End-to-end verification: full exam lifecycle + all notification triggers + ExamT
 - [x] **Stage 3.2** — F9: Exam Management & Notifications ✅ Complete
 - [/] **Stage 3.3 Backend** — F10: Re-Attempt Requests (Backend only) ✅ Complete; Frontend deferred to 3.7
 - [x] **Stage 3.4** — F11: Question Bank ✅ COMPLETE
-- [ ] **Stage 3.5** — F12/F13: Question Randomization + Timed Exam Engine + Secure Token
-- [ ] **Stage 3.6** — F14: Exam Results & Auto-Grading
+- [x] **Stage 3.5** — F12/F13: Question Randomization + Timed Exam Engine + Secure Token ✅ COMPLETE
+- [x] **Stage 3.6** — F14: Exam Results & Auto-Grading ✅ COMPLETE
 - [ ] **Stage 3.7** — F10 Frontend: Re-Attempt Requests (Frontend Phase; backend done in 3.3)
 - [ ] **Stage 3.8** — F15: Grade Management Panel
 - [ ] **Stage 3.9** — Phase 3 Integration & Polish

@@ -60,6 +60,12 @@ export const routes: Routes = [
     loadComponent: () => import('./features/courses/exam-engine/exam-engine').then(m => m.ExamEngine),
     title: 'Exam Engine — SHIELDON'
   },
+  {
+    path: 'exam-results/:attemptId',
+    canActivate: [deviceGuard, authGuard],
+    loadComponent: () => import('./features/exams/exam-result-page/exam-result-page').then(m => m.ExamResultPage),
+    title: 'Exam Result — SHIELDON'
+  },
 
   // ── Authenticated Routes (Protected by authGuard) ─────────────────────────
   {
@@ -82,6 +88,11 @@ export const routes: Routes = [
         path: 'courses/:id',
         loadComponent: () => import('./features/courses/course-detail/course-detail').then(m => m.CourseDetail),
         title: 'Course Hub — SHIELDON'
+      },
+      {
+        path: 'courses/:courseId/exams/:examId/results',
+        loadComponent: () => import('./features/exams/tutor-results-panel/tutor-results-panel').then(m => m.TutorResultsPanel),
+        title: 'Exam Results — SHIELDON'
       },
       {
         path: 'enrollments',

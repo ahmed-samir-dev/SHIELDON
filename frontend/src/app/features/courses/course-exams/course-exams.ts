@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ExamService } from '../services/exam.service';
 import { QuestionBankService } from '../services/question-bank.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -9,6 +9,20 @@ import { ToastrService } from 'ngx-toastr';
 import { ExamSummaryResponse } from '../../../core/models/exam.model';
 import { CourseDetailResponse } from '../../../core/models/courses.model';
 import { Router } from '@angular/router';
+import { ExamResultService, ExamAttemptSummaryDto } from '../../exams/services/exam-result';
+
+export function atLeastOneQuestionValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const mcq = control.get('mcqCount')?.value || 0;
+    const tf = control.get('trueFalseCount')?.value || 0;
+    const sa = control.get('shortAnswerCount')?.value || 0;
+    
+    if (mcq + tf + sa <= 0) {
+      return { noQuestionsSelected: true };
+    }
+    return null;
+  };
+}
 
 @Component({
   selector: 'app-course-exams',
@@ -34,6 +48,12 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
   editingExamId = signal<string | null>(null);
   editingExam = signal<ExamSummaryResponse | null>(null);
 
+  // Attempt Picker State
+  showAttemptPicker = signal(false);
+  studentAttemptsForPicker = signal<ExamAttemptSummaryDto[]>([]);
+  pickerExamId = signal<string | null>(null);
+  private examResultService = inject(ExamResultService);
+
   currentTime = signal<Date>(new Date());
   private timeInterval: any;
 
@@ -52,7 +72,7 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
       mcqCount: [0, [Validators.required, Validators.min(0)]],
       trueFalseCount: [0, [Validators.required, Validators.min(0)]],
       shortAnswerCount: [0, [Validators.required, Validators.min(0)]]
-    });
+    }, { validators: atLeastOneQuestionValidator() });
   }
 
   ngOnInit() {
@@ -88,7 +108,7 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
       maxAttempts: 1,
       passScore: 50,
       resultVisibility: 'Immediate',
-      mcqCount: 0,
+      mcqCount: 1,
       trueFalseCount: 0,
       shortAnswerCount: 0
     });
@@ -302,6 +322,40 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
 
   takeExam(examId: string) {
     this.router.navigate(['/exam-engine', examId]);
+  }
+
+  viewResults(examId: string, latestAttemptId: string) {
+    this.examResultService.getStudentAttempts(examId).subscribe({
+      next: (res) => {
+        const attempts = res.data || [];
+        if (attempts.length > 1) {
+          this.studentAttemptsForPicker.set(attempts);
+          this.pickerExamId.set(examId);
+          this.showAttemptPicker.set(true);
+        } else {
+          // Fallback to directly viewing the latest attempt if only 1 exists
+          this.router.navigate(['/exam-results', latestAttemptId]);
+        }
+      },
+      error: () => {
+        this.toastr.error('Failed to load attempts');
+        this.router.navigate(['/exam-results', latestAttemptId]);
+      }
+    });
+  }
+
+  viewSpecificAttempt(attemptId: string) {
+    this.showAttemptPicker.set(false);
+    this.router.navigate(['/exam-results', attemptId]);
+  }
+
+  closeAttemptPicker() {
+    this.showAttemptPicker.set(false);
+    this.pickerExamId.set(null);
+  }
+
+  manageResults(examId: string) {
+    this.router.navigate(['/courses', this.course.id, 'exams', examId, 'results']);
   }
 
   getExamQuestionCount(exam: ExamSummaryResponse): number {

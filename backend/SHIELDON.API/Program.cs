@@ -110,6 +110,11 @@ var builder = WebApplication.CreateBuilder(args);
     {
         options.AddPolicy("RequireStudent", policy => 
             policy.RequireRole(SHIELDON.Domain.Enums.UserRole.Student.ToString()));
+
+        options.AddPolicy("RequireTutorOrAdmin", policy =>
+            policy.RequireRole(
+                SHIELDON.Domain.Enums.UserRole.Tutor.ToString(),
+                SHIELDON.Domain.Enums.UserRole.Admin.ToString()));
     });
 
     // ── SWAGGER / OPENAPI: With JWT bearer auth support ────────────────────
