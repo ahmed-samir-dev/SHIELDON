@@ -65,9 +65,10 @@ public class ReattemptController : ControllerBase
         [FromQuery] string? status = null,
         [FromQuery] Guid? examId = null,
         [FromQuery] Guid? courseId = null,
+        [FromQuery] string? searchTerm = null,
         CancellationToken ct = default)
     {
-        var query = new ReattemptQueryParams(page, pageSize, status, examId, courseId);
+        var query = new ReattemptQueryParams(page, pageSize, status, examId, courseId, searchTerm);
         var result = await _reattemptService.GetRequestsAsync(query, GetUserId(), GetUserRole(), ct);
         return Ok(ApiResponse<PagedResponse<ReattemptRequestResponse>>.Ok(result, "Re-attempt requests retrieved successfully."));
     }

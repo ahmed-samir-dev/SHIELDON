@@ -125,6 +125,17 @@ public class ReattemptService : IReattemptService
         if (query.CourseId.HasValue)
             q = q.Where(r => r.Exam!.CourseId == query.CourseId.Value);
 
+        if (!string.IsNullOrWhiteSpace(query.SearchTerm))
+        {
+            var term = query.SearchTerm.ToLower();
+            q = q.Where(r =>
+                (r.Student!.FirstName + " " + r.Student.LastName).ToLower().Contains(term) ||
+                (r.Student.StudentId != null && r.Student.StudentId.ToLower().Contains(term)) ||
+                (r.Exam!.Title.ToLower().Contains(term)) ||
+                (r.Exam!.Course!.Title.ToLower().Contains(term))
+            );
+        }
+
         var totalCount = await q.CountAsync(ct);
 
         var items = await q
