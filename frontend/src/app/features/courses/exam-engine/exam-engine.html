@@ -61,19 +61,49 @@
         </div>
       </div>
 
-      <div class="rules-list">
-        <h3><lucide-icon [img]="AlertTriangle" size="20"></lucide-icon> Academic Integrity Rules</h3>
-        <ul>
-          <li>Once you start, the timer cannot be paused.</li>
-          <li>Your answers are saved automatically.</li>
-          <li>The exam will auto-submit when the timer reaches zero.</li>
-          <li>Ensure you have a stable internet connection.</li>
-        </ul>
+            <div class="integrity-rules">
+        <h3><lucide-icon [img]="AlertTriangle" size="20"></lucide-icon> Integrity & Anti-Cheating Rules</h3>
+        <p class="rules-subtitle">You must acknowledge all rules before beginning the exam.</p>
+        
+        <div class="rule-checkbox" (click)="toggleRule(0)">
+          <div class="checkbox-box" [class.checked]="rulesChecked()[0]">
+            <lucide-icon *ngIf="rulesChecked()[0]" [img]="CheckCircle" size="16"></lucide-icon>
+          </div>
+          <span class="rule-text">I will stay in <strong>fullscreen mode</strong> for the entire exam duration.</span>
+        </div>
+        
+        <div class="rule-checkbox" (click)="toggleRule(1)">
+          <div class="checkbox-box" [class.checked]="rulesChecked()[1]">
+            <lucide-icon *ngIf="rulesChecked()[1]" [img]="CheckCircle" size="16"></lucide-icon>
+          </div>
+          <span class="rule-text">I will not <strong>switch tabs or minimize</strong> the browser window.</span>
+        </div>
+        
+        <div class="rule-checkbox" (click)="toggleRule(2)">
+          <div class="checkbox-box" [class.checked]="rulesChecked()[2]">
+            <lucide-icon *ngIf="rulesChecked()[2]" [img]="CheckCircle" size="16"></lucide-icon>
+          </div>
+          <span class="rule-text">I will not use <strong>keyboard shortcuts</strong> (e.g. Copy, Paste, Print, Alt+Tab).</span>
+        </div>
+        
+        <div class="rule-checkbox" (click)="toggleRule(3)">
+          <div class="checkbox-box" [class.checked]="rulesChecked()[3]">
+            <lucide-icon *ngIf="rulesChecked()[3]" [img]="CheckCircle" size="16"></lucide-icon>
+          </div>
+          <span class="rule-text">I will not <strong>resize or split</strong> my screen.</span>
+        </div>
+        
+        <div class="rule-checkbox" (click)="toggleRule(4)">
+          <div class="checkbox-box" [class.checked]="rulesChecked()[4]">
+            <lucide-icon *ngIf="rulesChecked()[4]" [img]="CheckCircle" size="16"></lucide-icon>
+          </div>
+          <span class="rule-text">I understand that violations are recorded and may result in <strong>automatic exam termination</strong>.</span>
+        </div>
       </div>
 
       <div class="actions">
         <button class="btn-cancel" (click)="router.navigate(['/courses', examDetails()?.courseId])">Cancel</button>
-        <button class="btn-start" (click)="startExam()">Begin Exam</button>
+        <button class="btn-start" [disabled]="!allRulesAcknowledged()" (click)="startExam()">Begin Exam</button>
       </div>
     </div>
   </div>
@@ -230,4 +260,9 @@
     </div>
   </ng-container>
 
+  <!-- Anti-Cheat Overlay (only visible when strike score > 0 inside the component) -->
+  <app-anti-cheat-overlay></app-anti-cheat-overlay>
+
 </div>
+
+

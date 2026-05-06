@@ -11,13 +11,15 @@ import Swal from 'sweetalert2';
 import { ExamService } from '../services/exam.service';
 import { ExamDetailResponse } from '../../../core/models/exam.model';
 import { ExamAttemptService, StartExamResponse, StudentQuestionDto, QuestionType } from '../services/exam-attempt';
+import { AntiCheatService } from '../../anti-cheat/anti-cheat.service';
+import { AntiCheatOverlayComponent } from '../../anti-cheat/anti-cheat-overlay/anti-cheat-overlay';
 
 type EngineState = 'loading' | 'rules' | 'active' | 'review' | 'submitting' | 'error';
 
 @Component({
   selector: 'app-exam-engine',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, AntiCheatOverlayComponent],
   templateUrl: './exam-engine.html',
   styleUrls: ['./exam-engine.scss']
 })
@@ -27,6 +29,7 @@ export class ExamEngine implements OnInit, OnDestroy {
   private examService = inject(ExamService);
   private attemptService = inject(ExamAttemptService);
   private toastr = inject(ToastrService);
+  public antiCheat = inject(AntiCheatService);
 
   // Icons
   Clock = Clock;
@@ -48,6 +51,10 @@ export class ExamEngine implements OnInit, OnDestroy {
   // Maps questionId -> answer text or optionId
   answers = signal<Record<string, string | null>>({});
   savingState = signal<Record<string, boolean>>({});
+
+  // Anti-Cheat Rules Acknowledgment
+  rulesChecked = signal<boolean[]>([false, false, false, false, false]);
+  allRulesAcknowledged = computed(() => this.rulesChecked().every(Boolean));
 
   // Timer
   timeRemainingSeconds = signal<number>(0);
@@ -84,6 +91,18 @@ export class ExamEngine implements OnInit, OnDestroy {
     return 'normal';
   });
 
+  constructor() {
+    import('@angular/core').then(({ effect }) => {
+      effect(() => {
+        if (this.antiCheat.strikeLevel() >= 3 && this.state() === 'active') {
+          // 3 Strikes -> Force submit
+          this.antiCheat.stopMonitoring(true);
+          setTimeout(() => this.forceSubmit(), 3000); // 3 sec delay for them to see the red screen
+        }
+      });
+    });
+  }
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('examId');
     if (!id) {
@@ -106,6 +125,15 @@ export class ExamEngine implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
     this.timerSub?.unsubscribe();
+    this.antiCheat.stopMonitoring();
+  }
+
+  toggleRule(index: number): void {
+    this.rulesChecked.update(arr => {
+      const newArr = [...arr];
+      newArr[index] = !newArr[index];
+      return newArr;
+    });
   }
 
   private loadExamDetails(id: string): void {
@@ -129,6 +157,7 @@ export class ExamEngine implements OnInit, OnDestroy {
         this.initializeAnswers(res.data);
         this.startTimer(res.data.expiresAt);
         this.state.set('active');
+        this.antiCheat.startMonitoring(res.data.attemptId);
         this.toastr.success('Exam started! Good luck.');
       },
       error: (err) => {
@@ -262,6 +291,7 @@ export class ExamEngine implements OnInit, OnDestroy {
 
     this.state.set('submitting');
     this.timerSub?.unsubscribe();
+    this.antiCheat.stopMonitoring();
 
     this.attemptService.submitExam(attemptId).subscribe({
       next: (res) => {
@@ -277,6 +307,7 @@ export class ExamEngine implements OnInit, OnDestroy {
       error: (err) => {
         this.toastr.error('Failed to submit exam. Contact support.');
         this.state.set('active');
+        this.antiCheat.resumeMonitoring(attemptId);
         this.startTimer(this.attemptData()!.expiresAt); // Restart timer visually
       }
     });
