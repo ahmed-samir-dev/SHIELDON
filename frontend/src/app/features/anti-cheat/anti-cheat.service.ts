@@ -103,8 +103,8 @@ export class AntiCheatService implements OnDestroy {
       window.addEventListener('beforeunload', this.boundHandleBeforeUnload);
     });
 
-    // Start periodic sync (every 10 seconds)
-    this.syncSub = interval(10000).subscribe(() => this.syncViolations());
+    // Start periodic sync (every 5 seconds)
+    this.syncSub = interval(5000).subscribe(() => this.syncViolations());
   }
 
   public resumeMonitoring(attemptId: string): void {
