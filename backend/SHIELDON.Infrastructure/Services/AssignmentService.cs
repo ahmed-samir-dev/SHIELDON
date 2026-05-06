@@ -99,6 +99,15 @@ public class AssignmentService : IAssignmentService
         if (string.IsNullOrWhiteSpace(request.Title))
             throw new BusinessRuleException("Assignment title cannot be empty.");
 
+        if (request.Weight < 0 || request.Weight > 100)
+            throw new BusinessRuleException("Weight must be between 0 and 100.");
+
+        var currentWeights = await _db.Assignments.Where(a => a.CourseId == courseId).SumAsync(a => a.Weight, ct) +
+                             await _db.Exams.Where(e => e.CourseId == courseId).SumAsync(e => e.Weight, ct);
+        
+        if (currentWeights + request.Weight > 100m)
+            throw new BusinessRuleException($"Total course weight cannot exceed 100%. Current available weight is {100m - currentWeights}%.");
+
         // ── Handle optional reference file ──────────────────────
         string? referenceFileName         = null;
         string? referenceStoredFileName   = null;
@@ -132,6 +141,7 @@ public class AssignmentService : IAssignmentService
             Title            = request.Title.Trim(),
             Instructions     = request.Instructions?.Trim(),
             DueDate          = request.DueDate?.ToUniversalTime(),
+            Weight           = request.Weight,
             CreatedAt        = DateTime.UtcNow,
             UpdatedAt        = DateTime.UtcNow
         };
@@ -256,23 +266,50 @@ public class AssignmentService : IAssignmentService
         CancellationToken ct = default)
     {
         var assignment = await _db.Assignments
-            .Include(a => a.Course)
             .Include(a => a.CreatedByUser)
             .Include(a => a.Submissions)
             .FirstOrDefaultAsync(a => a.Id == assignmentId, ct)
             ?? throw new NotFoundException("Assignment", assignmentId);
 
-        // RBAC
-        if (requestingUserRole == "Tutor" && assignment.Course!.AssignedTutorId != requestingUserId)
-            throw new ForbiddenException("You can only update assignments for courses assigned to you.");
+        var course = await _db.Courses.FindAsync(new object[] { assignment.CourseId }, ct)
+            ?? throw new NotFoundException("Course", assignment.CourseId);
+
+        AuthorizeForCourse(course, requestingUserId, requestingUserRole);
 
         if (string.IsNullOrWhiteSpace(request.Title))
             throw new BusinessRuleException("Assignment title cannot be empty.");
 
+        if (request.Weight < 0 || request.Weight > 100)
+            throw new BusinessRuleException("Weight must be between 0 and 100.");
+
+        var currentWeights = await _db.Assignments.Where(a => a.CourseId == assignment.CourseId && a.Id != assignmentId).SumAsync(a => a.Weight, ct) +
+                             await _db.Exams.Where(e => e.CourseId == assignment.CourseId).SumAsync(e => e.Weight, ct);
+        
+        if (currentWeights + request.Weight > 100m)
+            throw new BusinessRuleException($"Total course weight cannot exceed 100%. Current available weight is {100m - currentWeights}%.");
+
+        bool weightChanged = assignment.Weight != request.Weight;
+
         assignment.Title        = request.Title.Trim();
         assignment.Instructions = request.Instructions?.Trim();
         assignment.DueDate      = request.DueDate?.ToUniversalTime();
+        assignment.Weight       = request.Weight;
         assignment.UpdatedAt    = DateTime.UtcNow;
+
+        if (weightChanged)
+        {
+            var relatedGrades = await _db.GradeRecords.Where(g => g.AssignmentId == assignmentId).ToListAsync(ct);
+            foreach (var grade in relatedGrades)
+            {
+                if (grade.MaxScore > 0)
+                {
+                    grade.Score = Math.Round((grade.Score / grade.MaxScore) * request.Weight, 2);
+                }
+                grade.Weight = request.Weight;
+                grade.MaxScore = request.Weight;
+                grade.UpdatedAt = DateTime.UtcNow;
+            }
+        }
 
         await _db.SaveChangesAsync(ct);
 
@@ -432,6 +469,28 @@ public class AssignmentService : IAssignmentService
         };
 
         _db.AssignmentSubmissions.Add(submission);
+
+        // Also ensure a GradeRecord exists so it shows up in the Grade Panel for the Tutor to evaluate
+        var existingGrade = await _db.GradeRecords
+            .FirstOrDefaultAsync(g => g.AssignmentId == assignmentId && g.StudentId == studentId, ct);
+            
+        if (existingGrade == null)
+        {
+            _db.GradeRecords.Add(new Domain.Entities.GradeRecord
+            {
+                StudentId    = studentId,
+                CourseId     = assignment.CourseId,
+                AssignmentId = assignmentId,
+                Type         = Domain.Enums.GradeType.Assignment,
+                Score        = 0m,
+                MaxScore     = assignment.Weight > 0 ? assignment.Weight : 100m,
+                Weight       = assignment.Weight,
+                IsPublished  = false,
+                CreatedAt    = DateTime.UtcNow,
+                UpdatedAt    = DateTime.UtcNow
+            });
+        }
+
         await _db.SaveChangesAsync(ct);
 
         // Load student for response
@@ -479,6 +538,14 @@ public class AssignmentService : IAssignmentService
         if (File.Exists(absolutePath)) File.Delete(absolutePath);
 
         _db.AssignmentSubmissions.Remove(submission);
+
+        var gradeRecord = await _db.GradeRecords
+            .FirstOrDefaultAsync(g => g.AssignmentId == submission.AssignmentId && g.StudentId == submission.StudentId, ct);
+        if (gradeRecord != null)
+        {
+            _db.GradeRecords.Remove(gradeRecord);
+        }
+
         await _db.SaveChangesAsync(ct);
     }
 
@@ -616,6 +683,8 @@ public class AssignmentService : IAssignmentService
             ReferenceFileExtension:   a.ReferenceFileName is not null ? Path.GetExtension(a.ReferenceFileName) : null,
             ReferenceFileSizeBytes:   a.ReferenceFileSizeBytes,
             DueDate:                  a.DueDate,
+            Weight:                   a.Weight,
+            MaxPoints:                a.MaxPoints,
             IsPastDue:                a.DueDate.HasValue && a.DueDate.Value < now,
             SubmissionCount:          submissionCount,
             MySubmission:             mySubmission,
@@ -641,7 +710,13 @@ public class AssignmentService : IAssignmentService
             s.OriginalFileName,
             Path.GetExtension(s.OriginalFileName),
             s.FileSizeBytes,
-            s.SubmittedAt
+            s.SubmittedAt,
+            // Review
+            s.PointsAwarded,
+            s.Feedback,
+            s.ReviewedAt,
+            ReviewedByName: s.ReviewedBy is not null ? $"{s.ReviewedBy.FirstName} {s.ReviewedBy.LastName}" : null,
+            IsReviewed: s.ReviewedAt.HasValue
         );
     }
 
@@ -651,5 +726,87 @@ public class AssignmentService : IAssignmentService
         return string.Concat(input.Select(c => invalid.Contains(c) ? '_' : c))
                      .Replace(' ', '_')
                      .Trim('_');
+    }
+
+    // ── Review / Grade Submission ──────────────────────────────────────────
+
+    public async Task<AssignmentSubmissionResponse> ReviewSubmissionAsync(
+        Guid submissionId,
+        ReviewSubmissionRequest request,
+        Guid reviewerId,
+        string reviewerRole,
+        CancellationToken ct = default)
+    {
+        var submission = await _db.AssignmentSubmissions
+            .Include(s => s.Assignment)
+                .ThenInclude(a => a!.Course)
+            .Include(s => s.Student)
+            .Include(s => s.ReviewedBy)
+            .FirstOrDefaultAsync(s => s.Id == submissionId, ct)
+            ?? throw new NotFoundException("Submission", submissionId);
+
+        // RBAC
+        if (reviewerRole == "Student")
+            throw new ForbiddenException("Students cannot grade submissions.");
+
+        if (reviewerRole == "Tutor" && submission.Assignment!.Course!.AssignedTutorId != reviewerId)
+            throw new ForbiddenException("You can only grade submissions for courses assigned to you.");
+
+        var assignment = submission.Assignment!;
+
+        // Validate points
+        if (request.PointsAwarded < 0)
+            throw new BusinessRuleException("Points awarded cannot be negative.");
+
+        // Update submission
+        submission.PointsAwarded = request.PointsAwarded;
+        submission.Feedback      = request.Feedback?.Trim();
+        submission.ReviewedAt    = DateTime.UtcNow;
+        submission.ReviewedById  = reviewerId;
+        submission.UpdatedAt     = DateTime.UtcNow;
+
+        await _db.SaveChangesAsync(ct);
+
+        // Upsert GradeRecord
+        var existing = await _db.GradeRecords
+            .FirstOrDefaultAsync(g => g.AssignmentId == assignment.Id && g.StudentId == submission.StudentId, ct);
+
+        decimal maxScore = assignment.Weight > 0 ? assignment.Weight : 100m;
+        decimal score    = maxScore > 0 ? (request.PointsAwarded / (assignment.MaxPoints > 0 ? (decimal)assignment.MaxPoints : 100m)) * maxScore : 0m;
+
+        if (existing == null)
+        {
+            _db.GradeRecords.Add(new Domain.Entities.GradeRecord
+            {
+                StudentId    = submission.StudentId,
+                CourseId     = assignment.CourseId,
+                AssignmentId = assignment.Id,
+                Type         = Domain.Enums.GradeType.Assignment,
+                Score        = Math.Round(score, 2),
+                MaxScore     = maxScore,
+                Weight       = assignment.Weight,
+                IsPublished  = false,
+                CreatedAt    = DateTime.UtcNow,
+                UpdatedAt    = DateTime.UtcNow
+            });
+        }
+        else
+        {
+            existing.Score     = Math.Round(score, 2);
+            existing.UpdatedAt = DateTime.UtcNow;
+        }
+
+        await _db.SaveChangesAsync(ct);
+
+        // Load reviewer for response
+        submission.ReviewedBy = await _db.Users.FindAsync(new object[] { reviewerId }, ct);
+
+        return MapSubmissionToResponse(submission);
+    }
+
+    private static void AuthorizeForCourse(Course course, Guid userId, string role)
+    {
+        if (role == "Tutor" && course.AssignedTutorId != userId)
+            throw new ForbiddenException("You can only manage assignments for courses assigned to you.");
     }
 }

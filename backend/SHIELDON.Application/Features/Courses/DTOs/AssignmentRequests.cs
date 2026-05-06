@@ -10,7 +10,8 @@ namespace SHIELDON.Application.Features.Courses.DTOs;
 public record CreateAssignmentRequest(
     string Title,
     string? Instructions,
-    DateTime? DueDate
+    DateTime? DueDate,
+    decimal Weight
 );
 
 /// <summary>
@@ -21,5 +22,6 @@ public record CreateAssignmentRequest(
 public record UpdateAssignmentRequest(
     string Title,
     string? Instructions,
-    DateTime? DueDate
+    DateTime? DueDate,
+    decimal Weight
 );

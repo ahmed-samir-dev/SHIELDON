@@ -66,5 +66,20 @@ public class AssignmentSubmissionConfiguration : IEntityTypeConfiguration<Assign
             .HasForeignKey(s => s.StudentId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
+
+        // ── Review / Grading ─────────────────────────────────────
+        builder.Property(s => s.PointsAwarded)
+            .HasPrecision(8, 2);
+
+        builder.Property(s => s.Feedback)
+            .HasMaxLength(2000);
+
+        builder.Property(s => s.ReviewedAt)
+            .HasColumnType("DATETIME2");
+
+        builder.HasOne(s => s.ReviewedBy)
+            .WithMany()
+            .HasForeignKey(s => s.ReviewedById)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

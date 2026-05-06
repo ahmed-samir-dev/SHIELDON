@@ -128,6 +128,15 @@
               </svg>
               Question Bank
             </button>
+
+            <button class="tab-btn" 
+              [class.active]="activeTab() === 'grades'" 
+              (click)="setActiveTab('grades')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+              </svg>
+              Grades Panel
+            </button>
           }
         </nav>
       </div>
@@ -153,6 +162,10 @@
 
       @if (activeTab() === 'question-bank' && !authService.isStudent()) {
         <app-course-question-bank [courseId]="courseData.id"></app-course-question-bank>
+      }
+
+      @if (activeTab() === 'grades' && !authService.isStudent()) {
+        <app-course-grades [courseId]="courseData.id"></app-course-grades>
       }
     </div>
   </div>

@@ -20,6 +20,8 @@ public record AssignmentResponse(
     long? ReferenceFileSizeBytes,
     // ── Deadline ──
     DateTime? DueDate,
+    decimal Weight,
+    int MaxPoints,
     bool IsPastDue,
     // ── Submission Info ──
     int SubmissionCount,                              // For Tutor/Admin: total. For Student: 0 or 1.
@@ -42,5 +44,17 @@ public record AssignmentSubmissionResponse(
     string OriginalFileName,
     string FileExtension,
     long FileSizeBytes,
-    DateTime SubmittedAt
+    DateTime SubmittedAt,
+    // ── Review Info ──
+    decimal? PointsAwarded,
+    string? Feedback,
+    DateTime? ReviewedAt,
+    string? ReviewedByName,
+    bool IsReviewed
+);
+
+/// <summary>Tutor/Admin grades an assignment submission.</summary>
+public record ReviewSubmissionRequest(
+    decimal PointsAwarded,
+    string? Feedback = null
 );

@@ -294,7 +294,7 @@
           </div>
         </div>
 
-        <div class="form-row three-col-equal">
+        <div class="form-row two-col-equal">
           <div class="form-group">
             <label>Time Limit <span class="required">*</span></label>
             <div class="input-wrapper">
@@ -320,7 +320,9 @@
                 [class.is-invalid]="examForm.get('maxAttempts')?.touched && examForm.get('maxAttempts')?.invalid" />
             </div>
           </div>
+        </div>
 
+        <div class="form-row two-col-equal">
           <div class="form-group">
             <label>Pass Score (%) <span class="required">*</span></label>
             <div class="input-wrapper">
@@ -330,6 +332,15 @@
               </svg>
               <input type="number" formControlName="passScore" placeholder="e.g. 50" min="0" max="100"
                 [class.is-invalid]="examForm.get('passScore')?.touched && examForm.get('passScore')?.invalid" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Weight (%) <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+              <input type="number" formControlName="weight" min="0" max="100" placeholder="e.g. 20"
+                [class.is-invalid]="examForm.get('weight')?.touched && examForm.get('weight')?.invalid" />
             </div>
           </div>
         </div>

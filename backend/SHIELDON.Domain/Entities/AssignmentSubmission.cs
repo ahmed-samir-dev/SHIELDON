@@ -39,7 +39,21 @@ public class AssignmentSubmission
     public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+    // ── Review / Grading (set by Tutor/Admin) ───────────────────
+    /// <summary>Points awarded by the tutor. Null until reviewed.</summary>
+    public decimal? PointsAwarded { get; set; }
+
+    /// <summary>Optional tutor feedback / comments on the submission.</summary>
+    public string? Feedback { get; set; }
+
+    /// <summary>When the submission was reviewed. Null until reviewed.</summary>
+    public DateTime? ReviewedAt { get; set; }
+
+    /// <summary>The Tutor or Admin who reviewed this submission.</summary>
+    public Guid? ReviewedById { get; set; }
+
     // ── Navigation Properties ────────────────────────────────────
     public Assignment? Assignment { get; set; }
     public User? Student { get; set; }
+    public User? ReviewedBy { get; set; }
 }

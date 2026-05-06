@@ -16,6 +16,11 @@ export interface AssignmentSubmissionResponse {
   fileExtension: string;
   fileSizeBytes: number;
   submittedAt: string;
+  pointsAwarded?: number | null;
+  feedback?: string | null;
+  reviewedAt?: string | null;
+  reviewedByName?: string | null;
+  isReviewed?: boolean;
 }
 
 export interface AssignmentResponse {
@@ -27,8 +32,10 @@ export interface AssignmentResponse {
   hasReferenceFile: boolean;
   referenceFileName: string | null;
   referenceFileExtension: string | null;
-  referenceFileSizeBytes: number | null;
-  dueDate: string | null;
+  referenceFileSizeBytes?: number;
+  dueDate?: string;
+  weight: number;
+  maxPoints: number;
   isPastDue: boolean;
   submissionCount: number;
   mySubmission: AssignmentSubmissionResponse | null;
@@ -47,6 +54,11 @@ export interface UpdateAssignmentRequest {
   title: string;
   instructions: string | null;
   dueDate: string | null;
+}
+
+export interface ReviewSubmissionRequest {
+  pointsAwarded: number;
+  feedback?: string | null;
 }
 
 // ── Service ────────────────────────────────────────────────────────────────
@@ -134,5 +146,12 @@ export class AssignmentService {
       link.click();
       URL.revokeObjectURL(link.href);
     });
+  }
+
+  reviewSubmission(courseId: string, assignmentId: string, submissionId: string, request: ReviewSubmissionRequest): Observable<ApiResponse<AssignmentSubmissionResponse>> {
+    return this.http.post<ApiResponse<AssignmentSubmissionResponse>>(
+      `${this.apiUrl}/courses/${courseId}/assignments/${assignmentId}/submissions/${submissionId}/review`,
+      request
+    );
   }
 }

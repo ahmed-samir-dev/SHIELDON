@@ -105,6 +105,17 @@ export const routes: Routes = [
         loadComponent: () => import('./features/exams/reattempt-requests/reattempt-requests').then(m => m.ReattemptRequestsComponent),
         title: 'Re-attempt Requests — SHIELDON'
       },
+      {
+        path: 'courses/:courseId/grades',
+        canActivate: [tutorGuard],
+        loadComponent: () => import('./features/grades/course-grades/course-grades').then(m => m.CourseGrades),
+        title: 'Course Grades — SHIELDON'
+      },
+      {
+        path: 'my-grades',
+        loadComponent: () => import('./features/grades/my-grades/my-grades').then(m => m.MyGrades),
+        title: 'My Grades — SHIELDON'
+      },
       // Dashboards fallback to courses view for now
       { path: 'admin/dashboard', redirectTo: 'courses' },
       { path: 'student/dashboard', redirectTo: 'courses' },

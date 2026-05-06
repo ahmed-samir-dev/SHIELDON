@@ -468,7 +468,7 @@ public class ExamResultService : IExamResultService
                 Type = GradeType.Exam,
                 Score = percentage,
                 MaxScore = 100,
-                Weight = 0,
+                Weight = exam.Weight,
                 IsPublished = publishImmediately,
                 PublishedAt = publishImmediately ? DateTime.UtcNow : null,
                 CreatedAt = DateTime.UtcNow,

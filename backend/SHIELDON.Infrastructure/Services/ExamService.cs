@@ -41,6 +41,15 @@ public class ExamService : IExamService
         AuthorizeForCourse(course, requestingUserId, requestingUserRole);
         ValidateExamRequest(request.Title, request.TimeLimit, request.MaxAttempts, request.PassScore, request.ResultVisibility);
 
+        if (request.Weight < 0 || request.Weight > 100)
+            throw new BusinessRuleException("Weight must be between 0 and 100.");
+
+        var currentWeights = await _db.Assignments.Where(a => a.CourseId == courseId).SumAsync(a => a.Weight, ct) +
+                             await _db.Exams.Where(e => e.CourseId == courseId).SumAsync(e => e.Weight, ct);
+        
+        if (currentWeights + request.Weight > 100m)
+            throw new BusinessRuleException($"Total course weight cannot exceed 100%. Current available weight is {100m - currentWeights}%.");
+
         if (!Enum.TryParse<ResultVisibility>(request.ResultVisibility, ignoreCase: true, out var resultVisibility))
             throw new BusinessRuleException($"Invalid ResultVisibility '{request.ResultVisibility}'. Use: Immediate, Scheduled, ManualRelease.");
 
@@ -52,6 +61,7 @@ public class ExamService : IExamService
             TimeLimit = request.TimeLimit,
             MaxAttempts = request.MaxAttempts,
             PassScore = request.PassScore,
+            Weight = request.Weight,
             ResultVisibility = resultVisibility,
             ScheduledAt = request.ScheduledAt,
             ScheduledEndAt = request.ScheduledEndAt,
@@ -215,16 +225,37 @@ public class ExamService : IExamService
             .FirstOrDefaultAsync(e => e.Id == examId, ct)
             ?? throw new NotFoundException("Exam", examId);
 
-        AuthorizeForCourse(exam.Course!, requestingUserId, requestingUserRole);
+        var course = await _db.Courses.FirstOrDefaultAsync(c => c.Id == exam.CourseId, ct)
+            ?? throw new NotFoundException("Course", exam.CourseId);
+
+        AuthorizeForCourse(course, requestingUserId, requestingUserRole);
 
         if (exam.Status == ExamStatus.Closed)
             throw new BusinessRuleException("Closed exams cannot be edited.");
+
+        if (request.Title != null && string.IsNullOrWhiteSpace(request.Title))
+            throw new BusinessRuleException("Exam title cannot be empty if provided.");
+
+        if (request.Weight.HasValue)
+        {
+            if (request.Weight.Value < 0 || request.Weight.Value > 100)
+                throw new BusinessRuleException("Weight must be between 0 and 100.");
+
+            var currentWeights = await _db.Assignments.Where(a => a.CourseId == course.Id).SumAsync(a => a.Weight, ct) +
+                                 await _db.Exams.Where(e => e.CourseId == course.Id && e.Id != examId).SumAsync(e => e.Weight, ct);
+            
+            if (currentWeights + request.Weight.Value > 100m)
+                throw new BusinessRuleException($"Total course weight cannot exceed 100%. Current available weight is {100m - currentWeights}%.");
+        }
+
+        bool weightChanged = request.Weight.HasValue && exam.Weight != request.Weight.Value;
 
         if (request.Title != null) exam.Title = request.Title.Trim();
         if (request.Instructions != null) exam.Instructions = request.Instructions.Trim();
         if (request.TimeLimit.HasValue) exam.TimeLimit = request.TimeLimit.Value;
         if (request.MaxAttempts.HasValue) exam.MaxAttempts = request.MaxAttempts.Value;
         if (request.PassScore.HasValue) exam.PassScore = request.PassScore.Value;
+        if (request.Weight.HasValue) exam.Weight = request.Weight.Value;
         if (request.ScheduledAt.HasValue) exam.ScheduledAt = request.ScheduledAt.Value;
         if (request.ScheduledEndAt.HasValue) exam.ScheduledEndAt = request.ScheduledEndAt.Value;
         if (request.ScheduledReleaseAt.HasValue) exam.ScheduledReleaseAt = request.ScheduledReleaseAt.Value;
@@ -257,6 +288,17 @@ public class ExamService : IExamService
         }
 
         exam.UpdatedAt = DateTime.UtcNow;
+
+        if (weightChanged)
+        {
+            var relatedGrades = await _db.GradeRecords.Where(g => g.ExamId == examId).ToListAsync(ct);
+            foreach (var grade in relatedGrades)
+            {
+                grade.Weight = request.Weight!.Value;
+                grade.UpdatedAt = DateTime.UtcNow;
+            }
+        }
+
         await _db.SaveChangesAsync(ct);
 
         // Reload selection rules after save
@@ -399,6 +441,7 @@ public class ExamService : IExamService
         TimeLimit: e.TimeLimit,
         MaxAttempts: e.MaxAttempts,
         PassScore: e.PassScore,
+        Weight: e.Weight,
         Status: e.Status.ToString(),
         ResultVisibility: e.ResultVisibility.ToString(),
         ScheduledAt: e.ScheduledAt,
@@ -419,6 +462,7 @@ public class ExamService : IExamService
         TimeLimit: e.TimeLimit,
         MaxAttempts: e.MaxAttempts,
         PassScore: e.PassScore,
+        Weight: e.Weight,
         Status: e.Status.ToString(),
         ResultVisibility: e.ResultVisibility.ToString(),
         ScheduledAt: e.ScheduledAt,
