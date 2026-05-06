@@ -54,6 +54,12 @@ public class Assignment
     /// </summary>
     public DateTime? DueDate { get; set; }
 
+    /// <summary>Maximum points for grading student submissions. Default 100.</summary>
+    public int MaxPoints { get; set; } = 100;
+
+    /// <summary>Percentage contribution to the final course grade (0.0 to 100.0)</summary>
+    public decimal Weight { get; set; }
+
     // ── Timestamps ──────────────────────────────────────────────
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

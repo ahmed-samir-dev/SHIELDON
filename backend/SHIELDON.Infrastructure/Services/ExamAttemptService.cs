@@ -299,7 +299,7 @@ public class ExamAttemptService : IExamAttemptService
                 Type = GradeType.Exam,
                 Score = Math.Round(percentage, 2),
                 MaxScore = 100,
-                Weight = 0,          // Tutor assigns weight in Grade Management Panel (Stage 3.8)
+                Weight = exam.Weight,
                 IsPublished = publishImmediately,
                 PublishedAt = publishImmediately ? DateTime.UtcNow : null,
                 CreatedAt = DateTime.UtcNow,

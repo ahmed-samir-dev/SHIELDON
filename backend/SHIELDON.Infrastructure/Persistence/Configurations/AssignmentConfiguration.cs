@@ -45,6 +45,10 @@ public class AssignmentConfiguration : IEntityTypeConfiguration<Assignment>
         builder.Property(a => a.DueDate)
             .HasColumnType("DATETIME2");
 
+        // ── Weight ──────────────────────────────────────────────
+        builder.Property(a => a.Weight)
+            .HasPrecision(5, 2);
+
         // ── Timestamps ──────────────────────────────────────────
         builder.Property(a => a.CreatedAt)
             .IsRequired()

@@ -26,6 +26,9 @@ public class ExamConfiguration : IEntityTypeConfiguration<Exam>
         builder.Property(e => e.PassScore)
             .HasPrecision(5, 2);
 
+        builder.Property(e => e.Weight)
+            .HasPrecision(5, 2);
+
         builder.HasOne(e => e.Course)
             .WithMany(c => c.Exams)
             .HasForeignKey(e => e.CourseId)

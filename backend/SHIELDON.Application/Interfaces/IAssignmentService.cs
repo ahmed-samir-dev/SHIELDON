@@ -138,4 +138,18 @@ public interface IAssignmentService
         Guid requestingUserId,
         string requestingUserRole,
         CancellationToken ct = default);
+
+    // ── Review / Grading ─────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Tutor/Admin grades a student's submission: sets PointsAwarded + optional Feedback.
+    /// Also creates or updates the corresponding GradeRecord for the student/assignment.
+    /// Only Admin or the assigned Tutor of the course may call this.
+    /// </summary>
+    Task<AssignmentSubmissionResponse> ReviewSubmissionAsync(
+        Guid submissionId,
+        ReviewSubmissionRequest request,
+        Guid reviewerId,
+        string reviewerRole,
+        CancellationToken ct = default);
 }

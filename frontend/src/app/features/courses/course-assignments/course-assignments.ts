@@ -81,13 +81,15 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
     this.createForm = this.fb.group({
       title:        ['', [Validators.required, Validators.maxLength(300)]],
       instructions: ['', Validators.maxLength(3000)],
-      dueDate:      [null]
+      dueDate:      [null],
+      weight:       [0, [Validators.required, Validators.min(0), Validators.max(100)]]
     });
 
     this.editForm = this.fb.group({
       title:        ['', [Validators.required, Validators.maxLength(300)]],
       instructions: ['', Validators.maxLength(3000)],
-      dueDate:      [null]
+      dueDate:      [null],
+      weight:       [0, [Validators.required, Validators.min(0), Validators.max(100)]]
     });
   }
 
@@ -160,6 +162,7 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
     if (this.createForm.value.dueDate) {
       formData.append('dueDate', new Date(this.createForm.value.dueDate).toISOString());
     }
+    formData.append('weight', this.createForm.value.weight.toString());
     if (this.selectedReferenceFile) {
       formData.append('referenceFile', this.selectedReferenceFile);
     }
@@ -187,7 +190,8 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
     this.editForm.patchValue({
       title:        assignment.title,
       instructions: assignment.instructions,
-      dueDate:      assignment.dueDate ? this.toDatetimeLocalFormat(assignment.dueDate) : null
+      dueDate:      assignment.dueDate ? this.toDatetimeLocalFormat(assignment.dueDate) : null,
+      weight:       assignment.weight
     });
     this.showEditModal.set(true);
   }
@@ -210,7 +214,8 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
     const request = {
       title:        this.editForm.value.title.trim(),
       instructions: this.editForm.value.instructions?.trim() || null,
-      dueDate:      this.editForm.value.dueDate ? new Date(this.editForm.value.dueDate).toISOString() : null
+      dueDate:      this.editForm.value.dueDate ? new Date(this.editForm.value.dueDate).toISOString() : null,
+      weight:       this.editForm.value.weight
     };
 
     this.assignmentService.updateAssignment(this.course.id, assignment.id, request).subscribe({
@@ -367,6 +372,58 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
           },
           error: (err) => {
             this.toastr.error(err.error?.message || 'Failed to delete submission');
+          }
+        });
+      }
+    });
+  }
+
+  gradeSubmission(assignment: AssignmentResponse, submission: AssignmentSubmissionResponse): void {
+    Swal.fire({
+      title: 'Score Submission',
+      html: `
+        <div class="swal-form-group">
+          <label>Score Awarded (Max: 100)</label>
+          <input id="swal-points" class="swal2-input" type="number" step="0.5" value="${submission.pointsAwarded ?? ''}" min="0" max="100">
+        </div>
+        <div class="swal-form-group">
+          <label>Feedback (Optional)</label>
+          <textarea id="swal-feedback" class="swal2-textarea" placeholder="Add feedback...">${submission.feedback || ''}</textarea>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Save Score',
+      preConfirm: () => {
+        const pointsVal = (document.getElementById('swal-points') as HTMLInputElement).value;
+        const feedbackVal = (document.getElementById('swal-feedback') as HTMLTextAreaElement).value;
+        
+        if (!pointsVal) {
+          Swal.showValidationMessage('Score awarded is required');
+          return null;
+        }
+
+        return {
+          pointsAwarded: parseFloat(pointsVal),
+          feedback: feedbackVal
+        };
+      }
+    }).then((result) => {
+      if (result.isConfirmed && result.value) {
+        this.assignmentService.reviewSubmission(this.course.id, assignment.id, submission.id, result.value).subscribe({
+          next: (res) => {
+            if (res.success && res.data) {
+              this.toastr.success('Submission scored successfully!');
+              
+              // Update submission locally
+              const map = new Map(this.submissionsMap());
+              const subs = map.get(assignment.id) || [];
+              const updatedSubs = subs.map(s => s.id === submission.id ? res.data! : s);
+              map.set(assignment.id, updatedSubs);
+              this.submissionsMap.set(map);
+            }
+          },
+          error: (err) => {
+            this.toastr.error(err.error?.message || 'Failed to grade submission');
           }
         });
       }

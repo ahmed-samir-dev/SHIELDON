@@ -1,0 +1,74 @@
+<div class="my-grades-container">
+  <header class="page-header">
+    <div class="icon-wrapper">
+      <lucide-icon [img]="BarChart2" class="header-icon"></lucide-icon>
+    </div>
+    <div class="title-area">
+      <h1>My Grades</h1>
+      <p>View your academic performance across all courses.</p>
+    </div>
+  </header>
+
+  <div *ngIf="isLoading()" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading your grades...</p>
+  </div>
+
+  <div *ngIf="!isLoading() && courseGroups().length === 0" class="empty-state">
+    <div class="empty-icon-wrapper">
+      <lucide-icon [img]="Award" class="empty-icon"></lucide-icon>
+    </div>
+    <h3>No Grades Available</h3>
+    <p>You don't have any published grades yet. Complete exams and assignments to see them here.</p>
+    <a routerLink="/courses" class="btn btn-primary mt-4">Browse Courses</a>
+  </div>
+
+  <div *ngIf="!isLoading() && courseGroups().length > 0" class="course-cards-list">
+    <div class="course-card" *ngFor="let group of courseGroups()" [class.expanded]="isExpanded(group.courseId)">
+      <div class="card-header" (click)="toggleExpand(group.courseId)" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <lucide-icon [img]="isExpanded(group.courseId) ? ChevronDown : ChevronRight" class="expand-icon" style="color: #6b7280; width: 20px; height: 20px;"></lucide-icon>
+          <div class="course-info">
+            <a [routerLink]="['/courses', group.courseId]" class="course-title" (click)="$event.stopPropagation()">{{ group.courseTitle }}</a>
+            <span class="items-count">{{ group.grades.length }} Items Graded</span>
+          </div>
+        </div>
+        <div class="total-score-pill">
+          <span class="label">Course Score</span>
+          <span class="value">{{ group.totalScore | number:'1.0-2' }}%</span>
+        </div>
+      </div>
+
+      <div class="card-body" *ngIf="isExpanded(group.courseId)">
+        <table class="student-grades-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Type</th>
+              <th>Score</th>
+              <th>Weight</th>
+              <th>Contribution</th>
+              <th>Published</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let grade of group.grades">
+              <td class="font-medium item-name">
+                {{ grade.examTitle || grade.assignmentTitle }}
+              </td>
+              <td>
+                <span class="badge" [ngClass]="grade.type === 'Exam' ? 'badge-exam' : 'badge-assignment'">
+                  {{ grade.type }}
+                </span>
+              </td>
+              <td><span class="score-text">{{ grade.score | number:'1.0-2' }} / {{ grade.maxScore }}</span></td>
+              <td><span class="text-muted">{{ grade.weight | number:'1.0-2' }}%</span></td>
+              <td class="font-bold contribution-text">{{ grade.weightedScore | number:'1.0-2' }}%</td>
+              <td class="date-text">{{ grade.publishedAt | date:'mediumDate' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

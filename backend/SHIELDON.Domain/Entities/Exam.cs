@@ -15,6 +15,9 @@ public class Exam
     public int TimeLimit { get; set; }
     public int MaxAttempts { get; set; } = 1;
     
+    /// <summary>Percentage contribution to the final course grade (0.0 to 100.0)</summary>
+    public decimal Weight { get; set; }
+
     /// <summary>Passing score percentage (0-100).</summary>
     public decimal PassScore { get; set; }
 

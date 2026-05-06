@@ -27,7 +27,7 @@
   <!-- ══ CREATE ASSIGNMENT MODAL ══════════════════════════════════════ -->
   @if (showCreateModal() && canManage()) {
     <div class="custom-modal-overlay fadeIn animated" (click)="closeCreateModal()">
-      <div class="custom-modal-container slideUp animated wide-modal" (click)="$event.stopPropagation()">
+      <div class="custom-modal-container slideUp animated wide-modal has-scroller" (click)="$event.stopPropagation()">
 
         <div class="modal-header">
           <div class="modal-title-wrapper">
@@ -79,19 +79,35 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label>Due Date <span class="optional">(Optional)</span></label>  <div class="datetime-premium-wrapper">
-              <div class="icon-box-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                  <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-        <line x1="3" y1="10" x2="21" y2="10"/>
-      </svg>
-    </div>
-    <input type="datetime-local" formControlName="dueDate" />
-  </div>
-</div>
+          <div class="form-row two-col-equal">
+            <div class="form-group">
+              <label>Due Date <span class="optional">(Optional)</span></label>  <div class="datetime-premium-wrapper">
+                <div class="icon-box-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                </div>
+                <input type="datetime-local" formControlName="dueDate" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Weight (%) <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+              <input type="number" formControlName="weight" min="0" max="100" placeholder="e.g., 20"
+                [class.is-invalid]="createForm.get('weight')?.touched && createForm.get('weight')?.invalid" />
+            </div>
+            @if (createForm.get('weight')?.touched && createForm.get('weight')?.errors?.['required']) {
+              <span class="error-msg">Weight is required.</span>
+            } @else if (createForm.get('weight')?.touched && (createForm.get('weight')?.errors?.['min'] || createForm.get('weight')?.errors?.['max'])) {
+              <span class="error-msg">Weight must be between 0 and 100.</span>
+            }
+            </div>
+          </div>
 
           <div class="form-group">
             <label>Reference File <span class="optional">(Optional)</span></label>            <div class="drop-zone" [class.dragging]="isDragging()"
@@ -141,7 +157,7 @@
   <!-- ══ EDIT ASSIGNMENT MODAL ══════════════════════════════════════════ -->
   @if (showEditModal() && canManage()) {
     <div class="custom-modal-overlay fadeIn animated" (click)="closeEditModal()">
-      <div class="custom-modal-container slideUp animated wide-modal" (click)="$event.stopPropagation()">
+      <div class="custom-modal-container slideUp animated wide-modal has-scroller" (click)="$event.stopPropagation()">
 
         <div class="modal-header">
           <div class="modal-title-wrapper">
@@ -188,19 +204,30 @@
             </div>
           </div>
 
-          <div class="form-group">
-            <label>Due Date <span class="optional">(Optional · clear to remove deadline)</span></label>  <div class="datetime-premium-wrapper">
-    <div class="icon-box-sm">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-        <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
-        <line x1="3" y1="10" x2="21" y2="10"/>
-      </svg>
-    </div>
-    <input type="datetime-local" formControlName="dueDate" />
-  </div>
-</div>
+          <div class="form-row two-col-equal">
+            <div class="form-group">
+              <label>Due Date <span class="optional">(clear to remove)</span></label>  <div class="datetime-premium-wrapper">
+                <div class="icon-box-sm">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                </div>
+                <input type="datetime-local" formControlName="dueDate" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Weight (%) <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
+                <input type="number" formControlName="weight" min="0" max="100" placeholder="e.g. 20"
+                  [class.is-invalid]="editForm.get('weight')?.touched && editForm.get('weight')?.invalid" />
+              </div>
+            </div>
+          </div>
 
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" (click)="closeEditModal()" [disabled]="isSubmitting()">Cancel</button>
@@ -533,6 +560,11 @@
                               <span class="size-label">{{ formatBytes(sub.fileSizeBytes) }}</span>
                             </div>
                             <span class="sub-date">{{ sub.submittedAt | date:'MMM d, y' }}</span>
+                            @if (sub.isReviewed) {
+                              <span class="badge" style="background: #dcfce7; color: #166534; font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 9999px;">
+                                Scored: {{ sub.pointsAwarded }} / {{ assignment.maxPoints }}
+                              </span>
+                            }
                             <div class="sub-row-actions">
                               <button class="btn btn-sm btn-ghost" (click)="downloadSub(assignment, sub)" title="Download">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"

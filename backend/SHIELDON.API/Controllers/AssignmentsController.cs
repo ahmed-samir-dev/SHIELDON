@@ -295,4 +295,33 @@ public class AssignmentsController : ControllerBase
 
         return File(zipStream, "application/zip", zipFileName);
     }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // SUBMISSION REVIEW / GRADING
+    // ════════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// POST /api/courses/{courseId}/assignments/{assignmentId}/submissions/{submissionId}/review
+    /// Tutor/Admin grades a student's submission: sets PointsAwarded + optional Feedback.
+    /// Also creates or updates the corresponding GradeRecord for the student.
+    /// Admin or assigned Tutor only.
+    /// </summary>
+    [HttpPost("{assignmentId:guid}/submissions/{submissionId:guid}/review")]
+    [Authorize(Roles = "Admin,Tutor")]
+    [ProducesResponseType(typeof(ApiResponse<AssignmentSubmissionResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ReviewSubmission(
+        Guid courseId,
+        Guid assignmentId,
+        Guid submissionId,
+        [FromBody] ReviewSubmissionRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _assignmentService.ReviewSubmissionAsync(
+            submissionId, request, GetUserId(), GetUserRole(), cancellationToken);
+
+        return Ok(ApiResponse<AssignmentSubmissionResponse>.Ok(result, "Submission reviewed successfully."));
+    }
 }

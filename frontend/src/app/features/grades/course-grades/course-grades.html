@@ -1,0 +1,164 @@
+<div class="grades-panel-container">
+  <!-- Header -->
+
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="search-box">
+      <lucide-icon [img]="Search" class="search-icon"></lucide-icon>
+      <input type="text" placeholder="Search by student name or ID..." (keyup)="onSearch($event)" />
+    </div>
+    
+    <div class="filter-group">
+      <label>Type:</label>
+      <select (change)="filterByType($event)">
+        <option value="All">All Items</option>
+        <option value="Exam">Exams</option>
+        <option value="Assignment">Assignments</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Status:</label>
+      <select (change)="filterByStatus($event)">
+        <option value="All">All Statuses</option>
+        <option value="Published">Published</option>
+        <option value="Unpublished">Unpublished</option>
+      </select>
+    </div>
+
+    <!-- Actions moved from header -->
+    <div class="actions-area" style="margin-left: auto; display: flex; gap: 12px;">
+      <button class="btn btn-secondary btn-sm" (click)="exportCsv()">
+        <lucide-icon [img]="Download" class="icon"></lucide-icon>
+        Export CSV
+      </button>
+      <button class="btn btn-primary btn-sm" (click)="publishAllUnpublished()">
+        <lucide-icon [img]="CheckSquare" class="icon"></lucide-icon>
+        Bulk Publish All
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading()" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading grades...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading() && summaries().length === 0" class="empty-state">
+    <div class="empty-icon-wrapper">
+      <lucide-icon [img]="AlertCircle" class="empty-icon"></lucide-icon>
+    </div>
+    <h3>No Grades Found</h3>
+    <p>No student grade records match your current filters.</p>
+  </div>
+
+  <!-- Grade Table (Accordion Style) -->
+  <div *ngIf="!isLoading() && summaries().length > 0" class="table-container">
+    <table class="grades-table">
+      <thead>
+        <tr>
+          <th class="col-expand"></th>
+          <th>Student</th>
+          <th>Student ID</th>
+          <th>Items Count</th>
+          <th>Total Weight</th>
+          <th>Final Score</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let summary of summaries()">
+          <!-- Parent Row -->
+          <tr class="parent-row" [class.expanded]="isExpanded(summary.studentId)" (click)="toggleExpand(summary.studentId)">
+            <td class="col-expand">
+              <lucide-icon [img]="isExpanded(summary.studentId) ? ChevronDown : ChevronRight" class="expand-icon"></lucide-icon>
+            </td>
+            <td class="font-medium">
+              <div class="student-info">
+                <span class="name">{{ summary.studentName }}</span>
+                <span class="email">{{ summary.studentEmail }}</span>
+              </div>
+            </td>
+            <td>{{ summary.studentDisplayId || 'N/A' }}</td>
+            <td><span class="badge badge-neutral">{{ summary.grades.length }} items</span></td>
+            <td>{{ summary.totalWeightAssigned | number:'1.0-2' }}%</td>
+            <td class="font-bold text-primary">{{ summary.finalWeightedScore !== null ? (summary.finalWeightedScore | number:'1.0-2') + '%' : 'N/A' }}</td>
+          </tr>
+
+          <!-- Expanded Nested Rows -->
+          <tr *ngIf="isExpanded(summary.studentId)" class="expanded-row">
+            <td colspan="6" class="nested-cell">
+              <div class="nested-table-wrapper" *ngIf="summary.grades.length > 0">
+                <table class="nested-table">
+                  <thead>
+                    <tr>
+                      <th>Item</th>
+                      <th>Type</th>
+                      <th>Score</th>
+                      <th>Weight</th>
+                      <th>Weighted</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let grade of summary.grades">
+                      <td class="font-medium">{{ grade.examTitle || grade.assignmentTitle }}</td>
+                      <td>
+                        <span class="badge" [ngClass]="grade.type === 'Exam' ? 'badge-exam' : 'badge-assignment'">
+                          {{ grade.type }}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="score-display">
+                          <span>{{ grade.score | number:'1.0-2' }} / {{ grade.maxScore }}</span>
+                        </div>
+                        <div class="notes-preview" *ngIf="grade.notes" title="{{ grade.notes }}">
+                          📝 Has Notes
+                        </div>
+                      </td>
+                      <td>
+                        <div class="weight-display">
+                          {{ grade.weight | number:'1.0-2' }}%
+                        </div>
+                      </td>
+                      <td class="font-bold">{{ grade.weightedScore | number:'1.0-2' }}%</td>
+                      <td>
+                        <span class="status-badge" [ngClass]="grade.isPublished ? 'published' : 'unpublished'">
+                          <lucide-icon [img]="grade.isPublished ? CheckCircle : AlertCircle" class="status-icon"></lucide-icon>
+                          {{ grade.isPublished ? 'Published' : 'Draft' }}
+                        </span>
+                      </td>
+                      <td class="actions-cell">
+                        <button class="btn-evaluate" *ngIf="grade.type === 'Assignment'" (click)="evaluateAssignment(grade)">
+                          Evaluate
+                        </button>
+                        <button class="btn-publish" *ngIf="!grade.isPublished" (click)="publishGrade(grade)">
+                          Publish
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="empty-nested" *ngIf="summary.grades.length === 0">
+                No grade items for this student.
+              </div>
+            </td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div class="pagination-footer" *ngIf="!isLoading() && totalPages() > 1">
+    <span class="page-info">Showing page {{ currentPage() }} of {{ totalPages() }} ({{ totalCount() }} total)</span>
+    <div class="page-buttons">
+      <button [disabled]="currentPage() === 1" (click)="changePage(currentPage() - 1)">Previous</button>
+      <button [disabled]="currentPage() === totalPages()" (click)="changePage(currentPage() + 1)">Next</button>
+    </div>
+  </div>
+</div>

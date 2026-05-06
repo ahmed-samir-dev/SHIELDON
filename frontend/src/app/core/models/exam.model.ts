@@ -13,6 +13,7 @@ export interface ExamSummaryResponse {
   timeLimit: number;
   maxAttempts: number;
   passScore: number;
+  weight: number;
   status: 'Draft' | 'Published' | 'Closed';
   resultVisibility: 'Immediate' | 'Scheduled' | 'ManualRelease';
   scheduledAt?: string;
@@ -33,6 +34,7 @@ export interface ExamDetailResponse {
   timeLimit: number;
   maxAttempts: number;
   passScore: number;
+  weight: number;
   status: 'Draft' | 'Published' | 'Closed';
   resultVisibility: 'Immediate' | 'Scheduled' | 'ManualRelease';
   scheduledAt?: string;
@@ -51,6 +53,7 @@ export interface CreateExamRequest {
   timeLimit: number;
   maxAttempts: number;
   passScore: number;
+  weight: number;
   resultVisibility: 'Immediate' | 'Scheduled' | 'ManualRelease';
   scheduledAt?: string | null;
   scheduledEndAt?: string | null;
@@ -64,6 +67,7 @@ export interface UpdateExamRequest {
   timeLimit?: number;
   maxAttempts?: number;
   passScore?: number;
+  weight?: number;
   resultVisibility?: 'Immediate' | 'Scheduled' | 'ManualRelease';
   scheduledAt?: string | null;
   scheduledEndAt?: string | null;
