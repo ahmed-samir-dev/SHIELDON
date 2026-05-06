@@ -49,6 +49,9 @@ public class AppDbContext : DbContext
     public DbSet<GradeRecord> GradeRecords { get; set; } = null!;
     public DbSet<ReattemptRequest> ReattemptRequests { get; set; } = null!;
 
+    // ── Phase 4: Anti-Cheating Engine ─────────────────────────────────
+    public DbSet<ViolationLog> ViolationLogs { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

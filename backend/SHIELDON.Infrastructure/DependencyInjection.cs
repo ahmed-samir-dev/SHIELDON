@@ -53,6 +53,7 @@ public static class DependencyInjection
         services.AddScoped<IExamResultService, ExamResultService>();
         services.AddScoped<IQuestionService, QuestionService>();
         services.AddScoped<IGradeService, GradeService>();
+        services.AddScoped<IViolationService, ViolationService>();
 
         // ── Background Services ────────────────────────────────────────────
         services.AddHostedService<ExamReminderBackgroundService>();
