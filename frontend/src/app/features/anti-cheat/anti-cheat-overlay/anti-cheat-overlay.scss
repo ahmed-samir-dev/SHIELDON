@@ -13,6 +13,11 @@
 /* ── Strike 1: Banner ────────────────────────────────────────────────────── */
 .strike-banner {
   pointer-events: auto;
+  position: fixed;
+  top: 72px;
+  left: 0;
+  width: 100%;
+  z-index: 9999;
   padding: 1rem 2rem;
   display: flex;
   align-items: center;

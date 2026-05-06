@@ -1,4 +1,4 @@
-<div class="engine-container">
+<div class="engine-container" [class.exam-active]="state() === 'active' || state() === 'review'">
 
   <!-- Loading State -->
   <div *ngIf="state() === 'loading'" class="full-screen-loader">
@@ -69,33 +69,19 @@
           <div class="checkbox-box" [class.checked]="rulesChecked()[0]">
             <lucide-icon *ngIf="rulesChecked()[0]" [img]="CheckCircle" size="16"></lucide-icon>
           </div>
-          <span class="rule-text">I will stay in <strong>fullscreen mode</strong> for the entire exam duration.</span>
+          <span class="rule-text">I will not use <strong>keyboard shortcuts</strong> (e.g. Copy, Paste, Print).</span>
         </div>
         
         <div class="rule-checkbox" (click)="toggleRule(1)">
           <div class="checkbox-box" [class.checked]="rulesChecked()[1]">
             <lucide-icon *ngIf="rulesChecked()[1]" [img]="CheckCircle" size="16"></lucide-icon>
           </div>
-          <span class="rule-text">I will not <strong>switch tabs or minimize</strong> the browser window.</span>
+          <span class="rule-text">I will not <strong>resize or split</strong> my screen.</span>
         </div>
         
         <div class="rule-checkbox" (click)="toggleRule(2)">
           <div class="checkbox-box" [class.checked]="rulesChecked()[2]">
             <lucide-icon *ngIf="rulesChecked()[2]" [img]="CheckCircle" size="16"></lucide-icon>
-          </div>
-          <span class="rule-text">I will not use <strong>keyboard shortcuts</strong> (e.g. Copy, Paste, Print, Alt+Tab).</span>
-        </div>
-        
-        <div class="rule-checkbox" (click)="toggleRule(3)">
-          <div class="checkbox-box" [class.checked]="rulesChecked()[3]">
-            <lucide-icon *ngIf="rulesChecked()[3]" [img]="CheckCircle" size="16"></lucide-icon>
-          </div>
-          <span class="rule-text">I will not <strong>resize or split</strong> my screen.</span>
-        </div>
-        
-        <div class="rule-checkbox" (click)="toggleRule(4)">
-          <div class="checkbox-box" [class.checked]="rulesChecked()[4]">
-            <lucide-icon *ngIf="rulesChecked()[4]" [img]="CheckCircle" size="16"></lucide-icon>
           </div>
           <span class="rule-text">I understand that violations are recorded and may result in <strong>automatic exam termination</strong>.</span>
         </div>

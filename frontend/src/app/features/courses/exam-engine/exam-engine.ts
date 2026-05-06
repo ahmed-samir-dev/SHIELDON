@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -7,7 +7,6 @@ import { ToastrService } from 'ngx-toastr';
 import { Subject, Subscription, interval } from 'rxjs';
 import { takeUntil, debounceTime } from 'rxjs/operators';
 import Swal from 'sweetalert2';
-
 import { ExamService } from '../services/exam.service';
 import { ExamDetailResponse } from '../../../core/models/exam.model';
 import { ExamAttemptService, StartExamResponse, StudentQuestionDto, QuestionType } from '../services/exam-attempt';
@@ -53,7 +52,7 @@ export class ExamEngine implements OnInit, OnDestroy {
   savingState = signal<Record<string, boolean>>({});
 
   // Anti-Cheat Rules Acknowledgment
-  rulesChecked = signal<boolean[]>([false, false, false, false, false]);
+  rulesChecked = signal<boolean[]>([false, false, false]);
   allRulesAcknowledged = computed(() => this.rulesChecked().every(Boolean));
 
   // Timer
@@ -92,18 +91,45 @@ export class ExamEngine implements OnInit, OnDestroy {
   });
 
   constructor() {
-    import('@angular/core').then(({ effect }) => {
-      effect(() => {
-        if (this.antiCheat.strikeLevel() >= 3 && this.state() === 'active') {
-          // 3 Strikes -> Force submit
-          this.antiCheat.stopMonitoring(true);
-          setTimeout(() => this.forceSubmit(), 3000); // 3 sec delay for them to see the red screen
-        }
-      });
+    effect(() => {
+      const level = this.antiCheat.strikeLevel();
+      const state = this.state();
+      
+      // Guard: only act once per strike-3 event
+      if (level >= 3 && state === 'active' && !this.antiCheat.isForceSubmitInProgress()) {
+        this.antiCheat.markForceSubmitInProgress();
+        this.antiCheat.stopMonitoring(true);
+        // Wait 3 seconds to show red overlay, then show notification + submit
+        setTimeout(() => this.executeAntiCheatForceSubmit(), 3000);
+      }
+      
+      // Strike 1: Show SweetAlert warning once
+      if (level === 1 && state === 'active' && !this.antiCheat.strikeOneAcknowledged()) {
+        // Use a small delay to avoid running inside effect synchronously
+        setTimeout(() => {
+          if (this.antiCheat.strikeLevel() === 1 && !this.antiCheat.strikeOneAcknowledged()) {
+            Swal.fire({
+              icon: 'warning',
+              title: '⚠️ Warning: Integrity Violation Detected',
+              html: 'Suspicious activity has been logged.<br><br>Please do not use keyboard shortcuts or resize your screen.<br><br><strong>Further violations will result in automatic exam termination.</strong>',
+              confirmButtonText: 'I Understand — Return to Exam',
+              confirmButtonColor: '#f59e0b',
+              allowOutsideClick: false,
+              allowEscapeKey: false
+            }).then(() => {
+              this.antiCheat.dismissStrikeOne();
+            });
+          }
+        }, 200);
+      }
     });
   }
 
   ngOnInit(): void {
+    // ✅ Always hard-reset anti-cheat state when entering the exam engine
+    // This guarantees no overlay from a previous session is ever shown on the rules page
+    this.antiCheat.resetState();
+
     const id = this.route.snapshot.paramMap.get('examId');
     if (!id) {
       this.router.navigate(['/']);
@@ -309,6 +335,38 @@ export class ExamEngine implements OnInit, OnDestroy {
         this.state.set('active');
         this.antiCheat.resumeMonitoring(attemptId);
         this.startTimer(this.attemptData()!.expiresAt); // Restart timer visually
+      }
+    });
+  }
+
+  /** Called exclusively by the Anti-Cheat engine after 3 strikes */
+  private executeAntiCheatForceSubmit(): void {
+    const attemptId = this.attemptData()?.attemptId;
+    const courseId = this.examDetails()?.courseId;
+    if (!attemptId) return;
+
+    this.timerSub?.unsubscribe();
+
+    // Toast notification at default position (bottom-right)
+    this.toastr.error(
+      'Your exam has been automatically submitted due to repeated integrity violations.',
+      '🚨 Exam Terminated',
+      { timeOut: 6000, progressBar: true }
+    );
+
+    // Submit and navigate — the red overlay is already covering the screen
+    this.attemptService.submitExam(attemptId).subscribe({
+      next: (res) => {
+        this.antiCheat.resetState(); // Clear red overlay
+        this.router.navigate(
+          ['/courses', res.data?.courseId || courseId],
+          { queryParams: { tab: 'exams' } }
+        );
+      },
+      error: () => {
+        // Even on API error, navigate away — exam is considered terminated
+        this.antiCheat.resetState();
+        this.router.navigate(['/courses', courseId]);
       }
     });
   }

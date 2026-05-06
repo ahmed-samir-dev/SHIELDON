@@ -7,6 +7,14 @@
   background-color: var(--color-light-background);
   display: flex;
   flex-direction: column;
+
+  // Disable text selection during exam for anti-cheat
+  &.exam-active {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
 }
 
 /* ── Rules State (Premium Design) ──────────────────────────────────────── */
@@ -50,7 +58,7 @@
     border-radius: $border-radius-2xl;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0,0,0,0.05);
     padding: $spacing-8;
-    max-width: 650px;
+    max-width: 900px;
     width: 100%;
     animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 
@@ -235,14 +243,21 @@
           border: none;
           box-shadow: 0 8px 16px rgba($color-primary-base, 0.25);
           
-          &:hover {
+          &:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 12px 20px rgba($color-primary-base, 0.35);
           }
           
-          &:active {
+          &:active:not(:disabled) {
             transform: translateY(1px);
             box-shadow: 0 4px 8px rgba($color-primary-base, 0.2);
+          }
+
+          &:disabled {
+            background: $color-neutral-300;
+            color: $color-neutral-500;
+            cursor: not-allowed;
+            box-shadow: none;
           }
         }
       }
