@@ -84,7 +84,7 @@ All violations are recorded and displayed in a **Session Timeline** and **Violat
 | Phase 1 | Authentication & User Management | F1 (Login), F2 (Email Verify), F3 (Password Reset), F4 (Profile) | 4 |
 | Phase 2 | Core Learning Management System | F5 (Courses/Enrollment), F6 (Files), F6b (Assignments), F7 (Announcements), F8 (Notifications & Polish) | 5 |
 | Phase 2b | Assignments System | F6b: Assignment Task Lifecycle (Tutor Task → Student Answer), Real-time Due Date Countdown, Bulk ZIP Submission Exports | 1 |
-| Phase 3 | Examination Management System | F9 (Exam Mgmt + Notifications), F10 (Re-Attempt), F11 (Question Bank), F12/F13 (Randomization + Timer + Token), F14 (Results), F15 (Grade Panel) | **8** |
+| Phase 3 | Examination Management System | F9 (Exam Mgmt + Notifications), F10 (Re-Attempt), F11 (Question Bank), F12/F13 (Randomization + Timer + Token), F14 (Results), F15 (Grade Panel) | **8** ✅ |
 | Phase 4 | Anti-Cheating Engine | F16 (Full Anti-Cheat Engine) | 1 |
 | Phase 5 | Monitoring & Dashboards | F17 (Presence Tracking), F18 (Session Timeline), F19 (Violation Timeline), F20 (Manual Review), F21 (Tutor Dashboard), F22 (Admin Dashboard) | 6 |
 | **Total** | | | **25 Features** |
@@ -140,7 +140,7 @@ The SHIELDON logo (file: `logo.png`) consists of:
 | HTTP | **Angular HttpClient** | Built-in, reactive, interceptor-compatible |
 | Routing | **Angular Router** with Route Guards | Declarative routing with role-based guards |
 | State | **Angular Signals** (prefer over RxJS for new code) | Modern, fine-grained reactivity |
-| Charts | **Chart.js** + **ng2-charts** wrapper | Free, powerful, well-supported |
+| Charts | **Apache ECharts** + **ngx-echarts** wrapper | Free, modern, real-time streaming data, GPU-accelerated canvas rendering, richer chart types (heatmaps, radar, treemaps, sunburst) — superior to Chart.js |
 | Icons | **Lucide Icons** (lucide.dev) — MIT license | 100% free, tree-shakeable, consistent style. Used EXCLUSIVELY across entire project. No mixing. |
 | Modals/Dialogs | **SweetAlert2** | Beautiful, accessible, customizable |
 | Toast Notifications | **ngx-toastr** | Angular-native, integrates with Angular 21 |

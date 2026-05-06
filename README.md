@@ -35,7 +35,7 @@ All violations are recorded in real-time and displayed in a **Session Timeline**
 | Database | Microsoft SQL Server 2022, EF Core Code-First |
 | Auth | JWT Bearer Tokens (Access + Refresh) |
 | Icons | Lucide Icons (exclusively) |
-| UI Libraries | SweetAlert2, ngx-toastr, Chart.js, canvas-confetti, Shepherd.js |
+| UI Libraries | SweetAlert2, ngx-toastr, **Apache ECharts (ngx-echarts)**, canvas-confetti, Shepherd.js |
 
 ---
 
@@ -123,20 +123,12 @@ This project enforces a strict **AI Model Split** for all feature development:
 | 3.4 | F11: Question Bank Management (MCQ / True-False / Short Answer) | ✅ Complete |
 | 3.5 | F12/F13: Question Randomization + Timed Exam Engine + Secure Token | ✅ Complete |
 | 3.6 | F14: Exam Results & Auto-Grading | ✅ Complete |
-| 3.7 | F10 Frontend: Re-Attempt Requests — Frontend (backend done in 3.3) | ⬜ Pending |
-| 3.8 | F15: Grade Management Panel (Student + Tutor/Admin, weighted grades) | ⬜ Pending |
-| 3.9 | Phase 3 Integration & Polish | ⬜ Pending |
+| 3.7 | F10 Frontend: Re-Attempt Requests — Frontend (backend done in 3.3) | ✅ Complete |
+| 3.8 | F15: Grade Management Panel (Student + Tutor/Admin, weighted grades) | ✅ Complete |
 
 > **Why this order?** Publishing an exam requires at least 1 question (enforced by the API). So Question Bank (3.4) must come before the Exam Engine (3.5). The "Request Re-attempt" button belongs on the student result page (3.6), so Re-Attempt Frontend (3.7) comes last.
 
-### Testing Stages
-| Stage | Feature | Status |
-|-------|---------|--------|
-| T.1 | Backend Unit Tests (xUnit) | ⬜ Pending |
-| T.2 | Backend Integration Tests | ⬜ Pending |
-| T.3 | Frontend Unit Tests (Jest) | ⬜ Pending |
-
-### Phase 4 — Anti-Cheating Engine
+### Phase 4 — Anti-Cheating Engine ← NEXT
 | Stage | Feature | Status |
 |-------|---------|--------|
 | 4.1 | Pre-Exam Rules Acknowledgment | ⬜ Pending |
@@ -158,7 +150,7 @@ This project enforces a strict **AI Model Split** for all feature development:
 | 5.3 | F18: Violation Timeline | ⬜ Pending |
 | 5.4 | F19: Manual Review | ⬜ Pending |
 | 5.5 | F20: Tutor Monitoring Dashboard | ⬜ Pending |
-| 5.6 | F21: Admin Dashboard | ⬜ Pending |
+| 5.6 | F21: Admin Dashboard (Apache ECharts — real-time) | ⬜ Pending |
 
 ### Final
 | Stage | Feature | Status |
@@ -166,6 +158,13 @@ This project enforces a strict **AI Model Split** for all feature development:
 | F.1 | Shepherd.js Onboarding Tours | ⬜ Pending |
 | F.2 | README.md Final Documentation | ⬜ Pending |
 | F.3 | GitHub Cleanup & Release Tag v1.0.0-graduation | ⬜ Pending |
+
+### Testing Stages (After Final — Time Permitting)
+| Stage | Feature | Status |
+|-------|---------|--------|
+| T.1 | Backend Unit Tests (xUnit) | ⬜ Pending |
+| T.2 | Backend Integration Tests | ⬜ Pending |
+| T.3 | Frontend Unit Tests (Jest) | ⬜ Pending |
 
 ---
 
@@ -263,7 +262,8 @@ fix/*      → Bug fixes
 | 2.4.0 | Stage 2.4 | 2026-04-19 | Course Materials, Announcements, Tabbed Hub UI |
 | 2.4b-plan | Stage 2.4b | 2026-04-19 | Student Assignments — planned, pending approval |
 | 2.5.0 | Stage 2.5 | 2026-04-21 | In-App Notifications, Email Templates, Advanced Enrollment (Paging, Filtering) |
-| 3.0-plan | Phase 3 | 2026-04-26 | Phase 3 plan revised: 9 stages — Exam Mgmt, Notifications, Re-Attempt, Question Bank, Randomization, Token, Results, Grade Panel, Integration |
+| 3.0-plan | Phase 3 | 2026-04-26 | Phase 3 plan revised: 8 stages — Exam Mgmt, Notifications, Re-Attempt, Question Bank, Randomization, Token, Results, Grade Panel |
+| 3.8.0 | Stage 3.8 | 2026-05-06 | Grade Management Panel — weighted grades, Tutor evaluation, student grade view, GradeRecord lifecycle | commit `b8e5377` |
 
 ---
 
