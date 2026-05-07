@@ -1,0 +1,96 @@
+<div class="timeline-container bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+  
+  <!-- Header -->
+  <div class="px-6 py-4 border-b border-slate-200 bg-slate-50 flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <div class="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
+        <lucide-icon name="Clock" [size]="20"></lucide-icon>
+      </div>
+      <h3 class="font-semibold text-slate-800">Session Timeline</h3>
+    </div>
+    
+    <div class="flex gap-2">
+      <select 
+        [value]="filter()" 
+        (change)="filter.set($any($event.target).value)"
+        name="filter"
+        class="text-sm border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white shadow-sm px-3 py-1.5 cursor-pointer">
+        <option value="All">All Events</option>
+        <option value="Normal">Normal Activity</option>
+        <option value="Warning">Warnings</option>
+        <option value="Violation">Violations</option>
+        <option value="Critical">Critical Only</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="p-6">
+    
+    <!-- Loading State -->
+    <div *ngIf="loading()" class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!loading() && error()" class="p-4 bg-red-50 text-red-600 rounded-lg flex items-center gap-3">
+      <lucide-icon name="AlertCircle" [size]="20"></lucide-icon>
+      <span>{{ error() }}</span>
+      <button (click)="loadTimeline()" class="ml-auto underline font-medium hover:text-red-700">Retry</button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading() && !error() && filteredEvents().length === 0" class="text-center py-12">
+      <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
+        <lucide-icon name="Info" [size]="24"></lucide-icon>
+      </div>
+      <h4 class="text-slate-800 font-medium">No events found</h4>
+      <p class="text-slate-500 text-sm mt-1">Try changing your filter criteria.</p>
+    </div>
+
+    <!-- Timeline -->
+    <div *ngIf="!loading() && !error() && filteredEvents().length > 0" class="relative">
+      
+      <!-- Vertical Line -->
+      <div class="absolute left-[27px] top-4 bottom-4 w-0.5 bg-slate-200"></div>
+
+      <div class="space-y-6">
+        <div *ngFor="let event of filteredEvents(); let isLast = last" class="relative flex gap-6 items-start">
+          
+          <!-- Indicator Icon -->
+          <div class="relative z-10 w-[56px] flex justify-center">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center shadow-sm border border-white ring-4 ring-white"
+                 [ngClass]="getSeverityClasses(event.severity)">
+              <lucide-icon [name]="getIcon(event)" [size]="18"></lucide-icon>
+            </div>
+          </div>
+
+          <!-- Event Content -->
+          <div class="flex-1 pb-2">
+            <div class="flex justify-between items-start mb-1">
+              <h4 class="font-medium text-slate-800 flex items-center gap-2">
+                {{ event.eventType }}
+                <span *ngIf="event.category === 'Violation'" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full"
+                      [ngClass]="{
+                        'bg-red-100 text-red-700': event.severity === 'Critical',
+                        'bg-orange-100 text-orange-700': event.severity === 'Medium',
+                        'bg-yellow-100 text-yellow-700': event.severity === 'Minor'
+                      }">
+                  {{ event.severity }} Violation
+                </span>
+                <span *ngIf="event.wasAutoSubmit" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-800 text-white">
+                  Auto-Submit
+                </span>
+              </h4>
+              <span class="text-xs font-medium text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200">
+                {{ event.occurredAt | date:'mediumTime' }}
+              </span>
+            </div>
+            <p class="text-sm text-slate-600">{{ event.description }}</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -12,6 +12,7 @@ import { ExamDetailResponse } from '../../../core/models/exam.model';
 import { ExamAttemptService, StartExamResponse, StudentQuestionDto, QuestionType } from '../services/exam-attempt';
 import { AntiCheatService } from '../../anti-cheat/anti-cheat.service';
 import { AntiCheatOverlayComponent } from '../../anti-cheat/anti-cheat-overlay/anti-cheat-overlay';
+import { MonitoringService } from '../../../core/services/monitoring.service';
 
 type EngineState = 'loading' | 'rules' | 'active' | 'review' | 'submitting' | 'error';
 
@@ -29,6 +30,7 @@ export class ExamEngine implements OnInit, OnDestroy {
   private attemptService = inject(ExamAttemptService);
   private toastr = inject(ToastrService);
   public antiCheat = inject(AntiCheatService);
+  private monitoring = inject(MonitoringService);
 
   // Icons
   Clock = Clock;
@@ -55,9 +57,10 @@ export class ExamEngine implements OnInit, OnDestroy {
   rulesChecked = signal<boolean[]>([false, false, false]);
   allRulesAcknowledged = computed(() => this.rulesChecked().every(Boolean));
 
-  // Timer
+  // Timer & Heartbeat
   timeRemainingSeconds = signal<number>(0);
   private timerSub?: Subscription;
+  private heartbeatSub?: Subscription;
   private destroy$ = new Subject<void>();
 
   // Auto-Save Debouncer
@@ -151,6 +154,7 @@ export class ExamEngine implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
     this.timerSub?.unsubscribe();
+    this.heartbeatSub?.unsubscribe();
     this.antiCheat.stopMonitoring();
   }
 
@@ -182,6 +186,7 @@ export class ExamEngine implements OnInit, OnDestroy {
         this.attemptData.set(res.data);
         this.initializeAnswers(res.data);
         this.startTimer(res.data.expiresAt);
+        this.startHeartbeat(res.data.attemptId);
         this.state.set('active');
         this.antiCheat.startMonitoring(res.data.attemptId);
         this.toastr.success('Exam started! Good luck.');
@@ -227,10 +232,23 @@ export class ExamEngine implements OnInit, OnDestroy {
     if (remainingMs <= 0) {
       this.timeRemainingSeconds.set(0);
       this.timerSub?.unsubscribe();
+      this.heartbeatSub?.unsubscribe();
       this.forceSubmit();
     } else {
       this.timeRemainingSeconds.set(Math.floor(remainingMs / 1000));
     }
+  }
+
+  private startHeartbeat(attemptId: string): void {
+    // Send heartbeat every 15 seconds
+    this.heartbeatSub = interval(15000).pipe(takeUntil(this.destroy$)).subscribe(() => {
+      this.monitoring.logHeartbeat(attemptId).subscribe({
+        error: () => {
+          // Log silently, student doesn't need to be alarmed unless submit fails
+          console.warn('Heartbeat failed to send.');
+        }
+      });
+    });
   }
 
   // ── Navigation ──
@@ -317,6 +335,7 @@ export class ExamEngine implements OnInit, OnDestroy {
 
     this.state.set('submitting');
     this.timerSub?.unsubscribe();
+    this.heartbeatSub?.unsubscribe();
     this.antiCheat.stopMonitoring();
 
     this.attemptService.submitExam(attemptId).subscribe({
@@ -346,6 +365,7 @@ export class ExamEngine implements OnInit, OnDestroy {
     if (!attemptId) return;
 
     this.timerSub?.unsubscribe();
+    this.heartbeatSub?.unsubscribe();
 
     // Toast notification at default position (bottom-right)
     this.toastr.error(

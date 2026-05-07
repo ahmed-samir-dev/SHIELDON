@@ -1,0 +1,131 @@
+<div class="manual-review-wrapper max-w-7xl mx-auto space-y-6 pb-24">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-800">Manual Review</h1>
+      <p class="text-slate-500">Analyze the session timeline and submit a decision.</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="flex justify-center items-center py-12 bg-white rounded-xl shadow-sm border border-slate-200">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!loading() && error()" class="p-4 bg-red-50 text-red-600 rounded-lg flex items-center gap-3">
+    <lucide-icon name="AlertTriangle" [size]="20"></lucide-icon>
+    <span>{{ error() }}</span>
+  </div>
+
+  <ng-container *ngIf="!loading() && !error() && attemptInfo()">
+    
+    <!-- Info Panel -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row">
+      
+      <!-- Student Info -->
+      <div class="p-6 border-b md:border-b-0 md:border-r border-slate-200 flex-1">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+            <lucide-icon name="User" [size]="24"></lucide-icon>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold text-slate-800">{{ attemptInfo().studentName || 'Student Name' }}</h3>
+            <p class="text-sm text-slate-500">{{ attemptInfo().studentId || 'ID Unknown' }}</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4 mt-4 text-sm">
+          <div>
+            <p class="text-slate-500 mb-1">Status</p>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-md font-medium"
+                  [ngClass]="{
+                    'bg-blue-100 text-blue-700': sessionStatus() === 'InProgress',
+                    'bg-green-100 text-green-700': sessionStatus() === 'Submitted' || sessionStatus() === 'Graded',
+                    'bg-red-100 text-red-700': sessionStatus() === 'ForceSubmitted'
+                  }">
+              {{ sessionStatus() }}
+            </span>
+          </div>
+          <div>
+            <p class="text-slate-500 mb-1">Started At</p>
+            <p class="font-medium text-slate-800">{{ attemptInfo().startedAt | date:'medium' }}</p>
+          </div>
+          <div>
+            <p class="text-slate-500 mb-1">Submitted At</p>
+            <p class="font-medium text-slate-800">{{ attemptInfo().submittedAt ? (attemptInfo().submittedAt | date:'medium') : '—' }}</p>
+          </div>
+          <div>
+            <p class="text-slate-500 mb-1">Score</p>
+            <p class="font-medium" [ngClass]="attemptInfo().passed ? 'text-green-600' : 'text-red-600'">
+              {{ attemptInfo().score !== null ? attemptInfo().score + '%' : 'Not Graded' }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions (Live Terminate) -->
+      <div class="p-6 bg-slate-50 md:w-64 flex flex-col justify-center items-center text-center">
+        <div *ngIf="sessionStatus() === 'InProgress'" class="w-full">
+          <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-3 animate-pulse">
+            <lucide-icon name="Activity" [size]="24"></lucide-icon>
+          </div>
+          <h4 class="font-medium text-slate-800 mb-1">Session is Active</h4>
+          <p class="text-xs text-slate-500 mb-4">Student is currently taking this exam.</p>
+          <button (click)="terminateSession()" class="w-full py-2 px-4 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium shadow-sm transition-colors flex items-center justify-center gap-2">
+            <lucide-icon name="X" [size]="18"></lucide-icon>
+            Force Terminate
+          </button>
+        </div>
+
+        <div *ngIf="sessionStatus() !== 'InProgress'" class="w-full text-center">
+          <div class="w-12 h-12 bg-slate-200 text-slate-500 rounded-full flex items-center justify-center mx-auto mb-3">
+            <lucide-icon name="CheckCircle" [size]="24"></lucide-icon>
+          </div>
+          <h4 class="font-medium text-slate-800 mb-1">Session Closed</h4>
+          <p class="text-xs text-slate-500">This exam attempt is no longer active.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Violation Timeline (ECharts) -->
+    <app-violation-timeline [attemptId]="attemptId"></app-violation-timeline>
+
+    <!-- Detailed Session Timeline (Merged) -->
+    <app-session-timeline [attemptId]="attemptId"></app-session-timeline>
+
+  </ng-container>
+</div>
+
+<!-- Bottom Action Bar (Fixed) -->
+<div *ngIf="!loading() && !error() && !hasReviewDecision()" class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50 px-6 py-4 flex justify-between items-center pl-64">
+  <div class="flex items-center gap-3">
+    <lucide-icon name="ShieldAlert" class="text-slate-400" [size]="24"></lucide-icon>
+    <div>
+      <h3 class="font-semibold text-slate-800">Final Decision</h3>
+      <p class="text-xs text-slate-500">Select an outcome based on your review of the session timeline.</p>
+    </div>
+  </div>
+  
+  <div class="flex gap-3">
+    <button (click)="submitDecision('ReAttemptGranted')" class="px-4 py-2 border border-slate-300 bg-white text-slate-700 rounded-lg hover:bg-slate-50 font-medium transition-colors flex items-center gap-2">
+      <lucide-icon name="RotateCcw" [size]="18"></lucide-icon>
+      Grant Re-Attempt
+    </button>
+    <button (click)="submitDecision('MarkedAsCheating')" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium shadow-sm transition-colors flex items-center gap-2">
+      <lucide-icon name="AlertTriangle" [size]="18"></lucide-icon>
+      Mark as Cheating
+    </button>
+    <button (click)="submitDecision('Accepted')" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium shadow-sm transition-colors flex items-center gap-2">
+      <lucide-icon name="CheckCircle" [size]="18"></lucide-icon>
+      Accept Attempt
+    </button>
+  </div>
+</div>
+
+<div *ngIf="hasReviewDecision()" class="fixed bottom-0 left-0 right-0 bg-green-50 border-t border-green-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50 px-6 py-4 flex justify-center items-center pl-64">
+  <div class="flex items-center gap-3 text-green-700">
+    <lucide-icon name="CheckCircle" [size]="24"></lucide-icon>
+    <h3 class="font-semibold">Review Decision Submitted</h3>
+  </div>
+</div>
