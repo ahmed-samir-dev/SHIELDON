@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { deviceGuard } from './core/guards/device.guard';
-import { authGuard, tutorGuard } from './core/guards/auth.guard';
+import { authGuard, tutorGuard, adminGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   // ── Mobile Guard ──────────────────────────────────────────────────────────
@@ -116,10 +116,26 @@ export const routes: Routes = [
         loadComponent: () => import('./features/grades/my-grades/my-grades').then(m => m.MyGrades),
         title: 'My Grades — SHIELDON'
       },
+      {
+        path: 'exam-attempts/:attemptId/manual-review',
+        canActivate: [tutorGuard],
+        loadComponent: () => import('./features/monitoring/manual-review/manual-review').then(m => m.ManualReviewComponent),
+        title: 'Manual Review — SHIELDON'
+      },
       // Dashboards fallback to courses view for now
-      { path: 'admin/dashboard', redirectTo: 'courses' },
+      {
+        path: 'admin/dashboard',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/monitoring/admin-dashboard/admin-dashboard').then(m => m.AdminDashboardComponent),
+        title: 'Admin Dashboard — SHIELDON'
+      },
       { path: 'student/dashboard', redirectTo: 'courses' },
-      { path: 'tutor/dashboard', redirectTo: 'courses' }
+      {
+        path: 'tutor/dashboard',
+        canActivate: [tutorGuard],
+        loadComponent: () => import('./features/monitoring/tutor-dashboard/tutor-dashboard').then(m => m.TutorDashboardComponent),
+        title: 'Tutor Dashboard — SHIELDON'
+      }
     ]
   },
 

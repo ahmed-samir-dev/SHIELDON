@@ -1,0 +1,207 @@
+<div class="tutor-dashboard-wrapper max-w-7xl mx-auto space-y-6 pb-12">
+
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+        <lucide-icon name="Monitor" class="text-indigo-600" [size]="28"></lucide-icon>
+        Live Monitoring Dashboard
+      </h1>
+      <p class="text-slate-500">Track active exam sessions across your courses in real-time.</p>
+    </div>
+    
+    <div class="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg text-sm font-medium animate-pulse">
+      <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+      Live Polling (10s)
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="flex justify-center items-center py-24 bg-white rounded-xl shadow-sm border border-slate-200">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!loading() && error()" class="p-4 bg-red-50 text-red-600 rounded-lg flex items-center gap-3">
+    <lucide-icon name="AlertTriangle" [size]="20"></lucide-icon>
+    <span>{{ error() }}</span>
+  </div>
+
+  <ng-container *ngIf="!loading() && !error() && dashboardData()">
+    
+    <!-- Top Stats Row (Active Exams) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div *ngFor="let exam of dashboardData()!.activeExams" class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 hover:border-indigo-200 transition-colors">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="font-semibold text-slate-800 line-clamp-1" [title]="exam.examTitle">{{ exam.examTitle }}</h3>
+            <p class="text-xs text-slate-500 line-clamp-1">{{ exam.courseTitle }}</p>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-y-3 text-sm">
+          <div>
+            <p class="text-slate-500 text-xs mb-0.5">In Progress</p>
+            <p class="font-semibold text-blue-600">{{ exam.inProgressCount }}</p>
+          </div>
+          <div>
+            <p class="text-slate-500 text-xs mb-0.5">Submitted</p>
+            <p class="font-semibold text-green-600">{{ exam.submittedCount }}</p>
+          </div>
+          <div>
+            <p class="text-slate-500 text-xs mb-0.5">Terminated</p>
+            <p class="font-semibold text-red-600">{{ exam.forceSubmittedCount }}</p>
+          </div>
+          <div>
+            <p class="text-slate-500 text-xs mb-0.5">Not Started</p>
+            <p class="font-semibold text-slate-700">{{ exam.notStartedCount }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State for Exams -->
+      <div *ngIf="dashboardData()!.activeExams.length === 0" class="col-span-full py-8 text-center bg-slate-50 rounded-xl border border-slate-200 border-dashed text-slate-500">
+        No active exams currently published in your courses.
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      
+      <!-- Main Live Grid -->
+      <div class="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[600px]">
+        <div class="px-6 py-4 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <h2 class="font-semibold text-slate-800 flex items-center gap-2">
+            <lucide-icon name="Users" [size]="20" class="text-slate-500"></lucide-icon>
+            Live Sessions
+          </h2>
+          
+          <!-- Filters -->
+          <div class="flex gap-2 w-full sm:w-auto">
+            <div class="relative flex-1 sm:w-48">
+              <lucide-icon name="Search" [size]="16" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></lucide-icon>
+              <input type="text" [value]="searchQuery()" (input)="searchQuery.set($any($event.target).value)"
+                     name="search" placeholder="Search student..."
+                     class="w-full pl-9 pr-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+            <select [value]="statusFilter()" (change)="statusFilter.set($any($event.target).value)"
+                    name="status" class="text-sm border border-slate-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 py-1.5">
+              <option value="All">All Statuses</option>
+              <option value="InProgress">Active</option>
+              <option value="Disconnected">Disconnected</option>
+              <option value="Submitted">Submitted</option>
+              <option value="ForceSubmitted">Terminated</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="overflow-y-auto flex-1 p-0">
+          <table class="w-full text-left border-collapse">
+            <thead class="sticky top-0 bg-white shadow-sm z-10">
+              <tr class="text-xs text-slate-500 uppercase tracking-wider font-semibold border-b border-slate-200">
+                <th class="py-3 px-6">Student</th>
+                <th class="py-3 px-6">Exam</th>
+                <th class="py-3 px-6">Status</th>
+                <th class="py-3 px-6">Violations</th>
+                <th class="py-3 px-6 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="text-sm text-slate-700 divide-y divide-slate-100">
+              <tr *ngFor="let session of filteredSessions" class="hover:bg-slate-50 transition-colors">
+                <td class="py-3 px-6">
+                  <p class="font-medium text-slate-800">{{ session.studentName }}</p>
+                  <p class="text-xs text-slate-500">{{ session.studentCode }}</p>
+                </td>
+                <td class="py-3 px-6">
+                  <p class="line-clamp-1" [title]="session.examTitle">{{ session.examTitle }}</p>
+                  <p class="text-[10px] text-slate-400">Started: {{ session.startedAt | date:'shortTime' }}</p>
+                </td>
+                <td class="py-3 px-6">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium"
+                        [ngClass]="getStatusDisplay(session.status).classes">
+                    <!-- Don't bind dynamic names to lucide, just use dot/bg -->
+                    <span class="w-1.5 h-1.5 rounded-full" [ngClass]="{
+                      'bg-blue-500': session.status === 'InProgress',
+                      'bg-orange-500': session.status === 'Disconnected',
+                      'bg-green-500': session.status === 'Submitted',
+                      'bg-red-500': session.status === 'ForceSubmitted'
+                    }"></span>
+                    {{ getStatusDisplay(session.status).label }}
+                  </span>
+                </td>
+                <td class="py-3 px-6">
+                  <span class="inline-flex items-center justify-center w-6 h-6 rounded-full font-bold text-xs"
+                        [ngClass]="{
+                          'bg-red-100 text-red-700': session.violationCount >= 3,
+                          'bg-orange-100 text-orange-700': session.violationCount === 2,
+                          'bg-yellow-100 text-yellow-700': session.violationCount === 1,
+                          'bg-slate-100 text-slate-500': session.violationCount === 0
+                        }">
+                    {{ session.violationCount }}
+                  </span>
+                </td>
+                <td class="py-3 px-6 text-right">
+                  <button (click)="goToReview(session.attemptId)"
+                          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 hover:text-indigo-600 transition-colors shadow-sm">
+                    <lucide-icon name="Eye" [size]="14"></lucide-icon>
+                    Review
+                  </button>
+                </td>
+              </tr>
+
+              <tr *ngIf="filteredSessions.length === 0">
+                <td colspan="5" class="py-12 text-center text-slate-500">
+                  No sessions match your search criteria.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right Column: Analytics & Alerts -->
+      <div class="space-y-6">
+        
+        <!-- Risk Highlights -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
+          <h3 class="font-semibold text-slate-800 flex items-center gap-2 mb-4">
+            <lucide-icon name="AlertTriangle" class="text-orange-500" [size]="18"></lucide-icon>
+            High Risk Students
+          </h3>
+          
+          <div class="space-y-3">
+            <ng-container *ngFor="let s of dashboardData()!.liveSessions | slice:0:5">
+              <div *ngIf="s.violationCount >= 2 && s.status === 'InProgress'" 
+                   class="p-3 bg-red-50 border border-red-100 rounded-lg flex justify-between items-center hover:bg-red-100 transition-colors cursor-pointer"
+                   (click)="goToReview(s.attemptId)">
+                <div>
+                  <p class="font-semibold text-red-800 text-sm">{{ s.studentName }}</p>
+                  <p class="text-xs text-red-600">{{ s.violationCount }} Violations</p>
+                </div>
+                <lucide-icon name="ArrowRight" [size]="16" class="text-red-400"></lucide-icon>
+              </div>
+            </ng-container>
+
+            <!-- If none found -->
+            <div *ngIf="highRiskSessions.length === 0" class="text-sm text-slate-500 text-center py-2">
+              No active high-risk sessions detected.
+            </div>
+          </div>
+        </div>
+
+        <!-- Violation Chart -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 h-[320px] flex flex-col">
+          <h3 class="font-semibold text-slate-800 mb-4">Violation Types</h3>
+          <div class="flex-1 w-full" *ngIf="dashboardData()!.violationDistribution.items.length > 0">
+            <div echarts [options]="violationChartOptions()" class="h-full w-full"></div>
+          </div>
+          <div *ngIf="dashboardData()!.violationDistribution.items.length === 0" class="flex-1 flex items-center justify-center text-sm text-slate-500 border border-dashed border-slate-200 rounded-lg bg-slate-50">
+            No violations recorded yet.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </ng-container>
+</div>

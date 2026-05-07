@@ -3,6 +3,8 @@ import { provideRouter, withComponentInputBinding, withViewTransitions } from '@
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideToastr } from 'ngx-toastr';
+import { importProvidersFrom } from '@angular/core';
+import { NgxEchartsModule } from 'ngx-echarts';
 
 import { routes } from './app.routes';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
@@ -26,6 +28,7 @@ export const appConfig: ApplicationConfig = {
       preventDuplicates: true,
       progressBar: true,
       newestOnTop: true,
-    })
+    }),
+    importProvidersFrom(NgxEchartsModule.forRoot({ echarts: () => import('echarts') }))
   ]
 };
