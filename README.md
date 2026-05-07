@@ -128,19 +128,19 @@ This project enforces a strict **AI Model Split** for all feature development:
 
 > **Why this order?** Publishing an exam requires at least 1 question (enforced by the API). So Question Bank (3.4) must come before the Exam Engine (3.5). The "Request Re-attempt" button belongs on the student result page (3.6), so Re-Attempt Frontend (3.7) comes last.
 
-### Phase 4 — Anti-Cheating Engine ← NEXT
+### Phase 4 — Anti-Cheating Engine
 | Stage | Feature | Status |
 |-------|---------|--------|
-| 4.1 | Pre-Exam Rules Acknowledgment | ⬜ Pending |
-| 4.2 | Fullscreen Enforcement | ⬜ Pending |
-| 4.3 | Tab & Focus Detection | ⬜ Pending |
-| 4.4 | Keyboard Shortcut Blocking | ⬜ Pending |
-| 4.5 | Window Resize / Minimize / Split Detection | ⬜ Pending |
-| 4.6 | Mouse Monitoring | ⬜ Pending |
-| 4.7 | Violation Intelligence Layer | ⬜ Pending |
-| 4.8 | Warning System + Force-Submit | ⬜ Pending |
-| 4.9 | Backend Violation Persistence & API | ⬜ Pending |
-| 4.10 | Monitoring Continuity on Reconnect | ⬜ Pending |
+| 4.1 | Pre-Exam Rules Acknowledgment | ✅ Complete |
+| 4.2 | Fullscreen Enforcement | ✅ Complete |
+| 4.3 | Tab & Focus Detection | ✅ Complete |
+| 4.4 | Keyboard Shortcut Blocking | ✅ Complete |
+| 4.5 | Window Resize / Minimize / Split Detection | ✅ Complete |
+| 4.6 | Mouse Monitoring | ✅ Complete |
+| 4.7 | Violation Intelligence Layer | ✅ Complete |
+| 4.8 | Warning System + Force-Submit | ✅ Complete |
+| 4.9 | Backend Violation Persistence & API | ✅ Complete |
+| 4.10 | Monitoring Continuity on Reconnect | ✅ Complete |
 
 ### Phase 5 — Monitoring & Dashboards
 | Stage | Feature | Status |
@@ -264,6 +264,7 @@ fix/*      → Bug fixes
 | 2.5.0 | Stage 2.5 | 2026-04-21 | In-App Notifications, Email Templates, Advanced Enrollment (Paging, Filtering) |
 | 3.0-plan | Phase 3 | 2026-04-26 | Phase 3 plan revised: 8 stages — Exam Mgmt, Notifications, Re-Attempt, Question Bank, Randomization, Token, Results, Grade Panel |
 | 3.8.0 | Stage 3.8 | 2026-05-06 | Grade Management Panel — weighted grades, Tutor evaluation, student grade view, GradeRecord lifecycle | commit `b8e5377` |
+| 4.10.0 | Stage 4.10 | 2026-05-06 | Anti-Cheating Engine — OS-level tracking removed, 3-violation threshold, API persistence, Reconnect continuity | commit `c60c2b2` |
 
 ---
 
