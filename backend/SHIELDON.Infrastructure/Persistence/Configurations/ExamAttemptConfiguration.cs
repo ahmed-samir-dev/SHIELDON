@@ -18,6 +18,10 @@ public class ExamAttemptConfiguration : IEntityTypeConfiguration<ExamAttempt>
         builder.Property(e => e.Score)
             .HasPrecision(5, 2);
 
+        // Phase 5: tracks the last heartbeat timestamp for disconnection detection
+        builder.Property(e => e.LastHeartbeatAt)
+            .HasColumnType("DATETIME2");
+
         builder.HasOne(e => e.Student)
             .WithMany()
             .HasForeignKey(e => e.StudentId)
@@ -32,5 +36,8 @@ public class ExamAttemptConfiguration : IEntityTypeConfiguration<ExamAttempt>
             .WithOne(t => t.Attempt)
             .HasForeignKey<ExamToken>(t => t.AttemptId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Phase 5 navigation: PresenceLogs and ReviewDecision are configured
+        // in their own configuration files (PresenceLogConfiguration, ReviewDecisionConfiguration)
     }
 }

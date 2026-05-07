@@ -52,6 +52,11 @@ public class AppDbContext : DbContext
     // ── Phase 4: Anti-Cheating Engine ─────────────────────────────────
     public DbSet<ViolationLog> ViolationLogs { get; set; } = null!;
 
+    // ── Phase 5: Monitoring & Dashboards ──────────────────────────────
+    public DbSet<PresenceLog> PresenceLogs { get; set; } = null!;
+    public DbSet<ReviewDecision> ReviewDecisions { get; set; } = null!;
+
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -1504,17 +1504,17 @@ End-to-end verification: full exam lifecycle + all notification triggers + ExamT
 - [ ] **Stage 3.8** — F15: Grade Management Panel
 - [ ] **Stage 3.9** — Phase 3 Integration & Polish
 
-### Phase 4 — Anti-Cheating Engine
-- [ ] **Stage 4.1** — Pre-Exam Rules Acknowledgment
-- [ ] **Stage 4.2** — Fullscreen Enforcement
-- [ ] **Stage 4.3** — Tab & Focus Detection
-- [ ] **Stage 4.4** — Keyboard Shortcut Blocking
-- [ ] **Stage 4.5** — Window Resize / Minimize / Split Detection
-- [ ] **Stage 4.6** — Mouse Monitoring
-- [ ] **Stage 4.7** — Violation Intelligence Layer (Severity + Cooldown)
-- [ ] **Stage 4.8** — Warning System + Violation Accumulation + Force-Submit
-- [ ] **Stage 4.9** — Backend Violation Persistence & API Endpoints
-- [ ] **Stage 4.10** — Monitoring Continuity on Reconnect
+### Phase 4 — Anti-Cheating Engine ✅ COMPLETE
+- [x] **Stage 4.1** — Pre-Exam Rules Acknowledgment
+- [x] **Stage 4.2** — Fullscreen Enforcement (Removed OS-level tracking in final polish)
+- [x] **Stage 4.3** — Tab & Focus Detection (Removed OS-level tracking in final polish)
+- [x] **Stage 4.4** — Keyboard Shortcut Blocking
+- [x] **Stage 4.5** — Window Resize / Minimize / Split Detection
+- [x] **Stage 4.6** — Mouse Monitoring
+- [x] **Stage 4.7** — Violation Intelligence Layer (Severity + Cooldown)
+- [x] **Stage 4.8** — Warning System + Violation Accumulation + Force-Submit
+- [x] **Stage 4.9** — Backend Violation Persistence & API Endpoints
+- [x] **Stage 4.10** — Monitoring Continuity on Reconnect
 
 ### Phase 5 — Monitoring & Dashboards
 - [ ] **Stage 5.1** — F16: Exam Presence Tracking

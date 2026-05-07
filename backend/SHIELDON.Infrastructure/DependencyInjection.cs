@@ -54,9 +54,11 @@ public static class DependencyInjection
         services.AddScoped<IQuestionService, QuestionService>();
         services.AddScoped<IGradeService, GradeService>();
         services.AddScoped<IViolationService, ViolationService>();
+        services.AddScoped<IMonitoringService, MonitoringService>();
 
         // ── Background Services ────────────────────────────────────────────
         services.AddHostedService<ExamReminderBackgroundService>();
+        services.AddHostedService<HeartbeatMonitorBackgroundService>();
 
 
         // ── AutoMapper 13.x ── AddAutoMapper scans assemblies for Profile classes
