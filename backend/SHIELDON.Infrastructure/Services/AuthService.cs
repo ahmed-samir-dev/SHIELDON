@@ -389,7 +389,8 @@ public class AuthService : IAuthService
             Role: user.Role,
             AccessToken: accessToken,
             RefreshToken: refreshToken,
-            AccessTokenExpiresAt: accessExpiresAt
+            AccessTokenExpiresAt: accessExpiresAt,
+            HasCompletedOnboarding: user.HasCompletedOnboarding
         );
     }
 

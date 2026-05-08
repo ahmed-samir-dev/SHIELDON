@@ -126,6 +126,22 @@
 }
 
 // Form Styles
+
+.role-actions-row {
+  display: flex;
+  justify-content: space-between; 
+  align-items: flex-end; 
+  margin-top: $spacing-2;
+  
+  .form-group {
+    margin-bottom: 0;
+  }
+
+  .form-actions {
+    margin-top: 0;
+  }
+}
+
 .profile-form {
   display: flex;
   flex-direction: column;
@@ -246,7 +262,7 @@
 .role-badge {
   align-self: flex-start;
   background: $color-primary-light;
-  color: $color-primary-dark;
+  color: white;
   padding: $spacing-1 $spacing-3;
   border-radius: 9999px;
   font-size: $font-size-sm;
@@ -278,6 +294,34 @@
   &:hover:not(:disabled) {
     background: $color-primary-dark;
     box-shadow: $shadow-md;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-secondary {
+  padding: $spacing-3 $spacing-6;
+  background: white;
+  color: $color-neutral-800;
+  border: 1px solid $color-neutral-200;
+  border-radius: $border-radius-md;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  box-shadow: $shadow-sm;
+  
+  &:hover:not(:disabled) {
+    background: $color-neutral-50;
+    border-color: $color-neutral-300;
+    box-shadow: $shadow-md;
+    transform: translateY(-1px);
   }
   
   &:disabled {

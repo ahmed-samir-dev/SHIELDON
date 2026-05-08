@@ -44,6 +44,7 @@ export interface LoginResponse {
   accessToken: string;
   refreshToken: string;
   accessTokenExpiresAt: string; // ISO 8601 UTC string
+  hasCompletedOnboarding: boolean;
 }
 
 export interface RefreshTokenRequest {

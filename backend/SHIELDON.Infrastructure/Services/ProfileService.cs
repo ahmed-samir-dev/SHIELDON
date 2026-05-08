@@ -97,6 +97,26 @@ public class ProfileService : IProfileService
         return true;
     }
 
+    public async Task CompleteOnboardingAsync(Guid userId, CancellationToken ct = default)
+    {
+        var user = await _db.Users.FindAsync([userId], ct)
+            ?? throw new NotFoundException("User Profile", userId);
+
+        user.HasCompletedOnboarding = true;
+        user.UpdatedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync(ct);
+    }
+
+    public async Task ResetOnboardingAsync(Guid userId, CancellationToken ct = default)
+    {
+        var user = await _db.Users.FindAsync([userId], ct)
+            ?? throw new NotFoundException("User Profile", userId);
+
+        user.HasCompletedOnboarding = false;
+        user.UpdatedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync(ct);
+    }
+
     private void RecordActivityLog(Guid userId, string eventType)
     {
         var log = new UserActivityLog

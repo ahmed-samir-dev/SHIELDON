@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AiService } from '../../../core/services/ai.service';
 import { MarkdownPipe } from '../../pipes/markdown.pipe';
-import { LucideAngularModule, Send, X, Bot, User, Sparkles } from 'lucide-angular';
+import { LucideAngularModule, Send, X, Bot, User, Sparkles, Plus } from 'lucide-angular';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 
 @Component({
@@ -32,6 +32,7 @@ export class AiChatPanelComponent implements AfterViewChecked, OnDestroy {
   BotIcon = Bot;
   UserIcon = User;
   SparklesIcon = Sparkles;
+  PlusIcon = Plus;
 
   constructor(public aiService: AiService) {}
 
