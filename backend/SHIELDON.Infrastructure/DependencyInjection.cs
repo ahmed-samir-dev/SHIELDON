@@ -55,6 +55,11 @@ public static class DependencyInjection
         services.AddScoped<IGradeService, GradeService>();
         services.AddScoped<IViolationService, ViolationService>();
         services.AddScoped<IMonitoringService, MonitoringService>();
+        services.AddScoped<IAIService, AIService>();
+
+        // ── HTTP Clients ───────────────────────────────────────────────────
+        // Named client used by AIService to call the Gemini REST API
+        services.AddHttpClient("Gemini");
 
         // ── Background Services ────────────────────────────────────────────
         services.AddHostedService<ExamReminderBackgroundService>();
