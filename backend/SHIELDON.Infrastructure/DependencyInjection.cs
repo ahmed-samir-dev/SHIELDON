@@ -58,7 +58,6 @@ public static class DependencyInjection
 
         // ── Background Services ────────────────────────────────────────────
         services.AddHostedService<ExamReminderBackgroundService>();
-        services.AddHostedService<HeartbeatMonitorBackgroundService>();
 
 
         // ── AutoMapper 13.x ── AddAutoMapper scans assemblies for Profile classes

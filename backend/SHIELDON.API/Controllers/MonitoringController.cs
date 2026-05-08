@@ -8,18 +8,13 @@ using SHIELDON.Application.Interfaces;
 namespace SHIELDON.API.Controllers;
 
 /// <summary>
-/// Phase 5 — Monitoring & Dashboards endpoints.
-///
-/// Student:
-///   POST /api/attempts/{attemptId}/heartbeat — sends heartbeat every 15 seconds
-///
+/// Phase 6 — Post-Exam Monitoring & Dashboards endpoints.
+/// 
 /// Tutor/Admin:
-///   GET  /api/attempts/{attemptId}/timeline          — session timeline (merged events)
+///   GET  /api/attempts/{attemptId}/timeline           — full violation timeline
 ///   GET  /api/attempts/{attemptId}/violations/summary — violation stats + chart data
-///   POST /api/attempts/{attemptId}/review             — submit manual review decision
-///   POST /api/attempts/{attemptId}/terminate          — live session termination
-///   GET  /api/monitoring/tutor/dashboard              — tutor dashboard data
-///   GET  /api/monitoring/admin/dashboard              — admin dashboard data
+///   GET  /api/monitoring/tutor/dashboard              — tutor dashboard data (historical)
+///   GET  /api/monitoring/admin/dashboard              — admin dashboard data (historical)
 /// </summary>
 [ApiController]
 [Authorize]
@@ -35,44 +30,23 @@ public class MonitoringController : ControllerBase
     private Guid   GetUserId()   => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
     private string GetUserRole() => User.FindFirstValue(ClaimTypes.Role)!;
 
-    // ── Student: Heartbeat ────────────────────────────────────────────────────────
-
-    /// <summary>
-    /// POST /api/attempts/{attemptId}/heartbeat
-    ///
-    /// Called by the student's browser every 15 seconds to confirm an active exam session.
-    /// Updates the attempt's LastHeartbeatAt and inserts a HeartbeatReceived presence event.
-    /// Student role only; the attemptId must belong to the calling student.
-    /// </summary>
-    [HttpPost("api/attempts/{attemptId:guid}/heartbeat")]
-    [Authorize(Roles = "Student")]
-    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> LogHeartbeat(Guid attemptId)
-    {
-        await _monitoring.LogHeartbeatAsync(attemptId, GetUserId());
-        return Ok(ApiResponse<string>.Ok("Heartbeat received."));
-    }
-
     // ── Tutor/Admin: Session Timeline ─────────────────────────────────────────────
 
     /// <summary>
     /// GET /api/attempts/{attemptId}/timeline
     ///
-    /// Returns the full, chronologically merged session timeline for one attempt.
-    /// Combines PresenceLogs (lifecycle events) and ViolationLogs (anti-cheat events).
+    /// Returns the full, chronologically sorted violation timeline for one attempt.
     /// Tutor (own courses) and Admin only.
     /// </summary>
     [HttpGet("api/attempts/{attemptId:guid}/timeline")]
     [Authorize(Roles = "Tutor,Admin")]
-    [ProducesResponseType(typeof(ApiResponse<List<TimelineEventResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<AttemptTimelineResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetTimeline(Guid attemptId)
     {
         var result = await _monitoring.GetTimelineAsync(attemptId, GetUserId(), GetUserRole());
-        return Ok(ApiResponse<List<TimelineEventResponse>>.Ok(result));
+        return Ok(ApiResponse<AttemptTimelineResponse>.Ok(result));
     }
 
     // ── Tutor/Admin: Violation Summary ────────────────────────────────────────────
@@ -95,65 +69,14 @@ public class MonitoringController : ControllerBase
         return Ok(ApiResponse<ViolationSummaryResponse>.Ok(result));
     }
 
-    // ── Tutor/Admin: Submit Review Decision ───────────────────────────────────────
-
-    /// <summary>
-    /// POST /api/attempts/{attemptId}/review
-    ///
-    /// Submits a manual review decision for a suspicious/force-submitted attempt.
-    /// - Accepted: score stands as-is.
-    /// - MarkedAsCheating: score zeroed in GradeRecord.
-    /// - ReAttemptGranted: creates a new approved ReattemptRequest.
-    /// One decision per attempt — will fail if a decision already exists.
-    /// Tutor (own courses) and Admin only.
-    /// </summary>
-    [HttpPost("api/attempts/{attemptId:guid}/review")]
-    [Authorize(Roles = "Tutor,Admin")]
-    [ProducesResponseType(typeof(ApiResponse<ReviewDecisionResponse>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> SubmitReviewDecision(
-        Guid attemptId,
-        [FromBody] ReviewDecisionRequest request)
-    {
-        var result = await _monitoring.SubmitReviewDecisionAsync(attemptId, request, GetUserId());
-        return Ok(ApiResponse<ReviewDecisionResponse>.Ok(result));
-    }
-
-    // ── Tutor/Admin: Terminate Session ────────────────────────────────────────────
-
-    /// <summary>
-    /// POST /api/attempts/{attemptId}/terminate
-    ///
-    /// Immediately force-submits an active student exam session.
-    /// Creates a TutorTerminated presence log entry.
-    /// Only works on InProgress attempts.
-    /// Tutor (own courses) and Admin only.
-    /// </summary>
-    [HttpPost("api/attempts/{attemptId:guid}/terminate")]
-    [Authorize(Roles = "Tutor,Admin")]
-    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> TerminateSession(
-        Guid attemptId,
-        [FromBody] TerminateSessionRequest request)
-    {
-        await _monitoring.TerminateSessionAsync(attemptId, GetUserId(), request.Reason);
-        return Ok(ApiResponse<string>.Ok("Session terminated successfully. Student exam has been force-submitted."));
-    }
-
     // ── Tutor: Dashboard ──────────────────────────────────────────────────────────
 
     /// <summary>
     /// GET /api/monitoring/tutor/dashboard
     ///
     /// Returns the full tutor dashboard payload:
-    /// - Active exams panel (per course)
-    /// - Live student status grid (for 10-second polling)
+    /// - Exam summary cards (aggregate stats)
+    /// - Paginated recent submissions table
     /// - Violation type distribution (ECharts doughnut data)
     /// Tutor role only.
     /// </summary>
@@ -162,9 +85,14 @@ public class MonitoringController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<TutorDashboardResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> GetTutorDashboard()
+    public async Task<IActionResult> GetTutorDashboard(
+        [FromQuery] int page = 1, 
+        [FromQuery] int pageSize = 10, 
+        [FromQuery] string? search = null, 
+        [FromQuery] string? status = null,
+        [FromQuery] Guid? examId = null)
     {
-        var result = await _monitoring.GetTutorDashboardAsync(GetUserId());
+        var result = await _monitoring.GetTutorDashboardAsync(GetUserId(), page, pageSize, search, status, examId);
         return Ok(ApiResponse<TutorDashboardResponse>.Ok(result));
     }
 
@@ -175,7 +103,7 @@ public class MonitoringController : ControllerBase
     ///
     /// Returns the full admin dashboard payload:
     /// - System KPIs (courses, active exams, enrolled students, violations today)
-    /// - Global exam monitor table (all active sessions across all courses)
+    /// - Global exam monitor table (historical stats across all courses)
     /// - ECharts analytics (top violation types, 30-day trend, suspicious rate gauge)
     /// Admin role only.
     /// </summary>

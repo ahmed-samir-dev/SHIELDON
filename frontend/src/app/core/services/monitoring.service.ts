@@ -1,18 +1,57 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../../core/models/api-response.model';
 
-// DTO Interfaces
-export interface TimelineEventResponse {
+// ─────────────────────────────────────────────────────────────────────────────
+// SHARED TYPES
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface ViolationTypeStat {
+  violationType: string;
+  count: number;
+}
+
+export interface DailyActivityPoint {
+  date: string;
+  examCount: number;
+  violationCount: number;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ATTEMPT TIMELINE
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface ViolationTimelineEntry {
   occurredAt: string;
-  category: string;
-  eventType: string;
+  type: string;
   severity: string;
   description: string;
   wasAutoSubmit: boolean;
 }
+
+export interface AttemptTimelineResponse {
+  attemptId: string;
+  studentName: string;
+  studentCode: string;
+  studentProfilePictureUrl: string | null;
+  examTitle: string;
+  courseTitle: string;
+  startedAt: string;
+  submittedAt: string | null;
+  status: string;
+  score: number | null;
+  totalViolations: number;
+  criticalCount: number;
+  mediumCount: number;
+  minorCount: number;
+  violations: ViolationTimelineEntry[];
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// VIOLATION SUMMARY (for charts)
+// ─────────────────────────────────────────────────────────────────────────────
 
 export interface ViolationChartPoint {
   minuteOffset: number;
@@ -39,85 +78,69 @@ export interface ViolationSummaryResponse {
   violations: ViolationTableRow[];
 }
 
-export interface ActiveExamSummary {
+// ─────────────────────────────────────────────────────────────────────────────
+// TUTOR DASHBOARD
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface ExamMonitoringSummary {
   examId: string;
   examTitle: string;
   courseTitle: string;
+  totalEnrolled: number;
   inProgressCount: number;
   submittedCount: number;
   forceSubmittedCount: number;
   notStartedCount: number;
+  totalViolations: number;
+  criticalViolations: number;
+  averageScore: number | null;
 }
 
-export interface LiveSessionRow {
+export interface SubmissionRow {
   attemptId: string;
-  studentId: string;
   studentName: string;
   studentCode: string;
   examTitle: string;
   status: string;
+  submittedAt: string | null;
+  score: number | null;
   violationCount: number;
-  startedAt: string;
-  lastHeartbeatAt: string | null;
-  hasReviewDecision: boolean;
-}
-
-export interface ViolationTypeStat {
-  violationType: string;
-  count: number;
-}
-
-export interface ViolationTypeDistribution {
-  items: ViolationTypeStat[];
+  highestSeverity: string;
 }
 
 export interface TutorDashboardResponse {
-  activeExams: ActiveExamSummary[];
-  liveSessions: LiveSessionRow[];
-  violationDistribution: ViolationTypeDistribution;
+  examSummaries: ExamMonitoringSummary[];
+  recentSubmissions: SubmissionRow[];
+  totalSubmissions: number;
+  page: number;
+  pageSize: number;
+  violationTypeDistribution: ViolationTypeStat[];
 }
 
-export interface GlobalExamRow {
+// ─────────────────────────────────────────────────────────────────────────────
+// ADMIN DASHBOARD
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface ExamStatisticsRow {
   examId: string;
   examTitle: string;
   courseTitle: string;
   tutorName: string;
-  studentsInProgress: number;
+  submittedCount: number;
+  forceSubmittedCount: number;
+  inProgressCount: number;
   totalViolations: number;
-}
-
-export interface DailyActivityPoint {
-  date: string;
-  examCount: number;
-  violationCount: number;
 }
 
 export interface AdminDashboardResponse {
   totalActiveCourses: number;
-  totalOngoingExams: number;
-  totalEnrolledStudents: number;
-  totalViolationsToday: number;
-  totalForceSubmittedToday: number;
-  activeExamSessions: GlobalExamRow[];
+  totalCompletedExams: number;
+  totalSubmissions: number;
+  totalViolations: number;
+  forceSubmissionRate: number;
+  examStatistics: ExamStatisticsRow[];
   topViolationTypes: ViolationTypeStat[];
   activityTrend: DailyActivityPoint[];
-  suspiciousSubmissionRatePercent: number;
-}
-
-export interface ReviewDecisionRequest {
-  decision: string; // 'Accepted' | 'MarkedAsCheating' | 'ReAttemptGranted'
-  notes?: string;
-}
-
-export interface ReviewDecisionResponse {
-  decisionId: string;
-  decision: string;
-  notes?: string;
-  reviewedAt: string;
-}
-
-export interface TerminateSessionRequest {
-  reason?: string;
 }
 
 @Injectable({
@@ -127,35 +150,29 @@ export class MonitoringService {
   private http = inject(HttpClient);
   private readonly baseUrl = environment.apiUrl;
 
-  // ── Student ────────────────────────────────────────────────────────────────
-
-  logHeartbeat(attemptId: string): Observable<ApiResponse<string>> {
-    return this.http.post<ApiResponse<string>>(`${this.baseUrl}/api/attempts/${attemptId}/heartbeat`, {});
-  }
-
   // ── Tutor / Admin ──────────────────────────────────────────────────────────
 
-  getTimeline(attemptId: string): Observable<ApiResponse<TimelineEventResponse[]>> {
-    return this.http.get<ApiResponse<TimelineEventResponse[]>>(`${this.baseUrl}/api/attempts/${attemptId}/timeline`);
+  getAttemptTimeline(attemptId: string): Observable<ApiResponse<AttemptTimelineResponse>> {
+    return this.http.get<ApiResponse<AttemptTimelineResponse>>(`${this.baseUrl}/attempts/${attemptId}/timeline`);
   }
 
   getViolationSummary(attemptId: string): Observable<ApiResponse<ViolationSummaryResponse>> {
-    return this.http.get<ApiResponse<ViolationSummaryResponse>>(`${this.baseUrl}/api/attempts/${attemptId}/violations/summary`);
+    return this.http.get<ApiResponse<ViolationSummaryResponse>>(`${this.baseUrl}/attempts/${attemptId}/violations/summary`);
   }
 
-  submitReviewDecision(attemptId: string, request: ReviewDecisionRequest): Observable<ApiResponse<ReviewDecisionResponse>> {
-    return this.http.post<ApiResponse<ReviewDecisionResponse>>(`${this.baseUrl}/api/attempts/${attemptId}/review`, request);
-  }
+  getTutorDashboard(page = 1, pageSize = 10, search = '', status = 'All', examId?: string): Observable<ApiResponse<TutorDashboardResponse>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString());
 
-  terminateSession(attemptId: string, request: TerminateSessionRequest): Observable<ApiResponse<string>> {
-    return this.http.post<ApiResponse<string>>(`${this.baseUrl}/api/attempts/${attemptId}/terminate`, request);
-  }
+    if (search) params = params.set('search', search);
+    if (status && status !== 'All') params = params.set('status', status);
+    if (examId) params = params.set('examId', examId);
 
-  getTutorDashboard(): Observable<ApiResponse<TutorDashboardResponse>> {
-    return this.http.get<ApiResponse<TutorDashboardResponse>>(`${this.baseUrl}/api/monitoring/tutor/dashboard`);
+    return this.http.get<ApiResponse<TutorDashboardResponse>>(`${this.baseUrl}/monitoring/tutor/dashboard`, { params });
   }
 
   getAdminDashboard(): Observable<ApiResponse<AdminDashboardResponse>> {
-    return this.http.get<ApiResponse<AdminDashboardResponse>>(`${this.baseUrl}/api/monitoring/admin/dashboard`);
+    return this.http.get<ApiResponse<AdminDashboardResponse>>(`${this.baseUrl}/monitoring/admin/dashboard`);
   }
 }

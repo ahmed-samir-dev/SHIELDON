@@ -54,6 +54,10 @@ public class CourseEnrollmentConfiguration : IEntityTypeConfiguration<CourseEnro
             .IsUnique()
             .HasDatabaseName("IX_CourseEnrollments_StudentId_CourseId");
 
+        // Performance index for dashboard enrolled-count queries
+        builder.HasIndex(e => new { e.CourseId, e.Status })
+            .HasDatabaseName("IX_CourseEnrollments_CourseId_Status");
+
         // ── FK: Student ─────────────────────────────────────────
         builder.HasOne(e => e.Student)
             .WithMany()

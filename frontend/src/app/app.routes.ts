@@ -117,10 +117,9 @@ export const routes: Routes = [
         title: 'My Grades — SHIELDON'
       },
       {
-        path: 'exam-attempts/:attemptId/manual-review',
-        canActivate: [tutorGuard],
-        loadComponent: () => import('./features/monitoring/manual-review/manual-review').then(m => m.ManualReviewComponent),
-        title: 'Manual Review — SHIELDON'
+        path: 'monitoring/attempts/:attemptId',
+        loadComponent: () => import('./features/monitoring/attempt-detail/attempt-detail').then(m => m.AttemptDetailComponent),
+        title: 'Attempt Timeline — SHIELDON'
       },
       // Dashboards fallback to courses view for now
       {
