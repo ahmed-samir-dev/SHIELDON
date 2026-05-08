@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ProfileService } from '../../core/services/profile.service';
+import { ShepherdService } from '../../core/services/shepherd.service';
 import { UserProfileResponse } from '../../core/models/profile.model';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../../environments/environment';
@@ -15,6 +16,7 @@ import { environment } from '../../../environments/environment';
 })
 export class ProfileComponent implements OnInit {
   private profileService = inject(ProfileService);
+  private shepherdService = inject(ShepherdService);
   private fb = inject(FormBuilder);
   private toastr = inject(ToastrService);
 
@@ -184,6 +186,10 @@ export class ProfileComponent implements OnInit {
         this.toastr.error(msg);
       }
     });
+  }
+
+  replayTour(): void {
+    this.shepherdService.resetTour();
   }
 
   get currentPasswordControl() { return this.changePasswordForm.get('currentPassword')!; }

@@ -15,7 +15,7 @@ public class AIService : IAIService
 {
     private readonly HttpClient    _http;
     private readonly string        _apiKey;
-    private const   string         Model    = "gemini-2.0-flash";
+    private const   string         Model    = "gemini-flash-latest";
     private const   string         BaseUrl  = "https://generativelanguage.googleapis.com/v1beta/models";
 
     // System instruction injected into every conversation so Gemini knows its context.
@@ -58,7 +58,7 @@ public class AIService : IAIService
 
         var requestBody = new
         {
-            system_instruction = new
+            systemInstruction = new
             {
                 parts = new[] { new { text = SystemInstruction } }
             },

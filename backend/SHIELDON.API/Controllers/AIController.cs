@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -45,7 +46,6 @@ public class AIController : ControllerBase
             .ToList();
 
         var reply = await _ai.ChatAsync(request.Message.Trim(), history);
-
         return Ok(ApiResponse<ChatResponse>.Ok(new ChatResponse { Reply = reply }));
     }
 }

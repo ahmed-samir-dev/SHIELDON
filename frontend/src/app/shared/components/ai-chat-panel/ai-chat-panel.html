@@ -10,9 +10,14 @@
       <img src="assets/images/logo.png" alt="SHIELDON Logo" class="ai-logo" />
       <span class="ai-title">SHIELDON Assistant</span>
     </div>
-    <button class="close-btn" (click)="toggleChat()">
-      <lucide-icon [img]="CloseIcon"></lucide-icon>
-    </button>
+    <div class="header-actions">
+      <button class="action-btn new-chat-btn" (click)="aiService.clearHistory()" title="New Chat">
+        <lucide-icon [img]="PlusIcon"></lucide-icon>
+      </button>
+      <button class="action-btn close-btn" (click)="toggleChat()" title="Close">
+        <lucide-icon [img]="CloseIcon"></lucide-icon>
+      </button>
+    </div>
   </div>
 
   <div class="ai-chat-body" #scrollMe>
