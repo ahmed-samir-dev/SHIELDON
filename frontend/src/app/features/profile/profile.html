@@ -100,21 +100,23 @@
         </div>
 
         <!-- Role Badge -->
-        <div class="form-group">
-          <label>Account Role</label>
-          <div class="role-badge">
-            {{ profileData()!.role }}
+        <div class="role-actions-row">  
+          <div class="form-group mb-0">
+            <label>Account Role</label>
+            <div class="role-badge">
+              {{ profileData()!.role }}
+            </div>
           </div>
-        </div>
 
-        <div class="form-actions">
-          <button type="submit" class="btn-primary" [disabled]="profileForm.invalid || isSaving() || !profileForm.dirty">
-            @if (isSaving()) {
-              <span class="btn-spinner"></span> Saving...
-            } @else {
-              Save Changes
-            }
-          </button>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" [disabled]="profileForm.invalid || isSaving() || !profileForm.dirty">
+              @if (isSaving()) {
+                <span class="btn-spinner"></span> Saving...
+              } @else {
+                Save Changes
+              }
+            </button>
+          </div>
         </div>
       </form>
 
@@ -207,4 +209,20 @@
     </div>
 
   }
+    <br><br>
+    <!-- Platform Tour Settings -->
+    <div class="profile-card mt-24">
+      <div class="header-section" style="margin-bottom: 24px;">
+        <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--color-neutral-900);">Platform Tour</h3>
+        <p style="color: var(--color-neutral-500); font-size: 0.875rem;">Need a refresher? Replay the onboarding tour for your dashboard.</p>
+      </div>
+      
+      <div class="form-actions" style="justify-content: flex-end; border-top: none; padding-top: 0; margin-top: 0;">
+        <button type="button" class="btn-primary" (click)="replayTour()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          Replay Platform Tour
+        </button>
+      </div>
+    </div>
+
 </div>

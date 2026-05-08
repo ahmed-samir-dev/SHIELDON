@@ -16,5 +16,6 @@ public record LoginResponse(
     UserRole Role,
     string AccessToken,
     string RefreshToken,
-    DateTime AccessTokenExpiresAt
+    DateTime AccessTokenExpiresAt,
+    bool HasCompletedOnboarding
 );
