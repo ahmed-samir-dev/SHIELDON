@@ -1,66 +1,44 @@
-using SHIELDON.Domain.Enums;
-
 namespace SHIELDON.Application.Features.Monitoring.DTOs;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// REQUESTS
-// ─────────────────────────────────────────────────────────────────────────────
-
-/// <summary>Posted by the student's browser every 15 seconds to confirm they are still active.</summary>
-public class HeartbeatRequest
-{
-    /// <summary>The ExamAttempt ID currently in progress.</summary>
-    public Guid AttemptId { get; set; }
-}
-
-/// <summary>Submitted by a Tutor or Admin to record a manual review decision.</summary>
-public class ReviewDecisionRequest
-{
-    /// <summary>The outcome of the review.</summary>
-    public ReviewDecisionType Decision { get; set; }
-
-    /// <summary>Optional free-text notes explaining the decision.</summary>
-    public string? Notes { get; set; }
-}
-
-/// <summary>Submitted by a Tutor or Admin to immediately terminate an active student session.</summary>
-public class TerminateSessionRequest
-{
-    /// <summary>Optional reason for termination. Will be stored as the PresenceLog Detail.</summary>
-    public string? Reason { get; set; }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// TIMELINE RESPONSES
+// ATTEMPT TIMELINE (replaces the old merged presence+violation timeline)
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// <summary>
-/// A single event in the unified Session Timeline.
-/// Merges PresenceLogs and ViolationLogs into one chronologically sorted list.
+/// Complete info for one finished exam attempt, including all violations.
+/// Returned by GET /api/attempts/{id}/timeline.
 /// </summary>
-public class TimelineEventResponse
+public class AttemptTimelineResponse
 {
-    /// <summary>UTC timestamp of the event.</summary>
+    public Guid AttemptId { get; set; }
+    public string StudentName { get; set; } = string.Empty;
+    public string StudentCode { get; set; } = string.Empty;
+    public string? StudentProfilePictureUrl { get; set; }
+    public string ExamTitle { get; set; } = string.Empty;
+    public string CourseTitle { get; set; } = string.Empty;
+    public DateTime StartedAt { get; set; }
+    public DateTime? SubmittedAt { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public decimal? Score { get; set; }
+    public int TotalViolations { get; set; }
+    public int CriticalCount { get; set; }
+    public int MediumCount { get; set; }
+    public int MinorCount { get; set; }
+    public List<ViolationTimelineEntry> Violations { get; set; } = [];
+}
+
+/// <summary>One violation event in the attempt timeline.</summary>
+public class ViolationTimelineEntry
+{
     public DateTime OccurredAt { get; set; }
-
-    /// <summary>Category: "Presence" or "Violation".</summary>
-    public string Category { get; set; } = string.Empty;
-
-    /// <summary>Human-readable event type (e.g. "ExamStarted", "TabSwitch").</summary>
-    public string EventType { get; set; } = string.Empty;
-
-    /// <summary>Severity level: "Info", "Minor", "Medium", "Critical". Null for presence events.</summary>
-    public string? Severity { get; set; }
-
-    /// <summary>Human-readable description of the event.</summary>
+    public string Type { get; set; } = string.Empty;
+    public string Severity { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-
-    /// <summary>True if this violation was the one that triggered an auto-force-submit.</summary>
     public bool WasAutoSubmit { get; set; }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// VIOLATION SUMMARY
+// VIOLATION SUMMARY (unchanged — used for the chart endpoint)
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// <summary>Aggregate statistics for all violations in one attempt — used for the summary cards row.</summary>
@@ -74,7 +52,7 @@ public class ViolationSummaryResponse
     /// <summary>How the exam ended: "Manual", "ForceSubmitted", "AutoExpired".</summary>
     public string SubmissionType { get; set; } = string.Empty;
 
-    /// <summary>Each violation, grouped for the chart (minute offset → count by severity).</summary>
+    /// <summary>Each violation grouped for the chart (minute offset → count by severity).</summary>
     public List<ViolationChartPoint> ChartData { get; set; } = [];
 
     /// <summary>Full chronological list for the violations table.</summary>
@@ -84,9 +62,7 @@ public class ViolationSummaryResponse
 /// <summary>A single data point for the ECharts violations-over-time chart.</summary>
 public class ViolationChartPoint
 {
-    /// <summary>Minutes elapsed since exam start (X-axis).</summary>
     public int MinuteOffset { get; set; }
-
     public int CriticalCount { get; set; }
     public int MediumCount { get; set; }
     public int MinorCount { get; set; }
@@ -106,46 +82,93 @@ public class ViolationTableRow
 // TUTOR DASHBOARD
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// <summary>Full tutor dashboard payload, covering all active exams and student statuses.</summary>
+/// <summary>Full tutor dashboard payload with per-exam stats and paginated submission history.</summary>
 public class TutorDashboardResponse
 {
-    public List<ActiveExamSummary> ActiveExams { get; set; } = [];
-    public List<LiveSessionRow> LiveSessions { get; set; } = [];
-    public ViolationTypeDistribution ViolationDistribution { get; set; } = new();
+    /// <summary>One summary card per published exam the tutor owns.</summary>
+    public List<ExamMonitoringSummary> ExamSummaries { get; set; } = [];
+
+    /// <summary>Paginated list of recent finished attempts (Submitted/ForceSubmitted/Graded).</summary>
+    public List<SubmissionRow> RecentSubmissions { get; set; } = [];
+
+    public int TotalSubmissions { get; set; }
+    public int Page { get; set; }
+    public int PageSize { get; set; }
+
+    /// <summary>Violation type distribution for the ECharts doughnut chart.</summary>
+    public List<ViolationTypeStat> ViolationTypeDistribution { get; set; } = [];
 }
 
-/// <summary>Summary of one active exam shown in the Active Exams panel.</summary>
-public class ActiveExamSummary
+/// <summary>Per-exam aggregate stats shown as a summary card on the tutor dashboard.</summary>
+public class ExamMonitoringSummary
 {
     public Guid ExamId { get; set; }
     public string ExamTitle { get; set; } = string.Empty;
     public string CourseTitle { get; set; } = string.Empty;
+    public int TotalEnrolled { get; set; }
     public int InProgressCount { get; set; }
     public int SubmittedCount { get; set; }
     public int ForceSubmittedCount { get; set; }
     public int NotStartedCount { get; set; }
+    public int TotalViolations { get; set; }
+    public int CriticalViolations { get; set; }
+    public decimal? AverageScore { get; set; }
 }
 
-/// <summary>One row in the live student status grid.</summary>
-public class LiveSessionRow
+/// <summary>One row in the tutor's recent submissions table.</summary>
+public class SubmissionRow
 {
     public Guid AttemptId { get; set; }
-    public Guid StudentId { get; set; }
     public string StudentName { get; set; } = string.Empty;
     public string StudentCode { get; set; } = string.Empty;
     public string ExamTitle { get; set; } = string.Empty;
-    public string Status { get; set; } = string.Empty;       // InProgress, Disconnected, Submitted, ForceSubmitted
+    public string Status { get; set; } = string.Empty;
+    public DateTime? SubmittedAt { get; set; }
+    public decimal? Score { get; set; }
     public int ViolationCount { get; set; }
-    public DateTime StartedAt { get; set; }
-    public DateTime? LastHeartbeatAt { get; set; }
-    public bool HasReviewDecision { get; set; }
+    public string HighestSeverity { get; set; } = string.Empty;
 }
 
-/// <summary>Violation type distribution for the ECharts doughnut chart.</summary>
-public class ViolationTypeDistribution
+// ─────────────────────────────────────────────────────────────────────────────
+// ADMIN DASHBOARD
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// <summary>Full admin dashboard payload with platform-wide historical stats and analytics.</summary>
+public class AdminDashboardResponse
 {
-    public List<ViolationTypeStat> Items { get; set; } = [];
+    // KPI cards
+    public int TotalActiveCourses { get; set; }
+    public int TotalCompletedExams { get; set; }
+    public int TotalSubmissions { get; set; }
+    public int TotalViolations { get; set; }
+    public decimal ForceSubmissionRate { get; set; }
+
+    /// <summary>All exams with their aggregate stats (paginated on frontend).</summary>
+    public List<ExamStatisticsRow> ExamStatistics { get; set; } = [];
+
+    /// <summary>Top violation types for the ECharts horizontal bar chart.</summary>
+    public List<ViolationTypeStat> TopViolationTypes { get; set; } = [];
+
+    /// <summary>30-day activity trend for the ECharts line chart.</summary>
+    public List<DailyActivityPoint> ActivityTrend { get; set; } = [];
 }
+
+/// <summary>One row in the admin's exam statistics table.</summary>
+public class ExamStatisticsRow
+{
+    public Guid ExamId { get; set; }
+    public string ExamTitle { get; set; } = string.Empty;
+    public string CourseTitle { get; set; } = string.Empty;
+    public string TutorName { get; set; } = string.Empty;
+    public int SubmittedCount { get; set; }
+    public int ForceSubmittedCount { get; set; }
+    public int InProgressCount { get; set; }
+    public int TotalViolations { get; set; }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SHARED TYPES
+// ─────────────────────────────────────────────────────────────────────────────
 
 public class ViolationTypeStat
 {
@@ -153,57 +176,10 @@ public class ViolationTypeStat
     public int Count { get; set; }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// ADMIN DASHBOARD
-// ─────────────────────────────────────────────────────────────────────────────
-
-/// <summary>Full admin dashboard payload with system-wide KPIs and analytics.</summary>
-public class AdminDashboardResponse
-{
-    // KPI cards
-    public int TotalActiveCourses { get; set; }
-    public int TotalOngoingExams { get; set; }
-    public int TotalEnrolledStudents { get; set; }
-    public int TotalViolationsToday { get; set; }
-    public int TotalForceSubmittedToday { get; set; }
-
-    // Global exam monitor table
-    public List<GlobalExamRow> ActiveExamSessions { get; set; } = [];
-
-    // ECharts data
-    public List<ViolationTypeStat> TopViolationTypes { get; set; } = [];
-    public List<DailyActivityPoint> ActivityTrend { get; set; } = [];
-    public decimal SuspiciousSubmissionRatePercent { get; set; }
-}
-
-/// <summary>One row in the admin's global active exam session table.</summary>
-public class GlobalExamRow
-{
-    public Guid ExamId { get; set; }
-    public string ExamTitle { get; set; } = string.Empty;
-    public string CourseTitle { get; set; } = string.Empty;
-    public string TutorName { get; set; } = string.Empty;
-    public int StudentsInProgress { get; set; }
-    public int TotalViolations { get; set; }
-}
-
-/// <summary>One point in the 30-day activity trend chart (X: date, Y: exam count).</summary>
+/// <summary>One point in the 30-day activity trend chart.</summary>
 public class DailyActivityPoint
 {
     public DateOnly Date { get; set; }
     public int ExamCount { get; set; }
     public int ViolationCount { get; set; }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// REVIEW DECISION RESPONSE
-// ─────────────────────────────────────────────────────────────────────────────
-
-/// <summary>Returned after a review decision is saved.</summary>
-public class ReviewDecisionResponse
-{
-    public Guid DecisionId { get; set; }
-    public string Decision { get; set; } = string.Empty;
-    public string? Notes { get; set; }
-    public DateTime ReviewedAt { get; set; }
 }

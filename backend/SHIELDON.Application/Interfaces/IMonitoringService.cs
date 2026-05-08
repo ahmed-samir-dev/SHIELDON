@@ -3,23 +3,17 @@ using SHIELDON.Application.Features.Monitoring.DTOs;
 namespace SHIELDON.Application.Interfaces;
 
 /// <summary>
-/// Defines all monitoring operations for Phase 5.
-/// Implemented in SHIELDON.Infrastructure.Services.MonitoringService.
+/// Defines all monitoring operations for the post-exam analytics dashboard.
+/// Dashboards load on demand when the page is navigated to — no real-time polling.
 /// </summary>
 public interface IMonitoringService
 {
     /// <summary>
-    /// Logs a heartbeat from the student's browser. Updates LastHeartbeatAt on the attempt
-    /// and inserts a HeartbeatReceived PresenceLog entry.
-    /// </summary>
-    Task LogHeartbeatAsync(Guid attemptId, Guid studentId);
-
-    /// <summary>
-    /// Returns the merged, chronologically sorted Session Timeline for one attempt.
-    /// Combines PresenceLogs and ViolationLogs into a unified event stream.
+    /// Returns the full attempt timeline for one finished exam attempt.
+    /// Contains the attempt's info and chronological list of all violations.
     /// Access: Tutor (own course) or Admin only.
     /// </summary>
-    Task<List<TimelineEventResponse>> GetTimelineAsync(Guid attemptId, Guid requesterId, string requesterRole);
+    Task<AttemptTimelineResponse> GetTimelineAsync(Guid attemptId, Guid requesterId, string requesterRole);
 
     /// <summary>
     /// Returns aggregate violation statistics and chart data for one attempt.
@@ -28,28 +22,20 @@ public interface IMonitoringService
     Task<ViolationSummaryResponse> GetViolationSummaryAsync(Guid attemptId, Guid requesterId, string requesterRole);
 
     /// <summary>
-    /// Returns the full tutor dashboard payload: active exams, live student grid,
-    /// and violation distribution data for ECharts.
+    /// Returns the tutor dashboard: per-exam summary cards and paginated submission history.
+    /// Data is computed fresh on each request — no caching or polling.
     /// </summary>
-    Task<TutorDashboardResponse> GetTutorDashboardAsync(Guid tutorId);
+    Task<TutorDashboardResponse> GetTutorDashboardAsync(
+        Guid tutorId,
+        int page = 1,
+        int pageSize = 10,
+        string? search = null,
+        string? status = null,
+        Guid? examId = null);
 
     /// <summary>
-    /// Returns the full admin dashboard payload: system KPIs, global exam monitor,
-    /// ECharts analytics data.
+    /// Returns the admin dashboard: platform-wide KPIs, exam statistics table,
+    /// and ECharts analytics data (violation types, 30-day trend).
     /// </summary>
     Task<AdminDashboardResponse> GetAdminDashboardAsync();
-
-    /// <summary>
-    /// Saves a manual review decision for a suspicious attempt.
-    /// If Decision = MarkedAsCheating → sets the GradeRecord score to 0.
-    /// If Decision = ReAttemptGranted → creates an approved ReattemptRequest.
-    /// </summary>
-    Task<ReviewDecisionResponse> SubmitReviewDecisionAsync(Guid attemptId, ReviewDecisionRequest request, Guid reviewerId);
-
-    /// <summary>
-    /// Immediately force-submits an active student exam session.
-    /// Logs a TutorTerminated PresenceLog entry.
-    /// Used by tutors/admins who spot suspicious live activity in the dashboard.
-    /// </summary>
-    Task TerminateSessionAsync(Guid attemptId, Guid terminatorId, string? reason);
 }

@@ -1,0 +1,214 @@
+<div class="attempt-detail-container">
+
+  <header class="detail-header">
+    <button class="btn-back" (click)="goBack()">
+      <lucide-icon name="ArrowLeft" [size]="16"></lucide-icon>
+      Back
+    </button>
+    <div class="breadcrumb">Exam Analytics / Attempt Timeline</div>
+  </header>
+
+  <!-- Skeleton Loader -->
+  <div *ngIf="loading()" class="skeleton-layout">
+    <div class="skeleton-hero">
+      <div class="skeleton-pulse s-title"></div>
+      <div class="skeleton-pulse s-sub"></div>
+      <div class="skeleton-stats-row">
+        <div class="skeleton-pulse s-stat"></div>
+        <div class="skeleton-pulse s-stat"></div>
+        <div class="skeleton-pulse s-stat"></div>
+        <div class="skeleton-pulse s-stat"></div>
+      </div>
+    </div>
+    <div class="skeleton-body">
+      <div class="skeleton-pulse s-timeline"></div>
+      <div class="skeleton-pulse s-chart"></div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading() && error()" class="error-state">
+    <lucide-icon name="AlertTriangle" [size]="20"></lucide-icon>
+    <span>{{ error() }}</span>
+  </div>
+
+  <ng-container *ngIf="!loading() && !error() && timelineData()">
+
+    <!-- Hero Banner -->
+    <div class="hero-card">
+      <div class="hero-left">
+        <div class="hero-avatar" *ngIf="!timelineData()!.studentProfilePictureUrl">
+          {{ timelineData()!.studentName.charAt(0).toUpperCase() }}
+        </div>
+        <img class="hero-avatar-img" *ngIf="timelineData()!.studentProfilePictureUrl" 
+             [src]="apiUrl + '/' + timelineData()!.studentProfilePictureUrl" 
+             [alt]="timelineData()!.studentName" />
+        <div class="hero-info">
+          <h1 class="hero-name">{{ timelineData()!.studentName }}</h1>
+          <p class="hero-code">{{ timelineData()!.studentCode }}</p>
+          <div class="hero-meta">
+            <span class="hero-meta-item">
+              <lucide-icon name="FileText" [size]="13"></lucide-icon>
+              {{ timelineData()!.examTitle }}
+            </span>
+            <span class="hero-dot">·</span>
+            <span class="hero-meta-item">
+              <lucide-icon name="Monitor" [size]="13"></lucide-icon>
+              {{ timelineData()!.courseTitle }}
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="outcome-badge" [ngClass]="{
+          'outcome-passed': timelineData()!.status === 'Submitted' || timelineData()!.status === 'Graded',
+          'outcome-terminated': timelineData()!.status === 'ForceSubmitted',
+          'outcome-active': timelineData()!.status === 'InProgress'
+        }">
+          <lucide-icon [name]="timelineData()!.status === 'ForceSubmitted' ? 'ShieldAlert' : 'CheckCircle'" [size]="18"></lucide-icon>
+          {{ timelineData()!.status === 'ForceSubmitted' ? 'Force Submitted' : timelineData()!.status }}
+        </div>
+        <div class="hero-score" *ngIf="timelineData()!.score !== null">
+          <span class="score-value">{{ timelineData()!.score | number:'1.0-0' }}<sup>%</sup></span>
+          <span class="score-label">Score</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI Strip -->
+    <div class="kpi-strip">
+      <div class="kpi-tile">
+        <lucide-icon name="Clock" [size]="20" class="kpi-icon indigo"></lucide-icon>
+        <div class="kpi-data">
+          <span class="kpi-val">{{ timelineData()!.startedAt | date:'HH:mm' }}</span>
+          <span class="kpi-lbl">Started</span>
+        </div>
+      </div>
+      <div class="kpi-divider"></div>
+      <div class="kpi-tile">
+        <lucide-icon name="CheckCircle" [size]="20" class="kpi-icon emerald"></lucide-icon>
+        <div class="kpi-data">
+          <span class="kpi-val">{{ timelineData()!.submittedAt ? (timelineData()!.submittedAt | date:'HH:mm') : '—' }}</span>
+          <span class="kpi-lbl">Submitted</span>
+        </div>
+      </div>
+      <div class="kpi-divider"></div>
+      <div class="kpi-tile">
+        <lucide-icon name="AlertTriangle" [size]="20" class="kpi-icon red"></lucide-icon>
+        <div class="kpi-data">
+          <span class="kpi-val">{{ timelineData()!.criticalCount }}</span>
+          <span class="kpi-lbl">Critical</span>
+        </div>
+      </div>
+      <div class="kpi-divider"></div>
+      <div class="kpi-tile">
+        <lucide-icon name="AlertCircle" [size]="20" class="kpi-icon amber"></lucide-icon>
+        <div class="kpi-data">
+          <span class="kpi-val">{{ timelineData()!.mediumCount }}</span>
+          <span class="kpi-lbl">Medium</span>
+        </div>
+      </div>
+      <div class="kpi-divider"></div>
+      <div class="kpi-tile">
+        <lucide-icon name="Activity" [size]="20" class="kpi-icon blue"></lucide-icon>
+        <div class="kpi-data">
+          <span class="kpi-val">{{ timelineData()!.minorCount }}</span>
+          <span class="kpi-lbl">Minor</span>
+        </div>
+      </div>
+      <div class="kpi-divider"></div>
+      <div class="kpi-tile">
+        <lucide-icon name="ShieldAlert" [size]="20" class="kpi-icon slate"></lucide-icon>
+        <div class="kpi-data">
+          <span class="kpi-val">{{ timelineData()!.totalViolations }}</span>
+          <span class="kpi-lbl">Total</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="main-grid">
+
+      <!-- LEFT: Timeline Feed -->
+      <div class="timeline-panel">
+        <div class="panel-header">
+          <lucide-icon name="Activity" [size]="18"></lucide-icon>
+          <h2>Event Timeline</h2>
+          <span class="panel-count">{{ timelineData()!.violations.length }} events</span>
+        </div>
+
+        <div class="timeline-empty" *ngIf="timelineData()!.violations.length === 0">
+          <lucide-icon name="CheckCircle" [size]="40" class="text-green-400"></lucide-icon>
+          <p>No violations recorded for this session.</p>
+        </div>
+
+        <div class="timeline-feed" *ngIf="timelineData()!.violations.length > 0">
+          <!-- Start node -->
+          <div class="tl-node tl-start">
+            <div class="tl-circle start-circle">
+              <lucide-icon name="Clock" [size]="14"></lucide-icon>
+            </div>
+            <div class="tl-connector"></div>
+            <div class="tl-content">
+              <span class="tl-time">{{ timelineData()!.startedAt | date:'HH:mm:ss' }}</span>
+              <span class="tl-label">Exam Started</span>
+            </div>
+          </div>
+
+          <!-- Violation nodes -->
+          <div class="tl-node" *ngFor="let v of timelineData()!.violations" [ngClass]="{
+            'tl-critical': v.type === 'Violation' && v.severity === 'Critical',
+            'tl-medium':   v.type === 'Violation' && v.severity === 'Medium',
+            'tl-minor':    v.type === 'Violation' && v.severity === 'Minor',
+            'tl-system':   v.type !== 'Violation'
+          }">
+            <div class="tl-circle" [ngClass]="getCircleClass(v.type, v.severity)">
+              <lucide-icon [name]="getTimelineIcon(v.type)" [size]="14"></lucide-icon>
+            </div>
+            <div class="tl-connector"></div>
+            <div class="tl-content">
+              <div class="tl-meta">
+                <span class="tl-time">{{ v.occurredAt | date:'HH:mm:ss' }}</span>
+                <span *ngIf="v.type === 'Violation'" class="tl-severity-badge" [ngClass]="getSeverityBadgeClass(v.severity)">
+                  {{ v.severity }}
+                </span>
+                <span *ngIf="v.wasAutoSubmit" class="tl-auto-tag">
+                  <lucide-icon name="ShieldAlert" [size]="10"></lucide-icon>
+                  Auto-Submit
+                </span>
+              </div>
+              <p class="tl-desc">{{ v.description }}</p>
+            </div>
+          </div>
+
+          <!-- End node -->
+          <div class="tl-node tl-end">
+            <div class="tl-circle end-circle" [ngClass]="{
+              'end-terminated': timelineData()!.status === 'ForceSubmitted',
+              'end-done': timelineData()!.status !== 'ForceSubmitted'
+            }">
+              <lucide-icon [name]="timelineData()!.status === 'ForceSubmitted' ? 'ShieldAlert' : 'CheckCircle'" [size]="14"></lucide-icon>
+            </div>
+            <div class="tl-content">
+              <span class="tl-time">{{ timelineData()!.submittedAt ? (timelineData()!.submittedAt | date:'HH:mm:ss') : '—' }}</span>
+              <span class="tl-label">{{ timelineData()!.status === 'ForceSubmitted' ? 'Force Submitted' : 'Exam Submitted' }}</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- RIGHT: Chart -->
+      <div class="chart-panel" *ngIf="summaryData() && summaryData()!.chartData.length > 0">
+        <div class="panel-header">
+          <lucide-icon name="Activity" [size]="18"></lucide-icon>
+          <h2>Violations Over Time</h2>
+        </div>
+        <div class="echarts-wrapper">
+          <div echarts [options]="chartOptions()" class="echarts-el"></div>
+        </div>
+      </div>
+
+    </div>
+
+  </ng-container>
+</div>
