@@ -1,0 +1,1042 @@
+@import '../../../../assets/styles/variables';
+@import '../../../../assets/styles/mixins';
+
+.questions-panel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+  margin-top: $spacing-8;
+  background: transparent;
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* ── Header ────────────────────────────────────────────────────────────── */
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: $spacing-4;
+
+  .header-left {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+  }
+
+  .back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    background: none;
+    border: none;
+    color: $color-neutral-500;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: $color-primary-base;
+    }
+  }
+
+  .title-group {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+
+    h2 {
+      margin: 0;
+      font-size: $font-size-xl;
+      font-weight: $font-weight-bold;
+      color: $color-neutral-900;
+
+      .muted {
+        color: $color-neutral-400;
+        font-weight: $font-weight-medium;
+      }
+    }
+  }
+
+  .post-btn {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($color-primary-base, 0.25);
+    }
+  }
+}
+
+/* ── Status Badges ─────────────────────────────────────────────────────── */
+.status-badge {
+  padding: 4px 10px;
+  border-radius: $border-radius-round;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.draft { background: rgba($color-neutral-400, 0.1); color: $color-neutral-600; }
+  &.published { background: rgba($color-success-base, 0.1); color: $color-success-dark; }
+  &.closed { background: rgba($color-danger-base, 0.1); color: $color-danger-dark; }
+}
+
+/* ✨ NEW: Shared Type & Points Badges (Moved here to work everywhere) */
+.badge {
+  padding: 2px 8px;
+  border-radius: $border-radius-sm;
+  font-size: 12px;
+  font-weight: $font-weight-medium;
+
+  &.badge-primary { background: $color-info-light; color: $color-info-dark; }
+  &.badge-teal { background: $color-success-light; color: $color-success-dark; }
+  &.badge-warning { background: $color-warning-light; color: $color-warning-dark; }
+  &.badge-light { background: $color-neutral-100; color: $color-neutral-600; }
+}
+
+.points-badge {
+  font-size: 12px;
+  color: $color-neutral-600;
+  background: $color-neutral-100;
+  padding: 2px 8px;
+  border-radius: $border-radius-sm;
+  font-weight: $font-weight-medium;
+}
+/* ── Stats Bar ─────────────────────────────────────────────────────────── */
+.stats-bar {
+  display: flex;
+  gap: $spacing-6;
+  padding: $spacing-4 $spacing-6;
+  background: $color-neutral-white;
+  border-radius: $border-radius-xl;
+  box-shadow: $shadow-sm;
+  border: 1px solid $color-neutral-200;
+
+  .stat-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    font-size: $font-size-sm;
+
+    .stat-label {
+      color: $color-neutral-500;
+    }
+    .stat-value {
+      font-weight: $font-weight-bold;
+      color: $color-primary-base;
+      font-size: $font-size-base;
+    }
+  }
+}
+
+/* ── Empty State (Unified with course-exams.scss) ──────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-16 $spacing-6;
+  text-align: center;
+  background: rgba($color-neutral-50, 0.7);
+  border: 2px dashed $color-neutral-200;
+  border-radius: $border-radius-2xl;
+  margin-top: $spacing-4;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: $color-neutral-50;
+    border-color: rgba($color-primary-base, 0.3);
+  }
+
+  .empty-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    background: $color-neutral-white;
+    border-radius: 50%;
+    color: $color-primary-light;
+    margin-bottom: $spacing-5;
+    box-shadow: $shadow-sm;
+    svg {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  h3 {
+    color: $color-neutral-800;
+    margin-bottom: $spacing-2;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+  }
+
+  p {
+    color: $color-neutral-500;
+    font-size: $font-size-base;
+    max-width: 420px;
+  }
+}
+
+/* ── Questions Grid & Cards ────────────────────────────────────────────── */
+.questions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: $spacing-6;
+}
+
+.question-card {
+  position: relative;
+  background: $color-neutral-white;
+  border: 1px solid $color-neutral-200;
+  border-radius: $border-radius-xl;
+  box-shadow: $shadow-sm;
+  padding: $spacing-5 $spacing-6;
+  padding-left: calc(#{$spacing-6} + 4px);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  // Premium accent line identical to course-exams
+  .card-accent {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    background: $color-primary-base;
+    transition: width 0.3s ease;
+  }
+
+  &:hover {
+    box-shadow: 0 12px 24px -8px rgba($color-primary-base, 0.15),
+                0 4px 8px -4px rgba($color-primary-base, 0.08);
+    transform: translateY(-4px) scale(1.01);
+    border-color: rgba($color-primary-base, 0.4);
+    
+    .card-accent { width: 6px; }
+  }
+
+  .q-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-4;
+    padding-bottom: $spacing-3;
+    border-bottom: 1px solid $color-neutral-100;
+  }
+
+  .q-left {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+
+    .q-number {
+      font-weight: $font-weight-bold;
+      color: $color-neutral-900;
+      font-size: $font-size-base;
+    }
+  }
+
+  /* Unified Modern Action Buttons */
+  .q-actions {
+    display: flex;
+    gap: $spacing-2;
+
+    .modern-action-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: $spacing-2;
+      height: 32px;
+      padding: 0 $spacing-3;
+      border-radius: $border-radius-md;
+      border: none;
+      background: $color-neutral-50;
+      font-family: $font-family-primary;
+      font-size: $font-size-xs;
+      font-weight: $font-weight-medium;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+      svg { transition: transform 0.2s ease; }
+
+      &:hover {
+        transform: translateY(-1px);
+        svg { transform: scale(1.1); }
+      }
+
+      &.edit {
+        color: $color-primary-base;
+        background: rgba($color-primary-base, 0.08);
+        &:hover { 
+          background: $color-primary-base; 
+          color: $color-neutral-white; 
+          box-shadow: 0 4px 10px rgba($color-primary-base, 0.2);
+        }
+      }
+
+      &.delete {
+        color: $color-danger-base;
+        background: rgba($color-danger-base, 0.08);
+        &:hover { 
+          background: $color-danger-base; 
+          color: $color-neutral-white; 
+          box-shadow: 0 4px 10px rgba($color-danger-base, 0.2);
+        }
+      }
+    }
+  }
+
+  .q-body {
+    .q-text {
+      margin: 0 0 $spacing-4 0;
+      color: $color-neutral-800;
+      font-size: $font-size-base;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+  }
+}
+
+/* ── Modal Details Styling ──────────────────────────────────────────────── */
+.details-body {
+  .details-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-4;
+  }
+
+  .details-text-box {
+    margin-bottom: $spacing-6;
+    padding: $spacing-4;
+    background: $color-neutral-50;
+    border-radius: $border-radius-lg;
+    border: 1px solid $color-neutral-200;
+
+    p {
+      margin: 0;
+      color: $color-neutral-800;
+      font-size: $font-size-base;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+  }
+
+  .q-options {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2;
+
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: $spacing-3;
+      padding: $spacing-3;
+      border-radius: $border-radius-md;
+      background: $color-neutral-50;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+
+      &.correct {
+        background: rgba($color-success-base, 0.05);
+        border-color: rgba($color-success-base, 0.3);
+        
+        .opt-text {
+          color: $color-success-dark;
+          font-weight: $font-weight-medium;
+        }
+      }
+
+      .opt-indicator {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .opt-bullet {
+          width: 8px;
+          height: 8px;
+          background: $color-neutral-300;
+          border-radius: 50%;
+        }
+
+        svg {
+          color: $color-success-base;
+        }
+      }
+
+      .opt-text {
+        flex: 1;
+        color: $color-neutral-600;
+        font-size: $font-size-sm;
+      }
+
+      .correct-badge {
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: $font-weight-bold;
+        color: $color-success-dark;
+        background: $color-success-light;
+        padding: 2px 8px;
+        border-radius: $border-radius-sm;
+      }
+    }
+  }
+
+  .short-answer-placeholder {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    color: $color-warning-dark;
+    background: $color-warning-light;
+    padding: $spacing-3 $spacing-4;
+    border-radius: $border-radius-md;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.details-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: $spacing-3;
+
+  .btn-modern {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-2;
+    height: 40px;
+    padding: 0 $spacing-5;
+    border-radius: $border-radius-md;
+    font-family: $font-family-primary;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+
+    svg {
+      transition: transform 0.2s ease;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      svg { transform: scale(1.1); }
+    }
+
+    &.edit-btn {
+      background: $color-primary-base;
+      color: $color-neutral-white;
+      box-shadow: 0 4px 10px rgba($color-primary-base, 0.25);
+      
+      &:hover {
+        background: $color-primary-dark;
+        box-shadow: 0 6px 14px rgba($color-primary-base, 0.35);
+      }
+    }
+
+    &.close-btn {
+      background: $color-neutral-200;
+      color: $color-neutral-700;
+
+      &:hover {
+        background: $color-neutral-300;
+        color: $color-neutral-900;
+      }
+    }
+  }
+}
+
+
+/* ── Pagination Controls ────────────────────────────────────────────────── */
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-4;
+  margin-top: $spacing-6;
+  padding: $spacing-4 0;
+  border-top: 1px solid $color-neutral-200;
+
+  .page-info {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    color: $color-neutral-600;
+  }
+
+  .btn-pagination {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: $spacing-2 $spacing-4;
+    background: $color-neutral-white;
+    border: 1px solid $color-neutral-300;
+    border-radius: $border-radius-md;
+    color: $color-neutral-700;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      background: $color-neutral-50;
+      border-color: $color-primary-light;
+      color: $color-primary-base;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: $color-neutral-50;
+    }
+  }
+}
+
+/* ── Modal Options Management ──────────────────────────────────────────── */
+.options-section {
+  background: $color-neutral-50;
+  padding: $spacing-5;
+  border-radius: $border-radius-lg;
+  border: 1px solid $color-neutral-200;
+  margin-top: $spacing-4;
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: $spacing-4;
+    
+    label { margin: 0; }
+  }
+
+  .options-list {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-3;
+  }
+
+  .option-row {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    background: $color-neutral-white;
+    padding: $spacing-2 $spacing-3;
+    border-radius: $border-radius-md;
+    border: 1px solid $color-neutral-200;
+    transition: all 0.2s ease;
+
+    &.is-correct {
+      border-color: $color-success-base;
+      box-shadow: 0 0 0 1px $color-success-base;
+      background: rgba($color-success-base, 0.02);
+    }
+
+    .radio-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      input[type="radio"] {
+        width: 18px;
+        height: 18px;
+        accent-color: $color-success-base;
+        cursor: pointer;
+      }
+    }
+
+    .input-wrapper {
+      border: none;
+      padding: 0;
+      background: transparent;
+      box-shadow: none;
+      
+      input {
+        background: transparent;
+        border-bottom: 1px solid transparent;
+        padding: 6px 0;
+        
+        &:focus {
+          border-bottom-color: $color-primary-base;
+        }
+      }
+    }
+  }
+
+  .true-false-toggles {
+    display: flex;
+    gap: $spacing-3;
+    margin-top: $spacing-3;
+
+    .tf-btn {
+      flex: 1;
+      cursor: pointer;
+      
+      .tf-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-2;
+        padding: $spacing-3;
+        background: $color-neutral-white;
+        border: 2px solid $color-neutral-200;
+        border-radius: $border-radius-md;
+        color: $color-neutral-500;
+        font-weight: $font-weight-medium;
+        transition: all 0.3s ease;
+      }
+
+      &:hover .tf-content {
+        border-color: $color-primary-light;
+        color: $color-neutral-700;
+      }
+
+      &.selected .tf-content {
+        background: $color-primary-base;
+        border-color: $color-primary-base;
+        color: $color-neutral-white;
+        box-shadow: $shadow-md;
+      }
+    }
+  }
+}
+
+/* ── Modal UI Enhancements & Fixes ──────────────────────────────────────── */
+
+.custom-modal-overlay { z-index: 9999 !important; }
+
+.custom-modal-container {
+  background-color: $color-neutral-white !important;
+  &.wide-modal { max-width: 850px; }
+}
+
+.modal-body {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 20px !important; /* ✨ PERFECT UNIFORM SPACING BETWEEN ALL ROWS */
+  max-height: calc(100vh - 120px) !important; 
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  
+  /* ✨ Force the gray footer to stretch perfectly to the bottom edges */
+  .modal-footer {
+    margin: auto -24px -24px -24px !important; 
+    padding: 16px 24px !important;
+    background: $color-neutral-50;
+    border-top: 1px solid $color-neutral-200;
+  }
+}
+
+/* ── Top Layout Grid ── */
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  @media (min-width: 640px) {
+    &.two-col-equal {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: $spacing-4;
+    }
+  }
+}
+
+/* ── Explicit Form Field Styling (Modern UI) ── */
+.modal-body {
+  .form-group {
+    margin-bottom: 0 !important; /* ✨ KILLS THE INHERITED DEAD SPACING */
+    
+    label {
+      display: block;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-semibold;
+      color: $color-neutral-800;
+      margin-bottom: $spacing-2;
+      .required { color: $color-danger-base; }
+    }
+
+    .input-wrapper:not(.full-width) {
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      .input-icon {
+        position: absolute;
+        left: $spacing-3;
+        color: $color-neutral-400;
+        pointer-events: none;
+        z-index: 5 !important;
+        transition: color 0.3s ease;
+      }
+
+      input[type="text"], input[type="number"], textarea, select {
+        width: 100%;
+        padding: $spacing-3 $spacing-3 $spacing-3 40px !important;
+        border: 1px solid transparent !important;
+        border-radius: $border-radius-lg !important;
+        font-family: inherit;
+        font-size: $font-size-sm;
+        color: $color-neutral-900;
+        background: $color-neutral-100 !important;
+        transition: all 0.3s ease;
+        box-shadow: none !important;
+        outline: none !important;
+
+        &:hover { background: $color-neutral-200 !important; }
+        &:focus {
+          background: $color-neutral-white !important;
+          border-color: rgba($color-primary-base, 0.5) !important;
+          box-shadow: 0 0 0 4px rgba($color-primary-base, 0.1) !important;
+        }
+
+        /* ✨ NEW: Sleek disabled state for Edit Mode */
+        &:disabled {
+          background: rgba($color-neutral-200, 0.4) !important;
+          color: $color-neutral-500 !important;
+          cursor: not-allowed;
+          border-color: transparent !important;
+          box-shadow: none !important;
+        }
+      }
+
+      &:focus-within .input-icon { color: $color-primary-base; }
+    }
+
+    &.full-width-text {
+      textarea { min-height: 80px; resize: vertical; padding-top: 14px !important; }
+      .text-area-wrapper { 
+        position: relative;
+        .input-icon { top: 14px; margin-top: 0; transform: none; }
+      }
+    }
+  }
+}
+
+/* ── Modern Dropdown Select Wrapper ── */
+.select-wrapper {
+  position: relative;
+  
+  select {
+    width: 100%;
+    appearance: none;
+    padding-right: $spacing-10 !important;
+    cursor: pointer;
+    
+    /* Modern styling upgrades */
+    background-color: $color-neutral-white !important;
+    border: 2px solid $color-neutral-200 !important;
+    font-weight: $font-weight-semibold !important;
+    color: $color-primary-dark !important;
+    box-shadow: $shadow-sm !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    position: relative;
+    z-index: 2;
+
+    &:hover:not(:disabled) {
+      border-color: rgba($color-primary-base, 0.4) !important;
+      box-shadow: 0 4px 12px rgba($color-primary-base, 0.08) !important;
+      transform: translateY(-1px);
+    }
+    
+    &:focus:not(:disabled) {
+      border-color: $color-primary-base !important;
+      box-shadow: 0 0 0 4px rgba($color-primary-base, 0.15) !important;
+      background-color: $color-neutral-white !important;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Highlight the left icon to match the text */
+  .input-icon {
+    color: $color-primary-base !important;
+    z-index: 3 !important;
+  }
+
+  .chevron {
+    position: absolute;
+    right: $spacing-4;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: $color-neutral-500;
+    z-index: 3;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  /* Flip the chevron arrow when the dropdown is clicked/focused */
+  &:focus-within .chevron { 
+    color: $color-primary-base; 
+    transform: translateY(-50%) rotate(180deg);
+  }
+}
+
+
+
+/* ── Dynamic Options Area ── */
+.dynamic-options-area {
+  /* Removed min-height so elements elegantly move up and down with the options! */
+  
+  .options-section {
+    background: transparent;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+
+    .modern-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: $spacing-4;
+      
+      .modern-label {
+        display: flex;
+        align-items: center;
+        gap: $spacing-2;
+        font-size: $font-size-base;
+        font-weight: $font-weight-bold;
+        color: $color-neutral-900;
+        margin: 0;
+        svg { color: $color-primary-base; }
+      }
+
+      .modern-ghost-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-2;
+        padding: 6px 14px;
+        background: rgba($color-primary-base, 0.08);
+        color: $color-primary-base;
+        border: none;
+        border-radius: $border-radius-md;
+        font-size: $font-size-sm;
+        font-weight: $font-weight-semibold;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: $color-primary-base;
+          color: $color-neutral-white;
+          transform: translateY(-1px);
+        }
+      }
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: $spacing-3;
+      @media (min-width: 640px) {
+        grid-template-columns: repeat(2, 1fr); 
+      }
+    }
+
+    .option-row {
+      display: flex;
+      align-items: center;
+      gap: $spacing-3;
+      background: rgba($color-neutral-100, 0.5);
+      padding: $spacing-2 $spacing-3;
+      border-radius: $border-radius-lg;
+      border: 1px solid transparent;
+      transition: all 0.3s ease;
+
+      &.is-correct {
+        background: rgba($color-success-base, 0.08);
+        border: 1px solid rgba($color-success-base, 0.4);
+      }
+
+      .custom-radio-wrapper {
+        position: relative;
+        display: inline-flex;
+        cursor: pointer;
+        margin-top: 2px;
+        
+        input[type="radio"] {
+          position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0;
+          &:checked ~ .radio-circle {
+            background-color: $color-success-base;
+            border-color: $color-success-base;
+            &::after { display: block; }
+          }
+        }
+
+        .radio-circle {
+          height: 20px; width: 20px;
+          background-color: $color-neutral-white;
+          border: 2px solid $color-neutral-300;
+          border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          transition: all 0.2s ease;
+
+          &::after {
+            content: ""; display: none;
+            width: 8px; height: 8px;
+            border-radius: 50%; background: white;
+          }
+        }
+        &:hover .radio-circle { border-color: $color-success-base; }
+      }
+
+      .input-wrapper.full-width {
+        flex: 1; 
+        input[type="text"] {
+          width: 100%;
+          padding: 8px 12px !important;
+          border: 1px solid $color-neutral-200 !important;
+          border-radius: $border-radius-md !important;
+          background: $color-neutral-white !important;
+          outline: none !important;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;
+          transition: all 0.2s ease;
+          
+          &:focus { 
+            border-color: rgba($color-primary-base, 0.5) !important; 
+            box-shadow: 0 0 0 3px rgba($color-primary-base, 0.15) !important;
+          }
+        }
+      }
+
+      .remove-btn {
+        flex-shrink: 0; margin-left: auto; 
+        display: flex; align-items: center; justify-content: center;
+        width: 28px; height: 28px;
+        background: transparent; color: $color-neutral-400;
+        border: none; border-radius: $border-radius-sm; cursor: pointer;
+        transition: all 0.2s ease;
+        &:hover { background: rgba($color-danger-base, 0.1); color: $color-danger-base; }
+      }
+
+      /* ✨ True/False Static Text Styling */
+      .tf-static-text {
+        padding: 8px 12px;
+        
+        .tf-text {
+          display: flex;
+          align-items: center;
+          gap: $spacing-2;
+          font-weight: $font-weight-medium;
+          font-size: $font-size-sm;
+          color: $color-neutral-800;
+
+          &.success svg { color: $color-success-base; }
+          &.danger svg { color: $color-danger-base; }
+        }
+      }
+    }
+  }
+}
+
+/* ✨ Modern Instruction Banner */
+.modern-instruction {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  margin-top: 16px; 
+  padding: $spacing-3 $spacing-4;
+  background: rgba($color-info-base, 0.08); 
+  border-radius: $border-radius-md;
+  border-left: 4px solid $color-primary-base;
+  
+  .icon-pulse {
+    color: $color-primary-base;
+    animation: pulseGlow 2s infinite; 
+    border-radius: 50%;
+    display: flex;
+  }
+  
+  .instruction-text {
+    margin: 0;
+    font-size: $font-size-sm;
+    color: $color-neutral-700;
+    .highlight { color: $color-primary-dark; font-weight: $font-weight-bold;}
+  }
+
+  /* ✨ NEW: Warning theme for the Edit Mode locked banner */
+  &.warning {
+    background: rgba($color-warning-base, 0.08);
+    border-left-color: $color-warning-base;
+    .icon-pulse {
+      color: $color-warning-dark;
+      animation: none; /* Disable pulsing for locked state */
+    }
+    .instruction-text .highlight {
+      color: $color-warning-dark;
+    }
+  }
+}
+
+/* ✨ Premium Toggle Switch Card */
+.modern-toggle-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-4;
+  background: $color-neutral-white;
+  border: 1px solid $color-neutral-200;
+  border-radius: $border-radius-lg;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    border-color: rgba($color-primary-base, 0.4);
+    box-shadow: $shadow-sm;
+  }
+
+  .toggle-content {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+
+    .toggle-icon {
+      display: flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px;
+      background: rgba($color-primary-base, 0.08);
+      color: $color-primary-base;
+      border-radius: $border-radius-md;
+    }
+
+    .toggle-text {
+      display: flex; flex-direction: column; gap: 2px;
+      .title { font-size: $font-size-sm; font-weight: $font-weight-bold; color: $color-neutral-900; }
+      .desc { font-size: 12px; color: $color-neutral-500; line-height: 1.4; }
+    }
+  }
+
+  .toggle-switch {
+    position: relative;
+    width: 44px; height: 24px;
+    flex-shrink: 0;
+    
+    .hidden-toggle {
+      opacity: 0; width: 0; height: 0;
+      &:checked + .slider { background-color: $color-success-base; }
+      &:checked + .slider:before { transform: translateX(20px); }
+    }
+    
+    .slider {
+      position: absolute; cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: $color-neutral-300; transition: .4s;
+      border-radius: 24px;
+      
+      &:before {
+        position: absolute; content: "";
+        height: 18px; width: 18px; left: 3px; bottom: 3px;
+        background-color: white; transition: .4s;
+        border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      }
+    }
+  }
+}

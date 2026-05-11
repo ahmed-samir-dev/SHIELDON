@@ -9,6 +9,8 @@ public record UserProfileResponse(
     string Email,
     string? ProfilePictureUrl,
     UserRole Role,
+    string? DisplayId,
+    AccountStatus AccountStatus,
     DateTime CreatedAt
 );
 

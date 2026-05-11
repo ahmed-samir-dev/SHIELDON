@@ -57,6 +57,10 @@ public class User
     /// <summary>UTC timestamp when the user's email was successfully verified.</summary>
     public DateTime? EmailVerifiedAt { get; set; }
 
+    // ── Onboarding ─────────────────────────────────────────────
+    /// <summary>Set to true once the user completes or dismisses the first-login Shepherd.js tour.</summary>
+    public bool HasCompletedOnboarding { get; set; } = false;
+
     // ── Timestamps ─────────────────────────────────────────────
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

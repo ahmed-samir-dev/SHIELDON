@@ -85,7 +85,7 @@ export class Login {
   private _getDashboardRoute(role: UserRole): string {
     switch (role) {
       case UserRole.Admin: return '/admin/dashboard';
-      case UserRole.Tutor: return '/tutor/dashboard';
+      case UserRole.Tutor: return '/courses';
       case UserRole.Student: return '/student/dashboard';
       default: return '/';
     }

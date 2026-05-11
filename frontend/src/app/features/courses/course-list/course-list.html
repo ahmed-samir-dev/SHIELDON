@@ -1,0 +1,223 @@
+<div class="page-header">
+  <div class="header-content">
+    <h1>Courses</h1>
+    <p class="subtitle">Manage and explore learning paths</p>
+  </div>
+  
+  <div class="header-actions">
+    <div class="search-box">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" placeholder="Search courses..." [(ngModel)]="query.search" (keyup.enter)="onSearchChange()">
+    </div>
+    
+    @if (authService.isAdmin()) {
+      <button class="btn btn-primary" (click)="openCreateModal()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+        New Course
+      </button>
+    }
+  </div>
+</div>
+
+<!-- Admin/Tutor Status Filter -->
+@if (authService.isAdmin() || authService.isTutor()) {
+  <div class="filter-tabs">
+    <button class="tab-btn" [class.active]="query.isActive === null || query.isActive === undefined" (click)="query.isActive = undefined; onSearchChange()">All</button>
+    <button class="tab-btn" [class.active]="query.isActive === true" (click)="query.isActive = true; onSearchChange()">Active</button>
+    <button class="tab-btn" [class.active]="query.isActive === false" (click)="query.isActive = false; onSearchChange()">Archived</button>
+  </div>
+}
+
+<!-- Student Enrollment Filter -->
+@if (authService.isStudent()) {
+  <div class="filter-tabs">
+    <button class="tab-btn" [class.active]="query.enrollmentStatus === 'enrolled'" (click)="setStudentFilter('enrolled')">Enrolled</button>
+    <button class="tab-btn" [class.active]="query.enrollmentStatus === 'pending'" (click)="setStudentFilter('pending')">Pending</button>
+    <button class="tab-btn" [class.active]="query.enrollmentStatus === 'unenrolled'" (click)="setStudentFilter('unenrolled')">Available to Enroll</button>
+    <button class="tab-btn" [class.active]="query.enrollmentStatus === null || query.enrollmentStatus === undefined" (click)="setStudentFilter('all')">All Courses</button>
+  </div>
+}
+
+<div class="course-grid" [class.loading]="isLoading()">
+  @if (!isLoading() && courses().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 8-4 8 4"/><path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2"/><path d="M14 22v-4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v4"/><path d="M18 5v17"/><path d="M6 5v17"/><circle cx="12" cy="9" r="2"/></svg>
+      </div>
+      <h3>No courses found</h3>
+      <p>There are no courses matching your current filters.</p>
+    </div>
+  }
+
+  @for (course of courses(); track course.id) {
+    <div class="course-card" [class.archived]="!course.isActive">
+      <div class="card-glass-effect"></div>
+      
+      <div class="card-header">
+        <span class="course-code">{{ course.courseCode }}</span>
+        @if (course.isActive) {
+          <span class="status-badge active">Active</span>
+        } @else {
+          <span class="status-badge archived">Archived</span>
+        }
+      </div>
+      
+      <div class="card-body">
+        <h3 class="course-title">{{ course.title }}</h3>
+        <p class="course-desc">{{ course.description || 'No description provided.' }}</p>
+        
+        <div class="course-meta">
+          <div class="meta-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>{{ course.enrolledStudentCount }} Enrolled</span>
+          </div>
+          @if (course.assignedTutorName) {
+            <div class="meta-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              <span>{{ course.assignedTutorName }}</span>
+            </div>
+          }
+        </div>
+      </div>
+      
+      <div class="card-footer">
+        <!-- Always available to view details -->
+        <a [routerLink]="['/courses', course.id]" class="btn-link">View Hub</a>
+        
+        <div class="action-buttons">
+          @if (authService.isStudent() && course.isActive) {
+            @if (getEnrollmentStatus(course.id) === 'Approved') {
+              <span class="status-badge active" style="align-self: center; margin-right: 4px;">Enrolled</span>
+            } @else if (getEnrollmentStatus(course.id) === 'Pending') {
+              <button class="btn btn-sm btn-outline" disabled style="opacity:0.6; cursor:not-allowed;">Pending</button>
+            } @else {
+              <button class="btn btn-sm btn-outline" (click)="requestEnrollment(course.id)">Enroll</button>
+            }
+          }
+          @if (canManageCourse(course)) {
+            <button class="btn btn-sm btn-icon" (click)="openEditModal(course)" title="Edit Course">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            </button>
+            <button class="btn btn-sm btn-icon" (click)="setCourseStatus(course, !course.isActive)" [title]="course.isActive ? 'Archive Course' : 'Publish Course'">
+              @if (course.isActive) {
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="5" x="2" y="4" rx="2"/><path d="M4 9v9a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9"/><path d="M10 13h4"/></svg>
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.2 8.4c.5.38.8.97.8 1.6v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10a2 2 0 0 1 .8-1.6l8-6a2 2 0 0 1 2.4 0l8 6Z"/><path d="m22 10-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 10"/></svg>
+              }
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Pagination Controls -->
+@if (!isLoading() && totalPages() > 1) {
+  <div class="pagination-container">
+    <button class="btn btn-secondary btn-sm" (click)="prevPage()" [disabled]="currentPage() === 1">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      Previous
+    </button>
+    <span class="page-info">Page {{ currentPage() }} of {{ totalPages() }}</span>
+    <button class="btn btn-secondary btn-sm" (click)="nextPage()" [disabled]="currentPage() === totalPages()">
+      Next
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+  </div>
+}
+
+<!-- ── ELEGANT COURSE FORM MODAL ── -->
+@if (isModalOpen()) {
+  <div class="custom-modal-overlay fadeIn animated">
+    <div class="custom-modal-container slideUp animated">
+      
+      <div class="modal-header">
+        <div class="modal-title-wrapper">
+          <div class="icon-box">
+            @if (modalMode() === 'create') {
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            }
+          </div>
+          <h2>{{ modalMode() === 'create' ? 'Create New Course' : 'Edit Course' }}</h2>
+        </div>
+        <button class="close-btn" (click)="closeModal()" aria-label="Close modal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <form [formGroup]="courseForm" (ngSubmit)="submitCourseForm()" class="modal-body">
+        
+        <!-- Grid layout for title and code -->
+        <div class="form-row two-col">
+          <!-- Course Title -->
+          <div class="form-group">
+            <label>Course Title <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+              <input type="text" formControlName="title" placeholder="e.g. Introduction to Security" 
+                     [class.is-invalid]="courseForm.get('title')?.invalid && courseForm.get('title')?.touched">
+            </div>
+            @if (courseForm.get('title')?.invalid && courseForm.get('title')?.touched) {
+              <span class="error-msg">Title implies at least 3 characters.</span>
+            }
+          </div>
+
+          <!-- Course Code -->
+          <div class="form-group">
+            <label>Course Code <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></svg>
+              <input type="text" formControlName="courseCode" placeholder="e.g. SEC101" 
+                     [class.is-invalid]="courseForm.get('courseCode')?.invalid && courseForm.get('courseCode')?.touched">
+            </div>
+            @if (courseForm.get('courseCode')?.invalid && courseForm.get('courseCode')?.touched) {
+              <span class="error-msg">Course Code is required.</span>
+            }
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label>Course Description</label>
+          <div class="input-wrapper text-area-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            <textarea formControlName="description" placeholder="What will students learn in this course?" rows="3"></textarea>
+          </div>
+        </div>
+
+        <!-- Assign Tutor -->
+        <div class="form-group">
+          <label>Assign Tutor</label>
+          <div class="input-wrapper select-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <select formControlName="assignedTutorId">
+              <option value="" disabled selected hidden>-- Unassigned --</option>
+              @for (tutor of tutors(); track tutor.id) {
+                <option [value]="tutor.id">{{ tutor.fullName }} ({{ tutor.email }})</option>
+              }
+            </select>
+            <div class="chevron">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Footer Actions -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()" [disabled]="isSubmitting()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="isSubmitting()">
+            @if (isSubmitting()) {
+              <div class="loader-ring"></div> Saving...
+            } @else {
+              {{ modalMode() === 'create' ? 'Publish Course' : 'Save Changes' }}
+            }
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+}

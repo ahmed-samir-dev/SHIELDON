@@ -1,0 +1,592 @@
+@import '../../../../assets/styles/variables';
+@import '../../../../assets/styles/mixins';
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Assignments Component Styles
+// ─────────────────────────────────────────────────────────────────────────────
+
+.assignments-container {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+  margin-top: $spacing-8;
+  // animation: fadeIn 0.4s ease-out forwards;
+}
+
+// ── Header ──────────────────────────────────────────────────────────────────
+.assignments-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 1px solid $color-neutral-200;
+  padding-bottom: $spacing-4;
+
+  .header-title {
+    h2 {
+      font-size: $font-size-xl;
+      color: $color-neutral-900;
+      margin-bottom: $spacing-1;
+      font-weight: $font-weight-bold;
+    }
+    .subtitle {
+      font-size: $font-size-sm;
+      color: $color-neutral-500;
+    }
+  }
+
+  .post-btn {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($color-primary-base, 0.25);
+    }
+  }
+}
+
+// ── Loading & Empty States ──────────────────────────────────────────────────
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-12 0;
+  gap: $spacing-4;
+  color: $color-neutral-500;
+
+  &.compact {
+    padding: $spacing-6 0;
+    flex-direction: row;
+    gap: $spacing-2;
+  }
+  
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba($color-primary-base, 0.2);
+    border-top-color: $color-primary-base;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  .spinner-sm {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba($color-primary-base, 0.2);
+    border-top-color: $color-primary-base;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-12 $spacing-6;
+  text-align: center;
+  border: 2px dashed $color-neutral-200;
+  border-radius: $border-radius-xl;
+  background: linear-gradient(180deg, $color-neutral-50 0%, rgba($color-neutral-white, 0.4) 100%);
+  animation: fadeIn 0.5s ease-out;
+
+  .empty-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: rgba($color-primary-base, 0.1);
+    color: $color-primary-base;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: $spacing-5;
+    
+    svg {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  h3 {
+    font-size: $font-size-lg;
+    color: $color-neutral-800;
+    margin-bottom: $spacing-2;
+    font-weight: $font-weight-semibold;
+  }
+
+  p {
+    color: $color-neutral-500;
+    max-width: 400px;
+  }
+}
+
+// ── Assignments Feed & Cards ────────────────────────────────────────────────
+.assignments-feed {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+}
+
+.assignment-card {
+  position: relative;
+  background: $color-neutral-white;
+  border: 1px solid $color-neutral-200;
+  border-radius: $border-radius-xl;
+  box-shadow: $shadow-sm;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+
+  // Nice premium side-accent line
+  .card-accent {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: $color-primary-base;
+    transition: width 0.3s ease;
+  }
+
+  &:hover {
+    box-shadow: $shadow-md;
+    transform: translateY(-2px);
+    border-color: rgba($color-primary-base, 0.3);
+    
+    .card-accent {
+      width: 6px;
+    }
+  }
+
+  .card-body {
+    padding: $spacing-5 $spacing-6;
+    padding-left: calc(#{$spacing-6} + 4px); // Room for accent
+  }
+
+  // Header 
+  .card-top {
+    display: flex;
+    align-items: flex-start;
+    gap: $spacing-4;
+    margin-bottom: $spacing-4;
+
+    .assign-icon {
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      border-radius: $border-radius-lg;
+      background: rgba($color-primary-base, 0.1);
+      color: $color-primary-base;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .assign-meta {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-2;
+      align-items: flex-start; // Due badge goes on new line
+
+      .assign-title {
+        font-size: $font-size-lg;
+        font-weight: $font-weight-semibold;
+        color: $color-neutral-900;
+        margin: 0;
+        line-height: 1.3;
+      }
+
+      .due-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: $spacing-1;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: $font-weight-medium;
+        
+        &.badge-due {
+          background: rgba($color-primary-base, 0.1);
+          color: $color-primary-dark;
+        }
+        &.badge-due-soon {
+          background: rgba(#f59e0b, 0.1); // Amber
+          color: #d97706;
+        }
+        &.badge-past-due {
+          background: rgba($color-danger-base, 0.1);
+          color: $color-danger-dark;
+        }
+      }
+    }
+
+    .card-actions {
+      display: flex;
+      gap: $spacing-2;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+  }
+
+  &:hover .card-top .card-actions {
+    opacity: 1;
+  }
+
+  
+
+  
+  // Instructions
+  .assign-instructions {
+    color: $color-neutral-600;
+    line-height: 1.6;
+    margin-bottom: $spacing-4;
+    white-space: pre-wrap;
+    font-size: 0.95rem;
+  }
+
+  // Reference File Chip
+  .reference-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: $spacing-2 $spacing-3;
+    background: $color-neutral-50;
+    border: 1px solid $color-neutral-200;
+    border-radius: $border-radius-md;
+    margin-bottom: $spacing-5;
+    font-size: $font-size-sm;
+    color: $color-neutral-700;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: $color-neutral-100;
+      border-color: $color-neutral-300;
+    }
+
+    .chip-action {
+      margin-left: $spacing-2;
+      border: none;
+      background: none;
+      color: $color-primary-base;
+      font-weight: $font-weight-medium;
+      padding: 0;
+      cursor: pointer;
+      font-size: $font-size-sm;
+      
+      &:hover { text-decoration: underline; }
+    }
+  }
+
+  // Footer (Created by / date)
+  .card-footer {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding-top: $spacing-4;
+    border-top: 1px solid $color-neutral-100;
+    font-size: $font-size-sm;
+    color: $color-neutral-500;
+
+    .meta-author, .meta-date {
+      display: flex;
+      align-items: center;
+      gap: $spacing-1;
+    }
+    .meta-author {
+      font-weight: $font-weight-medium;
+      color: $color-neutral-700;
+    }
+  }
+}
+
+
+
+// ── Student Submission Area ─────────────────────────────────────────────────
+.student-submission-area {
+  margin: $spacing-4 0 $spacing-5;
+  padding: $spacing-4;
+  background: $color-neutral-50;
+  border-radius: $border-radius-lg;
+  border: 1px dashed $color-neutral-300;
+
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+
+  .submission-status {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    font-weight: $font-weight-semibold;
+    font-size: $font-size-sm;
+
+    &.submitted { color: $color-success-base; }
+    &.closed { color: $color-danger-base; }
+  }
+
+  .my-submission-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: $color-neutral-white;
+    padding: $spacing-3 $spacing-4;
+    border: 1px solid $color-neutral-200;
+    border-radius: $border-radius-md;
+
+    .sub-file-info {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+      font-weight: $font-weight-medium;
+      color: $color-neutral-800;
+
+      svg { color: $color-neutral-500; }
+      .file-size {
+        font-size: 0.75rem;
+        color: $color-neutral-500;
+        font-weight: $font-weight-regular;
+      }
+    }
+
+    .sub-actions {
+      display: flex;
+      gap: $spacing-2;
+    }
+  }
+
+  .submit-work-btn {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+  }
+}
+
+// ── Tutor Submissions Panel ──────────────────────────────────────────────────
+.submissions-panel {
+  margin-top: $spacing-4;
+  margin-bottom: $spacing-2;
+  border: 1px solid $color-neutral-200;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+
+  .submissions-panel-header {
+    background: $color-neutral-50;
+    padding: $spacing-3 $spacing-4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+
+    &:hover { background: $color-neutral-100; }
+
+    .submission-count-badge {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+      font-weight: $font-weight-semibold;
+      color: $color-neutral-800;
+      font-size: $font-size-sm;
+
+      svg { color: $color-primary-base; }
+    }
+
+    .panel-toggle {
+      display: flex;
+      align-items: center;
+      gap: $spacing-1;
+      font-size: $font-size-sm;
+      color: $color-neutral-500;
+    }
+  }
+
+  .submissions-list {
+    border-top: 1px solid $color-neutral-200;
+    background: $color-neutral-white;
+    padding: $spacing-4;
+    animation: slideDown 0.3s ease-out;
+
+    .zip-download-bar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: $spacing-4;
+    }
+
+    .no-submissions-msg {
+      color: $color-neutral-500;
+      text-align: center;
+      padding: $spacing-4 0;
+      font-size: $font-size-sm;
+    }
+  }
+}
+
+.submissions-table {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+
+  .submission-row {
+    display: grid;
+    grid-template-columns: 2fr 3fr 1fr auto;
+    align-items: center;
+    gap: $spacing-4;
+    padding: $spacing-3 $spacing-4;
+    background: $color-neutral-50;
+    border-radius: $border-radius-md;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: $color-neutral-white;
+      border-color: $color-neutral-200;
+      box-shadow: $shadow-sm;
+    }
+
+    .sub-student-info {
+      display: flex;
+      flex-direction: column;
+      
+      .student-name {
+        font-weight: $font-weight-semibold;
+        color: $color-neutral-900;
+        font-size: 0.9rem;
+      }
+      .student-id {
+        font-size: 0.75rem;
+        color: $color-neutral-500;
+      }
+    }
+
+    .sub-file-chip {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+      font-size: 0.85rem;
+      color: $color-neutral-700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      svg { color: $color-primary-base; flex-shrink: 0; }
+      .size-label {
+        font-size: 0.75rem;
+        color: $color-neutral-400;
+        margin-left: auto;
+      }
+    }
+
+    .sub-date {
+      font-size: 0.85rem;
+      color: $color-neutral-500;
+    }
+
+    .sub-row-actions {
+      display: flex;
+      gap: $spacing-1;
+    }
+  }
+}
+
+
+
+
+// ── Shared buttons & inputs ─────────────────────────────────────────────────
+.btn-icon-danger {
+  color: $color-danger-base;
+  background: none;
+  border: none;
+  padding: $spacing-1;
+  cursor: pointer;
+  border-radius: $border-radius-sm;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba($color-danger-base, 0.1);
+    color: $color-danger-dark;
+  }
+}
+
+.btn-danger-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-1;
+  background: transparent;
+  color: $color-danger-base;
+  border: 1px solid transparent;
+  padding: $spacing-1 $spacing-2;
+  border-radius: $border-radius-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba($color-danger-base, 0.05);
+  }
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-1;
+  background: transparent;
+  color: $color-primary-base;
+  border: 1px solid transparent;
+  padding: $spacing-1 $spacing-2;
+  border-radius: $border-radius-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba($color-primary-base, 0.05);
+  }
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  padding: $spacing-2;
+  border-radius: $border-radius-md;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &.edit-btn {
+    color: $color-neutral-500;
+    &:hover { background: $color-neutral-100; color: $color-primary-base; }
+  }
+  &.delete-btn {
+    color: $color-neutral-500;
+    &:hover { background: rgba($color-danger-base, 0.1); color: $color-danger-base; }
+  }
+}
+
+
+
+
+
+
+// ── Animations ──────────────────────────────────────────────────────────────
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

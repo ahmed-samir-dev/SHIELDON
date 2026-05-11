@@ -10,16 +10,19 @@ using System.Threading.RateLimiting;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
-// ── SERILOG: Configure early so startup errors are also logged ──────────────
+
+// ── SERILOG: Configure bootstrap logger ────────────────────────────────────
+// NOTE: Only wraps app.Run() so WebApplicationFactory can propagate startup
+// exceptions correctly during integration testing.
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .WriteTo.File("logs/shieldon-.log", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
-try
-{
-    var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
     // ── SERILOG: Replace default Microsoft logging with Serilog ────────────
     builder.Host.UseSerilog((context, services, configuration) => configuration
@@ -33,12 +36,27 @@ try
     builder.Services.AddInfrastructure(builder.Configuration);
 
     // ── CONTROLLERS & UTILITIES ──────────────────────────────────────────
-    builder.Services.AddControllers()
+    builder.Services.AddControllers(options =>
+    {
+        // Increase the default multipart body size limit to 100 MB for file uploads
+        options.Filters.Add(new Microsoft.AspNetCore.Mvc.RequestSizeLimitAttribute(105_000_000));
+    })
         .AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+            options.JsonSerializerOptions.Converters.Add(new UtcDateTimeConverter());
         });
     builder.Services.AddResponseCompression();
+
+    // Allow large file uploads (up to 100 MB) through Kestrel and IIS
+    builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
+    {
+        options.MultipartBodyLengthLimit = 105_000_000; // 100 MB + overhead
+    });
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.Limits.MaxRequestBodySize = 105_000_000;
+    });
 
 
     // ── FLUENTVALIDATION: Auto-register all validators from Application layer
@@ -57,7 +75,8 @@ try
                     builder.Configuration["AppSettings:FrontendUrl"] ?? "http://localhost:4200")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .AllowCredentials();
+                .AllowCredentials()
+                .WithExposedHeaders("Content-Disposition");
         });
     });
 
@@ -87,7 +106,16 @@ try
         };
     });
 
-    builder.Services.AddAuthorization();
+    builder.Services.AddAuthorization(options =>
+    {
+        options.AddPolicy("RequireStudent", policy => 
+            policy.RequireRole(SHIELDON.Domain.Enums.UserRole.Student.ToString()));
+
+        options.AddPolicy("RequireTutorOrAdmin", policy =>
+            policy.RequireRole(
+                SHIELDON.Domain.Enums.UserRole.Tutor.ToString(),
+                SHIELDON.Domain.Enums.UserRole.Admin.ToString()));
+    });
 
     // ── SWAGGER / OPENAPI: With JWT bearer auth support ────────────────────
     builder.Services.AddEndpointsApiExplorer();
@@ -157,60 +185,69 @@ try
         options.RejectionStatusCode = 429; // Too Many Requests
     });
 
-    // ──────────────────────────────────────────────────────────────────────
-    var app = builder.Build();
+// ──────────────────────────────────────────────────────────────────────
+var app = builder.Build();
 
-    // ── DATABASE INITIALIZATION & SEEDING ────────────────────────────────
+// ── DATABASE INITIALIZATION & SEEDING ────────────────────────────────
+if (app.Environment.EnvironmentName != "Testing")
+{
     await SHIELDON.Infrastructure.Persistence.DbInitializer.InitAsync(app.Services);
+}
 
-    // ──────────────────────────────────────────────────────────────────────
+// ──────────────────────────────────────────────────────────────────────
 
-    // ── GLOBAL EXCEPTION HANDLER: Must be FIRST in pipeline ────────────────
-    app.UseMiddleware<ExceptionHandlingMiddleware>();
+// ── GLOBAL EXCEPTION HANDLER: Must be FIRST in pipeline ────────────────
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-    // ── RESPONSE COMPRESSION ───────────────────────────────────────────────
-    app.UseResponseCompression();
+// ── RESPONSE COMPRESSION ───────────────────────────────────────────────
+app.UseResponseCompression();
 
-    // ── SWAGGER: Only in development ──────────────────────────────────────
-    if (app.Environment.IsDevelopment())
+// ── SWAGGER: Only in development ──────────────────────────────────────
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
     {
-        app.UseSwagger();
-        app.UseSwaggerUI(options =>
-        {
-            options.SwaggerEndpoint("/swagger/v1/swagger.json", "SHIELDON API v1");
-            options.RoutePrefix = "swagger";
-            options.DocumentTitle = "SHIELDON API — Swagger UI";
-        });
-    }
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "SHIELDON API v1");
+        options.RoutePrefix = "swagger";
+        options.DocumentTitle = "SHIELDON API — Swagger UI";
+    });
+}
 
-    // ── STATIC FILES: Serves wwwroot (but files are protected by controllers)
-    app.UseStaticFiles();
+// ── STATIC FILES: Serves wwwroot (but files are protected by controllers)
+app.UseStaticFiles();
 
-    // ── HTTPS REDIRECTION ──────────────────────────────────────────────────
-    app.UseHttpsRedirection();
+// ── HTTPS REDIRECTION ──────────────────────────────────────────────────
+app.UseHttpsRedirection();
 
-    // ── CORS: Must be before Auth ──────────────────────────────────────────
-    app.UseCors("ShieldonCorsPolicy");
+// ── CORS: Must be before Auth ──────────────────────────────────────────
+app.UseCors("ShieldonCorsPolicy");
 
-    // ── RATE LIMITER ───────────────────────────────────────────────────────
-    app.UseRateLimiter();
+// ── RATE LIMITER ───────────────────────────────────────────────────────
+app.UseRateLimiter();
 
-    // ── AUTHENTICATION & AUTHORIZATION ────────────────────────────────────
-    app.UseAuthentication();
-    app.UseAuthorization();
+// ── AUTHENTICATION & AUTHORIZATION ────────────────────────────────────
+app.UseAuthentication();
+app.UseAuthorization();
 
-    // ── SERILOG: Log every HTTP request ───────────────────────────────────
-    app.UseSerilogRequestLogging();
+// ── SERILOG: Log every HTTP request ───────────────────────────────────
+app.UseSerilogRequestLogging();
 
-    // ── CONTROLLERS ───────────────────────────────────────────────────────
-    app.MapControllers();
+// ── CONTROLLERS ───────────────────────────────────────────────────────
+app.MapControllers();
 
-    Log.Information("SHIELDON API starting — environment: {Env}", app.Environment.EnvironmentName);
+Log.Information("SHIELDON API starting — environment: {Env}", app.Environment.EnvironmentName);
+
+// Serilog try/catch only wraps Run() — not the full build pipeline.
+// This lets WebApplicationFactory propagate startup exceptions in integration tests.
+try
+{
     app.Run();
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex, "SHIELDON API failed to start.");
+    Log.Fatal(ex, "SHIELDON API crashed at runtime.");
+    throw; // Re-throw so the process exits with a non-zero code
 }
 finally
 {
@@ -219,3 +256,19 @@ finally
 
 // Needed so WebApplicationFactory can use this in integration tests
 public partial class Program { }
+
+public class UtcDateTimeConverter : JsonConverter<DateTime>
+{
+    public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        return reader.GetDateTime().ToUniversalTime();
+    }
+
+    public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+    {
+        // When EF Core loads from SQL Server datetime2, Kind is Unspecified. Assume UTC.
+        var utcValue = value.Kind == DateTimeKind.Unspecified ? DateTime.SpecifyKind(value, DateTimeKind.Utc) : value.ToUniversalTime();
+        // The framework's default ToString("O") or equivalent appending Z
+        writer.WriteStringValue(utcValue.ToString("yyyy-MM-ddTHH:mm:ss.fffffffZ"));
+    }
+}

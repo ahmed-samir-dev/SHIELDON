@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ProfileService } from '../../core/services/profile.service';
+import { ShepherdService } from '../../core/services/shepherd.service';
 import { UserProfileResponse } from '../../core/models/profile.model';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../../environments/environment';
@@ -15,6 +16,7 @@ import { environment } from '../../../environments/environment';
 })
 export class ProfileComponent implements OnInit {
   private profileService = inject(ProfileService);
+  private shepherdService = inject(ShepherdService);
   private fb = inject(FormBuilder);
   private toastr = inject(ToastrService);
 
@@ -29,8 +31,28 @@ export class ProfileComponent implements OnInit {
   profileForm = this.fb.group({
     firstName: ['', [Validators.required, Validators.maxLength(50)]],
     lastName: ['', [Validators.required, Validators.maxLength(50)]],
-    email: [{ value: '', disabled: true }] // Email cannot be changed here
+    email: [{ value: '', disabled: true }], // Email cannot be changed here
+    displayId: [{ value: '', disabled: true }],
+    accountStatus: [{ value: '', disabled: true }]
   });
+
+  changePasswordForm = this.fb.group({
+    currentPassword: ['', [Validators.required]],
+    newPassword: [
+      '', 
+      [
+        Validators.required, 
+        Validators.minLength(8),
+        Validators.pattern(/(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9])/)
+      ]
+    ],
+    confirmNewPassword: ['', [Validators.required]]
+  }, { validators: this.passwordMatchValidator });
+
+  showCurrentPassword = signal(false);
+  showNewPassword = signal(false);
+  showConfirmPassword = signal(false);
+  isChangingPassword = signal(false);
 
   get firstNameControl() { return this.profileForm.get('firstName')!; }
   get lastNameControl() { return this.profileForm.get('lastName')!; }
@@ -47,7 +69,9 @@ export class ProfileComponent implements OnInit {
         this.profileForm.patchValue({
           firstName: res.data.firstName,
           lastName: res.data.lastName,
-          email: res.data.email
+          email: res.data.email,
+          displayId: res.data.displayId,
+          accountStatus: res.data.accountStatus
         });
         this.isLoading.set(false);
       },
@@ -117,4 +141,58 @@ export class ProfileComponent implements OnInit {
     }
     return ''; // Can fallback to initials or a default svg in HTML
   }
+
+  toggleCurrentPassword(): void { this.showCurrentPassword.update(v => !v); }
+  toggleNewPassword(): void { this.showNewPassword.update(v => !v); }
+  toggleConfirmPassword(): void { this.showConfirmPassword.update(v => !v); }
+
+  passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
+    const newPassword = control.get('newPassword')?.value;
+    const confirm = control.get('confirmNewPassword')?.value;
+    if (newPassword !== confirm && confirm) {
+      control.get('confirmNewPassword')?.setErrors({ passwordMismatch: true });
+      return { passwordMismatch: true };
+    } else {
+      if (control.get('confirmNewPassword')?.hasError('passwordMismatch')) {
+        control.get('confirmNewPassword')?.setErrors(null);
+      }
+      return null;
+    }
+  }
+
+  onChangePasswordSubmit(): void {
+    if (this.changePasswordForm.invalid || this.isChangingPassword()) {
+      this.changePasswordForm.markAllAsTouched();
+      return;
+    }
+
+    this.isChangingPassword.set(true);
+    const formValue = this.changePasswordForm.value;
+    const request = {
+      currentPassword: formValue.currentPassword!,
+      newPassword: formValue.newPassword!,
+      confirmNewPassword: formValue.confirmNewPassword!
+    };
+
+    this.profileService.changePassword(request).subscribe({
+      next: () => {
+        this.isChangingPassword.set(false);
+        this.changePasswordForm.reset();
+        this.toastr.success('Password changed successfully.');
+      },
+      error: (err) => {
+        this.isChangingPassword.set(false);
+        const msg = err.error?.message || 'Failed to change password.';
+        this.toastr.error(msg);
+      }
+    });
+  }
+
+  replayTour(): void {
+    this.shepherdService.resetTour();
+  }
+
+  get currentPasswordControl() { return this.changePasswordForm.get('currentPassword')!; }
+  get newPasswordControl() { return this.changePasswordForm.get('newPassword')!; }
+  get confirmNewPasswordControl() { return this.changePasswordForm.get('confirmNewPassword')!; }
 }

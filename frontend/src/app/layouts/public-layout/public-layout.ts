@@ -25,7 +25,7 @@ import { RouterOutlet, RouterLink } from '@angular/router';
 
       <footer class="footer">
         <div class="container">
-          <p>&copy; 2026 SHIELDON LMS & Anti-Cheating Engine. All rights reserved.</p>
+          <p>&copy; 2026 SHIELDON. All Rights Reserved.</p>
         </div>
       </footer>
     </div>
@@ -101,11 +101,18 @@ import { RouterOutlet, RouterLink } from '@angular/router';
     }
 
     .footer {
-      background: #0B1120;
-      color: #9CA3AF;
-      padding: 2rem 0;
+      background: #0B315B;
+      color: #A0CFF4;
+      padding: 1.5rem 0;
       text-align: center;
       font-size: 0.875rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      
+      p {
+        margin: 0;
+        font-weight: 500;
+        letter-spacing: 0.025em;
+      }
     }
   `]
 })

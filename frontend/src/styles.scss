@@ -1,1 +1,117 @@
-/* You can add global styles to this file, and also import other style files */
+@import './assets/styles/variables';
+@import "animate.css";
+
+:root {
+  --color-primary-base: #{$color-primary-base};
+  --color-primary-dark: #{$color-primary-dark};
+  --color-secondary-base: #{$color-secondary-base};
+  --color-neutral-50: #{$color-neutral-50};
+  --color-neutral-100: #{$color-neutral-100};
+  --color-neutral-200: #{$color-neutral-200};
+  --color-neutral-800: #{$color-neutral-800};
+  --color-neutral-900: #{$color-neutral-900};
+  --color-success-base: #{$color-success-base};
+  --shadow-lg: #{$shadow-lg};
+  --border-radius-lg: #{$border-radius-lg};
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: $font-family-primary;
+  color: $color-neutral-800;
+  background-color: $color-neutral-50;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, .font-outfit {
+  font-family: $font-family-secondary;
+}
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 $spacing-6;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  font-family: inherit;
+}
+
+// ── CUSTOM SCROLLBAR ────────────────────────────────────────────────────────
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: $color-neutral-100;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $color-neutral-300;
+  border-radius: 999px;
+  
+  &:hover {
+    background: $color-neutral-400;
+  }
+}
+
+// ── PREMIUM SWEETALERT2 STYLING ─────────────────────────────────────────────
+.premium-swal-popup {
+  border-radius: $border-radius-xl !important;
+  padding: $spacing-10 !important;
+  box-shadow: 0 10px 40px rgba($color-primary-dark, 0.2), $shadow-xl !important;
+  border: 1px solid rgba($color-primary-base, 0.1) !important;
+  background: white !important;
+  // background: white url('assets/images/logo.png') no-repeat right 20px bottom 20px / 50px auto !important;
+
+  .swal2-title {
+    font-family: $font-family-secondary !important;
+    font-size: $font-size-2xl !important;
+    font-weight: $font-weight-bold !important;
+    color: $color-primary-dark !important;
+  }
+
+  .swal2-html-container {
+    font-family: $font-family-primary !important;
+    font-size: $font-size-base !important;
+    color: $color-neutral-600 !important;
+    line-height: 1.6 !important;
+  }
+}
+
+.premium-swal-button {
+  border-radius: $border-radius-md !important;
+  padding: $spacing-4 $spacing-12 !important;
+  font-weight: $font-weight-bold !important;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: $font-size-sm !important;
+  box-shadow: 0 4px 15px rgba($color-primary-base, 0.3) !important;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+  border: none !important;
+
+  &:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 25px rgba($color-primary-base, 0.45) !important;
+    filter: brightness(1.1);
+  }
+
+  &:active {
+    transform: translateY(-1px) scale(0.98);
+  }
+}
+
+

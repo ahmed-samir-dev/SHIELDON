@@ -1,18 +1,24 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, AfterViewInit } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
+import { AiService } from '../../core/services/ai.service';
+import { ShepherdService } from '../../core/services/shepherd.service';
 import { environment } from '../../../environments/environment';
+import { NotificationPanelComponent } from '../../shared/components/notification-panel/notification-panel.component';
+import { AiChatPanelComponent } from '../../shared/components/ai-chat-panel/ai-chat-panel';
 
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, NotificationPanelComponent, AiChatPanelComponent],
   templateUrl: './dashboard-layout.html',
-  styleUrl: './dashboard-layout.scss'
+  styleUrl: './dashboard-layout.scss',
+  providers: [AiService]
 })
-export class DashboardLayout {
+export class DashboardLayout implements AfterViewInit {
   authService = inject(AuthService);
+  shepherdService = inject(ShepherdService);
   private router = inject(Router);
 
   isMobileMenuOpen = false;
@@ -38,5 +44,16 @@ export class DashboardLayout {
     const user = this.authService.currentUser();
     if (!user) return '?';
     return `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase();
+  }
+
+  ngAfterViewInit(): void {
+    // Wait a brief moment for the dashboard elements to fully render
+    setTimeout(() => {
+      const user = this.authService.currentUser();
+      // user might be null if guard is still resolving, but guard usually finishes first
+      if (user && user.hasCompletedOnboarding === false) {
+        this.shepherdService.startTour(user.role as any);
+      }
+    }, 500);
   }
 }
