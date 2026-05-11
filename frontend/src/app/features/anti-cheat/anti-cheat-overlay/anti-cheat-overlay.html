@@ -1,0 +1,37 @@
+<div class="anti-cheat-container" *ngIf="antiCheat.strikeLevel() > 0">
+  
+  <!-- Strike 2: Full Screen Orange Overlay (Final Warning) -->
+  <div class="strike-overlay final-warning-overlay" *ngIf="antiCheat.strikeLevel() === 2">
+    <div class="overlay-content">
+      <lucide-angular [img]="Eye" class="icon pulse-icon" size="64"></lucide-angular>
+      <h1>FINAL WARNING</h1>
+      <p class="subtitle">You have accumulated {{ antiCheat.strikeScore() | number:'1.2-2' }} violation points.</p>
+      <div class="rules-reminder">
+        <p>This is your last warning before automatic exam submission. To continue:</p>
+        <ul>
+          <li>Stay in fullscreen mode</li>
+          <li>Do not switch tabs or windows</li>
+          <li>Do not use keyboard shortcuts</li>
+        </ul>
+      </div>
+      <button class="btn btn-warning" (click)="antiCheat.dismissStrikeTwo()">I Understand - Return to Exam</button>
+    </div>
+  </div>
+
+  <!-- Strike 3: Full Screen Red Overlay (Terminated) -->
+  <div class="strike-overlay terminated-overlay" *ngIf="antiCheat.strikeLevel() >= 3">
+    <div class="overlay-content">
+      <lucide-angular [img]="ShieldAlert" class="icon shake-icon" size="64"></lucide-angular>
+      <h1>EXAM TERMINATED</h1>
+      <p class="subtitle">Maximum violations exceeded ({{ antiCheat.strikeScore() | number:'1.2-2' }} points).</p>
+      <div class="rules-reminder">
+        <p>Your exam is being <strong>automatically submitted</strong> due to multiple integrity violations.</p>
+        <p style="margin-top: 8px; font-size: 0.9rem; opacity: 0.8;">Submitting your exam and saving all answers...</p>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill"></div>
+      </div>
+    </div>
+  </div>
+
+</div>

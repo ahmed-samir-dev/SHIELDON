@@ -1,0 +1,65 @@
+<!-- Floating Trigger Button -->
+<button class="ai-trigger-btn" (click)="toggleChat()" [class.hidden]="isOpen" title="Ask SHIELDON Assistant">
+  <lucide-icon [img]="SparklesIcon"></lucide-icon>
+</button>
+
+<!-- Slide-in Chat Panel -->
+<div class="ai-chat-panel" [@slideInOut]="isOpen ? 'in' : 'out'">
+  <div class="ai-chat-header">
+    <div class="header-brand">
+      <img src="assets/images/logo.png" alt="SHIELDON Logo" class="ai-logo" />
+      <span class="ai-title">SHIELDON Assistant</span>
+    </div>
+    <div class="header-actions">
+      <button class="action-btn new-chat-btn" (click)="aiService.clearHistory()" title="New Chat">
+        <lucide-icon [img]="PlusIcon"></lucide-icon>
+      </button>
+      <button class="action-btn close-btn" (click)="toggleChat()" title="Close">
+        <lucide-icon [img]="CloseIcon"></lucide-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="ai-chat-body" #scrollMe>
+    <div class="welcome-message" *ngIf="aiService.chatHistory().length === 0">
+      <lucide-icon [img]="BotIcon" class="welcome-icon"></lucide-icon>
+      <h3>How can I help you today?</h3>
+      <p>I can answer questions about the platform, your exams, or help with troubleshooting.</p>
+    </div>
+
+    <div class="message-group" *ngFor="let msg of aiService.chatHistory()">
+      <div class="message-bubble" [ngClass]="msg.role">
+        <div class="message-content" [innerHTML]="msg.content | markdown"></div>
+        <div class="message-meta">
+          {{ msg.timestamp | date:'shortTime' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Typing Indicator -->
+    <div class="message-group" *ngIf="aiService.isTyping()">
+      <div class="message-bubble model typing-indicator">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="ai-chat-footer">
+    <div class="input-wrapper">
+      <textarea 
+        [(ngModel)]="messageInput" 
+        (keydown)="handleKeyDown($event)"
+        placeholder="Type your message..."
+        rows="1">
+      </textarea>
+      <button class="send-btn" [disabled]="!messageInput.trim() || aiService.isTyping()" (click)="sendMessage()">
+        <lucide-icon [img]="SendIcon"></lucide-icon>
+      </button>
+    </div>
+    <div class="ai-disclaimer">
+      AI can make mistakes. Please verify important information.
+    </div>
+  </div>
+</div>

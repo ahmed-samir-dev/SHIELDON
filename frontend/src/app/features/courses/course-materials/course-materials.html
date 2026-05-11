@@ -1,0 +1,277 @@
+<div class="materials-container">
+  <div class="materials-header">
+    <div class="header-title">
+      <h2>Course Materials</h2>
+      <p class="subtitle">Access slides, documents, and helpful links for this course.</p>
+    </div>
+
+    @if (canManageMaterials()) {
+    <button class="btn btn-primary upload-btn" (click)="toggleUploadForm()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+        <polyline points="17 8 12 3 7 8" />
+        <line x1="12" x2="12" y1="3" y2="15" />
+      </svg>
+      Upload Material
+    </button>
+    }
+  </div>
+
+  @if (showUploadForm() && canManageMaterials()) {
+  <div class="custom-modal-overlay fadeIn animated">
+    <div class="custom-modal-container slideUp animated">
+
+      <div class="modal-header">
+        <div class="modal-title-wrapper">
+          <div class="icon-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" x2="12" y1="3" y2="15" />
+            </svg>
+          </div>
+          <h2>Add New Material</h2>
+        </div>
+        <button class="close-btn" (click)="toggleUploadForm()" aria-label="Close modal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+
+      <form [formGroup]="uploadForm" (ngSubmit)="onSubmit()" class="modal-body">
+        <div class="form-group">
+          <label>Title <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+            </svg>
+            <input type="text" formControlName="title" placeholder="e.g., Week 1 Lecture Slides"
+              [class.is-invalid]="uploadForm.get('title')?.touched && uploadForm.get('title')?.invalid" />
+          </div>
+          @if (uploadForm.get('title')?.touched && uploadForm.get('title')?.errors?.['required']) {
+          <span class="error-msg">Title is required.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label>Material Type</label>
+          <div class="type-cards-grid">
+            <label class="type-card" [class.selected]="uploadForm.get('materialType')?.value === 'File'">
+              <input type="radio" formControlName="materialType" value="File" class="hidden-radio">
+              <div class="type-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg></div>
+              <div class="type-info">
+                <span class="type-name">Upload File</span>
+              </div>
+            </label>
+            <label class="type-card" [class.selected]="uploadForm.get('materialType')?.value === 'Link'">
+              <input type="radio" formControlName="materialType" value="Link" class="hidden-radio">
+              <div class="type-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                </svg></div>
+              <div class="type-info">
+                <span class="type-name">External Link</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description <span class="optional">(Optional)</span></label>
+          <div class="input-wrapper text-area-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="8" y1="6" x2="21" y2="6" />
+              <line x1="8" y1="12" x2="21" y2="12" />
+              <line x1="8" y1="18" x2="21" y2="18" />
+              <line x1="3" y1="6" x2="3.01" y2="6" />
+              <line x1="3" y1="12" x2="3.01" y2="12" />
+              <line x1="3" y1="18" x2="3.01" y2="18" />
+            </svg>
+            <textarea formControlName="description" rows="2"
+              placeholder="Brief description of the material..."></textarea>
+          </div>
+        </div>
+
+@if (uploadForm.get('materialType')?.value === 'File') {
+        <div class="form-group">
+          <div class="drop-zone" [class.dragging]="isDragging()"
+            (dragover)="onDragOver($event)" (dragleave)="onDragLeave()" (drop)="onDrop($event)">
+            @if (selectedFile) {
+              <div class="file-selected-badge">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>
+                <span>{{ selectedFile.name }} ({{ formatBytes(selectedFile.size) }})</span>
+                <button type="button" class="remove-file-btn" (click)="clearFile()">✕</button>
+              </div>
+            } @else {
+              <label class="drop-label" for="matFileInput">
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+                  <polyline points="13 2 13 9 20 9" />
+                </svg>
+                <span>Browse or <strong>drag a file here</strong></span>
+                <span class="limits">Max size: 100 MB <br> Allowed types: PDF, Word, PPT, Excel, Images, Video, Zip</span>
+                <input id="matFileInput" type="file" hidden (change)="onFileSelected($event)" />
+              </label>
+            }
+          </div>
+          @if (fileError()) {
+            <span class="error-msg file-error">{{ fileError() }}</span>
+          }
+        </div>
+        } @else {
+        <div class="form-group">
+          <label>URL Link <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            </svg>
+            <input type="url" formControlName="externalUrl" placeholder="https://..."
+              [class.is-invalid]="uploadForm.get('externalUrl')?.touched && uploadForm.get('externalUrl')?.invalid" />
+          </div>
+          @if (uploadForm.get('externalUrl')?.touched && uploadForm.get('externalUrl')?.errors?.['required']) {
+          <span class="error-msg">A valid URL is required.</span>
+          }
+          @if (uploadForm.get('externalUrl')?.touched && uploadForm.get('externalUrl')?.errors?.['pattern']) {
+          <span class="error-msg">Must be a valid HTTP or HTTPS URL.</span>
+          }
+        </div>
+        }
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="toggleUploadForm()"
+            [disabled]="isSubmitting()">Cancel</button>
+          <button type="submit" class="btn btn-primary" [disabled]="uploadForm.invalid || isSubmitting() || (uploadForm.get('materialType')?.value === 'File' && !selectedFile)">
+            @if (isSubmitting()) {
+              <div class="loader-ring"></div>
+              <span>Uploading...</span>
+            } @else {
+              <span>Upload Material</span>
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
+
+  @if (isLoading()) {
+  <div class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading materials...</p>
+  </div>
+  } @else if (materials().length === 0) {
+  <div class="empty-state animated fadeIn">
+    <div class="empty-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+        <polyline points="14 2 14 8 20 8" />
+        <circle cx="12" cy="13" r="3" />
+      </svg>
+    </div>
+    <h3>No Materials Yet</h3>
+    <p>There are no files or links shared for this course right now.</p>
+  </div>
+  } @else {
+  <div class="materials-list">
+    @for (material of materials(); track material.id) {
+    <div class="material-card box-panel" [class.centered-layout]="!material.description">
+
+      <div class="material-icon-side">
+        @if (material.materialType === 'Link') {
+        <div class="icon-circle link-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+          </svg>
+        </div>
+        } @else {
+        <div class="icon-circle file-icon">
+          <!-- Fallback file icon but could be replaced dynamically -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+            <polyline points="14 2 14 8 20 8" />
+          </svg>
+        </div>
+        }
+      </div>
+
+      <div class="material-content">
+        <div class="title-row">
+          <h4 class="material-title"
+            [title]="material.materialType === 'File' ? (material.originalFileName || material.title) : material.title">
+            {{ material.title }}
+          </h4>
+          @if (material.materialType === 'File' && getFileExtension(material.originalFileName)) {
+          <span class="extension-badge">{{ getFileExtension(material.originalFileName) }}</span>
+          } @else if (material.materialType === 'Link') {
+          <span class="extension-badge link-badge">LINK</span>
+          }
+        </div>
+
+        @if (material.description) {
+        <p class="material-desc">{{ material.description }}</p>
+        }
+      </div>
+
+      <div class="material-actions">
+  <button class="modern-btn primary-action" (click)="downloadMaterial(material)">
+    @if (material.materialType === 'Link') {
+    <svg class="action-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      <polyline points="15 3 21 3 21 9" />
+      <line x1="10" x2="21" y1="14" y2="3" />
+    </svg>
+    <span class="action-text">Open</span>
+    } @else {
+    <svg class="action-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" x2="12" y1="15" y2="3" />
+    </svg>
+    <span class="action-text">Download</span>
+    }
+  </button>
+
+  @if (canManageMaterials()) {
+  <button class="modern-btn danger-action" (click)="deleteMaterial(material.id)" title="Delete Material">
+    <svg class="action-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 6h18" />
+      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+      <line x1="10" x2="10" y1="11" y2="17" />
+      <line x1="14" x2="14" y1="11" y2="17" />
+    </svg>
+    <span class="action-text">Delete</span>
+  </button>
+  }
+</div>
+    </div>
+    }
+  </div>
+  }
+</div>

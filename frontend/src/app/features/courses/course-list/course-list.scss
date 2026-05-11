@@ -1,0 +1,346 @@
+@import "../../../../assets/styles/variables";
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: $spacing-6;
+  flex-wrap: wrap;
+  gap: $spacing-4;
+
+  .header-content {
+    h1 {
+      font-size: $font-size-3xl;
+      color: $color-neutral-900;
+      margin: 0 0 $spacing-2 0;
+      font-family: $font-family-secondary;
+    }
+    .subtitle {
+      color: $color-neutral-500;
+      margin: 0;
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    gap: $spacing-4;
+    align-items: center;
+
+    .search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      svg {
+        position: absolute;
+        left: $spacing-3;
+        color: $color-neutral-400;
+      }
+
+      input {
+        padding: $spacing-2 $spacing-3 $spacing-2 $spacing-10;
+        border: 1px solid $color-neutral-200;
+        border-radius: $border-radius-md;
+        outline: none;
+        width: 250px;
+        transition: all 0.2s;
+
+        &:focus {
+          border-color: $color-primary-base;
+          box-shadow: 0 0 0 3px $color-primary-light;
+        }
+      }
+    }
+
+    .btn.btn-primary {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+      background: $color-primary-base;
+      color: white;
+      padding: $spacing-2 $spacing-4;
+      border-radius: $border-radius-md;
+      font-weight: $font-weight-medium;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+
+      &:hover {
+        background: $color-primary-dark;
+      }
+    }
+  }
+}
+
+.filter-tabs {
+  display: flex;
+  gap: $spacing-2;
+  margin-bottom: $spacing-6;
+  border-bottom: 1px solid $color-neutral-200;
+  padding-bottom: $spacing-2;
+
+  .tab-btn {
+    background: none;
+    border: none;
+    padding: $spacing-2 $spacing-4;
+    font-weight: $font-weight-medium;
+    color: $color-neutral-500;
+    cursor: pointer;
+    border-radius: $border-radius-md;
+    transition: all 0.2s;
+
+    &:hover {
+      background: $color-neutral-100;
+      color: $color-neutral-900;
+    }
+
+    &.active {
+      background: $color-primary-light;
+      color: white;
+    }
+  }
+}
+
+.course-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: $spacing-6;
+  transition: opacity 0.3s;
+
+  &.loading {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: $spacing-12;
+  background: white;
+  border-radius: $border-radius-xl;
+  border: 1px dashed $color-neutral-300;
+
+  .empty-icon {
+    width: 80px;
+    height: 80px;
+    background: $color-neutral-100;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto $spacing-4 auto;
+    color: $color-neutral-400;
+  }
+
+  h3 {
+    margin: 0 0 $spacing-2 0;
+    color: $color-neutral-900;
+  }
+
+  p {
+    color: $color-neutral-500;
+    margin: 0;
+  }
+}
+
+.course-card {
+  position: relative;
+  background: white;
+  border-radius: $border-radius-xl;
+  border: 1px solid $color-neutral-200;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-lg;
+  }
+
+  &.archived {
+    opacity: 0.7;
+    .card-header {
+      background: $color-neutral-100;
+    }
+  }
+
+  .card-glass-effect {
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 100px;
+    background: linear-gradient(135deg, rgba($color-primary-light, 0.1) 0%, rgba($color-success-light, 0.1) 100%);
+    z-index: 0;
+  }
+
+  .card-header {
+    position: relative;
+    z-index: 1;
+    padding: $spacing-4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba($color-neutral-200, 0.5);
+
+    .course-code {
+      font-weight: $font-weight-bold;
+      font-family: $font-family-mono;
+      color: $color-primary-dark;
+      background: rgba($color-primary-light, 0.2);
+      padding: 2px $spacing-2;
+      border-radius: $border-radius-round;
+      font-size: $font-size-sm;
+    }
+  }
+
+  .status-badge {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    padding: 2px $spacing-2;
+    border-radius: $border-radius-round;
+    display: inline-block;
+
+    &.active {
+      background: $color-success-light;
+      color: $color-success-dark;
+    }
+    &.archived {
+      background: $color-neutral-200;
+      color: $color-neutral-700;
+    }
+  }
+
+  .card-body {
+    position: relative;
+    z-index: 1;
+    padding: $spacing-4;
+    flex: 1;
+
+    .course-title {
+      font-size: $font-size-lg;
+      margin: 0 0 $spacing-2 0;
+      color: $color-neutral-900;
+      line-height: 1.3;
+    }
+
+    .course-desc {
+      font-size: $font-size-sm;
+      color: $color-neutral-500;
+      margin: 0 0 $spacing-4 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .course-meta {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-2;
+
+      .meta-item {
+        display: flex;
+        align-items: center;
+        gap: $spacing-2;
+        color: $color-neutral-600;
+        font-size: $font-size-sm;
+
+        svg {
+          color: $color-primary-base;
+        }
+      }
+    }
+  }
+
+  .card-footer {
+    position: relative;
+    z-index: 1;
+    padding: $spacing-4;
+    border-top: 1px solid $color-neutral-100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: $color-neutral-50;
+
+    .btn-link {
+      color: $color-primary-base;
+      font-weight: $font-weight-medium;
+      text-decoration: none;
+      font-size: $font-size-sm;
+      &:hover { text-decoration: underline; }
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: $spacing-2;
+
+      .btn-sm {
+        padding: $spacing-1 $spacing-3;
+        font-size: $font-size-sm;
+        border-radius: $border-radius-md;
+        cursor: pointer;
+        
+        &.btn-outline {
+          border: 1px solid $color-primary-base;
+          color: $color-primary-base;
+          background: transparent;
+          &:hover { background: $color-primary-base; color: white; }
+        }
+
+        &.btn-icon {
+          padding: $spacing-1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid $color-neutral-300;
+          background: white;
+          color: $color-neutral-600;
+          &:hover { background: $color-neutral-100; color: $color-neutral-900; }
+        }
+      }
+    }
+  }
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: $spacing-4;
+  margin-top: $spacing-8;
+
+  .page-info {
+    font-size: $font-size-sm;
+    color: $color-neutral-600;
+    font-weight: $font-weight-medium;
+  }
+
+  .btn-sm {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: $spacing-2 $spacing-4;
+    background: white;
+    border: 1px solid $color-neutral-300;
+    border-radius: $border-radius-md;
+    color: $color-neutral-700;
+    cursor: pointer;
+    font-size: $font-size-sm;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+      background: $color-neutral-50;
+      border-color: $color-neutral-400;
+      color: $color-neutral-900;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: $color-neutral-100;
+    }
+  }
+}
+
+// ── CUSTOM ELEGANT MODAL OVERLAY ──────────────────────────────────────────
+

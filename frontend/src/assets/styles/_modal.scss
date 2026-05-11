@@ -1,0 +1,489 @@
+@import 'variables';
+
+.custom-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(#0B1120, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: $z-index-modal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-4;
+
+  &.animated.fadeIn {
+    animation: fadeInModal 0.25s ease-out forwards;
+  }
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.custom-modal-container {
+  background: white;
+  width: 100%;
+  max-width: 550px;
+  border-radius: $border-radius-2xl;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  &.animated.slideUp {
+    animation: slideUpModal 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+}
+
+@keyframes slideUpModal {
+  from { opacity: 0; transform: translateY(30px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.wide-modal {
+  max-width: 850px;
+
+  &.has-scroller {
+    max-height: 85vh;
+    
+    .modal-body {
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-right: $spacing-4;
+      scroll-behavior: smooth;
+
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+      &::-webkit-scrollbar-track {
+        background: rgba($color-neutral-100, 0.5);
+        border-radius: $border-radius-round;
+        margin-top: $spacing-2;
+        margin-bottom: $spacing-2;
+      }
+      &::-webkit-scrollbar-thumb {
+        background: $color-neutral-300;
+        border-radius: $border-radius-round;
+        
+        &:hover {
+          background: $color-neutral-400;
+        }
+      }
+    }
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-5 $spacing-6;
+  border-bottom: 1px solid $color-neutral-200;
+  background: $color-neutral-50;
+
+  .modal-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+
+    .icon-box {
+      background: rgba($color-primary-base, 0.1);
+      color: $color-primary-base;
+      width: 40px;
+      height: 40px;
+      border-radius: $border-radius-lg;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: $font-size-xl;
+      color: $color-neutral-900;
+      font-weight: $font-weight-semibold;
+    }
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    color: $color-neutral-400;
+    cursor: pointer;
+    padding: $spacing-1;
+    border-radius: $border-radius-md;
+    transition: all 0.2s;
+
+    &:hover {
+      background: $color-neutral-200;
+      color: $color-neutral-900;
+    }
+  }
+}
+
+.modal-body {
+  padding: $spacing-6;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+
+  .form-row.two-col {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: $spacing-4;
+
+    @media (max-width: 500px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .form-row.two-col-equal {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-4;
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+
+    label {
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      color: $color-neutral-700;
+      margin-bottom: $spacing-2;
+
+      .required { color: $color-danger-base; }
+      .optional { color: $color-neutral-400; font-size: $font-size-xs; font-weight: normal; margin-left: $spacing-1; }
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      .input-icon {
+        position: absolute;
+        left: $spacing-3;
+        color: $color-neutral-400;
+        pointer-events: none;
+      }
+
+input[type="text"], input[type="url"], input[type="number"], textarea, select {
+        width: 100%;
+        padding: $spacing-3 $spacing-3 $spacing-3 40px;
+        border: 1px solid $color-neutral-200;
+        border-radius: $border-radius-lg;
+        font-family: inherit;
+        font-size: $font-size-sm;
+        color: $color-neutral-900;
+        background: $color-neutral-50;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover {
+          border-color: $color-neutral-300;
+        }
+
+        &:focus {
+          outline: none;
+          background: white;
+          border-color: $color-primary-base;
+          box-shadow: 0 0 0 4px rgba($color-primary-base, 0.1);
+        }
+
+        &.is-invalid {
+          border-color: $color-danger-base;
+          &:focus { box-shadow: 0 0 0 3px rgba($color-danger-base, 0.15); }
+        }
+
+        &:disabled {
+          background: $color-neutral-100;
+          color: $color-neutral-500;
+          cursor: not-allowed;
+        }
+      }
+
+      /* Hide ugly browser spinners for number inputs */
+      input[type="number"]::-webkit-outer-spin-button,
+      input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+      input[type="number"] {
+        -moz-appearance: textfield; /* Firefox */
+      }
+
+      &.no-icon {
+        input[type="text"], input[type="url"], textarea, select {
+          padding-left: $spacing-3;
+        }
+      }
+
+      &.text-area-wrapper {
+        align-items: flex-start;
+        .input-icon { top: 14px; }
+      }
+
+      &.select-wrapper {
+        select {
+          appearance: none;
+          padding-right: $spacing-8;
+          cursor: pointer;
+          &:disabled { cursor: not-allowed; }
+        }
+        .chevron {
+          position: absolute;
+          right: $spacing-3;
+          pointer-events: none;
+          color: $color-neutral-500;
+        }
+      }
+    }
+
+.datetime-premium-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: $color-neutral-50;
+  border: 1px solid $color-neutral-200;
+  border-radius: $border-radius-lg;
+  padding: $spacing-1;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: text; // Changed to text to encourage clicking to type
+
+  &:hover {
+    border-color: $color-neutral-300;
+  }
+
+  &:focus-within {
+    border-color: $color-primary-base;
+    background: white;
+    box-shadow: 0 0 0 4px rgba($color-primary-base, 0.1);
+  }
+
+  .icon-box-sm {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: $color-neutral-50;
+    border-radius: $border-radius-sm;
+    color: $color-neutral-500;
+    margin-right: $spacing-2;
+    transition: all 0.2s ease;
+    cursor: default;
+  }
+
+  &:focus-within .icon-box-sm {
+    background: rgba($color-primary-base, 0.1);
+    color: $color-primary-base;
+  }
+
+  input[type="datetime-local"] {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 0;
+    height: 36px;
+    font-family: inherit;
+    font-size: $font-size-sm;
+    color: $color-neutral-900;
+    font-weight: $font-weight-medium;
+    outline: none;
+    position: relative; // Ensures the invisible calendar button anchors correctly
+
+    // ✨ THE FIX: We push the invisible calendar trigger to the far right.
+    // This leaves the date text free for you to click and use keyboard arrows,
+    // while clicking the chevron on the right still opens the calendar!
+    &::-webkit-calendar-picker-indicator {
+      position: absolute;
+      top: 0;
+      right: 0; // Pushed to the right edge
+      width: 40px; // Covers only the chevron area
+      height: 100%;
+      opacity: 0; 
+      cursor: pointer;
+      z-index: 10;
+    }
+  }
+
+  // Custom sleek chevron icon to replace the native browser calendar icon
+  &::after {
+    content: '';
+    position: absolute;
+    right: $spacing-3;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    pointer-events: none; // Lets your clicks pass through to the invisible trigger
+    transition: transform 0.2s ease;
+  }
+
+  &:focus-within::after {
+    transform: translateY(-50%) rotate(180deg);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23215DAE' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  }
+}
+
+    .error-msg {
+      margin-top: $spacing-1;
+      font-size: $font-size-xs;
+      color: $color-danger-base;
+    }
+  }
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-3;
+  margin-top: 0;
+
+  .loader-ring {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+/* Global Button Styles extracted from Modal */
+.btn {
+  padding: $spacing-2 $spacing-6;
+  border-radius: $border-radius-md;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  border: none;
+  font-size: $font-size-sm;
+  transition: all 0.2s;
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  &.btn-secondary {
+    background: $color-neutral-200;
+    color: $color-neutral-700;
+    &:hover:not(:disabled) { background: $color-neutral-300; }
+  }
+
+  &.btn-primary {
+    background: $color-primary-base;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    &:hover:not(:disabled) { background: $color-primary-dark; }
+  }
+
+  &.btn-danger {
+    background: $color-danger-base;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    &:hover:not(:disabled) { background: $color-danger-dark; }
+  }
+}
+
+/* ── Global Progress Button ── */
+.submit-btn-progress {
+  position: relative;
+  overflow: hidden;
+
+  .progress-bar-bg {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    width: 100%;
+    background-color: var(--color-primary-dark, #16407B);
+    opacity: 0.1;
+    z-index: 1;
+  }
+
+  .progress-bar-fill {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    background-color: rgba(255, 255, 255, 0.2);
+    transition: width 0.3s ease;
+    z-index: 2;
+  }
+
+  .progress-content {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+  }
+}
+
+/* ── Global Drop Zone ── */
+.drop-zone {
+  border: 2px dashed $color-neutral-300;
+  border-radius: $border-radius-lg;
+  background: $color-neutral-50;
+  padding: $spacing-6;
+  text-align: center;
+  transition: all 0.2s ease;
+
+  &.dragging {
+    border-color: $color-primary-base;
+    background: rgba($color-primary-base, 0.05);
+  }
+
+  .drop-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-3;
+    cursor: pointer;
+    color: $color-neutral-500;
+
+    svg { color: $color-neutral-400; transition: all 0.2s; }
+    strong { color: $color-primary-base; }
+
+    .limits {
+      font-size: $font-size-xs;
+      color: $color-neutral-400;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    &:hover svg { color: $color-primary-base; transform: scale(1.05); }
+  }
+
+  .file-selected-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: $spacing-3 $spacing-4;
+    background: rgba($color-primary-base, 0.1);
+    border: 1px solid rgba($color-primary-base, 0.2);
+    border-radius: $border-radius-md;
+    color: $color-primary-dark;
+    font-weight: $font-weight-medium;
+
+    .remove-file-btn {
+      margin-left: $spacing-2;
+      background: none;
+      border: none;
+      color: $color-danger-base;
+      cursor: pointer;
+      font-weight: bold;
+      &:hover { color: $color-danger-dark; }
+    }
+  }
+}

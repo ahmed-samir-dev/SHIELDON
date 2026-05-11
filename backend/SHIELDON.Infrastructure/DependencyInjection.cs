@@ -1,9 +1,11 @@
 using SHIELDON.Application.Interfaces;
+using SHIELDON.Infrastructure.BackgroundServices;
 using SHIELDON.Infrastructure.Persistence;
 using SHIELDON.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace SHIELDON.Infrastructure;
 
@@ -40,6 +42,27 @@ public static class DependencyInjection
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IFileService, FileService>();
         services.AddScoped<IProfileService, ProfileService>();
+        services.AddScoped<ICourseService, CourseService>();
+        services.AddScoped<IMaterialService, MaterialService>();
+        services.AddScoped<IAnnouncementService, AnnouncementService>();
+        services.AddScoped<IAssignmentService, AssignmentService>();
+        services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<IExamService, ExamService>();
+        services.AddScoped<IReattemptService, ReattemptService>();
+        services.AddScoped<IExamAttemptService, ExamAttemptService>();
+        services.AddScoped<IExamResultService, ExamResultService>();
+        services.AddScoped<IQuestionService, QuestionService>();
+        services.AddScoped<IGradeService, GradeService>();
+        services.AddScoped<IViolationService, ViolationService>();
+        services.AddScoped<IMonitoringService, MonitoringService>();
+        services.AddScoped<IAIService, AIService>();
+
+        // ── HTTP Clients ───────────────────────────────────────────────────
+        // Named client used by AIService to call the Gemini REST API
+        services.AddHttpClient("Gemini");
+
+        // ── Background Services ────────────────────────────────────────────
+        services.AddHostedService<ExamReminderBackgroundService>();
 
 
         // ── AutoMapper 13.x ── AddAutoMapper scans assemblies for Profile classes

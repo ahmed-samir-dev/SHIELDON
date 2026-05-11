@@ -1,0 +1,183 @@
+<div class="admin-dashboard">
+  <!-- Header -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="header-badge">
+        <lucide-icon name="Activity" [size]="16"></lucide-icon>
+        System Admin
+      </div>
+      <h1 class="header-title">System Analytics</h1>
+      <p class="header-subtitle">Platform-wide historical analytics and integrity tracking.</p>
+    </div>
+  </header>
+
+  <!-- Error State -->
+  <div *ngIf="!loading() && error()" class="error-state">
+    <lucide-icon name="AlertTriangle" [size]="20"></lucide-icon>
+    <span>{{ error() }}</span>
+  </div>
+
+  <ng-container *ngIf="!error()">
+    <div class="dashboard-content">
+      <!-- KPI Cards Row -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Active Courses</span>
+            <div class="kpi-icon-wrapper blue">
+              <lucide-icon name="FileText" [size]="16"></lucide-icon>
+            </div>
+          </div>
+          <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().totalActiveCourses }}</p>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Completed Exams</span>
+            <div class="kpi-icon-wrapper green">
+              <lucide-icon name="Monitor" [size]="16"></lucide-icon>
+            </div>
+          </div>
+          <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().totalCompletedExams }}</p>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">Total Submissions</span>
+            <div class="kpi-icon-wrapper indigo">
+              <lucide-icon name="Users" [size]="16"></lucide-icon>
+            </div>
+          </div>
+          <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().totalSubmissions }}</p>
+        </div>
+
+        <div class="kpi-card danger">
+          <div class="kpi-header">
+            <span class="kpi-label">Total Violations</span>
+            <div class="kpi-icon-wrapper red">
+              <lucide-icon name="ShieldAlert" [size]="16"></lucide-icon>
+            </div>
+          </div>
+          <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().totalViolations }}</p>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="charts-grid">
+        <!-- 30 Day Trend -->
+        <div class="chart-card main-chart">
+          <h3 class="chart-title">
+            <lucide-icon name="TrendingUp" [size]="18"></lucide-icon>
+            Platform Activity (30 Days)
+          </h3>
+          <div class="chart-body" *ngIf="dashboardData()!.activityTrend.length > 0">
+            <div echarts [options]="trendChartOptions()" class="echarts-container"></div>
+          </div>
+          <div *ngIf="dashboardData()!.activityTrend.length === 0" class="empty-chart">
+            No activity data available for the last 30 days.
+          </div>
+        </div>
+
+        <!-- Top Violations & Gauge -->
+        <div class="side-charts">
+          <!-- Gauge -->
+          <div class="chart-card gauge-card">
+            <h3 class="chart-title-absolute">Force Submit Rate</h3>
+            <div echarts [options]="gaugeChartOptions()" class="echarts-gauge"></div>
+            <p class="gauge-subtitle">of all exam submissions</p>
+          </div>
+
+          <!-- Top Violations Bar -->
+          <div class="chart-card list-chart">
+            <h3 class="chart-title">Top Violation Types</h3>
+            <div class="chart-body" *ngIf="dashboardData()!.topViolationTypes.length > 0">
+              <div echarts [options]="topViolationsChartOptions()" class="echarts-container"></div>
+            </div>
+            <div *ngIf="dashboardData()!.topViolationTypes.length === 0" class="empty-chart text-small">
+              No violations recorded.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Rich Charts -->
+      <div class="charts-grid" style="grid-template-columns: 1fr 1fr; margin-top: 24px;">
+        <!-- Violations by Course -->
+        <div class="chart-card">
+          <h3 class="chart-title">Violations by Course</h3>
+          <div class="chart-body" *ngIf="dashboardData()!.examStatistics.length > 0">
+            <div echarts [options]="courseViolationsChartOptions()" class="echarts-container"></div>
+          </div>
+          <div *ngIf="dashboardData()!.examStatistics.length === 0" class="empty-chart">
+            No course data available.
+          </div>
+        </div>
+
+        <!-- Global Submission Outcomes -->
+        <div class="chart-card">
+          <h3 class="chart-title">Global Submission Outcomes</h3>
+          <div class="chart-body" *ngIf="dashboardData()!.examStatistics.length > 0">
+            <div echarts [options]="submissionOutcomesChartOptions()" class="echarts-container"></div>
+          </div>
+          <div *ngIf="dashboardData()!.examStatistics.length === 0" class="empty-chart">
+            No submission data available.
+          </div>
+        </div>
+      </div>
+
+      <!-- Global Exam Monitor -->
+      <div class="table-card">
+        <div class="table-header">
+          <h2 class="table-title">
+            <lucide-icon name="Monitor" [size]="20"></lucide-icon>
+            Global Exam Statistics
+          </h2>
+        </div>
+
+        <div class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Exam Title</th>
+                <th>Course</th>
+                <th>Tutor</th>
+                <th class="align-center">Active Students</th>
+                <th class="align-center">Total Violations</th>
+                <th class="align-center">Submitted</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of dashboardData().examStatistics; trackBy: trackByExamId">
+                <td class="font-medium text-dark">{{ row.examTitle }}</td>
+                <td class="text-muted">{{ row.courseTitle }}</td>
+                <td class="text-muted">{{ row.tutorName }}</td>
+                <td class="align-center">
+                  <span class="badge blue">
+                    {{ row.inProgressCount }}
+                  </span>
+                </td>
+                <td class="align-center">
+                  <span class="stat-value" [class.danger]="row.totalViolations > 0">
+                    {{ row.totalViolations }}
+                  </span>
+                </td>
+                <td class="align-center">
+                  <span class="badge green">
+                    {{ row.submittedCount + row.forceSubmittedCount }}
+                  </span>
+                </td>
+              </tr>
+
+              <tr *ngIf="dashboardData().examStatistics.length === 0">
+                <td colspan="6" class="empty-row" [class.skeleton-text]="loading()">
+                  <ng-container *ngIf="loading()">Loading exam statistics...</ng-container>
+                  <ng-container *ngIf="!loading()">No exams found globally at this time.</ng-container>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

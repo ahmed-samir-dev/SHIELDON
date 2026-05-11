@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { deviceGuard } from './core/guards/device.guard';
-import { authGuard } from './core/guards/auth.guard';
+import { authGuard, tutorGuard, adminGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   // ── Mobile Guard ──────────────────────────────────────────────────────────
@@ -20,23 +20,26 @@ export const routes: Routes = [
         path: '',
         loadComponent: () => import('./features/public/landing/landing').then(m => m.Landing),
         title: 'SHIELDON — Next-Gen LMS & Anti-Cheating Engine'
+      },
+      {
+        path: 'login',
+        loadComponent: () => import('./features/auth/login/login').then(m => m.Login),
+        title: 'Login — SHIELDON'
+      },
+      {
+        path: 'register',
+        loadComponent: () => import('./features/auth/register/register').then(m => m.Register),
+        title: 'Register — SHIELDON'
+      },
+      {
+        path: 'forgot-password',
+        loadComponent: () => import('./features/auth/forgot-password/forgot-password').then(m => m.ForgotPassword),
+        title: 'Forgot Password — SHIELDON'
       }
     ]
   },
 
-  // ── Auth Standalone Routes ────────────────────────────────────────────────
-  {
-    path: 'login',
-    canActivate: [deviceGuard],
-    loadComponent: () => import('./features/auth/login/login').then(m => m.Login),
-    title: 'Login — SHIELDON'
-  },
-  {
-    path: 'forgot-password',
-    canActivate: [deviceGuard],
-    loadComponent: () => import('./features/auth/forgot-password/forgot-password').then(m => m.ForgotPassword),
-    title: 'Forgot Password — SHIELDON'
-  },
+  // ── Auth Verification Routes (Standalone) ─────────────────────────────────
   {
     path: 'auth/verify-email',
     canActivate: [deviceGuard],
@@ -48,6 +51,20 @@ export const routes: Routes = [
     canActivate: [deviceGuard],
     loadComponent: () => import('./features/auth/reset-password/reset-password').then(m => m.ResetPassword),
     title: 'Reset Password — SHIELDON'
+  },
+
+  // ── Exam Engine (Distraction-Free Authenticated) ────────────────────────
+  {
+    path: 'exam-engine/:examId',
+    canActivate: [deviceGuard, authGuard],
+    loadComponent: () => import('./features/courses/exam-engine/exam-engine').then(m => m.ExamEngine),
+    title: 'Exam Engine — SHIELDON'
+  },
+  {
+    path: 'exam-results/:attemptId',
+    canActivate: [deviceGuard, authGuard],
+    loadComponent: () => import('./features/exams/exam-result-page/exam-result-page').then(m => m.ExamResultPage),
+    title: 'Exam Result — SHIELDON'
   },
 
   // ── Authenticated Routes (Protected by authGuard) ─────────────────────────
@@ -62,10 +79,62 @@ export const routes: Routes = [
         loadComponent: () => import('./features/profile/profile').then(m => m.ProfileComponent),
         title: 'My Profile — SHIELDON'
       },
-      // Fallbacks until Phase 2 builds out the role-specific dashboards
-      { path: 'admin/dashboard', redirectTo: 'profile' },
-      { path: 'student/dashboard', redirectTo: 'profile' },
-      { path: 'tutor/dashboard', redirectTo: 'profile' }
+      {
+        path: 'courses',
+        loadComponent: () => import('./features/courses/course-list/course-list').then(m => m.CourseList),
+        title: 'Manage Courses — SHIELDON'
+      },
+      {
+        path: 'courses/:id',
+        loadComponent: () => import('./features/courses/course-detail/course-detail').then(m => m.CourseDetail),
+        title: 'Course Hub — SHIELDON'
+      },
+      {
+        path: 'courses/:courseId/exams/:examId/results',
+        loadComponent: () => import('./features/exams/tutor-results-panel/tutor-results-panel').then(m => m.TutorResultsPanel),
+        title: 'Exam Results — SHIELDON'
+      },
+      {
+        path: 'enrollments',
+        loadComponent: () => import('./features/courses/enrollment-panel/enrollment-panel').then(m => m.EnrollmentPanel),
+        title: 'Enrollment Requests — SHIELDON'
+      },
+      {
+        path: 'reattempt-requests',
+        canActivate: [tutorGuard],
+        loadComponent: () => import('./features/exams/reattempt-requests/reattempt-requests').then(m => m.ReattemptRequestsComponent),
+        title: 'Re-attempt Requests — SHIELDON'
+      },
+      {
+        path: 'courses/:courseId/grades',
+        canActivate: [tutorGuard],
+        loadComponent: () => import('./features/grades/course-grades/course-grades').then(m => m.CourseGrades),
+        title: 'Course Grades — SHIELDON'
+      },
+      {
+        path: 'my-grades',
+        loadComponent: () => import('./features/grades/my-grades/my-grades').then(m => m.MyGrades),
+        title: 'My Grades — SHIELDON'
+      },
+      {
+        path: 'monitoring/attempts/:attemptId',
+        loadComponent: () => import('./features/monitoring/attempt-detail/attempt-detail').then(m => m.AttemptDetailComponent),
+        title: 'Attempt Timeline — SHIELDON'
+      },
+      // Dashboards fallback to courses view for now
+      {
+        path: 'admin/dashboard',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/monitoring/admin-dashboard/admin-dashboard').then(m => m.AdminDashboardComponent),
+        title: 'Admin Dashboard — SHIELDON'
+      },
+      { path: 'student/dashboard', redirectTo: 'courses' },
+      {
+        path: 'tutor/dashboard',
+        canActivate: [tutorGuard],
+        loadComponent: () => import('./features/monitoring/tutor-dashboard/tutor-dashboard').then(m => m.TutorDashboardComponent),
+        title: 'Tutor Dashboard — SHIELDON'
+      }
     ]
   },
 

@@ -1,0 +1,254 @@
+<div class="engine-container" [class.exam-active]="state() === 'active' || state() === 'review'">
+
+  <!-- Loading State -->
+  <div *ngIf="state() === 'loading'" class="full-screen-loader">
+    <div class="spinner"></div>
+    <p>Loading Exam Engine...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="state() === 'error'" class="rules-container">
+    <div class="rules-card" style="text-align: center;">
+      <lucide-icon [img]="AlertTriangle" size="48" style="color: var(--color-status-danger); margin-bottom: var(--spacing-4);"></lucide-icon>
+      <h2>Unable to load exam</h2>
+      <p style="margin-bottom: var(--spacing-6); color: var(--color-medium-grey-blue);">There was a problem loading this exam. It may have been unpublished or deleted.</p>
+      <button class="btn-cancel" (click)="router.navigate(['/courses'])" style="padding: 10px 20px; border-radius: var(--radius-md); cursor: pointer;">Return to Courses</button>
+    </div>
+  </div>
+
+  <!-- Submitting State -->
+  <div *ngIf="state() === 'submitting'" class="full-screen-loader">
+    <div class="spinner"></div>
+    <p>Submitting your exam safely...</p>
+  </div>
+
+  <!-- Rules / Pre-Exam State -->
+  <div *ngIf="state() === 'rules' && examDetails()" class="rules-container">
+    <div class="rules-card">
+      <div class="header">
+        <h1>{{ examDetails()?.title }}</h1>
+        <p>{{ examDetails()?.instructions || 'Please review the exam details before beginning.' }}</p>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <lucide-icon [img]="Clock"></lucide-icon>
+          <div>
+            <span class="label">Time Limit</span>
+            <span class="value">{{ examDetails()?.timeLimit }} Minutes</span>
+          </div>
+        </div>
+        <div class="info-item">
+          <lucide-icon [img]="CheckCircle"></lucide-icon>
+          <div>
+            <span class="label">Pass Score</span>
+            <span class="value">{{ examDetails()?.passScore }}%</span>
+          </div>
+        </div>
+        <div class="info-item">
+          <lucide-icon [img]="AlertTriangle"></lucide-icon>
+          <div>
+            <span class="label">Max Attempts</span>
+            <span class="value">{{ examDetails()?.maxAttempts }}</span>
+          </div>
+        </div>
+        <div class="info-item">
+              <lucide-icon [name]="CheckCircle" class="icon"></lucide-icon>
+              <div class="stat-text">
+                <span class="label">Questions</span>
+                <span class="value">{{ getExamQuestionCount(examDetails()) }}</span>
+              </div>
+        </div>
+      </div>
+
+            <div class="integrity-rules">
+        <h3><lucide-icon [img]="AlertTriangle" size="20"></lucide-icon> Integrity & Anti-Cheating Rules</h3>
+        <p class="rules-subtitle">You must acknowledge all rules before beginning the exam.</p>
+        
+        <div class="rule-checkbox" (click)="toggleRule(0)">
+          <div class="checkbox-box" [class.checked]="rulesChecked()[0]">
+            <lucide-icon *ngIf="rulesChecked()[0]" [img]="CheckCircle" size="16"></lucide-icon>
+          </div>
+          <span class="rule-text">I will not use <strong>keyboard shortcuts</strong> (e.g. Copy, Paste, Print).</span>
+        </div>
+        
+        <div class="rule-checkbox" (click)="toggleRule(1)">
+          <div class="checkbox-box" [class.checked]="rulesChecked()[1]">
+            <lucide-icon *ngIf="rulesChecked()[1]" [img]="CheckCircle" size="16"></lucide-icon>
+          </div>
+          <span class="rule-text">I will not <strong>resize or split</strong> my screen.</span>
+        </div>
+        
+        <div class="rule-checkbox" (click)="toggleRule(2)">
+          <div class="checkbox-box" [class.checked]="rulesChecked()[2]">
+            <lucide-icon *ngIf="rulesChecked()[2]" [img]="CheckCircle" size="16"></lucide-icon>
+          </div>
+          <span class="rule-text">I understand that violations are recorded and may result in <strong>automatic exam termination</strong>.</span>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-cancel" (click)="router.navigate(['/courses', examDetails()?.courseId])">Cancel</button>
+        <button class="btn-start" [disabled]="!allRulesAcknowledged()" (click)="startExam()">Begin Exam</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Active Engine State -->
+  <ng-container *ngIf="state() === 'active' && attemptData()">
+    <header class="engine-header">
+      <div class="brand">
+        SHIELDON <span class="separator">|</span> <span class="exam-title">{{ examDetails()?.title }}</span>
+      </div>
+      
+      <div class="timer-container" [ngClass]="'status-' + timerStatus()">
+        <lucide-icon [img]="Clock" size="20"></lucide-icon>
+        {{ formattedTime() }}
+      </div>
+
+      <button class="submit-btn" (click)="goToReview()">
+        <lucide-icon [img]="CheckCircle" size="18"></lucide-icon> Review Answers
+      </button>
+    </header>
+
+    <div class="engine-layout">
+      
+      <!-- Left Navigator Sidebar -->
+      <aside class="navigator-sidebar">
+        <h3>Question Navigator</h3>
+        <div class="question-grid">
+          <button *ngFor="let q of attemptData()?.questions; let i = index"
+                  [class.active]="currentQuestionIndex() === i"
+                  [class.answered]="isAnswered()(q.id)"
+                  (click)="goToQuestion(i)">
+            {{ i + 1 }}
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Question Area -->
+      <main class="question-area" *ngIf="currentQuestion() as q">
+        <div>
+          <div class="question-card">
+            <div class="question-header">
+              <span class="q-number">Question {{ currentQuestionIndex() + 1 }} of {{ attemptData()?.questions?.length }}</span>
+              <span class="q-points">{{ q.points }} Points</span>
+            </div>
+
+            <div class="q-text">{{ q.text }}</div>
+
+            <!-- MCQ / TrueFalse Options -->
+            <div class="options-list" *ngIf="q.type === 'MCQ' || q.type === 'TrueFalse'">
+              <label *ngFor="let opt of q.options" 
+                     class="option-item" 
+                     [class.selected]="answers()[q.id] === opt.id">
+                <input type="radio" 
+                       [name]="'question_' + q.id" 
+                       [value]="opt.id"
+                       [checked]="answers()[q.id] === opt.id"
+                       (change)="onAnswerChange(q, opt.id)">
+                <span class="option-text">{{ opt.text }}</span>
+              </label>
+            </div>
+
+            <!-- Short Answer Input -->
+            <div *ngIf="q.type === 'ShortAnswer'">
+              <textarea class="short-answer-input" 
+                        placeholder="Type your answer here..."
+                        [ngModel]="answers()[q.id]"
+                        (ngModelChange)="onAnswerChange(q, $event)"></textarea>
+            </div>
+
+            <!-- Saving Indicator -->
+            <div class="saving-indicator" [class.saved]="!savingState()[q.id] && answers()[q.id]">
+              <ng-container *ngIf="savingState()[q.id]">
+                <lucide-icon [img]="Clock" size="16"></lucide-icon> Saving...
+              </ng-container>
+              <ng-container *ngIf="!savingState()[q.id] && answers()[q.id]">
+                <lucide-icon [img]="CheckCircle" size="16"></lucide-icon> Saved
+              </ng-container>
+            </div>
+          </div>
+
+          <!-- Navigation Buttons -->
+          <div class="question-navigation">
+            <button [disabled]="currentQuestionIndex() === 0" (click)="prevQuestion()">
+              <lucide-icon [img]="ChevronLeft" size="20"></lucide-icon> Previous
+            </button>
+            <ng-container *ngIf="currentQuestionIndex() === (attemptData()?.questions?.length || 0) - 1; else nextBtn">
+              <button class="submit-nav-btn" (click)="goToReview()">
+                Review Answers <lucide-icon [img]="CheckCircle" size="20"></lucide-icon>
+              </button>
+            </ng-container>
+            <ng-template #nextBtn>
+              <button (click)="nextQuestion()">
+                Next <lucide-icon [img]="ChevronRight" size="20"></lucide-icon>
+              </button>
+            </ng-template>
+          </div>
+        </div>
+      </main>
+
+    </div>
+  </ng-container>
+
+  <!-- Review State -->
+  <ng-container *ngIf="state() === 'review' && attemptData()">
+    <header class="engine-header">
+      <div class="brand">
+        SHIELDON <span class="separator">|</span> <span class="exam-title">{{ examDetails()?.title }}</span>
+      </div>
+      
+      <div class="timer-container" [ngClass]="'status-' + timerStatus()">
+        <lucide-icon [img]="Clock" size="20"></lucide-icon>
+        {{ formattedTime() }}
+      </div>
+
+      <button class="submit-btn" (click)="submitFinal()">
+        <lucide-icon [img]="CheckCircle" size="18"></lucide-icon> Submit Final
+      </button>
+    </header>
+
+    <div class="review-layout">
+      <div class="review-card">
+        <h2>Review Your Answers</h2>
+        <p class="review-subtitle">Click any question to go back and edit your answer.</p>
+
+        <div class="review-grid">
+          <div *ngFor="let q of attemptData()?.questions; let i = index" 
+               class="review-item" 
+               [class.answered]="isAnswered()(q.id)"
+               (click)="goToQuestion(i); backToExam()">
+            
+            <div class="q-number">Q{{ i + 1 }}</div>
+            
+            <div class="q-status">
+              <ng-container *ngIf="isAnswered()(q.id)">
+                <lucide-icon [img]="CheckCircle" size="18" class="text-success"></lucide-icon>
+                <span>Answered</span>
+              </ng-container>
+              <ng-container *ngIf="!isAnswered()(q.id)">
+                <lucide-icon [img]="AlertTriangle" size="18" class="text-warning"></lucide-icon>
+                <span>Pending</span>
+              </ng-container>
+            </div>
+            
+            <lucide-icon [img]="ChevronRight" size="20" class="arrow-icon"></lucide-icon>
+          </div>
+        </div>
+
+        <div class="review-actions">
+          <button class="btn btn-secondary" (click)="backToExam()">Back to Exam</button>
+          <button class="btn btn-primary" (click)="submitFinal()">Submit Final Answers</button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Anti-Cheat Overlay (only visible when strike score > 0 inside the component) -->
+  <app-anti-cheat-overlay></app-anti-cheat-overlay>
+
+</div>
+
+

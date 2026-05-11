@@ -36,6 +36,7 @@
               }
             ],
             "styles": [
+              "node_modules/shepherd.js/dist/css/shepherd.css",
               "src/styles.scss",
               "src/assets/styles/global.scss"
             ],
@@ -55,8 +56,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "20kB",
+                  "maximumError": "40kB"
                 }
               ],
               "fileReplacements": [

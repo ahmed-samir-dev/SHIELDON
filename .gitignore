@@ -12,6 +12,7 @@ secrets.json
 .env.local
 .env.development
 .env.production
+scratch/
 
 # ── .NET / Visual Studio ────────────────────────────────────
 *.user
@@ -63,3 +64,5 @@ Thumbs.db
 
 # ── Uploads (local dev only — never commit uploaded files) ──
 backend/SHIELDON.API/wwwroot/uploads/
+backend/SHIELDON.API/wwwroot/Storage/
+backend/SHIELDON.API/Storage/

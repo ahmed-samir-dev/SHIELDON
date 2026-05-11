@@ -5,14 +5,14 @@ import { Injectable, signal } from '@angular/core';
 })
 export class LoadingService {
   private activeRequests = 0;
-  
+
   // Expose a signal for the UI to bind to natively
   public readonly isLoading = signal(false);
 
   show() {
     this.activeRequests++;
     if (this.activeRequests === 1) {
-      // Async to avoid ExpressionChangedAfterItHasBeenCheckedError
+      // Use queueMicrotask to avoid ExpressionChangedAfterItHasBeenCheckedError
       queueMicrotask(() => this.isLoading.set(true));
     }
   }

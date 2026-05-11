@@ -30,6 +30,9 @@ This file is **gitignored** — it will never be committed.
     "FromName": "SHIELDON Platform",
     "FromEmail": "noreply@shieldon.com"
   },
+  "GeminiSettings": {
+    "ApiKey": "your-gemini-api-key-here"
+  },
   "AdminSeed": {
     "Email": "admin@shieldon.com",
     "Password": "Admin@Shieldon2025!",
@@ -44,20 +47,40 @@ This file is **gitignored** — it will never be committed.
 ## How to Get Each Secret
 
 ### SQL Server Connection String
+
 - If using Windows Authentication (Trusted_Connection): `Server=localhost;Database=ShieldonDB;Trusted_Connection=True;TrustServerCertificate=True;`
 - If using SQL Server Authentication: `Server=localhost;Database=ShieldonDB;User Id=sa;Password=YourPassword;TrustServerCertificate=True;`
 
 ### JWT Secret Key
+
 - Must be **minimum 32 characters** long
 - Ask your team lead, or generate: open any online GUID generator and combine two GUIDs
 - Example (do NOT use this): `SHIELDON-JWT-Secret-Key-For-Dev-Only-2025!`
 
-### Email (Mailtrap.io — Development Only)
-1. Go to [mailtrap.io](https://mailtrap.io) → Sign up free
-2. Go to **Email Testing → Inboxes → My Inbox**
-3. Click **Show Credentials**
-4. Copy `SMTP Host`, `Port`, `Username`, and `Password`
-5. No real emails are sent — all emails go to Mailtrap inbox for inspection
+### Email Option A: Mailtrap (Development Only)
+
+1. Go to [mailtrap.io](https://mailtrap.io) → Sign up free.
+2. Go to **Email Testing → Inboxes → My Inbox**.
+3. Click **Show Credentials** and copy the SMTP details.
+4. This captures emails without sending them to real users.
+
+### Email Option B: Gmail (For Real Emails)
+
+To send real emails using a Gmail account:
+
+1. Set `SmtpHost` to `smtp.gmail.com`
+2. Set `SmtpPort` to `587`
+3. Set `SmtpUser` to your Gmail address.
+4. Set `SmtpPassword` to a **Google App Password** (NOT your normal password).
+   - _How to get one_: Go to Google Account → Security → 2-Step Verification → App passwords (at the bottom). Generate one for "Mail".
+5. Set `FromEmail` to match your Gmail address.
+
+### Gemini API Key (For AI Assistant)
+
+1. Go to [Google AI Studio](https://aistudio.google.com/)
+2. Sign in with your Google account
+3. Click **Create API Key**
+4. Copy the generated key and paste it in your configuration
 
 ---
 
@@ -74,6 +97,7 @@ dotnet user-secrets set "EmailSettings:SmtpHost" "sandbox.smtp.mailtrap.io"
 dotnet user-secrets set "EmailSettings:SmtpPort" "587"
 dotnet user-secrets set "EmailSettings:SmtpUser" "your-mailtrap-user"
 dotnet user-secrets set "EmailSettings:SmtpPassword" "your-mailtrap-password"
+dotnet user-secrets set "GeminiSettings:ApiKey" "your-gemini-api-key"
 dotnet user-secrets set "AdminSeed:Password" "Admin@Shieldon2025!"
 ```
 

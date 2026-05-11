@@ -1,0 +1,142 @@
+<div class="panel-container">
+  
+  <header class="panel-header">
+    <div class="header-content">
+      <div class="title-group">
+        <h1>Re-attempt Requests</h1>
+        <p class="subtitle">Review and manage student requests for additional exam attempts.</p>
+      </div>
+      <div class="actions">
+        <button class="btn btn-outline" (click)="loadRequests()" [disabled]="isLoading()">
+          <lucide-icon [img]="RefreshCw" size="18" [class.spinning]="isLoading()"></lucide-icon>
+          Refresh
+        </button>
+      </div>
+    </div>
+
+    <div class="controls-bar">
+      <!-- Status Tabs -->
+      <div class="status-tabs">
+        <button 
+          *ngFor="let tab of statusTabs"
+          class="tab-btn" 
+          [class.active]="currentStatusFilter() === tab"
+          (click)="filterByStatus(tab)">
+          {{ tab }}
+        </button>
+      </div>
+
+      <!-- Search Box -->
+      <div class="search-box">
+        <lucide-icon [img]="Search" size="16" class="search-icon"></lucide-icon>
+        <input 
+          type="text" 
+          placeholder="Search student, exam, course..." 
+          [value]="searchTerm()"
+          (input)="onSearch($event)">
+      </div>
+    </div>
+  </header>
+
+  <main class="panel-main">
+    
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="isLoading()">
+      <div class="spinner"></div>
+      <p>Loading requests...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!isLoading() && requests().length === 0">
+      <lucide-icon [img]="AlertCircle" size="48" class="text-neutral-400 mb-4"></lucide-icon>
+      <h3>No Requests Found</h3>
+      <p>There are currently no re-attempt requests matching the selected filter.</p>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-container" *ngIf="!isLoading() && requests().length > 0">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Exam / Course</th>
+            <th>Attempts</th>
+            <th>Status</th>
+            <th>Requested At</th>
+            <th class="actions-col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let req of requests()">
+            
+            <td>
+              <div class="student-info">
+                <span class="student-name">{{ req.studentName }}</span>
+                <span class="student-id">{{ req.studentDisplayId || req.studentEmail }}</span>
+              </div>
+            </td>
+            
+            <td>
+              <div class="exam-info">
+                <span class="exam-title">{{ req.examTitle }}</span>
+                <span class="course-title">{{ req.courseTitle }}</span>
+              </div>
+            </td>
+            
+            <td>
+              <div class="attempts-badge">
+                <span class="current">{{ req.attemptsMade }}</span> / <span class="max">{{ req.maxAttempts }}</span>
+              </div>
+            </td>
+            
+            <td>
+              <div class="status-badge" [ngClass]="'status-' + req.status.toLowerCase()">
+                {{ req.status }}
+              </div>
+            </td>
+            
+            <td>
+              <span class="date-text">{{ req.requestedAt | date:'mediumDate' }}</span>
+            </td>
+            
+            <td class="actions-col">
+              <div class="action-buttons">
+                <!-- View Justification (Always available) -->
+                <button class="btn-icon view" (click)="viewJustification(req)" title="View Justification">
+                  <lucide-icon [img]="Eye" size="18"></lucide-icon>
+                </button>
+                
+                <!-- Approve / Reject (Only for Pending) -->
+                <ng-container *ngIf="req.status === 'Pending'">
+                  <button class="btn-icon approve" (click)="approveRequest(req.id, req.studentName)" title="Approve Request">
+                    <lucide-icon [img]="CheckCircle" size="18"></lucide-icon>
+                  </button>
+                  <button class="btn-icon reject" (click)="rejectRequest(req.id, req.studentName)" title="Reject Request">
+                    <lucide-icon [img]="XCircle" size="18"></lucide-icon>
+                  </button>
+                </ng-container>
+              </div>
+            </td>
+            
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-footer" *ngIf="!isLoading() && totalPages() > 1">
+      <span class="pagination-info">Showing page {{ currentPage() }} of {{ totalPages() }}</span>
+      <div class="pagination-controls">
+        <button class="btn-page" [disabled]="currentPage() === 1" (click)="changePage(currentPage() - 1)">
+          <lucide-icon [img]="ChevronLeft" size="16"></lucide-icon>
+          Prev
+        </button>
+        <button class="btn-page" [disabled]="currentPage() === totalPages()" (click)="changePage(currentPage() + 1)">
+          Next
+          <lucide-icon [img]="ChevronRight" size="16"></lucide-icon>
+        </button>
+      </div>
+    </div>
+
+  </main>
+</div>

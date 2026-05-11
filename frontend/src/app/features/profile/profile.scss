@@ -23,11 +23,12 @@
 }
 
 .profile-card {
-  background: white;
-  border-radius: $border-radius-lg;
-  box-shadow: $shadow-md;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border-radius: $border-radius-xl;
+  box-shadow: $shadow-xl;
   padding: $spacing-8;
-  border: 1px solid $color-neutral-200;
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 // Avatar Styles
@@ -125,6 +126,22 @@
 }
 
 // Form Styles
+
+.role-actions-row {
+  display: flex;
+  justify-content: space-between; 
+  align-items: flex-end; 
+  margin-top: $spacing-2;
+  
+  .form-group {
+    margin-bottom: 0;
+  }
+
+  .form-actions {
+    margin-top: 0;
+  }
+}
+
 .profile-form {
   display: flex;
   flex-direction: column;
@@ -170,28 +187,62 @@
     &:focus:not(:disabled) {
       outline: none;
       border-color: $color-primary-base;
-      box-shadow: 0 0 0 3px rgba($color-primary-base, 0.12);
+      box-shadow: 0 0 0 4px rgba($color-primary-base, 0.1);
+      transform: translateY(-1px);
     }
   }
   
   &.has-error input {
     border-color: $color-danger-base;
+    box-shadow: 0 0 0 4px rgba($color-danger-base, 0.1);
   }
 }
 
-.input-with-icon {
+.input-wrapper {
   position: relative;
   
-  svg {
+  .input-icon {
     position: absolute;
     left: 14px;
     top: 50%;
     transform: translateY(-50%);
     color: $color-neutral-500;
+    transition: color 0.3s;
+    z-index: 1;
   }
   
   input {
     padding-left: 2.75rem;
+    
+    &:focus ~ .input-icon {
+      color: $color-primary-base;
+    }
+  }
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: $color-neutral-400;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s, transform 0.2s;
+  z-index: 2;
+  
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+  
+  &:hover { 
+    color: $color-primary-base;
+    transform: translateY(-50%) scale(1.1);
   }
 }
 
@@ -211,7 +262,7 @@
 .role-badge {
   align-self: flex-start;
   background: $color-primary-light;
-  color: $color-primary-dark;
+  color: white;
   padding: $spacing-1 $spacing-3;
   border-radius: 9999px;
   font-size: $font-size-sm;
@@ -243,6 +294,34 @@
   &:hover:not(:disabled) {
     background: $color-primary-dark;
     box-shadow: $shadow-md;
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.btn-secondary {
+  padding: $spacing-3 $spacing-6;
+  background: white;
+  color: $color-neutral-800;
+  border: 1px solid $color-neutral-200;
+  border-radius: $border-radius-md;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  box-shadow: $shadow-sm;
+  
+  &:hover:not(:disabled) {
+    background: $color-neutral-50;
+    border-color: $color-neutral-300;
+    box-shadow: $shadow-md;
+    transform: translateY(-1px);
   }
   
   &:disabled {
