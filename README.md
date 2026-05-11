@@ -175,6 +175,23 @@ This downloads the project files to your computer.
 
 ---
 
+## How to Test (Demo Accounts)
+
+To test the different roles in the system, follow these instructions:
+
+### 1. Test as Admin
+The system comes with a pre-seeded Admin account (you cannot register an Admin account via the app for security reasons).
+- **Email**: `admin@shieldon.com`
+- **Password**: `Admin@Shieldon2025!`
+
+### 2. Test as Tutor or Student
+To test the Tutor or Student roles and experience the registration flow:
+1. Go to the landing page and click on **Register** (or go to `/register`).
+2. Fill in the details and select the role you want to test (**Tutor** or **Student**).
+3. Complete the registration. You can now log in with the account you just created!
+
+---
+
 ## API Endpoints Reference
 
 The following API modules are implemented and available for interaction:
