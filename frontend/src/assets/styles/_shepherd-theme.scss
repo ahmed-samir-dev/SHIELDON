@@ -1,0 +1,97 @@
+@import 'variables';
+
+// ── Custom SHIELDON Theme for Shepherd.js ──
+// Applied via the classes: 'shieldon-shepherd-theme' option in shepherd.service.ts
+
+.shepherd-element.shieldon-shepherd-theme {
+  border-radius: $border-radius-xl;
+  box-shadow: $shadow-xl;
+  font-family: $font-family-primary;
+  border: 1px solid $color-neutral-200;
+  background: white;
+  padding: 0;
+  max-width: 400px;
+  
+  // Header section
+  .shepherd-header {
+    background: $color-neutral-50;
+    border-radius: $border-radius-xl $border-radius-xl 0 0;
+    padding: $spacing-4;
+    border-bottom: 1px solid $color-neutral-200;
+    
+    .shepherd-title {
+      font-family: $font-family-secondary;
+      font-weight: $font-weight-semibold;
+      font-size: 1.125rem;
+      color: $color-neutral-900;
+      margin: 0;
+    }
+    
+    .shepherd-cancel-icon {
+      color: $color-neutral-500;
+      transition: color 0.2s;
+      
+      &:hover {
+        color: $color-danger-base;
+      }
+    }
+  }
+  
+  // Body text
+  .shepherd-text {
+    padding: $spacing-4;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: $color-neutral-700;
+  }
+  
+  // Footer / Buttons
+  .shepherd-footer {
+    padding: $spacing-3 $spacing-4 $spacing-4;
+    border-radius: 0 0 $border-radius-xl $border-radius-xl;
+    
+    .shepherd-button {
+      margin-right: 0;
+      font-family: $font-family-primary;
+      font-weight: 500;
+      border-radius: $border-radius-md;
+      padding: 0.5rem 1rem;
+      transition: all 0.2s;
+      
+      &.shepherd-button-primary {
+        background: $color-primary-base;
+        color: white;
+        
+        &:hover {
+          background: $color-primary-dark;
+          transform: translateY(-1px);
+        }
+      }
+      
+      &.shepherd-button-secondary {
+        background: $color-neutral-100;
+        color: $color-neutral-700;
+        margin-right: $spacing-2;
+        
+        &:hover {
+          background: $color-neutral-200;
+        }
+      }
+    }
+  }
+  
+  // Arrow customization
+  &.shepherd-has-title .shepherd-content .shepherd-header {
+    background: transparent;
+  }
+}
+
+// Glassmorphism Overlay (Dark)
+.shepherd-modal-overlay-container {
+  &.shepherd-modal-is-visible {
+    path {
+      fill: rgba(15, 23, 42, 0.7); // neutral-900 with opacity
+      backdrop-filter: blur(4px);
+    }
+  }
+}

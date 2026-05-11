@@ -1,0 +1,374 @@
+<div class="questions-panel">
+
+  <div class="panel-header">
+    <div class="header-left">
+      <div class="title-group">
+        <h2>Course Question Bank</h2>
+      </div>
+    </div>
+
+    <button class="btn btn-primary post-btn" (click)="openCreateModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Question
+    </button>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-label">Total Questions:</span>
+      <span class="stat-value">{{ questions().length }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">MCQ:</span>
+      <span class="stat-value">{{ mcqCount() }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">True/False:</span>
+      <span class="stat-value">{{ tfCount() }}</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">Short Answer:</span>
+      <span class="stat-value">{{ saCount() }}</span>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading questions...</p>
+    </div>
+  } @else if (questions().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <h3>No Questions Yet</h3>
+      <p>Start building your question bank by adding questions.</p>
+      <button class="btn btn-primary" style="margin-top: 16px;" (click)="openCreateModal()">Add First Question</button>
+    </div>
+  } @else {
+    <div class="questions-grid">
+      @for (q of paginatedQuestions(); track q.id; let i = $index) {
+        <div class="question-card" (click)="openViewDetailsModal(q)">
+          <div class="card-accent"></div>
+          
+          <div class="q-header">
+            <div class="q-left">
+              <span class="q-number">Q{{ (currentPage() - 1) * pageSize() + i + 1 }}</span>
+              <span class="badge" [ngClass]="getBadgeClass(q.type)">{{ formatType(q.type) }}</span>
+              <span class="points-badge">{{ q.points }} pt{{ q.points !== 1 ? 's' : '' }}</span>
+              @if (q.isRandomized) {
+                <span class="badge badge-light" title="Included in randomization shuffle">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+                </span>
+              }
+            </div>
+
+            <div class="q-actions" (click)="$event.stopPropagation()">
+              <button class="modern-action-btn edit" title="Edit Question" (click)="openEditModal(q)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              </button>
+              <button class="modern-action-btn delete" title="Delete Question" (click)="deleteQuestion(q.id)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="q-body">
+            <p class="q-text">
+              {{ q.questionText.length > 120 ? (q.questionText | slice:0:120) + '...' : q.questionText }}
+            </p>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (totalPages() > 1) {
+      <div class="pagination-controls">
+        <button class="btn-pagination" [disabled]="currentPage() === 1" (click)="prevPage()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          Prev
+        </button>
+        <span class="page-info">Page {{ currentPage() }} of {{ totalPages() }}</span>
+        <button class="btn-pagination" [disabled]="currentPage() === totalPages()" (click)="nextPage()">
+          Next
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+    }
+  }
+</div>
+
+@if (isModalOpen()) {
+  <div class="custom-modal-overlay fadeIn animated" (click)="closeModal()">
+    <div class="custom-modal-container slideUp animated wide-modal" (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+        <div class="modal-title-wrapper">
+          <div class="icon-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+          </div>
+          <h2>{{ editingQuestionId() ? 'Edit Question' : 'Add New Question' }}</h2>
+        </div>
+        <button class="close-btn" (click)="closeModal()" aria-label="Close modal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+<form [formGroup]="questionForm" (ngSubmit)="onSubmit()" class="modal-body">
+          
+          <div class="form-row two-col-equal">
+            <div class="form-group">
+              <label>Question Type <span class="required">*</span></label>
+              <div class="input-wrapper select-wrapper">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                  <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                  <line x1="14" y1="4" x2="21" y2="4"></line>
+                  <line x1="14" y1="8" x2="21" y2="8"></line>
+                  <line x1="14" y1="15" x2="21" y2="15"></line>
+                  <line x1="14" y1="19" x2="21" y2="19"></line>
+                </svg>
+                <select formControlName="type" (change)="onTypeChange($event)">
+                  <option value="MCQ">Multiple Choice</option>
+                  <option value="TrueFalse">True / False</option>
+                  <option value="ShortAnswer">Short Answer</option>
+                </select>
+                <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
+              @if (editingQuestionId()) {
+                <div class="modern-instruction locked-field-hint" style="margin-top: 8px; padding: 10px 14px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2);">
+                  <div class="icon-pulse" style="animation: none; color: #d97706;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                  </div>
+                  <div class="instruction-text" style="font-size: 13px; color: #b45309;">
+                    <span class="highlight" style="color: #92400e; font-weight: 600;">Locked:</span> Question type cannot be changed after creation.
+                  </div>
+                </div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label>Points <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                <input type="number" formControlName="points" min="1" step="1" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group full-width-text">
+            <label>Question Text <span class="required">*</span></label>
+            <div class="input-wrapper text-area-wrapper">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              <textarea formControlName="questionText" rows="3" placeholder="Enter the question text here..."
+                [class.is-invalid]="questionForm.get('questionText')?.touched && questionForm.get('questionText')?.invalid"></textarea>
+            </div>
+          </div>
+
+          <div class="dynamic-options-area">
+              @if (questionForm.get('type')?.value === 'MCQ') {
+                <div class="options-section fadeIn animated">
+                  <div class="modern-section-header">
+                    <label class="modern-label">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                      Answer Options <span class="required">*</span>
+                    </label>
+                    <button type="button" class="modern-ghost-btn" (click)="addOptionControl()">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> 
+                      <span>Add Option</span>
+                    </button>
+                  </div>
+                  
+                  <div formArrayName="options" class="options-grid">
+                    @for (opt of optionsFormArray.controls; track $index; let i = $index) {
+                      <div [formGroupName]="i" class="option-row" [class.is-correct]="opt.get('isCorrect')?.value">
+                        <label class="custom-radio-wrapper" title="Mark as correct answer">
+                          <input type="radio" [name]="'correctOption'" [checked]="opt.get('isCorrect')?.value" (change)="setCorrectOption(i)">
+                          <span class="radio-circle"></span>
+                        </label>
+                        <div class="input-wrapper full-width">
+                          <input type="text" formControlName="optionText" placeholder="Enter option text..." />
+                        </div>
+                        <button type="button" class="remove-btn" (click)="removeOptionControl(i)" title="Remove option">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                  
+                  <div class="modern-instruction">
+                    <div class="icon-pulse">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    </div>
+                    <div class="instruction-text">
+                      <span class="highlight">Quick Tip:</span> Click the circular radio button next to the answer you want to mark as correct.
+                    </div>
+                  </div>
+                </div>
+              }
+
+              @if (questionForm.get('type')?.value === 'TrueFalse') {
+                <div class="options-section fadeIn animated">
+                  
+                  <div class="modern-section-header">
+                    <label class="modern-label">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                      Correct Answer <span class="required">*</span>
+                    </label>
+                  </div>
+
+                  <div class="options-grid">
+                    
+                    <label class="option-row" [class.is-correct]="questionForm.get('trueFalseCorrectAnswer')?.value === true" style="cursor: pointer;">
+                      <div class="custom-radio-wrapper">
+                        <input type="radio" formControlName="trueFalseCorrectAnswer" [value]="true">
+                        <span class="radio-circle"></span>
+                      </div>
+                      <div class="input-wrapper full-width tf-static-text">
+                        <span class="tf-text success">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                          True
+                        </span>
+                      </div>
+                    </label>
+
+                    <label class="option-row" [class.is-correct]="questionForm.get('trueFalseCorrectAnswer')?.value === false" style="cursor: pointer;">
+                      <div class="custom-radio-wrapper">
+                        <input type="radio" formControlName="trueFalseCorrectAnswer" [value]="false">
+                        <span class="radio-circle"></span>
+                      </div>
+                      <div class="input-wrapper full-width tf-static-text">
+                        <span class="tf-text danger">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                          False
+                        </span>
+                      </div>
+                    </label>
+
+                  </div>
+
+                  <div class="modern-instruction">
+                    <div class="icon-pulse">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    </div>
+                    <div class="instruction-text">
+                      <span class="highlight">Quick Tip:</span> Click on the card to set the correct answer for this statement.
+                    </div>
+                  </div>
+                </div>
+              }
+
+              @if (questionForm.get('type')?.value === 'ShortAnswer') {
+                <div class="options-section fadeIn animated">
+                   <div class="modern-instruction">
+                     <div class="icon-pulse" style="animation: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                     </div>
+                     <div class="instruction-text">
+                       Short answer questions do not require predefined options. Students will type their text manually during the exam.
+                     </div>
+                   </div>
+                </div>
+              }
+          </div>
+
+          <label class="modern-toggle-card">
+            <div class="toggle-content">
+              <div class="toggle-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+              </div>
+              <div class="toggle-text">
+                <span class="title">Enable Random Shuffling</span>
+                <span class="desc">Scramble this question's position during the exam. Uncheck to lock it in place.</span>
+              </div>
+            </div>
+            <div class="toggle-switch">
+              <input type="checkbox" formControlName="isRandomized" class="hidden-toggle">
+              <span class="slider"></span>
+            </div>
+          </label>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeModal()" [disabled]="isSubmitting()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="questionForm.invalid || isSubmitting()">
+              @if (isSubmitting()) {
+                <div class="loader-ring"></div><span>{{ editingQuestionId() ? 'Saving...' : 'Adding...' }}</span>
+              } @else {
+                <span>{{ editingQuestionId() ? 'Save Changes' : 'Add Question' }}</span>
+              }
+            </button>
+          </div>
+        </form>
+    </div>
+  </div>
+}
+
+@if (viewingQuestion()) {
+  <div class="custom-modal-overlay fadeIn animated" (click)="closeViewDetailsModal()">
+    <div class="custom-modal-container slideUp animated" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-wrapper">
+          <div class="icon-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          </div>
+          <h2>Question Details</h2>
+        </div>
+        <button class="close-btn" (click)="closeViewDetailsModal()" aria-label="Close modal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="modal-body details-body">
+        <div class="details-meta">
+          <span class="badge" [ngClass]="getBadgeClass(viewingQuestion()!.type)">{{ formatType(viewingQuestion()!.type) }}</span>
+          <span class="points-badge">{{ viewingQuestion()!.points }} pt{{ viewingQuestion()!.points !== 1 ? 's' : '' }}</span>
+        </div>
+        
+        <div class="details-text-box">
+          <p>{{ viewingQuestion()!.questionText }}</p>
+        </div>
+
+        @if (viewingQuestion()!.type === 'MCQ' || viewingQuestion()!.type === 'TrueFalse') {
+          <div class="q-options">
+            @for (opt of viewingQuestion()!.options; track opt.id) {
+              <div class="option-item" [class.correct]="opt.isCorrect">
+                <div class="opt-indicator">
+                  @if (opt.isCorrect) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  } @else {
+                    <span class="opt-bullet"></span>
+                  }
+                </div>
+                <span class="opt-text">{{ opt.optionText }}</span>
+                @if (opt.isCorrect) {
+                  <span class="correct-badge">Correct</span>
+                }
+              </div>
+            }
+          </div>
+        } @else if (viewingQuestion()!.type === 'ShortAnswer') {
+          <div class="short-answer-placeholder">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="3" x2="21" y2="7"/><path d="M21 7L13.5 14.5 9 15l.5-4.5L17 3z"/><path d="M19 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg>
+            Student will provide a text answer. (Manual grading required)
+          </div>
+        }
+        
+        <div class="modal-footer details-footer">
+          <button class="btn-modern edit-btn" (click)="openEditModal(viewingQuestion()!); closeViewDetailsModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            Edit Question
+          </button>
+          <button class="btn-modern close-btn" (click)="closeViewDetailsModal()">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

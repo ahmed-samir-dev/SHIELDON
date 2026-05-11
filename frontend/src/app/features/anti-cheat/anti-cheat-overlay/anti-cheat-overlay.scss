@@ -1,0 +1,193 @@
+@import '../../../../assets/styles/variables';
+@import '../../../../assets/styles/mixins';
+
+.anti-cheat-container {
+  position: absolute; /* or fixed depending on how it's injected */
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10000; /* Must be above everything */
+  pointer-events: none; /* Let clicks pass through except on specific overlay items */
+}
+
+/* ── Strike 1: Banner ────────────────────────────────────────────────────── */
+.strike-banner {
+  pointer-events: auto;
+  position: fixed;
+  top: 72px;
+  left: 0;
+  width: 100%;
+  z-index: 9999;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: #fff;
+  font-weight: 500;
+  box-shadow: $shadow-md;
+  animation: slideDown 0.3s ease-out;
+
+  &.warning-banner {
+    background-color: $color-warning-base;
+  }
+
+  .icon {
+    flex-shrink: 0;
+  }
+
+  .banner-text {
+    flex: 1;
+    font-size: 0.95rem;
+    
+    strong {
+      font-weight: 700;
+      margin-right: 0.5rem;
+    }
+  }
+}
+
+/* ── Strike 2 & 3: Overlays ──────────────────────────────────────────────── */
+.strike-overlay {
+  pointer-events: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  animation: fadeIn 0.3s ease-out;
+
+  &.final-warning-overlay {
+    background-color: rgba($color-warning-base, 0.95);
+  }
+
+  &.terminated-overlay {
+    background-color: rgba($color-danger-base, 0.95);
+  }
+
+  .overlay-content {
+    background: $color-neutral-white;
+    padding: 3rem;
+    border-radius: $border-radius-lg;
+    box-shadow: $shadow-xl;
+    text-align: center;
+    max-width: 600px;
+    width: 90%;
+    color: $color-neutral-900;
+
+    .icon {
+      color: $color-warning-base;
+      margin-bottom: 1.5rem;
+      
+      &.shake-icon {
+        color: $color-danger-base;
+        animation: shake 0.5s infinite;
+      }
+      
+      &.pulse-icon {
+        animation: pulse 2s infinite;
+      }
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: $color-neutral-900;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: $color-neutral-600;
+      margin-bottom: 2rem;
+    }
+
+    .rules-reminder {
+      background: $color-neutral-50;
+      padding: 1.5rem;
+      border-radius: $border-radius-md;
+      margin-bottom: 2rem;
+      text-align: left;
+
+      p {
+        font-weight: 500;
+        margin-bottom: 1rem;
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+          position: relative;
+          padding-left: 1.5rem;
+          margin-bottom: 0.5rem;
+          color: $color-neutral-600;
+
+          &::before {
+            content: "•";
+            position: absolute;
+            left: 0.5rem;
+            color: $color-warning-base;
+            font-weight: bold;
+          }
+        }
+      }
+    }
+
+    .btn {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: $color-neutral-200;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 2rem;
+
+      .progress-fill {
+        height: 100%;
+        background: $color-danger-base;
+        width: 100%;
+        animation: shrinkWidth 3s linear forwards;
+      }
+    }
+  }
+}
+
+/* ── Animations ──────────────────────────────────────────────────────────── */
+@keyframes slideDown {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes shrinkWidth {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+

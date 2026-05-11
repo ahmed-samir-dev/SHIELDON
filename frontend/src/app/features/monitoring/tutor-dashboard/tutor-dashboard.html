@@ -1,0 +1,259 @@
+<div class="tutor-dashboard">
+  <!-- Header -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="header-badge">
+        <lucide-icon name="Activity" [size]="16"></lucide-icon>
+        Analytics
+      </div>
+      <h1 class="header-title">Exam Analytics</h1>
+      <p class="header-subtitle">Review historical exam statistics and violation reports for completed sessions.</p>
+    </div>
+  </header>
+
+  <!-- Error State -->
+  <div *ngIf="!loading() && error()" class="error-state">
+    <lucide-icon name="AlertTriangle" [size]="20"></lucide-icon>
+    <span>{{ error() }}</span>
+  </div>
+
+  <ng-container *ngIf="!error()">
+    <div class="dashboard-content">
+      <!-- Grouped Exams by Course (Scalable) -->
+      <div class="course-filters-modern">
+        <h2 class="section-title">Exam Summaries</h2>
+        <div class="search-box-modern">
+          <lucide-icon name="Search" [size]="18" class="search-icon"></lucide-icon>
+          <input type="text" [value]="courseSearchQuery()" (input)="courseSearchQuery.set($any($event.target).value)"
+                 placeholder="Search courses or exams..." class="search-input">
+        </div>
+      </div>
+
+      <div class="grouped-exams-container">
+        <!-- Pagination controls -->
+        <div class="pagination-controls" *ngIf="totalPages() > 1">
+          <button class="btn-page" [disabled]="coursePage() === 1" (click)="changePage(-1)">
+            <lucide-icon name="ChevronLeft" [size]="16"></lucide-icon>
+            Prev
+          </button>
+          <span class="page-info">Page {{ coursePage() }} of {{ totalPages() }}</span>
+          <button class="btn-page" [disabled]="coursePage() === totalPages()" (click)="changePage(1)">
+            Next
+            <lucide-icon name="ChevronRight" [size]="16"></lucide-icon>
+          </button>
+        </div>
+
+        <div *ngFor="let group of paginatedCourses(); trackBy: trackByCourseGroup" 
+             class="course-group" [class.expanded]="expandedCourses().has(group.courseTitle)">
+          
+          <button class="course-header" (click)="toggleCourse(group.courseTitle)">
+            <div class="course-info">
+              <lucide-icon name="FileText" [size]="20" class="course-icon"></lucide-icon>
+              <h3 class="course-title">{{ group.courseTitle }}</h3>
+              <span class="course-badge">{{ group.exams.length }} Exams</span>
+            </div>
+            <div class="header-actions">
+              <span>View Details</span>
+              <lucide-icon name="ChevronDown" [size]="18" class="chevron"></lucide-icon>
+            </div>
+          </button>
+
+          <div class="course-exams-grid" *ngIf="expandedCourses().has(group.courseTitle)">
+            <div *ngFor="let exam of group.exams; trackBy: trackByExamId" class="exam-card">
+              <div class="exam-header">
+                <h4 class="exam-title" [title]="exam.examTitle">{{ exam.examTitle }}</h4>
+              </div>
+              
+              <div class="exam-stats">
+                <div class="stat-item">
+                  <span class="stat-label">Done</span>
+                  <span class="stat-value text-green">{{ exam.submittedCount }}</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Terminated</span>
+                  <span class="stat-value text-red">{{ exam.forceSubmittedCount }}</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Violations</span>
+                  <span class="stat-value text-orange">{{ exam.totalViolations }}</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">Avg Score</span>
+                  <span class="stat-value">{{ exam.averageScore !== null ? (exam.averageScore | number:'1.1-2') + '%' : 'N/A' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State for Exams -->
+        <div *ngIf="filteredCourses().length === 0" class="empty-exams">
+          <ng-container *ngIf="loading()">
+            <div class="subtle-loader"></div>
+            Loading exam summaries...
+          </ng-container>
+          <ng-container *ngIf="!loading()">No exams found matching your search.</ng-container>
+        </div>
+      </div>
+
+      <div class="analytics-row">
+        <!-- Violation Types Chart (1/2 width) -->
+        <div class="violation-chart-card">
+          <h3 class="card-title">Violation Distribution</h3>
+          <div class="chart-area" *ngIf="dashboardData().violationTypeDistribution.length > 0">
+            <div echarts [options]="violationChartOptions()" class="echarts-full"></div>
+          </div>
+          <div *ngIf="dashboardData().violationTypeDistribution.length === 0" class="empty-chart">
+            <ng-container *ngIf="loading()">
+              <div class="subtle-loader"></div>
+              Loading analytics...
+            </ng-container>
+            <ng-container *ngIf="!loading()">No violations recorded yet.</ng-container>
+          </div>
+        </div>
+
+        <!-- Submission Status (1/2 width) -->
+        <div class="violation-chart-card">
+          <h3 class="card-title">Submission Outcomes</h3>
+          <div class="chart-area" *ngIf="dashboardData().examSummaries.length > 0">
+            <div echarts [options]="submissionStatusChartOptions()" class="echarts-full"></div>
+          </div>
+          <div *ngIf="dashboardData().examSummaries.length === 0" class="empty-chart">
+            <ng-container *ngIf="loading()">
+              <div class="subtle-loader"></div>
+              Loading analytics...
+            </ng-container>
+            <ng-container *ngIf="!loading()">No exams available to analyze.</ng-container>
+          </div>
+        </div>
+      </div>
+
+      <div class="analytics-row full-width">
+        <!-- Score vs Violations (Full width) -->
+        <div class="violation-chart-card full-width">
+          <h3 class="card-title">Average Score vs Total Violations</h3>
+          <div class="chart-area" *ngIf="dashboardData().examSummaries.length > 0">
+            <div echarts [options]="scoreVsViolationsChartOptions()" class="echarts-full"></div>
+          </div>
+          <div *ngIf="dashboardData().examSummaries.length === 0" class="empty-chart">
+            <ng-container *ngIf="loading()">
+              <div class="subtle-loader"></div>
+              Loading analytics...
+            </ng-container>
+            <ng-container *ngIf="!loading()">No data available.</ng-container>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Submissions (Full Width) -->
+      <div class="main-layout full-width">
+        <div class="live-grid-card">
+          <div class="grid-header">
+            <h2 class="grid-title">
+              <lucide-icon name="Users" [size]="20"></lucide-icon>
+              Recent Submissions
+            </h2>
+
+            <!-- Filters -->
+            <div class="filters">
+              <div class="search-box">
+                <lucide-icon name="Search" [size]="16" class="search-icon"></lucide-icon>
+                <input type="text" [value]="searchQuery()" (input)="onSearchInput($event)"
+                  name="search" placeholder="Search student..." class="form-control">
+              </div>
+              <select [value]="statusFilter()" (change)="onStatusChange($event)" name="status"
+                class="form-control status-select">
+                <option value="All">All Statuses</option>
+                <option value="Submitted">Submitted</option>
+                <option value="Graded">Graded</option>
+                <option value="ForceSubmitted">Terminated</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Exam</th>
+                  <th>Status</th>
+                  <th class="align-center">Violations</th>
+                  <th class="align-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let session of dashboardData().recentSubmissions; trackBy: trackBySessionId">
+                  <td>
+                    <p class="student-name">{{ session.studentName }}</p>
+                    <p class="student-code">{{ session.studentCode }}</p>
+                  </td>
+                  <td>
+                    <p class="exam-name" [title]="session.examTitle">{{ session.examTitle }}</p>
+                    <p class="exam-time">Submitted: {{ session.submittedAt | date:'shortTime' }}</p>
+                  </td>
+                  <td>
+                    <span class="status-badge" [ngClass]="getStatusDisplay(session.status).classes">
+                      <lucide-icon [name]="getStatusDisplay(session.status).icon" [size]="14"></lucide-icon>
+                      {{ getStatusDisplay(session.status).label }}
+                    </span>
+                    <p class="exam-score" *ngIf="session.score !== null">Score: {{ session.score }}%</p>
+                  </td>
+                  <td class="align-center">
+                    <span class="violation-severity-badge" [ngClass]="getSeverityBadge(session.highestSeverity)">
+                      {{ session.violationCount }} ({{ session.highestSeverity }})
+                    </span>
+                  </td>
+                  <td class="align-right">
+                    <button (click)="goToTimeline(session.attemptId)" class="btn-review">
+                      <lucide-icon name="Activity" [size]="14"></lucide-icon>
+                      Timeline
+                    </button>
+                  </td>
+                </tr>
+
+                <tr *ngIf="dashboardData().recentSubmissions.length === 0">
+                  <td colspan="5" class="empty-row">
+                    <ng-container *ngIf="loading()">
+                      <div class="subtle-loader"></div>
+                      Loading submissions data...
+                    </ng-container>
+                    <ng-container *ngIf="!loading()">No submissions match your search criteria.</ng-container>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Controls -->
+          <div class="pagination-controls" *ngIf="dashboardData().totalSubmissions > submissionsPageSize || submissionsPage() > 1">
+            <div class="pagination-stats">
+              Showing <span class="font-medium">{{ dashboardData().totalSubmissions === 0 ? 0 : (submissionsPage() - 1) * submissionsPageSize + 1 }}</span>
+              to <span class="font-medium">{{ Math.min(submissionsPage() * submissionsPageSize, dashboardData().totalSubmissions) }}</span>
+              of <span class="font-medium">{{ dashboardData().totalSubmissions }}</span> submissions
+            </div>
+            
+            <div class="pagination-actions">
+              <button class="btn-page" [disabled]="submissionsPage() === 1" (click)="changeLivePage(-1)">
+                <lucide-icon name="ChevronLeft" [size]="16"></lucide-icon>
+                Previous
+              </button>
+              
+              <div class="page-numbers">
+                <span class="current-page">{{ submissionsPage() }}</span>
+                <span class="total-pages">/ {{ Math.ceil(dashboardData().totalSubmissions / submissionsPageSize) || 1 }}</span>
+              </div>
+              
+              <button class="btn-page" 
+                [disabled]="submissionsPage() * submissionsPageSize >= dashboardData().totalSubmissions" 
+                (click)="changeLivePage(1)">
+                Next
+                <lucide-icon name="ChevronRight" [size]="16"></lucide-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

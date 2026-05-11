@@ -1,0 +1,147 @@
+<div class="auth-container">
+  <div class="auth-card scale-in">
+    <div class="auth-header">
+      <div class="shield-logo pulse">
+        <img src="assets/images/logo.png" alt="SHIELDON Logo">
+      </div>
+      <h2>Create an Account</h2>
+      <p>Join SHIELDON to start your learning journey.</p>
+    </div>
+
+    <!-- Error Message Alert -->
+    <div *ngIf="errorMessage()" class="alert alert-error slide-down">
+      <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+      <span>{{ errorMessage() }}</span>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      
+      <!-- Modern Role Selector -->
+      <div class="form-group role-selector-group">
+        <label>I am a...</label>
+        <div class="role-selector">
+          <div 
+            class="role-card" 
+            [class.active]="selectedRole() === UserRole.Student"
+            (click)="selectRole(UserRole.Student)">
+            <div class="role-icon-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            </div>
+            <span class="role-title">Student</span>
+          </div>
+
+          <div 
+            class="role-card" 
+            [class.active]="selectedRole() === UserRole.Tutor"
+            (click)="selectRole(UserRole.Tutor)">
+            <div class="role-icon-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="m7 21 5-5 5 5"/></svg>
+            </div>
+            <span class="role-title">Tutor</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="name-row">
+        <div class="form-group">
+          <label for="firstName">First Name</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input 
+              id="firstName" 
+              type="text" 
+              formControlName="firstName" 
+              placeholder="e.g. Ahmed"
+              [class.is-invalid]="firstNameControl.invalid && (firstNameControl.dirty || firstNameControl.touched)">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Last Name</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input 
+              id="lastName" 
+              type="text" 
+              formControlName="lastName" 
+              placeholder="e.g. Samir"
+              [class.is-invalid]="lastNameControl.invalid && (lastNameControl.dirty || lastNameControl.touched)">
+          </div>
+        </div>
+      </div>
+      <div class="error-text" *ngIf="(firstNameControl.invalid && firstNameControl.touched) || (lastNameControl.invalid && lastNameControl.touched)">
+        Both First and Last names are required.
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+          <input 
+            id="email" 
+            type="email" 
+            formControlName="email" 
+            placeholder="you@example.com"
+            [class.is-invalid]="emailControl.invalid && (emailControl.dirty || emailControl.touched)">
+        </div>
+        <div class="error-text" *ngIf="emailControl.invalid && (emailControl.dirty || emailControl.touched)">
+          <span *ngIf="emailControl.errors?.['required']">Email is required</span>
+          <span *ngIf="emailControl.errors?.['email']">Please enter a valid email</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input 
+            id="password" 
+            [type]="showPassword() ? 'text' : 'password'" 
+            formControlName="password" 
+            placeholder="••••••••"
+            [class.is-invalid]="passwordControl.invalid && (passwordControl.dirty || passwordControl.touched)">
+          
+          <button type="button" class="password-toggle" (click)="togglePassword()" tabindex="-1">
+            @if (showPassword()) {
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" x2="23" y1="1" y2="23"/></svg>
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            }
+          </button>
+        </div>
+        <div class="error-text" *ngIf="passwordControl.invalid && (passwordControl.dirty || passwordControl.touched)">
+           <span *ngIf="passwordControl.errors?.['required']">Password is required</span>
+           <span *ngIf="passwordControl.errors?.['minlength']">Must be at least 8 characters</span>
+           <span *ngIf="passwordControl.errors?.['pattern'] && !passwordControl.errors?.['minlength']">Must contain upper, lower, number, and special character</span>
+        </div>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="form-group">
+        <label for="confirmPassword">Confirm Password</label>
+        <div class="input-wrapper">
+          <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <input 
+            id="confirmPassword" 
+            [type]="showPassword() ? 'text' : 'password'" 
+            formControlName="confirmPassword" 
+            placeholder="••••••••"
+            [class.is-invalid]="confirmPasswordControl.invalid && (confirmPasswordControl.dirty || confirmPasswordControl.touched)">
+        </div>
+        <div class="error-text" *ngIf="confirmPasswordControl.errors?.['passwordMismatch'] && confirmPasswordControl.touched">
+          Passwords do not match.
+        </div>
+      </div>
+
+      <button type="submit" class="btn-primary-glow w-100 mt-4" [disabled]="isLoading()">
+        <span *ngIf="!isLoading()">Register</span>
+        <div class="spinner" *ngIf="isLoading()"></div>
+      </button>
+      
+      <div class="auth-footer">
+        <p>Already have an account? <a routerLink="/login" class="signup-link">Log In</a></p>
+      </div>
+
+    </form>
+  </div>
+</div>

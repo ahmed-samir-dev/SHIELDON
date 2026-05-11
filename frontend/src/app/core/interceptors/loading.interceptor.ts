@@ -6,16 +6,15 @@ import { LoadingService } from '../services/loading.service';
 export const loadingInterceptor: HttpInterceptorFn = (req, next) => {
   const loadingService = inject(LoadingService);
 
-  // Exclude specific URLs from triggering the global loading bar (e.g. background polling)
-  const isExcluded = req.url.includes('/api/monitoring/heartbeat');
-  
-  if (!isExcluded) {
+  const isSilent = req.headers.has('X-Silent');
+
+  if (!isSilent) {
     loadingService.show();
   }
 
   return next(req).pipe(
     finalize(() => {
-      if (!isExcluded) {
+      if (!isSilent) {
         loadingService.hide();
       }
     })

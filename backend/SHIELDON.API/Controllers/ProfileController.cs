@@ -75,4 +75,45 @@ public class ProfileController : ControllerBase
 
         return Ok(ApiResponse<UserProfileResponse>.Ok(profile, "Profile picture updated successfully."));
     }
+
+    /// <summary>
+    /// PATCH /api/profile/password
+    /// Securely changes the user's password.
+    /// </summary>
+    [HttpPatch("password")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ChangePassword(
+        [FromBody] ChangePasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        var userId = GetUserId();
+        await _profileService.ChangePasswordAsync(userId, request, cancellationToken);
+        return Ok(ApiResponse<object>.Ok(null, "Password changed successfully."));
+    }
+
+    /// <summary>
+    /// PATCH /api/profile/onboarding-complete
+    /// Marks the onboarding tour as completed for the current user.
+    /// Called silently by the frontend Shepherd.js service on tour finish or skip.
+    /// </summary>
+    [HttpPatch("onboarding-complete")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> CompleteOnboarding(CancellationToken cancellationToken)
+    {
+        await _profileService.CompleteOnboardingAsync(GetUserId(), cancellationToken);
+        return NoContent();
+    }
+
+    /// <summary>
+    /// PATCH /api/profile/onboarding-reset
+    /// Resets the onboarding tour flag so it will show again on next login.
+    /// Triggered by the "Replay Tour" button on the Profile page.
+    /// </summary>
+    [HttpPatch("onboarding-reset")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> ResetOnboarding(CancellationToken cancellationToken)
+    {
+        await _profileService.ResetOnboardingAsync(GetUserId(), cancellationToken);
+        return NoContent();
+    }
 }
