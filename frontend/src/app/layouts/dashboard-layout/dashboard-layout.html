@@ -61,6 +61,20 @@
           }
         </div>
       </a>
+
+      <!-- Attendance (Role-based) -->
+      @if (authService.currentUser()?.role === 'Admin') {
+        <a class="nav-item" id="nav-attendance" routerLink="/admin/attendance" routerLinkActive="active">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg>
+          <span>Attendance</span>
+        </a>
+      } @else if (authService.currentUser()?.role === 'Student') {
+        <a class="nav-item" id="nav-attendance" routerLink="/attendance/scan" routerLinkActive="active">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg>
+          <span>Attendance</span>
+        </a>
+      }
+      
       
       <div class="nav-divider"></div>
 

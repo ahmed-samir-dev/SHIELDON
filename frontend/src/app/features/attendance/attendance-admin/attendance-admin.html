@@ -1,0 +1,63 @@
+<div class="attendance-admin-container">
+  <div class="header">
+    <h1>All Attendance Checks</h1>
+    <p class="subtitle">Global overview of all attendance sessions across all courses.</p>
+  </div>
+
+  @if (errorMsg()) {
+    <div class="error-alert">{{ errorMsg() }}</div>
+  }
+
+  @if (isLoading()) {
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading records...</p>
+    </div>
+  } @else {
+    <div class="table-container card">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Check Title</th>
+            <th>Tutor</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Attendance Rate</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (check of checks(); track check.id) {
+            <tr>
+              <td class="fw-medium">{{ check.courseName }}</td>
+              <td>{{ check.title }}</td>
+              <td>{{ check.tutorName }}</td>
+              <td>{{ check.createdAt | date:'medium' }}</td>
+              <td>
+                @if (check.isActive) {
+                  <span class="badge active"><span class="dot"></span> Live</span>
+                } @else {
+                  <span class="badge completed">Ended</span>
+                }
+              </td>
+              <td>
+                <div class="rate-container">
+                  @if (check.totalPresent > 0) {
+                    <div class="rate-bar-bg">
+                      <div class="rate-bar-fill" [style.width.%]="check.totalEnrolled > 0 ? (check.totalPresent / check.totalEnrolled * 100) : 0"></div>
+                    </div>
+                  }
+                  <span class="rate-text">{{ check.totalPresent }} / {{ check.totalEnrolled }}</span>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="empty-cell">No attendance checks found in the system.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
