@@ -57,6 +57,7 @@ public static class DependencyInjection
         services.AddScoped<IMonitoringService, MonitoringService>();
         services.AddScoped<IAIService, AIService>();
         services.AddScoped<IChatService, ChatService>();
+        services.AddSingleton<PresenceTracker>();
 
         // ── HTTP Clients ───────────────────────────────────────────────────
         // Named client used by AIService to call the Gemini REST API

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using SHIELDON.Application.Features.Chat.DTOs;
 using SHIELDON.Application.Interfaces;
+using SHIELDON.Infrastructure.Services;
 using System.Security.Claims;
 
 namespace SHIELDON.API.Hubs;
@@ -23,10 +24,12 @@ namespace SHIELDON.API.Hubs;
 public class ChatHub : Hub
 {
     private readonly IChatService _chatService;
+    private readonly PresenceTracker _presenceTracker;
 
-    public ChatHub(IChatService chatService)
+    public ChatHub(IChatService chatService, PresenceTracker presenceTracker)
     {
         _chatService = chatService;
+        _presenceTracker = presenceTracker;
     }
 
     /// <summary>
@@ -38,18 +41,28 @@ public class ChatHub : Hub
         var userId = GetCurrentUserId();
         if (userId != Guid.Empty)
         {
-            // Join personal group named after the user's ID
             await Groups.AddToGroupAsync(Context.ConnectionId, userId.ToString());
+            
+            bool isOnline = await _presenceTracker.UserConnected(userId, Context.ConnectionId);
+            if (isOnline)
+            {
+                await Clients.Others.SendAsync("UserIsOnline", userId.ToString());
+            }
         }
         await base.OnConnectedAsync();
     }
 
-    /// <summary>
-    /// Called automatically when a client disconnects.
-    /// SignalR automatically removes the connection from all groups on disconnect.
-    /// </summary>
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
+        var userId = GetCurrentUserId();
+        if (userId != Guid.Empty)
+        {
+            bool isOffline = await _presenceTracker.UserDisconnected(userId, Context.ConnectionId);
+            if (isOffline)
+            {
+                await Clients.Others.SendAsync("UserIsOffline", userId.ToString());
+            }
+        }
         await base.OnDisconnectedAsync(exception);
     }
 
@@ -80,6 +93,11 @@ public class ChatHub : Hub
         await Clients
             .Group(senderId.ToString())
             .SendAsync("ReceiveMessage", messageDto);
+    }
+
+    public async Task<Guid[]> GetOnlineUsers()
+    {
+        return await _presenceTracker.GetOnlineUsers();
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
