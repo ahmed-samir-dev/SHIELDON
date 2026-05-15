@@ -52,6 +52,10 @@ public class AppDbContext : DbContext
     // ── Phase 4: Anti-Cheating Engine (used by monitoring dashboards) ──────────
     public DbSet<ViolationLog> ViolationLogs { get; set; } = null!;
 
+    // ── Phase 6: Real-time Chat ────────────────────────────────────────────────
+    public DbSet<ChatConversation> ChatConversations { get; set; } = null!;
+    public DbSet<ChatMessage> ChatMessages { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -13,6 +13,7 @@ secrets.json
 .env.development
 .env.production
 scratch/
+CLAUDE.md
 
 # ── .NET / Visual Studio ────────────────────────────────────
 *.user

@@ -121,6 +121,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/monitoring/attempt-detail/attempt-detail').then(m => m.AttemptDetailComponent),
         title: 'Attempt Timeline — SHIELDON'
       },
+      {
+        path: 'chat',
+        loadComponent: () => import('./features/chat/chat-messenger/chat-messenger').then(m => m.ChatMessengerComponent),
+        title: 'Messages — SHIELDON'
+      },
       // Dashboards fallback to courses view for now
       {
         path: 'admin/dashboard',

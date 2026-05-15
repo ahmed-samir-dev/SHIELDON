@@ -51,6 +51,17 @@
         <span style="font-weight: 600;">SHIELDON AI</span>
       </a>
       
+      <!-- Messages (All Roles) -->
+      <a class="nav-item" id="nav-chat" routerLink="/chat" routerLinkActive="active">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+          <span>Messages</span>
+          @if (chatService.unreadTotalCount() > 0) {
+            <span class="unread-badge" style="background-color: var(--error-color); color: white; font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 10px;">{{ chatService.unreadTotalCount() }}</span>
+          }
+        </div>
+      </a>
+      
       <div class="nav-divider"></div>
 
       <!-- Active Feature -->
