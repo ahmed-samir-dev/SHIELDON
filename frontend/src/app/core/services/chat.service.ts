@@ -25,8 +25,12 @@ export class ChatService {
   
   // ── Reactive State (Angular Signals) ──────────────────────────────────────
   readonly inbox = signal<ConversationSummaryDto[]>([]);
-  readonly activeConversationMessages = signal<ChatMessageDto[]>([]);
-  readonly unreadTotalCount = signal<number>(0);
+  private _activeConversationMessages = signal<ChatMessageDto[]>([]);
+  private _unreadTotalCount = signal<number>(0);
+  private _onlineUsers = signal<string[]>([]);
+  readonly activeConversationMessages = this._activeConversationMessages.asReadonly();
+  readonly unreadTotalCount = this._unreadTotalCount.asReadonly();
+  readonly onlineUsers = this._onlineUsers.asReadonly();
   readonly isConnected = signal<boolean>(false);
 
   // ── REST Methods ─────────────────────────────────────────────────────────
@@ -49,6 +53,22 @@ export class ChatService {
 
   // ── SignalR Methods ──────────────────────────────────────────────────────
 
+  private setupSignalREvents(): void {
+    if (!this.hubConnection) return;
+
+    this.hubConnection.on('ReceiveMessage', (message: ChatMessageDto) => {
+      this.handleIncomingMessage(message);
+    });
+
+    this.hubConnection.on('UserIsOnline', (userId: string) => {
+      this._onlineUsers.update(users => [...new Set([...users, userId])]);
+    });
+
+    this.hubConnection.on('UserIsOffline', (userId: string) => {
+      this._onlineUsers.update(users => users.filter(id => id !== userId));
+    });
+  }
+
   startConnection(): void {
     if (this.hubConnection?.state === 'Connected') return;
 
@@ -63,9 +83,7 @@ export class ChatService {
       .configureLogging(LogLevel.Information)
       .build();
 
-    this.hubConnection.on('ReceiveMessage', (message: ChatMessageDto) => {
-      this.handleIncomingMessage(message);
-    });
+    this.setupSignalREvents();
 
     this.hubConnection.onreconnecting(() => this.isConnected.set(false));
     this.hubConnection.onreconnected(() => this.isConnected.set(true));
@@ -76,6 +94,11 @@ export class ChatService {
       .then(() => {
         this.isConnected.set(true);
         this.refreshInbox();
+
+        // Get initial online users
+        this.hubConnection?.invoke('GetOnlineUsers').then((users: string[]) => {
+          this._onlineUsers.set(users);
+        }).catch(err => console.error('Error getting online users', err));
       })
       .catch(err => console.error('Error while starting Chat SignalR connection: ' + err));
   }
@@ -116,7 +139,7 @@ export class ChatService {
   }
 
   setActiveConversationMessages(messages: ChatMessageDto[]): void {
-    this.activeConversationMessages.set(messages);
+    this._activeConversationMessages.set(messages);
     this.refreshInbox(); // Refresh inbox to clear unread counts for this conversation
   }
 
@@ -126,7 +149,7 @@ export class ChatService {
     // If we have an active conversation and the message belongs to it, append it
     const currentMsgs = this.activeConversationMessages();
     if (currentMsgs.length > 0 && currentMsgs[0].conversationId === message.conversationId) {
-      this.activeConversationMessages.update(msgs => [...msgs, message]);
+      this._activeConversationMessages.update(msgs => [...msgs, message]);
       
       // If it's not my own message, we might want to mark it as read, but for now
       // standard behavior is they need to refresh to clear the server side unread, 
@@ -147,6 +170,6 @@ export class ChatService {
 
   private updateTotalUnreadCount(inbox: ConversationSummaryDto[]): void {
     const total = inbox.reduce((sum, conv) => sum + conv.unreadCount, 0);
-    this.unreadTotalCount.set(total);
+    this._unreadTotalCount.set(total);
   }
 }
