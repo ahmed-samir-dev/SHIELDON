@@ -1,0 +1,136 @@
+<div class="attendance-tutor-container">
+  <div class="header">
+    <div class="title-area">
+      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+        <a [routerLink]="['/courses', courseId()]" class="back-button" title="Back to Course">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+        </a>
+        <h1>Attendance Check</h1>
+      </div>
+      <p class="subtitle" style="margin-left: 3rem;">Real-time dynamic QR attendance tracking.</p>
+    </div>
+    
+    <div class="actions">
+      @if (activeCheck()) {
+        <button class="btn-danger" (click)="endCheck()" [disabled]="isLoading()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          End Attendance Session
+        </button>
+      } @else {
+        <button class="btn-primary" (click)="startCheck()" [disabled]="isLoading()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Start New Check
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (errorMsg()) {
+    <div class="error-alert">{{ errorMsg() }}</div>
+  }
+
+  @if (activeCheck()) {
+    <div class="dashboard-grid">
+      <!-- Left Column: QR Code Projector -->
+      <div class="card projector-card">
+        <div class="card-header">
+          <h2>Scan to Mark Present</h2>
+          <div class="live-indicator">
+            <span class="pulse-dot"></span> Live
+          </div>
+        </div>
+        <div class="qr-container">
+          @if (isQrLoading()) {
+            <div class="qr-loading-placeholder">
+              <div class="spinner"></div>
+              <p>Establishing secure connection...</p>
+              <small>Generating QR code</small>
+            </div>
+          }
+          <!-- The canvas where the QR gets drawn -->
+          <canvas #qrCanvas width="350" height="350" [class.hidden]="isQrLoading()" [class.qr-flash]="qrFlash()"></canvas>
+          <p class="qr-hint" [class.hidden]="isQrLoading()">Refreshing every 30 seconds for security.</p>
+        </div>
+        <div class="stats-footer">
+          <div class="stat">
+            <span class="value">{{ totalPresent() }} / {{ totalEnrolled() }}</span>
+            <span class="label">Present</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Live Student Grid -->
+      <div class="card students-card">
+        <div class="card-header">
+          <h2>Enrolled Students</h2>
+          <p class="helper">Click a student to manually toggle their presence.</p>
+        </div>
+        <div class="students-grid">
+          @for (student of students(); track student.id) {
+            <div 
+              class="student-item" 
+              [class.present]="student.isPresent" 
+              (click)="toggleManualPresence(student)">
+              
+              <div class="avatar">
+                @if (student.avatarUrl) {
+                  <img [src]="getAvatarUrl(student.avatarUrl)" alt="Avatar">
+                } @else {
+                  <div class="avatar-placeholder">{{ student.fullName.charAt(0) }}</div>
+                }
+                
+                @if (student.isPresent) {
+                  <div class="check-badge" [class.manual]="student.isManual">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  </div>
+                }
+              </div>
+              
+              <div class="details">
+                <span class="name">{{ student.fullName }}</span>
+                <span class="status-text" [class.present]="student.isPresent">
+                  @if (student.isPresent) {
+                    {{ student.isManual ? 'Present (Manual)' : 'Present (QR)' }}
+                  } @else {
+                    Absent
+                  }
+                </span>
+              </div>
+            </div>
+          } @empty {
+            <div class="empty-state">No students enrolled in this course.</div>
+          }
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="empty-state big">
+      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+      <h2>No Active Attendance Check</h2>
+      <p>Click "Start New Check" to project a QR code for students to scan.</p>
+    </div>
+
+    @if (history().length > 0) {
+      <div class="card history-card">
+        <div class="card-header">
+          <h2>Past Attendance Sessions</h2>
+          <p class="helper">History of attendance checks for this course.</p>
+        </div>
+        <div class="history-list">
+          @for (session of history(); track session.id) {
+            <div class="history-item">
+              <div class="history-info">
+                <h3>{{ session.title }}</h3>
+                <span>{{ session.createdAt | date:'medium' }}</span>
+              </div>
+              <div class="history-stats">
+                <div class="fraction">{{ session.totalPresent }} / {{ session.totalEnrolled }}</div>
+                <span class="label">Present</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  }
+</div>

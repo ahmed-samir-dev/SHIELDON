@@ -56,6 +56,10 @@ public class AppDbContext : DbContext
     public DbSet<ChatConversation> ChatConversations { get; set; } = null!;
     public DbSet<ChatMessage> ChatMessages { get; set; } = null!;
 
+    // ── Phase 6: Attendance Tracking ──────────────────────────────────────────
+    public DbSet<AttendanceCheck> AttendanceChecks { get; set; } = null!;
+    public DbSet<AttendanceRecord> AttendanceRecords { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -84,6 +84,25 @@ export const routes: Routes = [
         loadComponent: () => import('./features/courses/course-list/course-list').then(m => m.CourseList),
         title: 'Manage Courses — SHIELDON'
       },
+      // ── Attendance ── (must come BEFORE courses/:id to avoid route conflict)
+      {
+        path: 'courses/:id/attendance',
+        canActivate: [tutorGuard],
+        loadComponent: () => import('./features/attendance/attendance-tutor/attendance-tutor').then(m => m.AttendanceTutorComponent),
+        title: 'Course Attendance — SHIELDON'
+      },
+      {
+        path: 'attendance/scan',
+        loadComponent: () => import('./features/attendance/attendance-student/attendance-student').then(m => m.AttendanceStudentComponent),
+        title: 'Scan Attendance — SHIELDON'
+      },
+      {
+        path: 'admin/attendance',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/attendance/attendance-admin/attendance-admin').then(m => m.AttendanceAdminComponent),
+        title: 'All Attendance Checks — SHIELDON'
+      },
+      
       {
         path: 'courses/:id',
         loadComponent: () => import('./features/courses/course-detail/course-detail').then(m => m.CourseDetail),
@@ -126,7 +145,6 @@ export const routes: Routes = [
         loadComponent: () => import('./features/chat/chat-messenger/chat-messenger').then(m => m.ChatMessengerComponent),
         title: 'Messages — SHIELDON'
       },
-      // Dashboards fallback to courses view for now
       {
         path: 'admin/dashboard',
         canActivate: [adminGuard],

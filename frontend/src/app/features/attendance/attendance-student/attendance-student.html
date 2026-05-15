@@ -1,0 +1,77 @@
+<div class="attendance-student-container">
+  <div class="header">
+    <h1>Scan Attendance</h1>
+    <p class="subtitle">Use your camera to scan the dynamic QR code projected by your tutor.</p>
+  </div>
+
+  <div class="scanner-card">
+    @if (!isScanning() && !scanResult()) {
+      <div class="scan-prompt">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h3"/><path d="M20 7V4h-3"/><path d="M4 17v3h3"/><path d="M20 17v3h-3"/><rect width="6" height="6" x="9" y="9" rx="1"/></svg>
+        <button class="btn-primary" (click)="startScanner()">
+          Open Camera & Scan
+        </button>
+      </div>
+
+      @if (isDev) {
+        <div class="debug-scanner mt-4 p-4 border border-dashed rounded" style="border-color: var(--color-border); margin-top: 1.5rem; padding: 1.5rem; border-radius: 8px; border-style: dashed;">
+          <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--color-text-light);">Developer Testing (Local Only)</h4>
+          <p style="font-size: 0.8rem; margin-bottom: 1rem; color: var(--color-text-muted);">Paste the QR Payload here from the network tab to test the scan flow without a camera.</p>
+          <div style="display: flex; gap: 0.5rem;">
+            <input #debugPayload type="text" placeholder="e.g. {checkId}|{secret}" class="form-input" style="flex: 1;">
+            <button class="btn-secondary" (click)="handleSuccessfulScan(debugPayload.value)">Simulate Scan</button>
+          </div>
+        </div>
+      }
+    }
+
+    @if (isScanning()) {
+      <div class="scanner-active">
+        <div id="reader"></div>
+        <button class="btn-secondary" (click)="stopScanner()">Cancel Scan</button>
+      </div>
+    }
+
+    @if (scanResult()) {
+      <div class="result-message" [class.success]="scanResult()?.success" [class.error]="!scanResult()?.success">
+        <div class="icon">
+          @if (scanResult()?.success) {
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          } @else {
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          }
+        </div>
+        <h2>{{ scanResult()?.success ? 'Success!' : 'Scan Failed' }}</h2>
+        <p>{{ scanResult()?.message }}</p>
+        
+        <button class="btn-primary mt-3" (click)="startScanner()">Scan Another</button>
+      </div>
+    }
+  </div>
+
+  <div class="history-section">
+    <h2>My Attendance History</h2>
+    
+    <div class="history-list">
+      @for (record of history(); track record.checkId) {
+        <div class="history-card">
+          <div class="course-info">
+            <span class="course-name">{{ record.courseName }}</span>
+            <span class="check-title">{{ record.checkTitle }}</span>
+          </div>
+          <div class="scan-details">
+            <div class="status">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Present {{ record.isManual ? '(Manual)' : '' }}
+            </div>
+            <span class="date">{{ record.scannedAt | date:'medium' }}</span>
+          </div>
+        </div>
+      } @empty {
+        <div class="empty-state">
+          <p>You haven't scanned any attendance QR codes yet.</p>
+        </div>
+      }
+    </div>
+  </div>
+</div>

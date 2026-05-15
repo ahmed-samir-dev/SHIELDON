@@ -21,7 +21,7 @@ export class DashboardLayout implements AfterViewInit {
   authService = inject(AuthService);
   shepherdService = inject(ShepherdService);
   chatService = inject(ChatService);
-  private router = inject(Router);
+  router = inject(Router);
 
   isMobileMenuOpen = false;
   apiUrl = environment.apiUrl.replace('/api', '');

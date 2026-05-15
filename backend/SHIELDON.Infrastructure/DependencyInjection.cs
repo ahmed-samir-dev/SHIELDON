@@ -57,6 +57,7 @@ public static class DependencyInjection
         services.AddScoped<IMonitoringService, MonitoringService>();
         services.AddScoped<IAIService, AIService>();
         services.AddScoped<IChatService, ChatService>();
+        services.AddScoped<IAttendanceService, AttendanceService>();
         services.AddSingleton<PresenceTracker>();
 
         // ── HTTP Clients ───────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 using SHIELDON.Infrastructure;
 using SHIELDON.API.Middleware;
 using SHIELDON.API.Hubs;
+using SHIELDON.API.BackgroundServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
@@ -35,6 +36,9 @@ var builder = WebApplication.CreateBuilder(args);
 
     // ── INFRASTRUCTURE: Register all services (DB, Email, JWT, Files, etc.) ─
     builder.Services.AddInfrastructure(builder.Configuration);
+
+    // ── API-layer Background Services ─────────────────────────────────────
+    builder.Services.AddHostedService<AttendanceRotationService>();
 
     // ── CONTROLLERS & UTILITIES ──────────────────────────────────────────
     builder.Services.AddControllers(options =>
@@ -259,6 +263,10 @@ app.MapControllers();
 
 // ── SIGNALR HUBS ──────────────────────────────────────────────────────
 app.MapHub<ChatHub>("/hubs/chat");
+app.MapHub<AttendanceHub>("/hubs/attendance");
+
+// ── BACKGROUND SERVICES (API-layer) ──────────────────────────────────────────
+// AttendanceRotationService is registered above via builder.Services
 
 Log.Information("SHIELDON API starting — environment: {Env}", app.Environment.EnvironmentName);
 

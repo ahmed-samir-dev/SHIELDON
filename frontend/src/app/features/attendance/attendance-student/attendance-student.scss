@@ -1,0 +1,196 @@
+@import "../../../../assets/styles/variables";
+
+.attendance-student-container {
+  padding: $spacing-8;
+  max-width: 800px;
+  margin: 0 auto;
+
+  .header {
+    text-align: center;
+    margin-bottom: $spacing-8;
+
+    h1 {
+      font-size: $font-size-3xl;
+      margin: 0 0 $spacing-2;
+      color: $color-neutral-900;
+    }
+    .subtitle {
+      color: $color-neutral-500;
+      margin: 0;
+    }
+  }
+
+  .scanner-card {
+    background: white;
+    border: 1px solid $color-neutral-200;
+    border-radius: $border-radius-lg;
+    box-shadow: $shadow-sm;
+    padding: $spacing-8;
+    margin-bottom: $spacing-12;
+    text-align: center;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .scan-prompt {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $spacing-6;
+
+      svg {
+        color: $color-primary-base;
+        opacity: 0.8;
+      }
+    }
+
+    .scanner-active {
+      width: 100%;
+      max-width: 500px;
+      
+      #reader {
+        width: 100%;
+        border-radius: $border-radius-md;
+        overflow: hidden;
+        margin-bottom: $spacing-6;
+        border: 2px solid $color-primary-base;
+
+        video {
+          object-fit: cover;
+        }
+      }
+    }
+
+    .result-message {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $spacing-2;
+
+      .icon {
+        margin-bottom: $spacing-2;
+      }
+
+      &.success {
+        .icon { color: $color-success-base; }
+        h2 { color: $color-success-base; margin: 0; }
+      }
+
+      &.error {
+        .icon { color: $color-danger-base; }
+        h2 { color: $color-danger-base; margin: 0; }
+      }
+
+      p {
+        color: $color-neutral-500;
+        margin: 0;
+      }
+    }
+
+    .btn-primary, .btn-secondary {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: $border-radius-md;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background-color: $color-primary-base;
+      color: white;
+      &:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    }
+
+    .btn-secondary {
+      background-color: $color-neutral-50;
+      color: $color-neutral-900;
+      border: 1px solid $color-neutral-200;
+      &:hover { background-color: $color-neutral-200; }
+    }
+    
+    .mt-3 {
+      margin-top: $spacing-6;
+    }
+  }
+
+  .history-section {
+    h2 {
+      font-size: $font-size-2xl;
+      margin-bottom: $spacing-6;
+      padding-bottom: $spacing-2;
+      border-bottom: 1px solid $color-neutral-200;
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-4;
+    }
+
+    .history-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: $spacing-4 $spacing-6;
+      background: white;
+      border: 1px solid $color-neutral-200;
+      border-radius: $border-radius-md;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: $shadow-sm;
+        border-color: $color-primary-base;
+      }
+
+      .course-info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+
+        .course-name {
+          font-weight: 600;
+          color: $color-neutral-900;
+        }
+
+        .check-title {
+          font-size: $font-size-sm;
+          color: $color-neutral-500;
+        }
+      }
+
+      .scan-details {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+
+        .status {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          color: $color-success-base;
+          font-weight: 600;
+          font-size: $font-size-sm;
+        }
+
+        .date {
+          font-size: $font-size-xs;
+          color: $color-neutral-500;
+        }
+      }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: $spacing-8;
+      color: $color-neutral-500;
+      background: white;
+      border-radius: $border-radius-md;
+      border: 1px dashed $color-neutral-200;
+    }
+  }
+}
