@@ -8,7 +8,7 @@ using SHIELDON.Infrastructure.Services;
 namespace SHIELDON.API.BackgroundServices;
 
 /// <summary>
-/// Runs every 5 seconds to rotate the QR secret for all active attendance checks.
+/// Runs every 7 seconds to rotate the QR secret for all active attendance checks.
 /// Pushes the new QR payload to the tutor's SignalR group so their screen updates automatically.
 /// </summary>
 public class AttendanceRotationService : BackgroundService
@@ -16,7 +16,7 @@ public class AttendanceRotationService : BackgroundService
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IHubContext<AttendanceHub> _hubContext;
     private readonly ILogger<AttendanceRotationService> _logger;
-    private readonly TimeSpan _interval = TimeSpan.FromSeconds(30);
+    private readonly TimeSpan _interval = TimeSpan.FromSeconds(7);
 
     public AttendanceRotationService(
         IServiceScopeFactory scopeFactory,
@@ -65,7 +65,7 @@ public class AttendanceRotationService : BackgroundService
         foreach (var check in activeChecks)
         {
             check.CurrentSecret = AttendanceService.GenerateSecret();
-            check.SecretExpiresAt = now.AddSeconds(30);
+            check.SecretExpiresAt = now.AddSeconds(7);
         }
 
         await db.SaveChangesAsync(ct);
