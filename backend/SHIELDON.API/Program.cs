@@ -1,5 +1,6 @@
 using SHIELDON.Infrastructure;
 using SHIELDON.API.Middleware;
+using SHIELDON.API.Hubs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
@@ -104,6 +105,23 @@ var builder = WebApplication.CreateBuilder(args);
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero // No tolerance — token expiry is exact
         };
+
+        // SignalR: browsers cannot set Authorization headers on WebSocket connections.
+        // The Angular client sends the JWT as a query string parameter.
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) &&
+                    path.StartsWithSegments("/hubs/chat"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
     builder.Services.AddAuthorization(options =>
@@ -185,6 +203,9 @@ var builder = WebApplication.CreateBuilder(args);
         options.RejectionStatusCode = 429; // Too Many Requests
     });
 
+    // ── SIGNALR: Real-time chat ──────────────────────────────────────────────
+    builder.Services.AddSignalR();
+
 // ──────────────────────────────────────────────────────────────────────
 var app = builder.Build();
 
@@ -235,6 +256,9 @@ app.UseSerilogRequestLogging();
 
 // ── CONTROLLERS ───────────────────────────────────────────────────────
 app.MapControllers();
+
+// ── SIGNALR HUBS ──────────────────────────────────────────────────────
+app.MapHub<ChatHub>("/hubs/chat");
 
 Log.Information("SHIELDON API starting — environment: {Env}", app.Environment.EnvironmentName);
 

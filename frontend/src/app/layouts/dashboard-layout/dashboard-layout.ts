@@ -7,6 +7,7 @@ import { ShepherdService } from '../../core/services/shepherd.service';
 import { environment } from '../../../environments/environment';
 import { NotificationPanelComponent } from '../../shared/components/notification-panel/notification-panel.component';
 import { AiChatPanelComponent } from '../../shared/components/ai-chat-panel/ai-chat-panel';
+import { ChatService } from '../../core/services/chat.service';
 
 @Component({
   selector: 'app-dashboard-layout',
@@ -19,6 +20,7 @@ import { AiChatPanelComponent } from '../../shared/components/ai-chat-panel/ai-c
 export class DashboardLayout implements AfterViewInit {
   authService = inject(AuthService);
   shepherdService = inject(ShepherdService);
+  chatService = inject(ChatService);
   private router = inject(Router);
 
   isMobileMenuOpen = false;
@@ -55,5 +57,12 @@ export class DashboardLayout implements AfterViewInit {
         this.shepherdService.startTour(user.role as any);
       }
     }, 500);
+
+    // Start global chat connection for incoming messages toast & unread counts
+    this.chatService.startConnection();
+  }
+
+  ngOnDestroy(): void {
+    this.chatService.stopConnection();
   }
 }
