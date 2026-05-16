@@ -3,12 +3,14 @@ export interface CreateCourseRequest {
   courseCode: string;
   description: string | null;
   assignedTutorId: string | null;
+  courseFee: number;
 }
 
 export interface UpdateCourseRequest {
   title: string;
   description: string | null;
   assignedTutorId: string | null;
+  courseFee: number;
   isActive: boolean;
 }
 

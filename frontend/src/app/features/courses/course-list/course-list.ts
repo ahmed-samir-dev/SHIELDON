@@ -46,7 +46,8 @@ export class CourseList implements OnInit {
     title: ['', [Validators.required, Validators.minLength(3)]],
     courseCode: ['', [Validators.required, Validators.maxLength(20)]],
     description: [''],
-    assignedTutorId: ['']
+    assignedTutorId: [''],
+    courseFee: [150, [Validators.required, Validators.min(0)]]
   });
 
   ngOnInit() {
@@ -148,7 +149,8 @@ export class CourseList implements OnInit {
       title: course.title,
       courseCode: course.courseCode,
       description: course.description || '',
-      assignedTutorId: course.assignedTutorId || ''
+      assignedTutorId: course.assignedTutorId || '',
+      courseFee: course.courseFee
     });
     
     // Disable course code editing for existing courses
@@ -182,7 +184,8 @@ export class CourseList implements OnInit {
     const request = {
       title: formVals.title!,
       description: formVals.description || null,
-      assignedTutorId: formVals.assignedTutorId || null
+      assignedTutorId: formVals.assignedTutorId || null,
+      courseFee: formVals.courseFee!
     };
 
     if (this.modalMode() === 'create') {
@@ -231,6 +234,7 @@ export class CourseList implements OnInit {
       title: course.title,
       description: course.description,
       assignedTutorId: course.assignedTutorId,
+      courseFee: course.courseFee,
       isActive: isActive
     };
 

@@ -53,6 +53,7 @@ public class CourseService : ICourseService
             Description = request.Description?.Trim(),
             AssignedTutorId = request.AssignedTutorId,
             CreatedByAdminId = adminId,
+            CourseFee = request.CourseFee,
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
@@ -156,6 +157,7 @@ public class CourseService : ICourseService
             course.AssignedTutorId,
             tutorName,
             course.IsActive,
+            course.CourseFee,
             approvedEnrollments,
             course.Materials.Count,
             course.Announcements.Count,
@@ -185,6 +187,7 @@ public class CourseService : ICourseService
         course.Title = request.Title.Trim();
         course.Description = request.Description?.Trim();
         course.AssignedTutorId = request.AssignedTutorId;
+        course.CourseFee = request.CourseFee;
         course.IsActive = request.IsActive;
         course.UpdatedAt = DateTime.UtcNow;
 
@@ -588,6 +591,7 @@ public class CourseService : ICourseService
             c.AssignedTutorId,
             tutorName,
             c.IsActive,
+            c.CourseFee,
             approved,
             c.CreatedAt
         );
