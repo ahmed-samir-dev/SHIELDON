@@ -1,0 +1,563 @@
+@import '../../../../assets/styles/variables';
+@import '../../../../assets/styles/mixins';
+
+.calendar-page {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+}
+
+// ==========================================
+// HEADER STYLES
+// ==========================================
+.calendar-header {
+  position: relative;
+  background: linear-gradient(135deg, $color-primary-base, $color-primary-dark);
+  border-radius: $border-radius-2xl;
+  padding: $spacing-6 $spacing-8;
+  box-shadow: $shadow-lg;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+  color: $color-neutral-white;
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.header-bg-decor1 {
+  position: absolute;
+  top: -2rem;
+  right: -2rem;
+  width: 12rem;
+  height: 12rem;
+  border-radius: $border-radius-round;
+  background-color: rgba($color-neutral-white, 0.1);
+  filter: blur(2rem);
+  pointer-events: none;
+}
+
+.header-bg-decor2 {
+  position: absolute;
+  bottom: -2rem;
+  left: -2rem;
+  width: 8rem;
+  height: 8rem;
+  border-radius: $border-radius-round;
+  background-color: rgba($color-primary-light, 0.2);
+  filter: blur(1.5rem);
+  pointer-events: none;
+}
+
+.header-content {
+  position: relative;
+  z-index: $z-index-base;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: $spacing-6;
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.title-section {
+  .page-title {
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
+    display: flex;
+    align-items: center; // This perfectly centers the icon and text vertically
+    gap: $spacing-4; // <-- Change this to adjust the space between the icon and the text
+    color: $color-neutral-white;
+    margin-bottom: $spacing-2;
+    line-height: 1;
+  }
+
+  .icon-wrapper {
+    padding: $spacing-2;
+    background-color: rgba($color-neutral-white, 0.2);
+    backdrop-filter: blur(4px);
+    border-radius: $border-radius-lg;
+    box-shadow: $shadow-sm;
+    border: 1px solid rgba($color-neutral-white, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    // To move the icon slightly up or down independently, you can add:
+    // transform: translateY(-2px); 
+    // To move it left or right relative to its original spot:
+    // transform: translateX(-5px);
+  }
+
+  .title-icon {
+    width: 28px;
+    height: 28px;
+    color: $color-neutral-white;
+    display: block; // Fixes slight baseline gaps in SVGs
+    transform: translateX(2px);
+
+  }
+
+  .page-subtitle {
+    color: rgba($color-neutral-white, 0.9);
+    max-width: 42rem;
+    font-size: $font-size-base;
+  }
+}
+
+.action-section {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+}
+
+.btn-refresh {
+  padding: $spacing-2 $spacing-3;
+  color: rgba($color-neutral-white, 0.9);
+  background-color: rgba($color-neutral-white, 0.1);
+  border: 1px solid rgba($color-neutral-white, 0.2);
+  backdrop-filter: blur(4px);
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-sm;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    color: $color-neutral-white;
+    background-color: rgba($color-neutral-white, 0.2);
+  }
+
+  .refresh-icon {
+    width: 20px;
+    height: 20px;
+
+    &.spinning {
+      animation: spin 1s linear infinite;
+    }
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+  padding: $spacing-2 $spacing-5;
+  background-color: $color-neutral-white;
+  color: $color-primary-dark;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-md;
+  transition: all 0.2s ease;
+  line-height: 1;
+
+  &:hover {
+    background-color: $color-neutral-50;
+    transform: translateY(-2px);
+  }
+
+  .btn-icon {
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+// ==========================================
+// LEGEND STYLES
+// ==========================================
+.calendar-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-3;
+  background-color: rgba($color-neutral-white, 0.9);
+  padding: $spacing-4;
+  border-radius: $border-radius-xl;
+  box-shadow: $shadow-sm;
+  border: 1px solid rgba($color-neutral-200, 0.6);
+  backdrop-filter: blur(8px);
+}
+
+.legend-label {
+  font-weight: $font-weight-semibold;
+  color: $color-neutral-700;
+  margin-right: $spacing-2;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: $font-size-xs;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  padding: $spacing-1 $spacing-3;
+  border-radius: $border-radius-round;
+  border: 1px solid;
+
+  &.legend-exam {
+    background-color: rgba($color-danger-base, 0.05);
+    border-color: rgba($color-danger-base, 0.2);
+  }
+  
+  &.legend-assignment {
+    background-color: rgba($color-warning-base, 0.05);
+    border-color: rgba($color-warning-base, 0.2);
+  }
+
+  &.legend-custom {
+    background-color: rgba($color-info-base, 0.05);
+    border-color: rgba($color-info-base, 0.2);
+  }
+
+  &.legend-global {
+    background-color: rgba(16, 185, 129, 0.05);
+    border-color: rgba(16, 185, 129, 0.2);
+  }
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: $border-radius-round;
+  margin-right: $spacing-2;
+
+  &.dot-exam {
+    background-color: $color-danger-base;
+    box-shadow: 0 0 4px rgba($color-danger-base, 0.5);
+  }
+
+  &.dot-assignment {
+    background-color: $color-warning-base;
+    box-shadow: 0 0 4px rgba($color-warning-base, 0.5);
+  }
+
+  &.dot-custom {
+    background-color: $color-info-base;
+    box-shadow: 0 0 4px rgba($color-info-base, 0.5);
+  }
+
+  &.dot-global {
+    background-color: #10b981; // Emerald
+    box-shadow: 0 0 4px rgba(16, 185, 129, 0.5);
+  }
+}
+
+.legend-text {
+  font-weight: $font-weight-medium;
+  font-size: $font-size-sm;
+
+  .legend-exam & { color: $color-danger-dark; }
+  .legend-assignment & { color: $color-warning-dark; }
+  .legend-custom & { color: $color-info-dark; }
+  .legend-global & { color: #10b981; } // Emerald
+}
+
+// ==========================================
+// CALENDAR CONTAINER
+// ==========================================
+.calendar-container {
+  background-color: rgba($color-neutral-white, 0.8);
+  backdrop-filter: blur(12px);
+  border-radius: $border-radius-2xl;
+  box-shadow: $shadow-xl;
+  border: 1px solid rgba($color-neutral-200, 0.5);
+  padding: $spacing-4;
+  overflow: hidden;
+  position: relative;
+  min-height: 600px;
+
+  @media (min-width: 1024px) {
+    padding: $spacing-6;
+  }
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba($color-neutral-white, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: $z-index-raised;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.spinner-container {
+  position: relative;
+}
+
+.spinner-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: $border-radius-round;
+  background-color: rgba($color-primary-base, 0.3);
+  filter: blur(8px);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .5; }
+}
+
+.spinner-ring {
+  width: 48px;
+  height: 48px;
+  border-radius: $border-radius-round;
+  border: 4px solid $color-neutral-200;
+  border-top-color: $color-primary-base;
+  animation: spin 1s linear infinite;
+  position: relative;
+  z-index: $z-index-base;
+}
+
+.loading-text {
+  margin-top: $spacing-4;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-neutral-600;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.calendar-wrapper {
+  transition: opacity 0.3s ease;
+
+  &.loading {
+    opacity: 0.5;
+  }
+}
+
+// ==========================================
+// FULLCALENDAR OVERRIDES
+// ==========================================
+:host ::ng-deep .fc {
+  font-family: $font-family-primary;
+}
+
+/* Header Toolbar */
+:host ::ng-deep .fc-header-toolbar {
+  margin-bottom: $spacing-6 !important;
+  gap: $spacing-2;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+:host ::ng-deep .fc-toolbar-title {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-neutral-800;
+}
+
+/* Buttons */
+:host ::ng-deep .fc-button-primary {
+  background-color: rgba($color-neutral-white, 0.5);
+  backdrop-filter: blur(4px);
+  color: $color-neutral-700;
+  border: 1px solid rgba($color-neutral-300, 0.5);
+  box-shadow: $shadow-sm;
+  text-transform: capitalize;
+  transition: all 0.2s ease;
+  font-weight: $font-weight-medium;
+
+  &:hover,
+  &:not(:disabled):active,
+  &:not(:disabled).fc-button-active {
+    background-color: rgba($color-primary-base, 0.05);
+    color: $color-primary-dark;
+    border-color: rgba($color-primary-base, 0.2);
+    box-shadow: $shadow-md;
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    background-color: $color-neutral-50;
+    border-color: $color-neutral-200;
+    color: $color-neutral-400;
+  }
+}
+
+:host ::ng-deep .fc .fc-button-group > .fc-button {
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba($color-primary-base, 0.5);
+    z-index: 10;
+  }
+}
+
+/* Grid & Borders */
+:host ::ng-deep .fc-theme-standard td, 
+:host ::ng-deep .fc-theme-standard th {
+  border-color: rgba($color-neutral-200, 0.6);
+  transition: border-color 0.3s ease;
+}
+
+:host ::ng-deep .fc-theme-standard .fc-scrollgrid {
+  border-color: rgba($color-neutral-200, 0.6);
+  border-radius: $border-radius-xl;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02);
+}
+
+/* Day Headers */
+:host ::ng-deep .fc-col-header-cell {
+  background-color: $color-neutral-50;
+  padding: $spacing-3 0;
+}
+
+:host ::ng-deep .fc-col-header-cell-cushion {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-neutral-600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Day Cells */
+:host ::ng-deep .fc-daygrid-day {
+  transition: background-color 0.2s;
+}
+
+:host ::ng-deep .fc-daygrid-day.fc-day-today {
+  background-color: rgba($color-primary-base, 0.05);
+}
+
+:host ::ng-deep .fc-daygrid-day-number {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-neutral-700;
+  padding: $spacing-2;
+  border-radius: $border-radius-round;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: $spacing-1;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba($color-neutral-100, 0.8);
+  }
+}
+
+:host ::ng-deep .fc-day-other .fc-daygrid-day-number {
+  color: $color-neutral-400;
+}
+
+/* Events - base hover/transition only */
+:host ::ng-deep .fc-event {
+  border-radius: $border-radius-md;
+  border-width: 1px !important;
+  border-style: solid !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  overflow: hidden;
+
+  &:hover {
+    transform: scale(1.02);
+    z-index: 10;
+  }
+}
+
+:host ::ng-deep .fc-daygrid-event {
+  margin: $spacing-1;
+}
+
+:host ::ng-deep .fc-timegrid-event {
+  box-shadow: $shadow-sm;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+}
+
+/* EVENT INNER STYLING */
+:host ::ng-deep .event-content-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 4px 8px;
+}
+
+/* Ensure inner elements are always white */
+:host ::ng-deep .event-icon,
+:host ::ng-deep .event-time,
+:host ::ng-deep .event-title-text,
+:host ::ng-deep .fc-event .fc-event-main {
+  color: #ffffff !important;
+}
+
+:host ::ng-deep .event-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  margin-right: 6px;
+}
+
+:host ::ng-deep .event-time {
+  font-weight: $font-weight-medium;
+  font-size: 11px;
+  margin-right: 6px;
+}
+
+:host ::ng-deep .event-title-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  font-weight: $font-weight-bold;
+  letter-spacing: 0.025em;
+}
+
+/* Current Time Indicator */
+:host ::ng-deep .fc-timegrid-now-indicator-line {
+  border-top: 2px solid $color-danger-base;
+}
+
+:host ::ng-deep .fc-timegrid-now-indicator-arrow {
+  border-top: 4px solid $color-danger-base;
+  border-bottom: 4px solid $color-danger-base;
+  border-left: 4px solid $color-danger-base;
+  border-top-color: transparent;
+  border-bottom-color: transparent;
+}
+
+/* Time Grid Specifics */
+:host ::ng-deep .fc-timegrid-slot-label-cushion {
+  font-size: $font-size-xs;
+  color: $color-neutral-500;
+  font-weight: $font-weight-medium;
+}
+
+:host ::ng-deep .fc-timegrid-divider {
+  border-color: rgba($color-neutral-200, 0.6);
+}
+
+/* Selection */
+:host ::ng-deep .fc-highlight {
+  background-color: rgba($color-primary-base, 0.1);
+  opacity: 1;
+}

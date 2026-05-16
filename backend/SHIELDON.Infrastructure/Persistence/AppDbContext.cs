@@ -60,6 +60,9 @@ public class AppDbContext : DbContext
     public DbSet<AttendanceCheck> AttendanceChecks { get; set; } = null!;
     public DbSet<AttendanceRecord> AttendanceRecords { get; set; } = null!;
 
+    // ── Phase 6: Calendar & Schedule ──────────────────────────────────────────
+    public DbSet<CustomEvent> CustomEvents { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -1,0 +1,156 @@
+<!-- Modal Backdrop & Container -->
+<div class="modal-overlay">
+  <div 
+    class="modal-backdrop" 
+    [@backdropAnimation]
+    (click)="close.emit()">
+  </div>
+
+  <!-- Modal Panel -->
+  <div 
+    class="modal-panel"
+    [@modalAnimation]>
+    
+    <!-- Header -->
+    <div class="modal-header">
+      <h3 class="modal-title">
+        {{ isEditMode ? 'Edit Event' : 'Create New Event' }}
+      </h3>
+      <button 
+        type="button" 
+        (click)="close.emit()"
+        class="modal-close-btn">
+        <lucide-icon [img]="icons.X" size="20"></lucide-icon>
+      </button>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="eventForm" (ngSubmit)="onSubmit()" class="modal-form">
+      
+      <!-- Title -->
+      <div class="form-group">
+        <label for="title" class="form-label">Event Title <span class="required-asterisk">*</span></label>
+        <div class="input-wrapper">
+          <div class="input-icon">
+            <lucide-icon [img]="icons.Type" size="18"></lucide-icon>
+          </div>
+          <input 
+            type="text" 
+            id="title" 
+            formControlName="title"
+            class="form-input"
+            placeholder="e.g., Midterm Review Session"
+          >
+        </div>
+        <div *ngIf="eventForm.get('title')?.touched && eventForm.get('title')?.errors?.['required']" class="error-message">
+          Title is required.
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="form-group">
+        <label for="description" class="form-label">Description</label>
+        <div class="input-wrapper textarea-wrapper">
+          <div class="input-icon textarea-icon">
+            <lucide-icon [img]="icons.AlignLeft" size="18"></lucide-icon>
+          </div>
+          <textarea 
+            id="description" 
+            formControlName="description"
+            rows="3"
+            class="form-input form-textarea"
+            placeholder="Optional details about this event..."
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Dates -->
+      <div class="form-row">
+        <!-- Start Date -->
+        <div class="form-group">
+          <label for="eventDate" class="form-label">Start Time <span class="required-asterisk">*</span></label>
+          <div class="input-wrapper">
+            <div class="input-icon">
+              <lucide-icon [img]="icons.Clock" size="18"></lucide-icon>
+            </div>
+            <input 
+              type="datetime-local" 
+              id="eventDate" 
+              formControlName="eventDate"
+              class="form-input"
+            >
+          </div>
+        </div>
+
+        <!-- End Date -->
+        <div class="form-group">
+          <label for="eventEndDate" class="form-label">End Time (Optional)</label>
+          <div class="input-wrapper">
+            <div class="input-icon">
+              <lucide-icon [img]="icons.Clock" size="18"></lucide-icon>
+            </div>
+            <input 
+              type="datetime-local" 
+              id="eventEndDate" 
+              formControlName="eventEndDate"
+              class="form-input"
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Course Selection -->
+      <div class="form-group">
+        <label for="courseId" class="form-label">Associated Course</label>
+        <div class="input-wrapper">
+          <div class="input-icon">
+            <lucide-icon [img]="icons.BookOpen" size="18"></lucide-icon>
+          </div>
+          <select 
+            id="courseId" 
+            formControlName="courseId"
+            class="form-input form-select"
+          >
+            <option *ngIf="isAdmin" value="">Global Event (No Course)</option>
+            <option *ngIf="!isAdmin" value="" disabled selected>Select a course</option>
+            <option *ngFor="let course of courses" [value]="course.id">
+              {{ course.courseCode }} - {{ course.title }}
+            </option>
+          </select>
+          <div class="select-chevron">
+            <svg class="chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="modal-footer">
+        <div class="footer-left">
+          <button 
+            *ngIf="isEditMode"
+            type="button"
+            (click)="onDelete()"
+            class="btn-danger">
+            Delete
+          </button>
+        </div>
+        <div class="footer-right">
+          <button 
+            type="button" 
+            (click)="close.emit()"
+            class="btn-secondary">
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            [disabled]="eventForm.invalid"
+            class="btn-primary">
+            {{ isEditMode ? 'Save Changes' : 'Create Event' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
