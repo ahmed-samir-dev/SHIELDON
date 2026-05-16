@@ -63,6 +63,9 @@ public class AppDbContext : DbContext
     // ── Phase 6: Calendar & Schedule ──────────────────────────────────────────
     public DbSet<CustomEvent> CustomEvents { get; set; } = null!;
 
+    // ── Phase 6.5: Payment Gateway ────────────────────────────────────────────
+    public DbSet<PaymentRecord> PaymentRecords { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
