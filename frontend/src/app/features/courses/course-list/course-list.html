@@ -77,10 +77,12 @@
               <span>{{ course.assignedTutorName }}</span>
             </div>
           }
-          <div class="meta-item">
-            <i class="fi fi-rr-dollar" style="font-size: 14px;"></i>
-            <span>{{ course.courseFee > 0 ? ('$' + course.courseFee) : 'Free' }}</span>
-          </div>
+          @if (course.courseFee > 0) {
+            <div class="meta-item">
+              <i class="fi fi-rr-dollar" style="font-size: 14px;"></i>
+              <span>${{ course.courseFee }}</span>
+            </div>
+          }
         </div>
       </div>
       
@@ -207,6 +209,19 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
             </div>
           </div>
+        </div>
+
+        <!-- Course Fee -->
+        <div class="form-group">
+          <label>Course Fee (USD) <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <i class="fi fi-rr-dollar input-icon" style="font-size: 16px;"></i>
+            <input type="number" formControlName="courseFee" placeholder="e.g. 150" min="0" step="0.01"
+                   [class.is-invalid]="courseForm.get('courseFee')?.invalid && courseForm.get('courseFee')?.touched">
+          </div>
+          @if (courseForm.get('courseFee')?.invalid && courseForm.get('courseFee')?.touched) {
+            <span class="error-msg">Valid Course Fee is required (0 or greater).</span>
+          }
         </div>
 
         <!-- Modal Footer Actions -->

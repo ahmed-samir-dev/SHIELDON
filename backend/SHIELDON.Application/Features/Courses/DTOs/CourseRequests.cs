@@ -7,7 +7,8 @@ public record CreateCourseRequest(
     string Title,
     string CourseCode,
     string? Description,
-    Guid? AssignedTutorId
+    Guid? AssignedTutorId,
+    decimal CourseFee
 );
 
 /// <summary>Request body to update an existing course. Admin only.</summary>
@@ -15,7 +16,8 @@ public record UpdateCourseRequest(
     string Title,
     string? Description,
     Guid? AssignedTutorId,
-    bool IsActive
+    bool IsActive,
+    decimal CourseFee
 );
 
 // ── Enrollment Requests ────────────────────────────────────────────────────

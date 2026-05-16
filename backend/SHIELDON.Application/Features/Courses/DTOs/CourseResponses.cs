@@ -14,6 +14,7 @@ public record CourseResponse(
     Guid? AssignedTutorId,
     string? AssignedTutorName,
     bool IsActive,
+    decimal CourseFee,
     int EnrolledStudentCount,
     DateTime CreatedAt
 );
@@ -30,6 +31,7 @@ public record CourseDetailResponse(
     Guid? AssignedTutorId,
     string? AssignedTutorName,
     bool IsActive,
+    decimal CourseFee,
     int EnrolledStudentCount,
     int MaterialCount,
     int AnnouncementCount,
