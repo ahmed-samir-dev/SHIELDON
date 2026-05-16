@@ -156,6 +156,21 @@ export const routes: Routes = [
         loadComponent: () => import('./features/monitoring/admin-dashboard/admin-dashboard').then(m => m.AdminDashboardComponent),
         title: 'Admin Dashboard — SHIELDON'
       },
+      {
+        path: 'payment-hub',
+        loadComponent: () => import('./features/payment/payment-hub/payment-hub').then(m => m.PaymentHubComponent),
+        title: 'Payment Hub — SHIELDON'
+      },
+      {
+        path: 'payment/success',
+        loadComponent: () => import('./features/payment/payment-success/payment-success').then(m => m.PaymentSuccessComponent),
+        title: 'Payment Successful — SHIELDON'
+      },
+      {
+        path: 'payment/cancel',
+        loadComponent: () => import('./features/payment/payment-cancel/payment-cancel').then(m => m.PaymentCancelComponent),
+        title: 'Payment Cancelled — SHIELDON'
+      },
       { path: 'student/dashboard', redirectTo: 'courses' },
       {
         path: 'tutor/dashboard',
