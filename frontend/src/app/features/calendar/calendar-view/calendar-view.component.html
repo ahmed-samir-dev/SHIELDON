@@ -1,0 +1,87 @@
+<div class="calendar-page">
+  <!-- Premium Header -->
+  <div class="calendar-header">
+    <div class="header-bg-decor1"></div>
+    <div class="header-bg-decor2"></div>
+    
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="page-title">
+          <div class="icon-wrapper">
+          <lucide-icon [img]="icons.CalendarIcon" class="title-icon"></lucide-icon>
+        </div>
+        <span>Calendar & Schedule</span>
+      </h1>
+      <p class="page-subtitle">
+          View and manage your exams, assignments, and custom events across all courses in one unified interface.
+        </p>
+      </div>
+
+      <!-- Actions -->
+    <div class="action-section">
+      <button 
+        *ngIf="isAdmin || isTutor"
+        (click)="openModal()"
+        class="btn-primary">
+        <lucide-icon [img]="icons.Plus" class="btn-icon"></lucide-icon>
+        <span>New Event</span>
+      </button>
+    </div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="calendar-legend">
+    <span class="legend-label">Legend:</span>
+    <div class="legend-item legend-exam">
+      <div class="legend-dot dot-exam"></div>
+      <span class="legend-text">Exams</span>
+    </div>
+    <div class="legend-item legend-assignment">
+      <div class="legend-dot dot-assignment"></div>
+      <span class="legend-text">Assignments</span>
+    </div>
+    <div class="legend-item legend-custom">
+      <div class="legend-dot dot-custom"></div>
+      <span class="legend-text">Course Event</span>
+    </div>
+    <div class="legend-item legend-global">
+      <div class="legend-dot dot-global"></div>
+      <span class="legend-text">Global Event</span>
+    </div>
+  </div>
+
+  <!-- Calendar Container -->
+  <div class="calendar-container">
+    
+    <!-- Loading Overlay -->
+    <div *ngIf="isLoading" class="loading-overlay">
+      <div class="spinner-container">
+        <div class="spinner-pulse"></div>
+        <div class="spinner-ring"></div>
+      </div>
+      <span class="loading-text">Syncing events...</span>
+    </div>
+
+    <!-- FullCalendar -->
+    <div class="calendar-wrapper" [class.loading]="isLoading">
+      <full-calendar 
+        *ngIf="calendarVisible" 
+        #calendar
+        [options]="calendarOptions">
+      </full-calendar>
+    </div>
+  </div>
+</div>
+
+<!-- Event Modal -->
+<app-event-modal
+  *ngIf="showModal"
+  [event]="selectedEvent"
+  [initialDate]="selectedDate"
+  [courses]="courses"
+  [isAdmin]="isAdmin"
+  (save)="saveEvent($event)"
+  (delete)="deleteEvent($event)"
+  (close)="closeModal()">
+</app-event-modal>

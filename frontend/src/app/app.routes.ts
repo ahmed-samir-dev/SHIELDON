@@ -146,6 +146,11 @@ export const routes: Routes = [
         title: 'Messages — SHIELDON'
       },
       {
+        path: 'calendar',
+        loadComponent: () => import('./features/calendar/calendar-view/calendar-view.component').then(m => m.CalendarViewComponent),
+        title: 'Calendar & Schedule — SHIELDON'
+      },
+      {
         path: 'admin/dashboard',
         canActivate: [adminGuard],
         loadComponent: () => import('./features/monitoring/admin-dashboard/admin-dashboard').then(m => m.AdminDashboardComponent),

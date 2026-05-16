@@ -1,4 +1,5 @@
 using SHIELDON.Application.Interfaces;
+using SHIELDON.Application.Features.Calendar.Interfaces;
 using SHIELDON.Infrastructure.BackgroundServices;
 using SHIELDON.Infrastructure.Persistence;
 using SHIELDON.Infrastructure.Services;
@@ -58,6 +59,7 @@ public static class DependencyInjection
         services.AddScoped<IAIService, AIService>();
         services.AddScoped<IChatService, ChatService>();
         services.AddScoped<IAttendanceService, AttendanceService>();
+        services.AddScoped<ICalendarService, CalendarService>();
         services.AddSingleton<PresenceTracker>();
 
         // ── HTTP Clients ───────────────────────────────────────────────────
