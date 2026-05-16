@@ -37,6 +37,9 @@ var builder = WebApplication.CreateBuilder(args);
     // ── INFRASTRUCTURE: Register all services (DB, Email, JWT, Files, etc.) ─
     builder.Services.AddInfrastructure(builder.Configuration);
 
+    // ── STRIPE: Initialize global configuration ───────────────────────────
+    Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+
     // ── API-layer Background Services ─────────────────────────────────────
     builder.Services.AddHostedService<AttendanceRotationService>();
 

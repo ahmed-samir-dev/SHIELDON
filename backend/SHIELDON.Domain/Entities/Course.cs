@@ -21,6 +21,9 @@ public class Course
     /// </summary>
     public string CourseCode { get; set; } = string.Empty;
 
+    /// <summary>Optional fee for the course in USD. Defaults to 150.00.</summary>
+    public decimal CourseFee { get; set; } = 150.00m;
+
     /// <summary>Optional longer description shown on the course page.</summary>
     public string? Description { get; set; }
 

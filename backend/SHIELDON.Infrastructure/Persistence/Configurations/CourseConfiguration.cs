@@ -30,6 +30,11 @@ public class CourseConfiguration : IEntityTypeConfiguration<Course>
             .IsUnique()
             .HasDatabaseName("IX_Courses_CourseCode");
 
+        builder.Property(c => c.CourseFee)
+            .HasColumnType("decimal(18,2)")
+            .HasDefaultValue(150.00m)
+            .IsRequired();
+
         builder.Property(c => c.Description)
             .HasMaxLength(2000);
 

@@ -419,6 +419,19 @@ public class CourseService : ICourseService
             enrollment.Status = CourseEnrollmentStatus.Approved;
             enrollment.RejectionReason = null;
             
+            if (enrollment.Course!.CourseFee > 0)
+            {
+                _db.PaymentRecords.Add(new PaymentRecord
+                {
+                    StudentId = enrollment.StudentId,
+                    CourseId = enrollment.CourseId,
+                    EnrollmentId = enrollment.Id,
+                    AmountUSD = enrollment.Course.CourseFee,
+                    Status = PaymentRecordStatus.Pending,
+                    CreatedAt = DateTime.UtcNow
+                });
+            }
+            
             // Notify student: EnrollmentApproved
             await _notificationService.TriggerNotificationAsync(
                 enrollment.StudentId,
@@ -474,6 +487,19 @@ public class CourseService : ICourseService
             if (request.Approved)
             {
                 enrollment.Status = CourseEnrollmentStatus.Approved;
+
+                if (enrollment.Course!.CourseFee > 0)
+                {
+                    _db.PaymentRecords.Add(new PaymentRecord
+                    {
+                        StudentId = enrollment.StudentId,
+                        CourseId = enrollment.CourseId,
+                        EnrollmentId = enrollment.Id,
+                        AmountUSD = enrollment.Course.CourseFee,
+                        Status = PaymentRecordStatus.Pending,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
             }
             else
             {
