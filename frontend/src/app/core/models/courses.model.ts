@@ -43,6 +43,7 @@ export interface CourseResponse {
   assignedTutorId: string | null;
   assignedTutorName: string | null;
   isActive: boolean;
+  courseFee: number;
   enrolledStudentCount: number;
   createdAt: string;
 }
@@ -55,6 +56,7 @@ export interface CourseDetailResponse {
   assignedTutorId: string | null;
   assignedTutorName: string | null;
   isActive: boolean;
+  courseFee: number;
   enrolledStudentCount: number;
   materialCount: number;
   announcementCount: number;
