@@ -18,14 +18,14 @@
   .spinner {
     width: 48px;
     height: 48px;
-    border: 4px solid $color-neutral-200;
+    border: 4px solid var(--theme-border-strong);
     border-top-color: $color-primary-base;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: $spacing-4;
   }
   p {
-    color: $color-neutral-600;
+    color: var(--theme-text-muted);
     font-weight: $font-weight-medium;
   }
 }
@@ -49,12 +49,12 @@
     text-align: center;
     h1 {
       font-size: $font-size-2xl;
-      color: $color-neutral-900;
+      color: var(--theme-text-main);
       margin: 0 0 $spacing-1 0;
     }
     .subtitle {
       font-size: $font-size-sm;
-      color: $color-neutral-500;
+      color: var(--theme-text-muted);
       margin: 0;
     }
   }
@@ -65,16 +65,16 @@
     gap: $spacing-2;
     padding: $spacing-2 $spacing-4;
     background: transparent;
-    border: 1px solid $color-neutral-200;
+    border: 1px solid var(--theme-border);
     border-radius: $border-radius-md;
-    color: $color-neutral-600;
+    color: var(--theme-text-muted);
     font-weight: $font-weight-medium;
     cursor: pointer;
     transition: all 0.2s;
 
     &:hover {
-      background: $color-neutral-100;
-      color: $color-neutral-900;
+      background: var(--theme-bg-hover);
+      color: var(--theme-text-main);
     }
   }
 }
@@ -86,10 +86,10 @@
 }
 
 .overview-card {
-  background: white;
+  background: var(--theme-bg-surface);
   border-radius: $border-radius-lg;
   box-shadow: $shadow-md;
-  border: 1px solid $color-neutral-200;
+  border: 1px solid var(--theme-border);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -102,10 +102,10 @@
     align-items: center;
     h2 {
       margin: 0 0 $spacing-2 0;
-      color: $color-neutral-900;
+      color: var(--theme-text-main);
     }
     p {
-      color: $color-neutral-500;
+      color: var(--theme-text-muted);
       max-width: 400px;
     }
   }
@@ -123,7 +123,7 @@
 
   .ring-bg {
     fill: none;
-    stroke: $color-neutral-100;
+    stroke: var(--theme-border-strong);
     stroke-width: 10;
   }
 
@@ -148,13 +148,13 @@
     .score-value {
       font-size: 32px;
       font-weight: $font-weight-bold;
-      color: $color-neutral-900;
+      color: var(--theme-text-main);
 
-      &.pending { color: $color-neutral-400; }
+      &.pending { color: var(--theme-text-muted); }
     }
     .score-label {
       font-size: $font-size-xs;
-      color: $color-neutral-500;
+      color: var(--theme-text-muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -194,13 +194,13 @@
 
   .pass-requirement {
     font-size: $font-size-sm;
-    color: $color-neutral-500;
+    color: var(--theme-text-muted);
     margin: 0;
     
     .pass-bar-container {
       width: 200px;
       height: 6px;
-      background: $color-neutral-200;
+      background: var(--theme-border);
       border-radius: $border-radius-round;
       margin-top: $spacing-2;
       position: relative;
@@ -208,7 +208,7 @@
 
       .pass-bar-fill {
         height: 100%;
-        background: $color-neutral-400;
+        background: var(--theme-text-muted);
         border-radius: $border-radius-round;
       }
       
@@ -217,7 +217,7 @@
         top: -2px;
         bottom: -2px;
         width: 2px;
-        background: $color-neutral-800;
+        background: var(--theme-text-main);
         z-index: 2;
       }
     }
@@ -268,10 +268,10 @@
   animation: fadeIn 0.2s ease;
 
   .attempt-picker-modal {
-    background: $color-neutral-white;
+    background: var(--theme-bg-surface);
     border-radius: $border-radius-2xl;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba($color-neutral-200, 0.8);
+    border: 1px solid var(--theme-border);
     width: 100%;
     max-width: 440px;
     max-height: 80vh;
@@ -286,25 +286,25 @@
       align-items: center;
       justify-content: space-between;
       padding: $spacing-5 $spacing-6;
-      border-bottom: 1px solid $color-neutral-100;
+      border-bottom: 1px solid var(--theme-border);
 
       h3 {
         font-size: $font-size-lg;
         font-weight: $font-weight-bold;
-        color: $color-neutral-900;
+        color: var(--theme-text-main);
         margin: 0;
       }
 
       .picker-close {
-        background: $color-neutral-100;
+        background: var(--theme-bg-secondary);
         border: none;
         border-radius: $border-radius-md;
         padding: $spacing-1;
         cursor: pointer;
-        color: $color-neutral-500;
+        color: var(--theme-text-muted);
         display: flex;
         transition: all 0.15s;
-        &:hover { background: $color-neutral-200; color: $color-neutral-900; }
+        &:hover { background: var(--theme-bg-hover); color: var(--theme-text-main); }
       }
     }
 
@@ -321,8 +321,8 @@
         gap: $spacing-3;
         padding: $spacing-4 $spacing-5;
         border-radius: $border-radius-xl;
-        border: 1.5px solid $color-neutral-200;
-        background: $color-neutral-white;
+        border: 1.5px solid var(--theme-border-strong);
+        background: var(--theme-bg-surface);
         cursor: pointer;
         font-family: inherit;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -347,7 +347,7 @@
         .attempt-num {
           font-weight: $font-weight-bold;
           font-size: $font-size-base;
-          color: $color-neutral-800;
+          color: var(--theme-text-main);
           flex-shrink: 0;
         }
 
@@ -360,18 +360,18 @@
           .attempt-score {
             font-weight: $font-weight-bold;
             font-size: $font-size-base;
-            color: $color-neutral-500;
+            color: var(--theme-text-muted);
             &.pass { color: $color-success-dark; }
             &.fail { color: $color-danger-dark; }
           }
 
           .attempt-date {
             font-size: $font-size-xs;
-            color: $color-neutral-400;
+            color: var(--theme-text-muted);
           }
         }
 
-        svg { flex-shrink: 0; color: $color-neutral-400; }
+        svg { flex-shrink: 0; color: var(--theme-text-muted); }
         &.current-attempt svg { color: $color-primary-base; }
       }
     }
@@ -448,9 +448,9 @@
   h3 {
     margin: 0 0 $spacing-4 0;
     font-size: $font-size-xl;
-    color: $color-neutral-900;
+    color: var(--theme-text-main);
     padding-bottom: $spacing-2;
-    border-bottom: 1px solid $color-neutral-200;
+    border-bottom: 1px solid var(--theme-border);
   }
 
   .review-list {
@@ -460,11 +460,11 @@
   }
 
   .review-item {
-    background: white;
+    background: var(--theme-bg-surface);
     border-radius: $border-radius-lg;
     box-shadow: $shadow-sm;
     padding: $spacing-5;
-    border-left: 4px solid $color-neutral-300;
+    border-left: 4px solid var(--theme-border-strong);
 
     &.correct { border-left-color: $color-success-base; }
     &.incorrect { border-left-color: $color-danger-base; }
@@ -478,13 +478,13 @@
 
       .q-number {
         font-weight: $font-weight-bold;
-        color: $color-neutral-900;
+        color: var(--theme-text-main);
       }
       .q-points {
         font-size: $font-size-sm;
         font-weight: $font-weight-medium;
-        color: $color-neutral-600;
-        background: $color-neutral-100;
+        color: var(--theme-text-muted);
+        background: var(--theme-bg-secondary);
         padding: 2px $spacing-2;
         border-radius: $border-radius-sm;
 
@@ -497,7 +497,7 @@
 
     .q-text {
       margin: 0 0 $spacing-4 0;
-      color: $color-neutral-800;
+      color: var(--theme-text-main);
       font-size: $font-size-base;
       line-height: 1.5;
     }
@@ -517,13 +517,13 @@
 
         .label {
           font-weight: $font-weight-semibold;
-          color: $color-neutral-600;
+          color: var(--theme-text-muted);
           min-width: 120px;
         }
 
         .text {
           flex: 1;
-          color: $color-neutral-900;
+          color: var(--theme-text-main);
         }
 
         &.selected {
@@ -537,13 +537,13 @@
         }
 
         &.text-answer {
-          background: $color-neutral-50;
+          background: var(--theme-bg-secondary);
           flex-direction: column;
           gap: $spacing-1;
 
           .text {
             white-space: pre-wrap;
-            color: $color-neutral-800;
+            color: var(--theme-text-main);
             margin: 0;
           }
         }

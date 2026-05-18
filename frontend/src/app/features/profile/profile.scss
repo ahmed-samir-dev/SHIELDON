@@ -12,23 +12,23 @@
   h1 {
     font-size: $font-size-2xl;
     font-weight: $font-weight-bold;
-    color: $color-neutral-900;
+    color: var(--theme-text-main);
     margin-bottom: $spacing-1;
   }
   
   p {
-    color: $color-neutral-600;
+    color: var(--theme-text-muted);
     font-size: $font-size-base;
   }
 }
 
 .profile-card {
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--theme-bg-surface);
   backdrop-filter: blur(12px);
   border-radius: $border-radius-xl;
   box-shadow: $shadow-xl;
   padding: $spacing-8;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--theme-border);
 }
 
 // Avatar Styles
@@ -107,13 +107,13 @@
   h3 {
     font-size: $font-size-lg;
     font-weight: $font-weight-semibold;
-    color: $color-neutral-900;
+    color: var(--theme-text-main);
     margin-bottom: $spacing-1;
   }
   
   p {
     font-size: $font-size-sm;
-    color: $color-neutral-500;
+    color: var(--theme-text-muted);
     line-height: 1.4;
   }
 }
@@ -121,7 +121,7 @@
 .divider {
   border: 0;
   height: 1px;
-  background: $color-neutral-200;
+  background: var(--theme-border);
   margin: $spacing-6 0;
 }
 
@@ -165,22 +165,23 @@
   label {
     font-size: $font-size-sm;
     font-weight: $font-weight-semibold;
-    color: $color-neutral-700;
+    color: var(--theme-text-secondary);
     margin-bottom: $spacing-2;
   }
   
   input {
     width: 100%;
     padding: $spacing-3;
-    border: 1.5px solid $color-neutral-300;
+    border: 1.5px solid var(--theme-border-strong);
     border-radius: $border-radius-md;
     font-size: $font-size-base;
-    color: $color-neutral-900;
+    color: var(--theme-text-main);
     transition: border-color 0.2s, box-shadow 0.2s;
+    background: var(--theme-bg-secondary);
     
     &:disabled {
-      background: $color-neutral-100;
-      color: $color-neutral-600;
+      background: var(--theme-bg-hover);
+      color: var(--theme-text-muted);
       cursor: not-allowed;
     }
     
@@ -206,7 +207,7 @@
     left: 14px;
     top: 50%;
     transform: translateY(-50%);
-    color: $color-neutral-500;
+    color: var(--theme-text-muted);
     transition: color 0.3s;
     z-index: 1;
   }
@@ -227,7 +228,7 @@
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: $color-neutral-400;
+  color: var(--theme-text-muted);
   cursor: pointer;
   padding: 4px;
   display: flex;
@@ -256,7 +257,7 @@
 .field-help {
   margin-top: $spacing-1;
   font-size: $font-size-xs;
-  color: $color-neutral-500;
+  color: var(--theme-text-muted);
 }
 
 .role-badge {
@@ -304,9 +305,9 @@
 
 .btn-secondary {
   padding: $spacing-3 $spacing-6;
-  background: white;
-  color: $color-neutral-800;
-  border: 1px solid $color-neutral-200;
+  background: var(--theme-bg-surface);
+  color: var(--theme-text-main);
+  border: 1px solid var(--theme-border-strong);
   border-radius: $border-radius-md;
   font-size: $font-size-base;
   font-weight: $font-weight-semibold;
@@ -318,8 +319,8 @@
   box-shadow: $shadow-sm;
   
   &:hover:not(:disabled) {
-    background: $color-neutral-50;
-    border-color: $color-neutral-300;
+    background: var(--theme-bg-hover);
+    border-color: var(--theme-border-strong);
     box-shadow: $shadow-md;
     transform: translateY(-1px);
   }
@@ -350,12 +351,12 @@
   align-items: center;
   justify-content: center;
   padding: $spacing-12;
-  color: $color-neutral-500;
+  color: var(--theme-text-muted);
   
   .spinner {
     width: 32px;
     height: 32px;
-    border: 3px solid $color-neutral-200;
+    border: 3px solid var(--theme-border-strong);
     border-top-color: $color-primary-base;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;

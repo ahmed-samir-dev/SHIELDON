@@ -17,19 +17,19 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  border-bottom: 1px solid $color-neutral-200;
+  border-bottom: 1px solid var(--theme-border);
   padding-bottom: $spacing-4;
 
   .header-title {
     h2 {
       font-size: $font-size-xl;
-      color: $color-neutral-900;
+      color: var(--theme-text-main);
       margin-bottom: $spacing-1;
       font-weight: $font-weight-bold;
     }
     .subtitle {
       font-size: $font-size-sm;
-      color: $color-neutral-500;
+      color: var(--theme-text-muted);
     }
   }
 
@@ -54,14 +54,14 @@
   justify-content: center;
   padding: $spacing-16 $spacing-6;
   text-align: center;
-  background: rgba($color-neutral-50, 0.7);
-  border: 2px dashed $color-neutral-200;
+  background: var(--theme-bg-surface);
+  border: 2px dashed var(--theme-border-strong);
   border-radius: $border-radius-2xl;
   margin-top: $spacing-4;
   transition: all 0.3s ease;
 
   &:hover {
-    background: $color-neutral-50;
+    background: var(--theme-bg-hover);
     border-color: rgba($color-primary-base, 0.3);
   }
 
@@ -71,7 +71,7 @@
     justify-content: center;
     width: 64px;
     height: 64px;
-    background: white;
+    background: var(--theme-bg-secondary);
     border-radius: 50%;
     color: $color-primary-light;
     margin-bottom: $spacing-5;
@@ -83,14 +83,14 @@
   }
 
   h3 {
-    color: $color-neutral-800;
+    color: var(--theme-text-main);
     margin-bottom: $spacing-2;
     font-size: $font-size-xl;
     font-weight: $font-weight-bold;
   }
 
   p {
-    color: $color-neutral-500;
+    color: var(--theme-text-muted);
     font-size: $font-size-base;
     max-width: 420px;
   }
@@ -105,8 +105,8 @@
 
 .exam-card {
   position: relative;
-  background: $color-neutral-white;
-  border: 1px solid $color-neutral-200;
+  background: var(--theme-bg-surface);
+  border: 1px solid var(--theme-border);
   border-radius: $border-radius-xl;
   box-shadow: $shadow-sm;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -131,8 +131,8 @@
 
   &.draft {
     opacity: 0.9;
-    background: $color-neutral-50;
-    .card-accent { background: $color-neutral-400; }
+    background: var(--theme-bg-secondary);
+    .card-accent { background: var(--theme-text-muted); }
   }
 
   .card-body {
@@ -158,8 +158,8 @@
     letter-spacing: 0.5px;
 
     &.draft {
-      background: rgba($color-neutral-400, 0.1);
-      color: $color-neutral-600;
+      background: var(--theme-bg-hover);
+      color: var(--theme-text-muted);
     }
     &.published {
       background: rgba($color-success-base, 0.1);
@@ -221,7 +221,7 @@
   .exam-title {
     font-size: $font-size-base;
     font-weight: $font-weight-semibold;
-    color: $color-neutral-900;
+    color: var(--theme-text-main);
     margin: 0;
     line-height: 1.4;
   }
@@ -236,15 +236,15 @@
       align-items: center;
       gap: $spacing-2;
       font-size: 0.85rem;
-      color: $color-neutral-600;
+      color: var(--theme-text-muted);
 
-      svg { color: $color-neutral-400; }
+      svg { color: var(--theme-text-muted); }
     }
   }
 
   .exam-schedule {
     font-size: 0.85rem;
-    color: $color-neutral-500;
+    color: var(--theme-text-muted);
     p { margin: 0; }
   }
 
@@ -265,7 +265,7 @@
         height: 40px;
         border-radius: $border-radius-md;
         border: none;
-        background: $color-neutral-50;
+        background: var(--theme-bg-secondary);
         font-family: $font-family-primary;
         font-size: $font-size-sm;
         font-weight: $font-weight-medium;
@@ -390,17 +390,17 @@
         width: 6px;
       }
       &::-webkit-scrollbar-track {
-        background: rgba($color-neutral-100, 0.5);
+        background: var(--theme-bg-secondary);
         border-radius: $border-radius-round;
         margin-top: $spacing-2;
         margin-bottom: $spacing-2;
       }
       &::-webkit-scrollbar-thumb {
-        background: $color-neutral-300;
+        background: var(--theme-border-strong);
         border-radius: $border-radius-round;
         
         &:hover {
-          background: $color-neutral-400;
+          background: var(--theme-text-muted);
         }
       }
     }
@@ -422,7 +422,7 @@
     top: 50%;
     transform: translateY(-50%);
     pointer-events: none;
-    color: $color-neutral-400;
+    color: var(--theme-text-muted);
   }
 }
 
@@ -470,16 +470,16 @@
     text-align: left;
     gap: $spacing-3;
     padding: $spacing-2 $spacing-3; // Reduced top/bottom padding
-    border: 2px solid $color-neutral-200;
+    border: 2px solid var(--theme-border-strong);
     border-radius: $border-radius-lg;
     cursor: pointer;
-    background-color: $color-neutral-white;
+    background-color: var(--theme-bg-surface);
     transition: all 0.2s ease-in-out;
     overflow: hidden;
 
     &:hover {
       border-color: $color-primary-light;
-      background-color: $color-neutral-50;
+      background-color: var(--theme-bg-hover);
       transform: translateY(-1px); // More subtle hover lift
       box-shadow: $shadow-sm;
 
@@ -496,7 +496,7 @@
 
       .type-icon {
         color: $color-primary-base;
-        background-color: $color-neutral-white;
+        background-color: var(--theme-bg-main);
         box-shadow: $shadow-sm;
       }
 
@@ -510,13 +510,13 @@
     }
 
     .type-icon {
-      color: $color-neutral-400;
+      color: var(--theme-text-muted);
       display: flex;
       align-items: center;
       justify-content: center;
       width: 32px; // Reduced from 44px
       height: 32px; // Reduced from 44px
-      background-color: $color-neutral-100;
+      background-color: var(--theme-bg-secondary);
       border-radius: $border-radius-md;
       transition: all 0.2s ease-in-out;
       flex-shrink: 0; // Prevent the icon from getting squished
@@ -535,7 +535,7 @@
       .type-name {
         font-family: $font-family-primary;
         font-weight: $font-weight-medium; // Slightly lighter weight for compact feel
-        color: $color-neutral-700;
+        color: var(--theme-text-main);
         font-size: $font-size-sm;
         transition: color 0.2s ease;
       }
@@ -640,7 +640,7 @@
     span {
       font-size: 12px;
       font-weight: $font-weight-medium;
-      color: $color-neutral-600;
+      color: var(--theme-text-muted);
       line-height: 1.4;
     }
   }
@@ -660,16 +660,16 @@
     align-items: center;
     gap: $spacing-3;
     padding: $spacing-3 $spacing-4;
-    border: 2px solid $color-neutral-200;
+    border: 2px solid var(--theme-border-strong);
     border-radius: $border-radius-lg;
-    background: $color-neutral-white;
+    background: var(--theme-bg-surface);
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
 
     &:hover {
       border-color: $color-primary-light;
-      background: $color-neutral-50;
+      background: var(--theme-bg-hover);
       transform: translateY(-2px);
       box-shadow: $shadow-sm;
 
@@ -687,7 +687,7 @@
 
       .card-icon {
         color: $color-primary-base;
-        background: $color-neutral-white;
+        background: var(--theme-bg-main);
         box-shadow: $shadow-sm;
       }
 
@@ -707,8 +707,8 @@
       width: 40px;
       height: 40px;
       border-radius: $border-radius-md;
-      background: $color-neutral-100;
-      color: $color-neutral-500;
+      background: var(--theme-bg-secondary);
+      color: var(--theme-text-muted);
       flex-shrink: 0;
       transition: all 0.2s ease;
 
@@ -726,14 +726,14 @@
       .card-title {
         font-weight: $font-weight-bold;
         font-size: $font-size-sm;
-        color: $color-neutral-800;
+        color: var(--theme-text-main);
         margin-bottom: 2px;
         transition: color 0.2s ease;
       }
 
       .card-desc {
         font-size: 11px;
-        color: $color-neutral-500;
+        color: var(--theme-text-muted);
       }
     }
   }
@@ -800,10 +800,10 @@
   animation: fadeIn 0.2s ease;
 
   .attempt-picker-modal {
-    background: $color-neutral-white;
+    background: var(--theme-bg-surface);
     border-radius: $border-radius-2xl;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba($color-neutral-200, 0.8);
+    border: 1px solid var(--theme-border);
     width: 100%;
     max-width: 440px;
     max-height: 80vh;
@@ -818,25 +818,25 @@
       align-items: center;
       justify-content: space-between;
       padding: $spacing-5 $spacing-6;
-      border-bottom: 1px solid $color-neutral-100;
+      border-bottom: 1px solid var(--theme-border);
 
       h3 {
         font-size: $font-size-lg;
         font-weight: $font-weight-bold;
-        color: $color-neutral-900;
+        color: var(--theme-text-main);
         margin: 0;
       }
 
       .picker-close {
-        background: $color-neutral-100;
+        background: var(--theme-bg-secondary);
         border: none;
         border-radius: $border-radius-md;
         padding: $spacing-1;
         cursor: pointer;
-        color: $color-neutral-500;
+        color: var(--theme-text-muted);
         display: flex;
         transition: all 0.15s;
-        &:hover { background: $color-neutral-200; color: $color-neutral-900; }
+        &:hover { background: var(--theme-bg-hover); color: var(--theme-text-main); }
       }
     }
 
@@ -853,8 +853,8 @@
         gap: $spacing-3;
         padding: $spacing-4 $spacing-5;
         border-radius: $border-radius-xl;
-        border: 1.5px solid $color-neutral-200;
-        background: $color-neutral-white;
+        border: 1.5px solid var(--theme-border-strong);
+        background: var(--theme-bg-surface);
         cursor: pointer;
         font-family: inherit;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -871,7 +871,7 @@
         .attempt-num {
           font-weight: $font-weight-bold;
           font-size: $font-size-base;
-          color: $color-neutral-800;
+          color: var(--theme-text-main);
           flex-shrink: 0;
         }
 
@@ -884,18 +884,18 @@
           .attempt-score {
             font-weight: $font-weight-bold;
             font-size: $font-size-base;
-            color: $color-neutral-500;
+            color: var(--theme-text-muted);
             &.pass { color: $color-success-dark; }
             &.fail { color: $color-danger-dark; }
           }
 
           .attempt-date {
             font-size: $font-size-xs;
-            color: $color-neutral-400;
+            color: var(--theme-text-muted);
           }
         }
 
-        svg { flex-shrink: 0; color: $color-neutral-400; }
+        svg { flex-shrink: 0; color: var(--theme-text-muted); }
       }
     }
   }

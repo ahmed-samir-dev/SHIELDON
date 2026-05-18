@@ -8,6 +8,7 @@ import { environment } from '../../../environments/environment';
 import { NotificationPanelComponent } from '../../shared/components/notification-panel/notification-panel.component';
 import { AiChatPanelComponent } from '../../shared/components/ai-chat-panel/ai-chat-panel';
 import { ChatService } from '../../core/services/chat.service';
+import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-dashboard-layout',
@@ -21,6 +22,7 @@ export class DashboardLayout implements AfterViewInit {
   authService = inject(AuthService);
   shepherdService = inject(ShepherdService);
   chatService = inject(ChatService);
+  themeService = inject(ThemeService);
   router = inject(Router);
 
   isMobileMenuOpen = false;

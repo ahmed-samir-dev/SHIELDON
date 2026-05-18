@@ -12,17 +12,17 @@
     h1 {
       font-size: $font-size-3xl;
       margin: 0 0 $spacing-2;
-      color: $color-neutral-900;
+      color: var(--theme-text-main);
     }
     .subtitle {
-      color: $color-neutral-500;
+      color: var(--theme-text-muted);
       margin: 0;
     }
   }
 
   .scanner-card {
-    background: white;
-    border: 1px solid $color-neutral-200;
+    background: var(--theme-bg-surface);
+    border: 1px solid var(--theme-border);
     border-radius: $border-radius-lg;
     box-shadow: $shadow-sm;
     padding: $spacing-8;
@@ -84,7 +84,7 @@
       }
 
       p {
-        color: $color-neutral-500;
+        color: var(--theme-text-muted);
         margin: 0;
       }
     }
@@ -100,15 +100,15 @@
 
     .btn-primary {
       background-color: $color-primary-base;
-      color: white;
+      color: var(--theme-bg-main);
       &:hover { filter: brightness(1.1); transform: translateY(-1px); }
     }
 
     .btn-secondary {
-      background-color: $color-neutral-50;
-      color: $color-neutral-900;
-      border: 1px solid $color-neutral-200;
-      &:hover { background-color: $color-neutral-200; }
+      background-color: var(--theme-bg-secondary);
+      color: var(--theme-text-main);
+      border: 1px solid var(--theme-border);
+      &:hover { background-color: var(--theme-bg-hover); }
     }
     
     .mt-3 {
@@ -119,9 +119,10 @@
   .history-section {
     h2 {
       font-size: $font-size-2xl;
+      color: var(--theme-text-main);
       margin-bottom: $spacing-6;
       padding-bottom: $spacing-2;
-      border-bottom: 1px solid $color-neutral-200;
+      border-bottom: 1px solid var(--theme-border);
     }
 
     .history-list {
@@ -135,8 +136,8 @@
       justify-content: space-between;
       align-items: center;
       padding: $spacing-4 $spacing-6;
-      background: white;
-      border: 1px solid $color-neutral-200;
+      background: var(--theme-bg-surface);
+      border: 1px solid var(--theme-border);
       border-radius: $border-radius-md;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
 
@@ -153,12 +154,12 @@
 
         .course-name {
           font-weight: 600;
-          color: $color-neutral-900;
+          color: var(--theme-text-main);
         }
 
         .check-title {
           font-size: $font-size-sm;
-          color: $color-neutral-500;
+          color: var(--theme-text-muted);
         }
       }
 
@@ -179,7 +180,7 @@
 
         .date {
           font-size: $font-size-xs;
-          color: $color-neutral-500;
+          color: var(--theme-text-muted);
         }
       }
     }
@@ -187,10 +188,10 @@
     .empty-state {
       text-align: center;
       padding: $spacing-8;
-      color: $color-neutral-500;
-      background: white;
+      color: var(--theme-text-muted);
+      background: var(--theme-bg-surface);
       border-radius: $border-radius-md;
-      border: 1px dashed $color-neutral-200;
+      border: 1px dashed var(--theme-border);
     }
   }
 }

@@ -5,6 +5,7 @@ import { LucideAngularModule, AlertTriangle, CheckCircle, Clock, ShieldAlert, Mo
 import { NgxEchartsModule } from 'ngx-echarts';
 import type { EChartsOption } from 'echarts';
 import { MonitoringService, AttemptTimelineResponse, ViolationSummaryResponse } from '../../../core/services/monitoring.service';
+import { ThemeService } from '../../../core/services/theme.service';
 import { environment } from '../../../../environments/environment';
 
 @Component({
@@ -12,12 +13,13 @@ import { environment } from '../../../../environments/environment';
   standalone: true,
   imports: [CommonModule, RouterModule, LucideAngularModule, NgxEchartsModule],
   templateUrl: './attempt-detail.html',
-  styleUrls: ['./attempt-detail.scss']
+  styleUrl: './attempt-detail.scss'
 })
 export class AttemptDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private monitoring = inject(MonitoringService);
+  private themeService = inject(ThemeService);
   apiUrl = environment.apiUrl.replace('/api', '');
 
   // Icons
@@ -39,7 +41,79 @@ export class AttemptDetailComponent implements OnInit {
   timelineData = signal<AttemptTimelineResponse | null>(null);
   summaryData = signal<ViolationSummaryResponse | null>(null);
 
-  chartOptions = signal<EChartsOption>({});
+  chartOptions = computed<EChartsOption>(() => {
+    const summary = this.summaryData();
+    const activeTheme = this.themeService.activeTheme();
+    
+    if (!summary || !summary.chartData || summary.chartData.length === 0) {
+      return {};
+    }
+
+    const minutes = summary.chartData.map(d => `Min ${d.minuteOffset}`);
+    const critical = summary.chartData.map(d => d.criticalCount);
+    const medium = summary.chartData.map(d => d.mediumCount);
+    const minor = summary.chartData.map(d => d.minorCount);
+
+    const isDark = activeTheme === 'dark';
+    const textColor = isDark ? '#94a3b8' : '#64748b';
+    const lineColor = isDark ? '#334155' : '#cbd5e1';
+    const splitLineColor = isDark ? '#1e293b' : '#f1f5f9';
+
+    return {
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow' }
+      },
+      legend: {
+        data: ['Critical', 'Medium', 'Minor'],
+        bottom: 0,
+        textStyle: { color: textColor }
+      },
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '15%',
+        top: '10%',
+        containLabel: true
+      },
+      xAxis: {
+        type: 'category',
+        data: minutes,
+        axisLine: { lineStyle: { color: lineColor } },
+        axisLabel: { color: textColor }
+      },
+      yAxis: {
+        type: 'value',
+        minInterval: 1,
+        axisLine: { show: false },
+        axisLabel: { color: textColor },
+        splitLine: { lineStyle: { color: splitLineColor, type: 'dashed' } }
+      },
+      series: [
+        {
+          name: 'Critical',
+          type: 'bar',
+          stack: 'total',
+          data: critical,
+          itemStyle: { color: '#ef4444' }
+        },
+        {
+          name: 'Medium',
+          type: 'bar',
+          stack: 'total',
+          data: medium,
+          itemStyle: { color: '#f97316' }
+        },
+        {
+          name: 'Minor',
+          type: 'bar',
+          stack: 'total',
+          data: minor,
+          itemStyle: { color: '#3b82f6' }
+        }
+      ]
+    };
+  });
 
   ngOnInit() {
     const attemptId = this.route.snapshot.paramMap.get('attemptId');
@@ -55,7 +129,6 @@ export class AttemptDetailComponent implements OnInit {
   private loadData(attemptId: string) {
     this.loading.set(true);
     
-    // We could use forkJoin but sequentially or parallel standard is fine. We will do it simple.
     let timelineLoaded = false;
     let summaryLoaded = false;
     let hasError = false;
@@ -63,7 +136,6 @@ export class AttemptDetailComponent implements OnInit {
     const checkDone = () => {
       if (timelineLoaded && summaryLoaded) {
         this.loading.set(false);
-        this.initChart();
       }
     };
 
@@ -95,68 +167,6 @@ export class AttemptDetailComponent implements OnInit {
           this.loading.set(false);
         }
       }
-    });
-  }
-
-  private initChart() {
-    const summary = this.summaryData();
-    if (!summary || !summary.chartData || summary.chartData.length === 0) return;
-
-    const minutes = summary.chartData.map(d => `Min ${d.minuteOffset}`);
-    const critical = summary.chartData.map(d => d.criticalCount);
-    const medium = summary.chartData.map(d => d.mediumCount);
-    const minor = summary.chartData.map(d => d.minorCount);
-
-    this.chartOptions.set({
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: { type: 'shadow' }
-      },
-      legend: {
-        data: ['Critical', 'Medium', 'Minor'],
-        bottom: 0
-      },
-      grid: {
-        left: '3%',
-        right: '4%',
-        bottom: '15%',
-        top: '10%',
-        containLabel: true
-      },
-      xAxis: {
-        type: 'category',
-        data: minutes,
-        axisLine: { lineStyle: { color: '#cbd5e1' } }
-      },
-      yAxis: {
-        type: 'value',
-        minInterval: 1,
-        axisLine: { show: false },
-        splitLine: { lineStyle: { color: '#f1f5f9', type: 'dashed' } }
-      },
-      series: [
-        {
-          name: 'Critical',
-          type: 'bar',
-          stack: 'total',
-          data: critical,
-          itemStyle: { color: '#ef4444' } // red-500
-        },
-        {
-          name: 'Medium',
-          type: 'bar',
-          stack: 'total',
-          data: medium,
-          itemStyle: { color: '#f97316' } // orange-500
-        },
-        {
-          name: 'Minor',
-          type: 'bar',
-          stack: 'total',
-          data: minor,
-          itemStyle: { color: '#3b82f6' } // blue-500
-        }
-      ]
     });
   }
 

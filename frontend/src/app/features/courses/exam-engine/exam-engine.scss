@@ -52,9 +52,9 @@
   .rules-card {
     position: relative;
     z-index: 1;
-    background: rgba($color-neutral-white, 0.95);
+    background: var(--theme-bg-surface);
     backdrop-filter: blur(12px);
-    border: 1px solid rgba($color-neutral-200, 0.8);
+    border: 1px solid var(--theme-border);
     border-radius: $border-radius-2xl;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0,0,0,0.05);
     padding: $spacing-8;
@@ -76,7 +76,7 @@
         letter-spacing: -0.5px;
       }
       p {
-        color: $color-neutral-500;
+        color: var(--theme-text-muted);
         font-size: $font-size-base;
         line-height: 1.5;
         max-width: 480px;
@@ -91,19 +91,19 @@
       margin-bottom: $spacing-8;
 
       .info-item {
-        background: rgba($color-neutral-50, 0.8);
+        background: var(--theme-bg-secondary);
         padding: $spacing-4;
         border-radius: $border-radius-xl;
         display: flex;
         align-items: center;
         gap: $spacing-4;
-        border: 1px solid rgba($color-neutral-200, 0.5);
+        border: 1px solid var(--theme-border);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
 
         &:hover {
           transform: translateY(-2px);
           box-shadow: $shadow-md;
-          background: $color-neutral-white;
+          background: var(--theme-bg-hover);
           border-color: rgba($color-primary-light, 0.5);
         }
 
@@ -124,7 +124,7 @@
 
           .label {
             font-size: $font-size-xs;
-            color: $color-neutral-500;
+            color: var(--theme-text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
             font-weight: $font-weight-bold;
@@ -132,7 +132,7 @@
           .value {
             font-size: $font-size-lg;
             font-weight: $font-weight-bold;
-            color: $color-neutral-900;
+            color: var(--theme-text-main);
           }
         }
       }
@@ -152,7 +152,7 @@
       }
 
       .rules-subtitle {
-        color: $color-neutral-600;
+        color: var(--theme-text-muted);
         font-size: $font-size-sm;
         margin-bottom: $spacing-5;
       }
@@ -162,8 +162,8 @@
         align-items: flex-start;
         gap: $spacing-3;
         padding: $spacing-3 $spacing-4;
-        background: rgba($color-neutral-50, 0.5);
-        border: 1px solid rgba($color-neutral-200, 0.6);
+        background: var(--theme-bg-secondary);
+        border: 1px solid var(--theme-border);
         border-radius: $border-radius-lg;
         margin-bottom: $spacing-3;
         cursor: pointer;
@@ -179,28 +179,28 @@
           flex-shrink: 0;
           width: 24px;
           height: 24px;
-          border: 2px solid $color-neutral-400;
+          border: 2px solid var(--theme-text-muted);
           border-radius: $border-radius-sm;
           display: flex;
           align-items: center;
           justify-content: center;
           transition: all 0.2s ease;
-          background: $color-neutral-white;
+          background: var(--theme-bg-surface);
 
           &.checked {
             background: $color-success-base;
             border-color: $color-success-base;
-            color: $color-neutral-white;
+            color: var(--theme-bg-main);
           }
         }
 
         .rule-text {
           font-size: $font-size-sm;
-          color: $color-neutral-800;
+          color: var(--theme-text-main);
           line-height: 1.5;
 
           strong {
-            color: $color-neutral-900;
+            color: var(--theme-text-main);
             font-weight: $font-weight-bold;
           }
         }
@@ -226,20 +226,20 @@
         gap: $spacing-2;
 
         &.btn-cancel {
-          background: $color-neutral-white;
-          color: $color-neutral-700;
-          border: 1px solid $color-neutral-300;
+          background: var(--theme-bg-surface);
+          color: var(--theme-text-main);
+          border: 1px solid var(--theme-border-strong);
           
           &:hover {
-            background: $color-neutral-50;
-            color: $color-neutral-900;
-            border-color: $color-neutral-400;
+            background: var(--theme-bg-hover);
+            color: var(--theme-text-main);
+            border-color: var(--theme-text-muted);
           }
         }
 
         &.btn-start {
           background: linear-gradient(135deg, $color-primary-base, $color-info-dark);
-          color: $color-neutral-white;
+          color: var(--theme-bg-main);
           border: none;
           box-shadow: 0 8px 16px rgba($color-primary-base, 0.25);
           
@@ -254,8 +254,8 @@
           }
 
           &:disabled {
-            background: $color-neutral-300;
-            color: $color-neutral-500;
+            background: var(--theme-border-strong);
+            color: var(--theme-text-muted);
             cursor: not-allowed;
             box-shadow: none;
           }
@@ -273,9 +273,9 @@
 /* ── Active Engine State ──────────────────────────────────────────────── */
 .engine-header {
   height: 72px;
-  background: rgba($color-neutral-white, 0.95);
+  background: var(--theme-bg-surface);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba($color-neutral-200, 0.8);
+  border-bottom: 1px solid var(--theme-border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -296,16 +296,16 @@
     gap: $spacing-3;
     
     .separator {
-      color: $color-neutral-300;
+      color: var(--theme-border-strong);
       font-weight: $font-weight-regular;
-      -webkit-text-fill-color: $color-neutral-300;
+      -webkit-text-fill-color: var(--theme-border-strong);
     }
     
     .exam-title {
       font-size: $font-size-base;
-      color: $color-neutral-700;
+      color: var(--theme-text-main);
       font-weight: $font-weight-bold;
-      -webkit-text-fill-color: $color-neutral-700;
+      -webkit-text-fill-color: var(--theme-text-main);
     }
   }
 
@@ -315,16 +315,16 @@
     gap: $spacing-2;
     padding: 8px 20px;
     border-radius: $border-radius-round;
-    background: $color-neutral-50;
-    border: 1px solid $color-neutral-200;
+    background: var(--theme-bg-secondary);
+    border: 1px solid var(--theme-border);
     font-weight: $font-weight-bold;
     font-size: $font-size-lg;
     font-variant-numeric: tabular-nums;
-    color: $color-neutral-800;
+    color: var(--theme-text-main);
     transition: all 0.3s ease;
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
 
-    lucide-icon { color: $color-neutral-500; }
+    lucide-icon { color: var(--theme-text-muted); }
 
     &.status-warning {
       background: rgba($color-warning-base, 0.1);
@@ -344,7 +344,7 @@
 
   .submit-btn {
     background: linear-gradient(135deg, $color-success-base, $color-success-dark);
-    color: $color-neutral-white;
+    color: var(--theme-bg-main);
     border: none;
     padding: 10px 24px;
     border-radius: $border-radius-lg;
@@ -373,12 +373,12 @@
   display: flex;
   flex: 1;
   height: calc(100vh - 72px);
-  background: $color-neutral-50;
+  background: var(--theme-bg-main);
 
   .navigator-sidebar {
     width: 320px;
-    background: $color-neutral-white;
-    border-right: 1px solid $color-neutral-200;
+    background: var(--theme-bg-surface);
+    border-right: 1px solid var(--theme-border);
     padding: $spacing-5;
     overflow-y: auto;
     display: flex;
@@ -388,13 +388,13 @@
 
     h3 {
       font-size: $font-size-xs;
-      color: $color-neutral-500;
+      color: var(--theme-text-muted);
       text-transform: uppercase;
       letter-spacing: 1px;
       font-weight: $font-weight-bold;
       margin-bottom: $spacing-5;
       padding-bottom: $spacing-3;
-      border-bottom: 1px solid $color-neutral-100;
+      border-bottom: 1px solid var(--theme-border);
     }
 
     .question-grid {
@@ -405,9 +405,9 @@
       button {
         aspect-ratio: 1;
         border-radius: $border-radius-md;
-        border: 1px solid $color-neutral-200;
-        background: $color-neutral-50;
-        color: $color-neutral-700;
+        border: 1px solid var(--theme-border);
+        background: var(--theme-bg-secondary);
+        color: var(--theme-text-main);
         font-weight: $font-weight-bold;
         font-size: $font-size-sm;
         cursor: pointer;
@@ -421,7 +421,7 @@
         &.active {
           border-color: $color-primary-base;
           background: $color-primary-base;
-          color: $color-neutral-white;
+          color: var(--theme-bg-main);
           box-shadow: 0 4px 8px rgba($color-primary-base, 0.3);
           transform: scale(1.05);
         }
@@ -441,7 +441,7 @@
     overflow-y: auto;
     display: flex;
     justify-content: center;
-    background: radial-gradient(circle at center, $color-neutral-50 0%, $color-neutral-100 100%);
+    background: var(--theme-bg-main);
 
     > div {
       max-width: 850px;
@@ -450,11 +450,11 @@
     }
 
     .question-card {
-      background: $color-neutral-white;
+      background: var(--theme-bg-surface);
       border-radius: $border-radius-2xl;
       box-shadow: $shadow-lg;
       padding: $spacing-8;
-      border: 1px solid rgba($color-neutral-200, 0.8);
+      border: 1px solid var(--theme-border);
       position: relative;
       overflow: hidden;
 
@@ -471,7 +471,7 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: $spacing-6;
-        border-bottom: 1px solid $color-neutral-100;
+        border-bottom: 1px solid var(--theme-border);
         padding-bottom: $spacing-4;
 
         .q-number {
@@ -496,7 +496,7 @@
       .q-text {
         font-size: $font-size-lg;
         line-height: 1.7;
-        color: $color-neutral-900;
+        color: var(--theme-text-main);
         margin-bottom: $spacing-8;
         font-weight: $font-weight-medium;
       }
@@ -510,11 +510,11 @@
           display: flex;
           align-items: center;
           padding: $spacing-4 $spacing-5;
-          border: 2px solid $color-neutral-200;
+          border: 2px solid var(--theme-border-strong);
           border-radius: $border-radius-xl;
           cursor: pointer;
           transition: all 0.2s ease;
-          background: $color-neutral-white;
+          background: var(--theme-bg-surface);
 
           &:hover {
             background: rgba($color-primary-base, 0.02);
@@ -525,7 +525,7 @@
             appearance: none;
             width: 22px;
             height: 22px;
-            border: 2px solid $color-neutral-400;
+            border: 2px solid var(--theme-text-muted);
             border-radius: 50%;
             margin-right: $spacing-4;
             position: relative;
@@ -535,13 +535,13 @@
             &:checked {
               border-color: $color-primary-base;
               background: $color-primary-base;
-              box-shadow: inset 0 0 0 4px $color-neutral-white;
+              box-shadow: inset 0 0 0 4px var(--theme-bg-surface);
             }
           }
 
           .option-text {
             font-size: $font-size-base;
-            color: $color-neutral-800;
+            color: var(--theme-text-main);
             line-height: 1.5;
             font-weight: $font-weight-medium;
           }
@@ -563,19 +563,19 @@
         width: 100%;
         min-height: 180px;
         padding: $spacing-5;
-        border: 2px solid $color-neutral-200;
+        border: 2px solid var(--theme-border-strong);
         border-radius: $border-radius-xl;
         font-size: $font-size-base;
         line-height: 1.6;
-        color: $color-neutral-900;
-        background: $color-neutral-50;
+        color: var(--theme-text-main);
+        background: var(--theme-bg-secondary);
         resize: vertical;
         font-family: inherit;
         transition: all 0.3s ease;
 
         &:focus {
           outline: none;
-          background: $color-neutral-white;
+          background: var(--theme-bg-surface);
           border-color: $color-primary-base;
           box-shadow: 0 0 0 4px rgba($color-primary-base, 0.1);
         }
@@ -585,7 +585,7 @@
         display: flex;
         align-items: center;
         gap: $spacing-2;
-        color: $color-neutral-500;
+        color: var(--theme-text-muted);
         font-size: $font-size-sm;
         font-weight: $font-weight-semibold;
         margin-top: $spacing-6;
@@ -615,18 +615,18 @@
         align-items: center;
         gap: $spacing-2;
         padding: 14px 28px;
-        background: $color-neutral-white;
-        border: 1px solid $color-neutral-300;
+        background: var(--theme-bg-surface);
+        border: 1px solid var(--theme-border-strong);
         border-radius: $border-radius-lg;
         font-weight: $font-weight-bold;
         font-size: $font-size-sm;
-        color: $color-neutral-700;
+        color: var(--theme-text-main);
         cursor: pointer;
         transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         box-shadow: $shadow-sm;
 
         &:hover:not(:disabled) {
-          background: $color-neutral-50;
+          background: var(--theme-bg-hover);
           border-color: $color-primary-base;
           color: $color-primary-base;
           transform: translateY(-2px);
@@ -640,19 +640,19 @@
         &:disabled {
           opacity: 0.4;
           cursor: not-allowed;
-          background: $color-neutral-100;
+          background: var(--theme-bg-secondary);
           box-shadow: none;
         }
 
         &.submit-nav-btn {
           background: linear-gradient(135deg, $color-success-base, $color-success-dark);
-          color: $color-neutral-white;
+          color: var(--theme-bg-main);
           border: none;
           box-shadow: 0 4px 10px rgba($color-success-base, 0.25);
           
           &:hover:not(:disabled) {
             background: linear-gradient(135deg, $color-success-base, $color-success-dark);
-            color: $color-neutral-white;
+            color: var(--theme-bg-main);
             transform: translateY(-2px);
             box-shadow: 0 6px 14px rgba($color-success-base, 0.35);
             border-color: transparent;
@@ -667,7 +667,7 @@
 .full-screen-loader {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba($color-neutral-white, 0.85);
+  background: var(--theme-bg-surface);
   backdrop-filter: blur(8px);
   display: flex;
   flex-direction: column;
@@ -678,7 +678,7 @@
   .spinner {
     width: 60px;
     height: 60px;
-    border: 4px solid $color-neutral-200;
+    border: 4px solid var(--theme-border-strong);
     border-top-color: $color-primary-base;
     border-radius: 50%;
     animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
@@ -708,14 +708,14 @@
   display: flex;
   justify-content: center;
   padding: $spacing-8;
-  background: radial-gradient(circle at top, $color-neutral-50 0%, $color-neutral-100 100%);
+  background: var(--theme-bg-main);
   min-height: calc(100vh - 72px);
 
   .review-card {
-    background: $color-neutral-white;
+    background: var(--theme-bg-surface);
     border-radius: $border-radius-2xl;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba($color-neutral-200, 0.8);
+    border: 1px solid var(--theme-border);
     padding: $spacing-8;
     max-width: 900px;
     width: 100%;
@@ -731,7 +731,7 @@
 
     .review-subtitle {
       text-align: center;
-      color: $color-neutral-500;
+      color: var(--theme-text-muted);
       margin-bottom: $spacing-8;
       font-size: $font-size-base;
     }
@@ -748,8 +748,8 @@
         justify-content: space-between;
         padding: $spacing-4 $spacing-5;
         border-radius: $border-radius-xl;
-        border: 2px solid $color-neutral-200;
-        background: $color-neutral-white;
+        border: 2px solid var(--theme-border-strong);
+        background: var(--theme-bg-surface);
         cursor: pointer;
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -761,7 +761,7 @@
 
         .q-number {
           font-weight: $font-weight-bold;
-          color: $color-neutral-800;
+          color: var(--theme-text-main);
           font-size: $font-size-base;
         }
 
@@ -777,7 +777,7 @@
         }
 
         .arrow-icon {
-          color: $color-neutral-400;
+          color: var(--theme-text-muted);
           transition: transform 0.2s ease;
         }
 
@@ -804,7 +804,7 @@
       gap: $spacing-4;
       margin-top: $spacing-8;
       padding-top: $spacing-6;
-      border-top: 1px solid $color-neutral-200;
+      border-top: 1px solid var(--theme-border);
 
       .btn {
         padding: 14px 28px;

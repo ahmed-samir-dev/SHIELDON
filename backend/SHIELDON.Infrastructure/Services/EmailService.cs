@@ -104,14 +104,14 @@ public class EmailService : IEmailService
         <body style="font-family: 'Inter', 'Segoe UI', sans-serif; background: #EDF0F1; padding: 40px;">
           <div style="max-width: 560px; margin: 0 auto; background: #fff; border-radius: 10px; padding: 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.10);">
             <h1 style="font-size: 28px; font-weight: 700; margin: 0 0 8px;">
-              <span style="background: linear-gradient(90deg, #215DAE, #1898A1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">SHIELDON</span>
+              <span style="color: #215DAE;">SHIELDON</span>
             </h1>
             <p style="color: #5E6E7A; font-size: 13px; margin: 0 0 32px;">Integrity You Can Trust</p>
             <h2 style="font-size: 22px; color: #0B315B; margin: 0 0 16px;">Verify Your Email Address</h2>
             <p style="color: #5E6E7A; font-size: 15px; line-height: 1.6;">Hello {name},</p>
             <p style="color: #5E6E7A; font-size: 15px; line-height: 1.6;">Thank you for creating a SHIELDON account. Please click the button below to verify your email address and activate your account.</p>
             <div style="text-align: center; margin: 32px 0;">
-              <a href="{verifyUrl}" style="display: inline-block; background: linear-gradient(90deg, #215DAE, #1898A1); color: #fff; font-size: 16px; font-weight: 600; padding: 14px 32px; border-radius: 10px; text-decoration: none;">Verify My Email</a>
+              <a href="{verifyUrl}" style="display: inline-block; background-color: #215DAE; background: linear-gradient(90deg, #215DAE, #1898A1); color: #fff; font-size: 16px; font-weight: 600; padding: 14px 32px; border-radius: 10px; text-decoration: none;">Verify My Email</a>
             </div>
             <p style="color: #87949C; font-size: 13px; line-height: 1.5;">This link expires in <strong>24 hours</strong>. If you didn't create this account, you can safely ignore this email.</p>
           </div>
@@ -125,14 +125,14 @@ public class EmailService : IEmailService
         <body style="font-family: 'Inter', 'Segoe UI', sans-serif; background: #EDF0F1; padding: 40px;">
           <div style="max-width: 560px; margin: 0 auto; background: #fff; border-radius: 10px; padding: 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.10);">
             <h1 style="font-size: 28px; font-weight: 700; margin: 0 0 8px;">
-              <span style="background: linear-gradient(90deg, #215DAE, #1898A1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">SHIELDON</span>
+              <span style="color: #215DAE;">SHIELDON</span>
             </h1>
             <p style="color: #5E6E7A; font-size: 13px; margin: 0 0 32px;">Integrity You Can Trust</p>
             <h2 style="font-size: 22px; color: #0B315B; margin: 0 0 16px;">Reset Your Password</h2>
             <p style="color: #5E6E7A; font-size: 15px; line-height: 1.6;">Hello {name},</p>
             <p style="color: #5E6E7A; font-size: 15px; line-height: 1.6;">We received a request to reset your SHIELDON password. Click the button below to create a new password.</p>
             <div style="text-align: center; margin: 32px 0;">
-              <a href="{resetUrl}" style="display: inline-block; background: linear-gradient(90deg, #215DAE, #1898A1); color: #fff; font-size: 16px; font-weight: 600; padding: 14px 32px; border-radius: 10px; text-decoration: none;">Reset My Password</a>
+              <a href="{resetUrl}" style="display: inline-block; background-color: #215DAE; background: linear-gradient(90deg, #215DAE, #1898A1); color: #fff; font-size: 16px; font-weight: 600; padding: 14px 32px; border-radius: 10px; text-decoration: none;">Reset My Password</a>
             </div>
             <p style="color: #87949C; font-size: 13px; line-height: 1.5;">This link expires in <strong>1 hour</strong>. If you didn't request a password reset, you can safely ignore this email.</p>
           </div>
@@ -146,7 +146,7 @@ public class EmailService : IEmailService
         <body style="font-family: 'Inter', 'Segoe UI', sans-serif; background: #EDF0F1; padding: 40px;">
           <div style="max-width: 560px; margin: 0 auto; background: #fff; border-radius: 10px; padding: 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.10);">
             <h1 style="font-size: 28px; font-weight: 700; margin: 0 0 8px;">
-              <span style="background: linear-gradient(90deg, #215DAE, #1898A1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">SHIELDON</span>
+              <span style="color: #215DAE;">SHIELDON</span>
             </h1>
             <p style="color: #5E6E7A; font-size: 13px; margin: 0 0 32px;">Integrity You Can Trust</p>
             <h2 style="font-size: 22px; color: #EF4444; margin: 0 0 16px;">Account Locked</h2>
@@ -164,7 +164,7 @@ public class EmailService : IEmailService
         <body style="font-family: 'Inter', 'Segoe UI', sans-serif; background: #EDF0F1; padding: 40px;">
           <div style="max-width: 560px; margin: 0 auto; background: #fff; border-radius: 10px; padding: 40px; box-shadow: 0 4px 12px rgba(0,0,0,0.10);">
             <h1 style="font-size: 28px; font-weight: 700; margin: 0 0 8px;">
-              <span style="background: linear-gradient(90deg, #215DAE, #1898A1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">SHIELDON</span>
+              <span style="color: #215DAE;">SHIELDON</span>
             </h1>
             <p style="color: #5E6E7A; font-size: 13px; margin: 0 0 32px;">Integrity You Can Trust</p>
             <h2 style="font-size: 22px; color: #0B315B; margin: 0 0 16px;">Security Notification</h2>

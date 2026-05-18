@@ -22,7 +22,7 @@
 }
 
 .custom-modal-container {
-  background: white;
+  background: var(--theme-bg-surface);
   width: 100%;
   max-width: 550px;
   border-radius: $border-radius-2xl;
@@ -79,8 +79,8 @@
   justify-content: space-between;
   align-items: center;
   padding: $spacing-5 $spacing-6;
-  border-bottom: 1px solid $color-neutral-200;
-  background: $color-neutral-50;
+  border-bottom: 1px solid var(--theme-border);
+  background: var(--theme-bg-secondary);
 
   .modal-title-wrapper {
     display: flex;
@@ -101,7 +101,7 @@
     h2 {
       margin: 0;
       font-size: $font-size-xl;
-      color: $color-neutral-900;
+      color: var(--theme-text-main);
       font-weight: $font-weight-semibold;
     }
   }
@@ -109,15 +109,15 @@
   .close-btn {
     background: none;
     border: none;
-    color: $color-neutral-400;
+    color: var(--theme-text-muted);
     cursor: pointer;
     padding: $spacing-1;
     border-radius: $border-radius-md;
     transition: all 0.2s;
 
     &:hover {
-      background: $color-neutral-200;
-      color: $color-neutral-900;
+      background: var(--theme-bg-hover);
+      color: var(--theme-text-main);
     }
   }
 }
@@ -155,7 +155,7 @@
     label {
       font-size: $font-size-sm;
       font-weight: $font-weight-medium;
-      color: $color-neutral-700;
+      color: var(--theme-text-secondary);
       margin-bottom: $spacing-2;
 
       .required { color: $color-danger-base; }
@@ -170,28 +170,28 @@
       .input-icon {
         position: absolute;
         left: $spacing-3;
-        color: $color-neutral-400;
+        color: var(--theme-text-muted);
         pointer-events: none;
       }
 
 input[type="text"], input[type="url"], input[type="number"], textarea, select {
         width: 100%;
         padding: $spacing-3 $spacing-3 $spacing-3 40px;
-        border: 1px solid $color-neutral-200;
+        border: 1px solid var(--theme-border);
         border-radius: $border-radius-lg;
         font-family: inherit;
         font-size: $font-size-sm;
-        color: $color-neutral-900;
-        background: $color-neutral-50;
+        color: var(--theme-text-main);
+        background: var(--theme-bg-secondary);
         transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
         &:hover {
-          border-color: $color-neutral-300;
+          border-color: var(--theme-border-strong);
         }
 
         &:focus {
           outline: none;
-          background: white;
+          background: var(--theme-bg-surface);
           border-color: $color-primary-base;
           box-shadow: 0 0 0 4px rgba($color-primary-base, 0.1);
         }
@@ -202,8 +202,8 @@ input[type="text"], input[type="url"], input[type="number"], textarea, select {
         }
 
         &:disabled {
-          background: $color-neutral-100;
-          color: $color-neutral-500;
+          background: var(--theme-bg-hover);
+          color: var(--theme-text-muted);
           cursor: not-allowed;
         }
       }
@@ -240,7 +240,7 @@ input[type="text"], input[type="url"], input[type="number"], textarea, select {
           position: absolute;
           right: $spacing-3;
           pointer-events: none;
-          color: $color-neutral-500;
+          color: var(--theme-text-muted);
         }
       }
     }
@@ -249,20 +249,20 @@ input[type="text"], input[type="url"], input[type="number"], textarea, select {
   position: relative;
   display: flex;
   align-items: center;
-  background: $color-neutral-50;
-  border: 1px solid $color-neutral-200;
+  background: var(--theme-bg-secondary);
+  border: 1px solid var(--theme-border);
   border-radius: $border-radius-lg;
   padding: $spacing-1;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: text; // Changed to text to encourage clicking to type
 
   &:hover {
-    border-color: $color-neutral-300;
+    border-color: var(--theme-border-strong);
   }
 
   &:focus-within {
     border-color: $color-primary-base;
-    background: white;
+    background: var(--theme-bg-surface);
     box-shadow: 0 0 0 4px rgba($color-primary-base, 0.1);
   }
 
@@ -272,9 +272,9 @@ input[type="text"], input[type="url"], input[type="number"], textarea, select {
     justify-content: center;
     width: 36px;
     height: 36px;
-    background: $color-neutral-50;
+    background: var(--theme-bg-hover);
     border-radius: $border-radius-sm;
-    color: $color-neutral-500;
+    color: var(--theme-text-muted);
     margin-right: $spacing-2;
     transition: all 0.2s ease;
     cursor: default;
@@ -293,7 +293,7 @@ input[type="text"], input[type="url"], input[type="number"], textarea, select {
     height: 36px;
     font-family: inherit;
     font-size: $font-size-sm;
-    color: $color-neutral-900;
+    color: var(--theme-text-main);
     font-weight: $font-weight-medium;
     outline: none;
     position: relative; // Ensures the invisible calendar button anchors correctly
@@ -375,14 +375,14 @@ input[type="text"], input[type="url"], input[type="number"], textarea, select {
   }
 
   &.btn-secondary {
-    background: $color-neutral-200;
-    color: $color-neutral-700;
-    &:hover:not(:disabled) { background: $color-neutral-300; }
+    background: var(--theme-bg-hover);
+    color: var(--theme-text-main);
+    &:hover:not(:disabled) { background: var(--theme-border); }
   }
 
   &.btn-primary {
     background: $color-primary-base;
-    color: white;
+    color: var(--theme-text-inverse);
     display: flex;
     align-items: center;
     gap: $spacing-2;
@@ -391,7 +391,7 @@ input[type="text"], input[type="url"], input[type="number"], textarea, select {
 
   &.btn-danger {
     background: $color-danger-base;
-    color: white;
+    color: var(--theme-text-inverse);
     display: flex;
     align-items: center;
     gap: $spacing-2;
@@ -432,9 +432,9 @@ input[type="text"], input[type="url"], input[type="number"], textarea, select {
 
 /* ── Global Drop Zone ── */
 .drop-zone {
-  border: 2px dashed $color-neutral-300;
+  border: 2px dashed var(--theme-border-strong);
   border-radius: $border-radius-lg;
-  background: $color-neutral-50;
+  background: var(--theme-bg-secondary);
   padding: $spacing-6;
   text-align: center;
   transition: all 0.2s ease;
@@ -450,14 +450,14 @@ input[type="text"], input[type="url"], input[type="number"], textarea, select {
     align-items: center;
     gap: $spacing-3;
     cursor: pointer;
-    color: $color-neutral-500;
+    color: var(--theme-text-muted);
 
-    svg { color: $color-neutral-400; transition: all 0.2s; }
+    svg { color: var(--theme-text-muted); transition: all 0.2s; }
     strong { color: $color-primary-base; }
 
     .limits {
       font-size: $font-size-xs;
-      color: $color-neutral-400;
+      color: var(--theme-text-muted);
       margin-top: 4px;
       line-height: 1.4;
     }

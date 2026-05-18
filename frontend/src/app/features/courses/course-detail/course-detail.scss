@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   min-height: 400px;
-  color: $color-neutral-500;
+  color: var(--theme-text-muted);
 
   .spinner {
     width: 40px;
@@ -31,11 +31,11 @@
 
 .hub-header {
   position: relative;
-  background: white;
+  background: var(--theme-bg-surface);
   border-radius: $border-radius-2xl;
   overflow: hidden;
   box-shadow: $shadow-sm;
-  border: 1px solid $color-neutral-200;
+  border: 1px solid var(--theme-border);
 
   .header-overlay {
     position: absolute;
@@ -78,13 +78,21 @@
       align-items: center;
 
       .badge-code {
-        background: rgba($color-primary-base, 0.1);
-        color: $color-primary-dark;
+        font-weight: $font-weight-bold;
         font-family: $font-family-mono;
         padding: $spacing-1 $spacing-3;
         border-radius: $border-radius-round;
-        font-weight: $font-weight-bold;
         font-size: $font-size-sm;
+        
+        color: $color-primary-dark;
+        background: rgba($color-primary-base, 0.1);
+        box-shadow: none;
+
+        :host-context([data-theme="dark"]) & {
+          color: #93C5FD;
+          background: rgba($color-primary-light, 0.15);
+          box-shadow: none;
+        }
       }
 
       .badge-status {
@@ -92,29 +100,39 @@
         border-radius: $border-radius-round;
         font-weight: $font-weight-semibold;
         font-size: $font-size-xs;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-block;
 
         &.active {
-          background: $color-success-light;
+          background: rgba($color-success-base, 0.1);
           color: $color-success-dark;
+          border: 1px solid rgba($color-success-base, 0.2);
+
+          :host-context([data-theme="dark"]) & {
+            color: $color-success-light;
+            border-color: rgba($color-success-light, 0.3);
+          }
         }
 
         &.archived {
-          background: $color-neutral-200;
-          color: $color-neutral-700;
+          background: var(--theme-bg-hover);
+          color: var(--theme-text-secondary);
+          border: 1px solid var(--theme-border);
         }
       }
     }
 
     .course-title {
       font-size: $font-size-4xl;
-      color: $color-neutral-900;
+      color: var(--theme-text-main);
       margin: 0 0 $spacing-3 0;
       font-family: $font-family-secondary;
       line-height: 1.2;
     }
 
     .course-description {
-      color: $color-neutral-600;
+      color: var(--theme-text-muted);
       font-size: $font-size-lg;
       max-width: 800px;
       margin: 0 0 $spacing-6 0;
@@ -160,14 +178,14 @@
         display: flex;
         align-items: center;
         gap: $spacing-2;
-        color: $color-neutral-700;
+        color: var(--theme-text-secondary);
         font-size: $font-size-sm; /* Shrunk text size */
         font-weight: $font-weight-medium;
-        background: white;
+        background: var(--theme-bg-surface);
         padding: 6px $spacing-3; /* Tighter vertical and horizontal padding */
         border-radius: $border-radius-md; /* Sharper corners to match smaller size */
         box-shadow: $shadow-sm;
-        border: 1px solid $color-neutral-200;
+        border: 1px solid var(--theme-border);
         transition: all 0.2s ease;
 
         svg {
@@ -179,7 +197,7 @@
 
         /* Added a subtle premium hover effect */
         &:hover {
-          background: $color-neutral-50;
+          background: var(--theme-bg-hover);
           border-color: rgba($color-primary-base, 0.3);
           box-shadow: $shadow-md;
           
@@ -194,7 +212,7 @@
       display: flex;
       gap: $spacing-2;
       margin-top: $spacing-6;
-      border-bottom: 2px solid $color-neutral-100;
+      border-bottom: 2px solid var(--theme-border);
       padding-bottom: 0;
 
       .tab-btn {
@@ -204,7 +222,7 @@
         padding: $spacing-3 $spacing-5;
         background: transparent;
         border: none;
-        color: $color-neutral-500;
+        color: var(--theme-text-muted);
         font-weight: $font-weight-semibold;
         font-size: $font-size-base;
         cursor: pointer;
@@ -256,18 +274,18 @@
   .placeholder-box {
     text-align: center;
     padding: $spacing-16 $spacing-8;
-    background: white;
+    background: var(--theme-bg-surface);
     border-radius: $border-radius-2xl;
-    border: 1px dashed $color-neutral-300;
-    color: $color-neutral-500;
+    border: 1px dashed var(--theme-border-strong);
+    color: var(--theme-text-muted);
     
     svg {
       margin-bottom: $spacing-4;
-      color: $color-neutral-300;
+      color: var(--theme-border-strong);
     }
 
     h3 {
-      color: $color-neutral-700;
+      color: var(--theme-text-main);
       font-size: $font-size-xl;
       margin: 0 0 $spacing-2 0;
     }

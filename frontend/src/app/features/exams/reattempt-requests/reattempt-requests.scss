@@ -10,7 +10,7 @@
 
 .panel-header {
   margin-bottom: $spacing-6;
-  background: white;
+  background: var(--theme-bg-surface);
   padding: $spacing-6;
   border-radius: $border-radius-lg;
   box-shadow: $shadow-sm;
@@ -29,7 +29,7 @@
       }
       .subtitle {
         margin: 0;
-        color: $color-neutral-600;
+        color: var(--theme-text-muted);
         font-size: $font-size-base;
       }
     }
@@ -39,17 +39,17 @@
       align-items: center;
       gap: $spacing-2;
       padding: $spacing-2 $spacing-4;
-      border: 1px solid $color-neutral-300;
-      background: white;
+      border: 1px solid var(--theme-border-strong);
+      background: var(--theme-bg-surface);
       border-radius: $border-radius-md;
-      color: $color-neutral-700;
+      color: var(--theme-text-main);
       font-weight: $font-weight-medium;
       cursor: pointer;
       transition: all 0.2s;
 
       &:hover {
-        background: $color-neutral-50;
-        border-color: $color-neutral-400;
+        background: var(--theme-bg-hover);
+        border-color: var(--theme-text-muted);
       }
       
       &:disabled {
@@ -67,7 +67,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid $color-neutral-200;
+    border-bottom: 1px solid var(--theme-border);
 
     .status-tabs {
       display: flex;
@@ -78,7 +78,7 @@
         background: none;
         border: none;
         border-bottom: 2px solid transparent;
-        color: $color-neutral-600;
+        color: var(--theme-text-muted);
         font-weight: $font-weight-medium;
         cursor: pointer;
         transition: all 0.2s;
@@ -104,16 +104,17 @@
         left: $spacing-3;
         top: 50%;
         transform: translateY(-50%);
-        color: $color-neutral-400;
+        color: var(--theme-text-muted);
       }
 
       input {
         width: 100%;
         padding: $spacing-2 $spacing-3 $spacing-2 36px;
-        border: 1px solid $color-neutral-300;
+        border: 1px solid var(--theme-border-strong);
         border-radius: $border-radius-md;
         font-size: $font-size-sm;
-        color: $color-neutral-700;
+        color: var(--theme-text-main);
+        background: var(--theme-bg-surface);
         transition: all 0.2s;
 
         &:focus {
@@ -123,7 +124,7 @@
         }
 
         &::placeholder {
-          color: $color-neutral-400;
+          color: var(--theme-text-muted);
         }
       }
     }
@@ -131,7 +132,7 @@
 }
 
 .panel-main {
-  background: white;
+  background: var(--theme-bg-surface);
   border-radius: $border-radius-lg;
   box-shadow: $shadow-sm;
   padding: $spacing-6;
@@ -145,7 +146,7 @@
   justify-content: center;
   padding: $spacing-12 0;
   text-align: center;
-  color: $color-neutral-600;
+  color: var(--theme-text-muted);
 
   .spinner {
     width: 40px;
@@ -159,7 +160,7 @@
 
   h3 {
     margin: 0 0 $spacing-2 0;
-    color: $color-neutral-800;
+    color: var(--theme-text-main);
   }
 }
 
@@ -174,16 +175,17 @@
     th, td {
       padding: $spacing-4;
       text-align: left;
-      border-bottom: 1px solid $color-neutral-200;
+      border-bottom: 1px solid var(--theme-border);
+      color: var(--theme-text-main);
     }
 
     th {
       font-weight: $font-weight-semibold;
-      color: $color-neutral-600;
+      color: var(--theme-text-main);
       font-size: $font-size-sm;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      background: $color-neutral-50;
+      background: var(--theme-bg-secondary);
 
       &.actions-col {
         text-align: right;
@@ -200,12 +202,12 @@
 
         .student-name, .exam-title {
           font-weight: $font-weight-semibold;
-          color: $color-neutral-900;
+          color: var(--theme-text-main);
         }
 
         .student-id, .course-title {
           font-size: $font-size-sm;
-          color: $color-neutral-500;
+          color: var(--theme-text-muted);
         }
       }
 
@@ -214,13 +216,14 @@
         align-items: center;
         gap: $spacing-1;
         padding: 4px 8px;
-        background: $color-neutral-100;
+        background: var(--theme-bg-secondary);
         border-radius: $border-radius-sm;
         font-weight: $font-weight-medium;
         font-family: $font-family-mono;
+        color: var(--theme-text-main);
         
         .current { color: $color-danger-base; }
-        .max { color: $color-neutral-500; }
+        .max { color: var(--theme-text-muted); }
       }
 
       .status-badge {
@@ -248,7 +251,7 @@
 
       .date-text {
         font-size: $font-size-sm;
-        color: $color-neutral-600;
+        color: var(--theme-text-muted);
       }
 
       &.actions-col {
@@ -259,7 +262,7 @@
 
     tbody tr {
       transition: background-color 0.2s;
-      &:hover { background: $color-neutral-50; }
+      &:hover { background: var(--theme-bg-hover); }
     }
   }
 }
@@ -307,11 +310,11 @@
   align-items: center;
   margin-top: $spacing-6;
   padding-top: $spacing-4;
-  border-top: 1px solid $color-neutral-200;
+  border-top: 1px solid var(--theme-border);
 
   .pagination-info {
     font-size: $font-size-sm;
-    color: $color-neutral-600;
+    color: var(--theme-text-muted);
   }
 
   .pagination-controls {
@@ -323,17 +326,17 @@
       align-items: center;
       gap: $spacing-1;
       padding: $spacing-2 $spacing-3;
-      background: white;
-      border: 1px solid $color-neutral-300;
+      background: var(--theme-bg-surface);
+      border: 1px solid var(--theme-border-strong);
       border-radius: $border-radius-md;
-      color: $color-neutral-700;
+      color: var(--theme-text-main);
       font-size: $font-size-sm;
       font-weight: $font-weight-medium;
       cursor: pointer;
       transition: all 0.2s;
 
       &:hover:not(:disabled) {
-        background: $color-neutral-50;
+        background: var(--theme-bg-hover);
         color: $color-primary-base;
         border-color: $color-primary-base;
       }

@@ -11,12 +11,12 @@
   .header-content {
     h1 {
       font-size: $font-size-3xl;
-      color: $color-neutral-900;
+      color: var(--theme-text-main);
       margin: 0 0 $spacing-2 0;
       font-family: $font-family-secondary;
     }
     .subtitle {
-      color: $color-neutral-500;
+      color: var(--theme-text-muted);
       margin: 0;
     }
   }
@@ -68,14 +68,14 @@
   display: flex;
   gap: $spacing-2;
   margin-bottom: $spacing-6;
-  border-bottom: 2px solid $color-neutral-200;
+  border-bottom: 2px solid var(--theme-border);
 
   .tab-btn {
     background: transparent;
     border: none;
     font-size: $font-size-base;
     font-weight: $font-weight-medium;
-    color: $color-neutral-500;
+    color: var(--theme-text-muted);
     padding: $spacing-3 $spacing-4;
     cursor: pointer;
     position: relative;
@@ -125,37 +125,37 @@
 .empty-state {
   text-align: center;
   padding: $spacing-12;
-  background: white;
+  background: var(--theme-bg-surface);
   border-radius: $border-radius-xl;
-  border: 1px dashed $color-neutral-300;
+  border: 1px dashed var(--theme-border-strong);
 
   .empty-icon {
     width: 80px;
     height: 80px;
-    background: $color-neutral-100;
+    background: var(--theme-bg-hover);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto $spacing-4 auto;
-    color: $color-neutral-400;
+    color: var(--theme-text-muted);
   }
 
   h3 {
     margin: 0 0 $spacing-2 0;
-    color: $color-neutral-900;
+    color: var(--theme-text-main);
   }
 
   p {
-    color: $color-neutral-500;
+    color: var(--theme-text-muted);
     margin: 0;
   }
 }
 
 .table-card {
-  background: white;
+  background: var(--theme-bg-surface);
   border-radius: $border-radius-xl;
-  border: 1px solid $color-neutral-200;
+  border: 1px solid var(--theme-border);
   box-shadow: $shadow-sm;
   overflow: hidden;
 }
@@ -167,13 +167,13 @@
   th, td {
     padding: $spacing-4;
     text-align: left;
-    border-bottom: 1px solid $color-neutral-200;
+    border-bottom: 1px solid var(--theme-border);
   }
 
   th {
-    background: $color-neutral-50;
+    background: var(--theme-bg-secondary);
     font-weight: $font-weight-semibold;
-    color: $color-neutral-700;
+    color: var(--theme-text-secondary);
     font-size: $font-size-sm;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -202,32 +202,63 @@
     flex-direction: column;
     
     .primary-text {
-      color: $color-neutral-900;
+      color: var(--theme-text-main);
       font-weight: $font-weight-medium;
     }
     .secondary-text {
-      color: $color-neutral-500;
+      color: var(--theme-text-muted);
       font-size: $font-size-sm;
     }
   }
 
   .fw-medium { font-weight: $font-weight-medium; }
-  .date-text { color: $color-neutral-600; font-size: $font-size-sm; }
+  .date-text { color: var(--theme-text-secondary); font-size: $font-size-sm; }
 
   .status-badge {
     padding: 2px $spacing-3;
     border-radius: $border-radius-round;
     font-size: $font-size-xs;
     font-weight: $font-weight-bold;
+    border: 1px solid transparent;
 
-    &.pending { background: $color-warning-light; color: $color-warning-dark; }
-    &.approved { background: $color-success-light; color: $color-success-dark; }
-    &.rejected { background: $color-danger-light; color: $color-danger-dark; }
+    &.pending { 
+      background: $color-warning-light; 
+      color: $color-warning-dark;
+      border-color: rgba($color-warning-base, 0.2);
+      
+      :host-context([data-theme="dark"]) & {
+        background: rgba($color-warning-base, 0.1);
+        color: $color-warning-light;
+        border-color: rgba($color-warning-light, 0.3);
+      }
+    }
+    &.approved { 
+      background: $color-success-light; 
+      color: $color-success-dark;
+      border-color: rgba($color-success-base, 0.2);
+      
+      :host-context([data-theme="dark"]) & {
+        background: rgba($color-success-base, 0.1);
+        color: $color-success-light;
+        border-color: rgba($color-success-light, 0.3);
+      }
+    }
+    &.rejected { 
+      background: $color-danger-light; 
+      color: $color-danger-dark;
+      border-color: rgba($color-danger-base, 0.2);
+      
+      :host-context([data-theme="dark"]) & {
+        background: rgba($color-danger-base, 0.1);
+        color: $color-danger-light;
+        border-color: rgba($color-danger-light, 0.3);
+      }
+    }
   }
 
   .rejection-reason {
     font-size: $font-size-sm;
-    color: $color-neutral-700;
+    color: var(--theme-text-secondary);
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
@@ -242,23 +273,29 @@
     padding: 2px $spacing-2;
     border-radius: $border-radius-sm;
     margin-top: $spacing-1;
+    border: 1px solid rgba($color-warning-base, 0.2);
+
+    :host-context([data-theme="dark"]) & {
+      background: rgba($color-warning-base, 0.1);
+      color: $color-warning-light;
+      border-color: rgba($color-warning-light, 0.3);
+    }
   }
 
-.col-actions {
-    width: 220px; /* Increased from 120px to fit the new text buttons */
+  .col-actions {
+    width: 220px;
     
     .action-buttons {
       display: flex;
       gap: $spacing-2;
 
-      /* Replaced .btn-icon with .btn-action */
       .btn-action {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: $spacing-1; /* Space between icon and text */
-        padding: $spacing-1 $spacing-3; /* Uses padding instead of fixed width/height */
-        border-radius: $border-radius-md; /* Changed from round to md for a pill/rectangle shape */
+        gap: $spacing-1;
+        padding: $spacing-1 $spacing-3;
+        border-radius: $border-radius-md;
         background: transparent;
         cursor: pointer;
         transition: all 0.2s;
@@ -269,17 +306,30 @@
           border: 1px solid $color-success-base;
           color: $color-success-base;
           &:hover { background: $color-success-base; color: white; }
+          
+          :host-context([data-theme="dark"]) & {
+            border-color: $color-success-light;
+            color: $color-success-light;
+            &:hover { background: $color-success-light; color: $color-neutral-900; }
+          }
         }
 
         &.btn-outline-danger {
           border: 1px solid $color-danger-base;
           color: $color-danger-base;
           &:hover { background: $color-danger-base; color: white; }
+          
+          :host-context([data-theme="dark"]) & {
+            border-color: $color-danger-light;
+            color: $color-danger-light;
+            &:hover { background: $color-danger-light; color: $color-neutral-900; }
+          }
         }
       }
     }
   }
 }
+
 .table-actions {
   display: flex;
   justify-content: flex-end;
@@ -294,13 +344,15 @@
       left: $spacing-3;
       top: 50%;
       transform: translateY(-50%);
-      color: $color-neutral-400;
+      color: var(--theme-text-muted);
     }
 
     .search-input {
       width: 100%;
       padding: $spacing-2 $spacing-3 $spacing-2 $spacing-10;
-      border: 1px solid $color-neutral-300;
+      border: 1px solid var(--theme-border-strong);
+      background: var(--theme-bg-secondary);
+      color: var(--theme-text-main);
       border-radius: $border-radius-md;
       font-size: $font-size-sm;
       transition: all 0.2s;
@@ -319,12 +371,12 @@
   justify-content: space-between;
   align-items: center;
   padding: $spacing-4;
-  border-top: 1px solid $color-neutral-200;
-  background: $color-neutral-50;
+  border-top: 1px solid var(--theme-border);
+  background: var(--theme-bg-secondary);
 
   .pagination-info {
     font-size: $font-size-sm;
-    color: $color-neutral-600;
+    color: var(--theme-text-secondary);
   }
 
   .pagination-controls {
@@ -335,7 +387,7 @@
     .page-current {
       font-size: $font-size-sm;
       font-weight: $font-weight-medium;
-      color: $color-neutral-700;
+      color: var(--theme-text-secondary);
       min-width: 100px;
       text-align: center;
     }
@@ -346,11 +398,11 @@
       justify-content: center;
       width: 36px;
       height: 36px;
-      border: 1px solid $color-neutral-300;
-      background: white;
+      border: 1px solid var(--theme-border-strong);
+      background: var(--theme-bg-surface);
       border-radius: $border-radius-md;
       cursor: pointer;
-      color: $color-neutral-600;
+      color: var(--theme-text-secondary);
       transition: all 0.2s;
 
       &:hover:not(:disabled) {
@@ -362,7 +414,8 @@
       &:disabled {
         opacity: 0.5;
         cursor: not-allowed;
-        background: $color-neutral-100;
+        background: var(--theme-bg-hover);
+        color: var(--theme-text-muted);
       }
     }
   }
