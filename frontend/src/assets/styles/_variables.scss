@@ -111,3 +111,53 @@ $z-index-sticky: 1000;
 $z-index-overlay: 4000;
 $z-index-modal: 5000;
 $z-index-toast: 9999;
+
+// ==========================================
+// 7. SEMANTIC THEME VARIABLES (CSS Custom Properties)
+// ==========================================
+
+:root {
+  // Backgrounds
+  --theme-bg-main: #{$color-neutral-50};
+  --theme-bg-surface: #{$color-neutral-white};
+  --theme-bg-hover: #{$color-neutral-100};
+  --theme-bg-secondary: #{$color-neutral-100};
+  
+  // Typography
+  --theme-text-main: #{$color-neutral-900};
+  --theme-text-muted: #{$color-neutral-500};
+  --theme-text-secondary: #{$color-neutral-600};
+  --theme-text-inverse: #{$color-neutral-white}; 
+  
+  // Borders
+  --theme-border: #{$color-neutral-200};
+  --theme-border-strong: #{$color-neutral-300};
+  
+  // Shadows (using existing SCSS shadow vars which output static values)
+  --theme-shadow-sm: #{$shadow-sm};
+  --theme-shadow-md: #{$shadow-md};
+  --theme-shadow-lg: #{$shadow-lg};
+}
+
+[data-theme="dark"] {
+  // SHIELDON Official Dark Backgrounds
+  --theme-bg-main: #{$color-dark-bg};
+  --theme-bg-surface: #{$color-dark-surface};
+  --theme-bg-hover: #334155; // Slate-700
+  --theme-bg-secondary: #1F2937; // Slate-800
+  
+  // Typography
+  --theme-text-main: #{$color-neutral-50};
+  --theme-text-muted: #9CA3AF;
+  --theme-text-secondary: #D1D5DB;
+  --theme-text-inverse: #{$color-neutral-white}; 
+  
+  // Borders
+  --theme-border: #334155;
+  --theme-border-strong: #475569;
+  
+  // Shadows (Darker, subtler shadows for dark mode)
+  --theme-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --theme-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --theme-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+}

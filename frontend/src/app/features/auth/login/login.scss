@@ -88,7 +88,7 @@
 
 // ── Right: Form Panel ────────────────────────────────────────────────────────
 .login-form-panel {
-  background: $color-neutral-50;
+  background: var(--theme-bg-main);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -106,12 +106,12 @@
   h1 {
     font-size: $font-size-3xl;
     font-weight: $font-weight-bold;
-    color: $color-neutral-900;
+    color: var(--theme-text-main);
     margin-bottom: $spacing-2;
   }
   
   p {
-    color: $color-neutral-500;
+    color: var(--theme-text-muted);
     font-size: $font-size-base;
   }
 }
@@ -167,7 +167,7 @@
     margin-bottom: $spacing-2;
     font-size: $font-size-sm;
     font-weight: $font-weight-semibold;
-    color: $color-neutral-700;
+    color: var(--theme-text-secondary);
   }
   
   &.has-error {
@@ -189,19 +189,19 @@
     left: 14px;
     top: 50%;
     transform: translateY(-50%);
-    color: $color-neutral-400;
+    color: var(--theme-text-muted);
     pointer-events: none;
   }
   
   input {
     width: 100%;
     padding: $spacing-3 $spacing-3 $spacing-3 2.75rem;
-    border: 1.5px solid $color-neutral-300;
+    border: 1.5px solid var(--theme-border-strong);
     border-radius: $border-radius-md;
     font-size: $font-size-base;
     font-family: $font-family-primary;
-    color: $color-neutral-900;
-    background: white;
+    color: var(--theme-text-main);
+    background: var(--theme-bg-surface);
     transition: border-color 0.2s, box-shadow 0.2s;
     
     &:focus {
@@ -211,7 +211,7 @@
     }
     
     &::placeholder {
-      color: $color-neutral-400;
+      color: var(--theme-text-muted);
     }
   }
   
@@ -222,14 +222,13 @@
     transform: translateY(-50%);
     background: none;
     border: none;
-    color: $color-neutral-400;
+    color: var(--theme-text-muted);
     cursor: pointer;
     padding: 4px;
     display: flex;
     align-items: center;
     transition: color 0.2s;
-    
-    &:hover { color: $color-neutral-600; }
+    &:hover { color: var(--theme-text-secondary); }
   }
 }
 
@@ -254,7 +253,7 @@
   align-items: center;
   gap: $spacing-2;
   font-size: $font-size-sm;
-  color: $color-neutral-600;
+  color: var(--theme-text-secondary);
   cursor: pointer;
   
   input[type="checkbox"] {
@@ -322,7 +321,7 @@
   text-align: center;
   
   p {
-    color: $color-neutral-600;
+    color: var(--theme-text-secondary);
     font-size: $font-size-sm;
   }
 }

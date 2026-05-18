@@ -26,13 +26,13 @@
 .auth-card {
   width: 100%;
   max-width: 550px;
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--theme-bg-surface);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-radius: $border-radius-xl;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
   padding: $spacing-8;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid var(--theme-border);
   position: relative;
   overflow: hidden;
 
@@ -73,12 +73,12 @@
     font-family: $font-family-secondary;
     font-size: $font-size-2xl;
     font-weight: $font-weight-bold;
-    color: $color-neutral-900;
+    color: var(--theme-text-main);
     margin-bottom: $spacing-1;
   }
 
   p {
-    color: $color-neutral-500;
+    color: var(--theme-text-muted);
     font-size: $font-size-sm;
   }
 }
@@ -107,7 +107,7 @@
     margin-bottom: $spacing-3;
     font-size: $font-size-sm;
     font-weight: $font-weight-semibold;
-    color: $color-neutral-700;
+    color: var(--theme-text-secondary);
   }
 }
 
@@ -122,9 +122,9 @@
     align-items: center;
     justify-content: center;
     padding: $spacing-4 $spacing-2;
-    border: 2px solid $color-neutral-200;
+    border: 2px solid var(--theme-border-strong);
     border-radius: $border-radius-lg;
-    background: white;
+    background: var(--theme-bg-secondary);
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -134,8 +134,8 @@
       width: 48px;
       height: 48px;
       border-radius: 50%;
-      background: $color-neutral-100;
-      color: $color-neutral-400;
+      background: var(--theme-bg-hover);
+      color: var(--theme-text-muted);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -151,7 +151,7 @@
     .role-title {
       font-size: $font-size-sm;
       font-weight: $font-weight-bold;
-      color: $color-neutral-600;
+      color: var(--theme-text-main);
       transition: all 0.3s;
     }
 
@@ -243,7 +243,7 @@
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: $color-neutral-400;
+  color: var(--theme-text-muted);
   cursor: pointer;
   padding: 4px;
   display: flex;

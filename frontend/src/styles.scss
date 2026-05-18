@@ -23,8 +23,8 @@
 
 body {
   font-family: $font-family-primary;
-  color: $color-neutral-800;
-  background-color: $color-neutral-50;
+  color: var(--theme-text-main);
+  background-color: var(--theme-bg-main);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -72,22 +72,23 @@ button {
 .premium-swal-popup {
   border-radius: $border-radius-xl !important;
   padding: $spacing-10 !important;
-  box-shadow: 0 10px 40px rgba($color-primary-dark, 0.2), $shadow-xl !important;
+  box-shadow: 0 10px 40px rgba($color-primary-dark, 0.2), var(--theme-shadow-lg) !important;
   border: 1px solid rgba($color-primary-base, 0.1) !important;
-  background: white !important;
+  background: var(--theme-bg-surface) !important;
+  color: var(--theme-text-main) !important;
   // background: white url('assets/images/logo.png') no-repeat right 20px bottom 20px / 50px auto !important;
 
   .swal2-title {
     font-family: $font-family-secondary !important;
     font-size: $font-size-2xl !important;
     font-weight: $font-weight-bold !important;
-    color: $color-primary-dark !important;
+    color: var(--theme-text-main) !important;
   }
 
   .swal2-html-container {
     font-family: $font-family-primary !important;
     font-size: $font-size-base !important;
-    color: $color-neutral-600 !important;
+    color: var(--theme-text-secondary) !important;
     line-height: 1.6 !important;
   }
 }

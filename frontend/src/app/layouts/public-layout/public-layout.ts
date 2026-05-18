@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
+import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-public-layout',
@@ -13,6 +14,13 @@ import { RouterOutlet, RouterLink } from '@angular/router';
             SHIELDON
           </a>
           <div class="nav-links">
+            <button class="theme-toggle-btn" (click)="themeService.toggleTheme()" [attr.title]="themeService.activeTheme() === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+              @if (themeService.activeTheme() === 'dark') {
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+              }
+            </button>
             <a routerLink="/login" class="nav-link">Login</a>
             <a routerLink="/register" class="nav-btn">Get Started</a>
           </div>
@@ -35,14 +43,14 @@ import { RouterOutlet, RouterLink } from '@angular/router';
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      background-color: var(--color-neutral-50, #F9FAFB);
+      background-color: var(--theme-bg-main);
     }
 
     .top-nav {
-      background: rgba(255, 255, 255, 0.9);
+      background: var(--theme-bg-surface);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      box-shadow: var(--theme-shadow-sm);
       position: sticky;
       top: 0;
       z-index: 1000;
@@ -71,19 +79,34 @@ import { RouterOutlet, RouterLink } from '@angular/router';
     }
 
     .nav-link {
-      color: #4B5563;
+      color: var(--theme-text-secondary);
       font-weight: 500;
       text-decoration: none;
       transition: color 0.2s;
       
       &:hover {
-        color: #215DAE;
+        color: var(--color-primary-base, #215DAE);
+      }
+    }
+
+    .theme-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--theme-text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+      
+      &:hover {
+        color: var(--theme-text-main);
       }
     }
 
     .nav-btn {
-      background: #215DAE;
-      color: white;
+      background: var(--color-primary-base, #215DAE);
+      color: var(--theme-text-inverse);
       padding: 0.5rem 1.25rem;
       border-radius: 9999px;
       font-weight: 600;
@@ -92,7 +115,7 @@ import { RouterOutlet, RouterLink } from '@angular/router';
 
       &:hover {
         transform: translateY(-2px);
-        background: #16407B;
+        background: var(--color-primary-dark, #16407B);
       }
     }
 
@@ -116,4 +139,6 @@ import { RouterOutlet, RouterLink } from '@angular/router';
     }
   `]
 })
-export class PublicLayout {}
+export class PublicLayout {
+  themeService = inject(ThemeService);
+}

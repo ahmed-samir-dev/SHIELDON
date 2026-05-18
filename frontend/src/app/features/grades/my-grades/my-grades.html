@@ -53,8 +53,10 @@
           </thead>
           <tbody>
             <tr *ngFor="let grade of group.grades">
-              <td class="font-medium item-name">
-                {{ grade.examTitle || grade.assignmentTitle }}
+              <td class="font-medium">
+                <div class="item-name">
+                  {{ grade.examTitle || grade.assignmentTitle }}
+                </div>
               </td>
               <td>
                 <span class="badge" [ngClass]="grade.type === 'Exam' ? 'badge-exam' : 'badge-assignment'">

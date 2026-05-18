@@ -10,7 +10,7 @@
   .header-content {
     h1 {
       font-size: $font-size-3xl;
-      color: $color-neutral-900;
+      color: var(--theme-text-main);
       margin: 0 0 $spacing-2 0;
       font-family: $font-family-secondary;
       display: flex;
@@ -23,7 +23,7 @@
     }
 
     .subtitle {
-      color: $color-neutral-500;
+      color: var(--theme-text-muted);
       margin: 0;
     }
   }
@@ -34,14 +34,14 @@
   h2 {
     font-size: $font-size-2xl;
     font-family: $font-family-secondary;
-    color: $color-neutral-900;
+    color: var(--theme-text-main);
     margin: 0;
   }
 }
 
 .section-divider {
   border: 0;
-  border-top: 1px solid $color-neutral-200;
+  border-top: 1px solid var(--theme-border);
   margin: $spacing-8 0;
 }
 
@@ -56,7 +56,7 @@
 
   p {
     margin-top: $spacing-4;
-    color: $color-neutral-500;
+    color: var(--theme-text-muted);
     font-weight: $font-weight-medium;
   }
 
@@ -69,14 +69,14 @@
 .empty-state {
   text-align: center;
   padding: $spacing-12;
-  background: white;
+  background: var(--theme-bg-surface);
   border-radius: $border-radius-xl;
-  border: 1px dashed $color-neutral-300;
+  border: 1px dashed var(--theme-border-strong);
 
   .empty-icon {
     width: 80px;
     height: 80px;
-    background: $color-success-light;
+    background: rgba($color-success-base, 0.1);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -87,13 +87,13 @@
 
   h3 {
     margin: 0 0 $spacing-2 0;
-    color: $color-neutral-900;
+    color: var(--theme-text-main);
     font-size: $font-size-xl;
     font-weight: $font-weight-bold;
   }
 
   p {
-    color: $color-neutral-500;
+    color: var(--theme-text-muted);
     margin: 0;
     max-width: 450px;
     margin-left: auto;
@@ -117,9 +117,9 @@
 // ─── Payment Card (reuses course-card pattern) ──────────────────────────────
 .course-card {
   position: relative;
-  background: white;
+  background: var(--theme-bg-surface);
   border-radius: $border-radius-xl;
-  border: 1px solid rgba($color-neutral-200, 0.8);
+  border: 1px solid var(--theme-border);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -167,9 +167,9 @@
 
     .payment-date {
       font-size: $font-size-xs;
-      color: $color-neutral-500;
+      color: var(--theme-text-muted);
       font-weight: $font-weight-medium;
-      background: rgba($color-neutral-100, 0.8);
+      background: var(--theme-bg-secondary);
       padding: $spacing-1 $spacing-2;
       border-radius: $border-radius-md;
     }
@@ -204,16 +204,16 @@
     .course-title {
       font-size: $font-size-xl;
       margin: 0 0 auto 0;
-      color: $color-neutral-900;
+      color: var(--theme-text-main);
       line-height: 1.4;
       font-weight: $font-weight-bold;
     }
 
     .price-section {
-      background: $color-neutral-50;
+      background: var(--theme-bg-secondary);
       border-radius: $border-radius-lg;
       padding: $spacing-4;
-      border: 1px dashed $color-neutral-300;
+      border: 1px dashed var(--theme-border-strong);
       margin-top: $spacing-6;
       display: flex;
       flex-direction: column;
@@ -226,7 +226,7 @@
         text-transform: uppercase;
         letter-spacing: 1px;
         font-weight: $font-weight-bold;
-        color: $color-neutral-500;
+        color: var(--theme-text-muted);
         margin-bottom: $spacing-1;
       }
 
@@ -262,7 +262,7 @@
     z-index: 1;
     padding: $spacing-4 $spacing-5;
     background: transparent;
-    border-top: 1px solid rgba($color-neutral-200, 0.6);
+    border-top: 1px solid var(--theme-border);
     
     .btn-pay {
       width: 100%;
@@ -294,9 +294,9 @@
       }
 
       &:disabled {
-        background: $color-neutral-200;
+        background: var(--theme-bg-secondary);
         box-shadow: none;
-        color: $color-neutral-500;
+        color: var(--theme-text-muted);
         cursor: not-allowed;
         transform: none;
       }
@@ -321,7 +321,7 @@
     h2 {
       font-size: $font-size-2xl;
       font-family: $font-family-secondary;
-      color: $color-neutral-900;
+      color: var(--theme-text-main);
       margin: 0;
     }
 
@@ -342,15 +342,17 @@
         svg {
           position: absolute;
           left: $spacing-3;
-          color: $color-neutral-400;
+          color: var(--theme-text-muted);
         }
 
         input {
           padding: $spacing-2 $spacing-3 $spacing-2 $spacing-10;
-          border: 1px solid $color-neutral-300;
+          border: 1px solid var(--theme-border-strong);
           border-radius: $border-radius-md;
           font-family: $font-family-primary;
           font-size: $font-size-sm;
+          background: var(--theme-bg-surface);
+          color: var(--theme-text-main);
           width: 100%;
           min-width: 250px;
           outline: none;
@@ -366,11 +368,12 @@
       .filter-box {
         select {
           padding: $spacing-2 $spacing-4;
-          border: 1px solid $color-neutral-300;
+          border: 1px solid var(--theme-border-strong);
           border-radius: $border-radius-md;
           font-family: $font-family-primary;
           font-size: $font-size-sm;
-          background-color: white;
+          background-color: var(--theme-bg-surface);
+          color: var(--theme-text-main);
           outline: none;
           cursor: pointer;
 
@@ -385,10 +388,10 @@
   // Table Styles
   .table-responsive {
     overflow-x: auto;
-    background: white;
+    background: var(--theme-bg-surface);
     border-radius: $border-radius-xl;
     box-shadow: $shadow-sm;
-    border: 1px solid $color-neutral-200;
+    border: 1px solid var(--theme-border);
   }
 
   .data-table {
@@ -399,16 +402,16 @@
     th, td {
       padding: $spacing-4 $spacing-5;
       text-align: left;
-      border-bottom: 1px solid $color-neutral-200;
+      border-bottom: 1px solid var(--theme-border);
     }
 
     th {
       font-size: $font-size-xs;
       font-weight: $font-weight-bold;
-      color: $color-neutral-500;
+      color: var(--theme-text-muted);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      background: $color-neutral-50;
+      background: var(--theme-bg-secondary);
       
       &:first-child {
         border-top-left-radius: $border-radius-xl;
@@ -420,7 +423,7 @@
 
     td {
       font-size: $font-size-sm;
-      color: $color-neutral-800;
+      color: var(--theme-text-main);
       vertical-align: middle;
 
       &.amount-cell {
@@ -429,7 +432,7 @@
       }
 
       &.date-cell {
-        color: $color-neutral-500;
+        color: var(--theme-text-muted);
       }
     }
 
@@ -437,7 +440,7 @@
       transition: background 0.2s;
       
       &:hover {
-        background: rgba($color-primary-base, 0.02);
+        background: var(--theme-bg-hover);
       }
 
       &:last-child td {
@@ -490,9 +493,9 @@
     margin-top: $spacing-6;
 
     .btn-page-nav {
-      background: none;
-      border: 1px solid $color-neutral-300;
-      color: $color-neutral-700;
+      background: var(--theme-bg-surface);
+      border: 1px solid var(--theme-border-strong);
+      color: var(--theme-text-main);
       border-radius: $border-radius-md;
       padding: $spacing-2 $spacing-4;
       font-size: $font-size-sm;
@@ -508,7 +511,7 @@
       &:disabled {
         opacity: 0.5;
         cursor: not-allowed;
-        background: $color-neutral-50;
+        background: var(--theme-bg-secondary);
       }
     }
 
@@ -519,7 +522,7 @@
       .btn-page-number {
         background: none;
         border: 1px solid transparent;
-        color: $color-neutral-600;
+        color: var(--theme-text-muted);
         width: 32px;
         height: 32px;
         border-radius: $border-radius-md;
@@ -532,7 +535,7 @@
         transition: all 0.2s;
 
         &:hover:not(.active) {
-          background: $color-neutral-100;
+          background: var(--theme-bg-hover);
         }
 
         &.active {

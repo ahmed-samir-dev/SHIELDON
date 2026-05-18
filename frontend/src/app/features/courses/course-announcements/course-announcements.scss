@@ -17,19 +17,19 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  border-bottom: 1px solid $color-neutral-200;
+  border-bottom: 1px solid var(--theme-border);
   padding-bottom: $spacing-4;
 
   .header-title {
     h2 {
       font-size: $font-size-xl;
-      color: $color-neutral-900;
+      color: var(--theme-text-main);
       margin-bottom: $spacing-1;
       font-weight: $font-weight-bold;
     }
     .subtitle {
       font-size: $font-size-sm;
-      color: $color-neutral-500;
+      color: var(--theme-text-muted);
     }
   }
 
@@ -51,15 +51,15 @@
     align-items: center;
     gap: $spacing-3;
     padding: $spacing-3 $spacing-4;
-    border: 2px solid $color-neutral-200;
+    border: 2px solid var(--theme-border-strong);
     border-radius: $border-radius-lg;
     cursor: pointer;
-    background-color: $color-neutral-white;
+    background-color: var(--theme-bg-surface);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:hover {
       border-color: $color-primary-light;
-      background-color: $color-neutral-50;
+      background-color: var(--theme-bg-hover);
       transform: translateY(-2px);
       box-shadow: $shadow-sm;
     }
@@ -84,13 +84,13 @@
     .hidden-radio { display: none; }
 
     .type-icon {
-      color: $color-neutral-400;
+      color: var(--theme-text-muted);
       display: flex;
       align-items: center;
       justify-content: center;
       width: 36px;
       height: 36px;
-      background-color: $color-neutral-100;
+      background-color: var(--theme-bg-secondary);
       border-radius: $border-radius-md;
       transition: all 0.2s ease;
       flex-shrink: 0;
@@ -99,7 +99,7 @@
     .type-info {
       .type-name {
         font-weight: $font-weight-semibold;
-        color: $color-neutral-700;
+        color: var(--theme-text-main);
         font-size: $font-size-sm;
       }
     }
@@ -114,14 +114,14 @@
   justify-content: center;
   padding: $spacing-16 $spacing-6;
   text-align: center;
-  background: rgba($color-neutral-50, 0.7);
-  border: 2px dashed $color-neutral-200;
+  background: var(--theme-bg-surface);
+  border: 2px dashed var(--theme-border-strong);
   border-radius: $border-radius-2xl;
   margin-top: $spacing-4;
   transition: all 0.3s ease;
 
   &:hover {
-    background: $color-neutral-50;
+    background: var(--theme-bg-hover);
     border-color: rgba($color-primary-base, 0.3);
   }
 
@@ -131,7 +131,7 @@
     justify-content: center;
     width: 64px;
     height: 64px;
-    background: white;
+    background: var(--theme-bg-secondary);
     border-radius: 50%;
     color: $color-primary-light;
     margin-bottom: $spacing-5;
@@ -143,14 +143,14 @@
   }
 
   h3 {
-    color: $color-neutral-800;
+    color: var(--theme-text-main);
     margin-bottom: $spacing-2;
     font-size: $font-size-xl;
     font-weight: $font-weight-bold;
   }
 
   p {
-    color: $color-neutral-500;
+    color: var(--theme-text-muted);
     font-size: $font-size-base;
     max-width: 420px;
   }
@@ -165,8 +165,8 @@
 
 .announcement-card {
   position: relative;
-  background-color: #ffffff;
-  border: 1px solid #e5e7eb;
+  background-color: var(--theme-bg-surface);
+  border: 1px solid var(--theme-border);
   border-radius: 14px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
   overflow: hidden;
@@ -197,7 +197,7 @@
   // Important card overrides
   &.important {
     border-color: rgba(245, 158, 11, 0.4);
-    background: linear-gradient(135deg, #fffbeb 0%, #ffffff 60%);
+    background: rgba(245, 158, 11, 0.05);
 
     &::before {
       background-color: #f59e0b;
@@ -213,8 +213,8 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background-color: #fef3c7;
-    color: #92400e;
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
     font-size: 11px;
     font-weight: $font-weight-bold;
     letter-spacing: 0.5px;
@@ -265,14 +265,14 @@
     .ann-title {
       font-size: $font-size-base;
       font-weight: $font-weight-semibold;
-      color: $color-neutral-900;
+      color: var(--theme-text-main);
       margin: 0 0 6px;
       line-height: 1.4;
     }
 
     .ann-message {
       font-size: $font-size-sm;
-      color: $color-neutral-600;
+      color: var(--theme-text-muted);
       line-height: 1.6;
       margin: 0;
       white-space: pre-wrap;
@@ -288,7 +288,7 @@
     border: none;
     border-radius: 10px;
     background-color: transparent;
-    color: $color-neutral-400;
+    color: var(--theme-text-muted);
     cursor: pointer;
     transition: all 0.2s ease;
     flex-shrink: 0;
@@ -306,7 +306,7 @@
     gap: 8px;
     margin-top: 14px;
     padding-top: 12px;
-    border-top: 1px solid $color-neutral-100;
+    border-top: 1px solid var(--theme-border);
 
     .meta-author,
     .meta-date {
@@ -314,13 +314,13 @@
       align-items: center;
       gap: 5px;
       font-size: 12px;
-      color: $color-neutral-500;
+      color: var(--theme-text-muted);
 
       svg { opacity: 0.7; }
     }
 
     .meta-dot {
-      color: $color-neutral-300;
+      color: var(--theme-border-strong);
       font-size: 14px;
     }
   }
@@ -334,12 +334,12 @@
   justify-content: center;
   padding: $spacing-12;
   gap: $spacing-3;
-  color: $color-neutral-500;
+  color: var(--theme-text-muted);
 
   .spinner {
     width: 36px;
     height: 36px;
-    border: 3px solid $color-neutral-200;
+    border: 3px solid var(--theme-border-strong);
     border-top-color: $color-primary-base;
     border-radius: 50%;
     animation: spin 0.9s linear infinite;
