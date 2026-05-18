@@ -14,6 +14,8 @@ secrets.json
 .env.production
 scratch/
 CLAUDE.md
+stripe_cli/
+*.zip
 
 # ── .NET / Visual Studio ────────────────────────────────────
 *.user

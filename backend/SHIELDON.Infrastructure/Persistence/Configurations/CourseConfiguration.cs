@@ -32,7 +32,7 @@ public class CourseConfiguration : IEntityTypeConfiguration<Course>
 
         builder.Property(c => c.CourseFee)
             .HasColumnType("decimal(18,2)")
-            .HasDefaultValue(150.00m)
+            .HasDefaultValue(0.00m)
             .IsRequired();
 
         builder.Property(c => c.Description)

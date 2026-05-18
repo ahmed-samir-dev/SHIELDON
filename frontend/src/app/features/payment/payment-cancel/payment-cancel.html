@@ -1,21 +1,19 @@
-<div class="page-container" style="display: flex; align-items: center; justify-content: center; min-height: 80vh;">
-  <div style="background: var(--bg-card); padding: 3rem; border-radius: 16px; border: 1px solid var(--border-color); max-width: 480px; width: 100%; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
-    <div style="width: 80px; height: 80px; background: rgba(239, 68, 68, 0.1); color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 1.5rem auto; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);">
-      <i class="fi fi-rr-cross-circle"></i>
+<div class="payment-result-container">
+  <div class="result-card cancel">
+    <div class="result-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
     </div>
     
-    <h2 style="font-size: 1.75rem; font-weight: 800; color: var(--text-primary); margin-bottom: 1rem;">Payment Cancelled</h2>
-    <p style="font-size: 1rem; color: var(--text-secondary); line-height: 1.5;">
-      Your payment process was cancelled. No charges were made to your account.
-    </p>
+    <h2>Payment Cancelled</h2>
+    <p>Your payment process was cancelled. No charges were made to your account. You can try again at any time from the Payment Hub.</p>
     
-    <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
-      <a routerLink="/payment-hub" class="btn btn-primary" style="justify-content: center; padding: 0.75rem;">
+    <div class="action-buttons">
+      <a routerLink="/payment-hub" class="btn btn-primary">
         Try Again
       </a>
-      <a routerLink="/student" class="btn btn-secondary" style="justify-content: center; padding: 0.75rem;">
-        Go to Dashboard
-      </a>
+      <button (click)="goToDashboard()" class="btn btn-secondary">
+        Go to Courses
+      </button>
     </div>
   </div>
 </div>
