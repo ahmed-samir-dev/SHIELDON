@@ -9,4 +9,6 @@ public class PaymentRecordDto
     public string Status { get; set; } = string.Empty;
     public DateTime? PaidAt { get; set; }
     public DateTime CreatedAt { get; set; }
+    public string StudentName { get; set; } = string.Empty;
+    public string StudentDisplayId { get; set; } = string.Empty;
 }

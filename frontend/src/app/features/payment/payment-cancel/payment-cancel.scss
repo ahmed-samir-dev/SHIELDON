@@ -1,0 +1,90 @@
+@import "../../../../assets/styles/variables";
+
+.payment-result-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+  padding: $spacing-8;
+
+  .result-card {
+    background: white;
+    padding: $spacing-12 $spacing-8;
+    border-radius: $border-radius-2xl;
+    border: 1px solid $color-neutral-200;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    box-shadow: $shadow-lg;
+    position: relative;
+    overflow: hidden;
+    animation: fade-in 0.4s ease-out;
+
+    &.cancel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 5px;
+      background: linear-gradient(90deg, $color-danger-base, $color-danger-light);
+    }
+
+    .result-icon {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto $spacing-6 auto;
+      background: $color-danger-light;
+      color: $color-danger-base;
+    }
+
+    h2 {
+      font-size: $font-size-2xl;
+      font-weight: $font-weight-bold;
+      color: $color-neutral-900;
+      margin: 0 0 $spacing-4 0;
+      font-family: $font-family-secondary;
+    }
+
+    p {
+      font-size: $font-size-base;
+      color: $color-neutral-500;
+      line-height: 1.6;
+      margin: 0 0 $spacing-8 0;
+    }
+
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-3;
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+        padding: $spacing-3;
+        font-size: $font-size-base;
+        font-weight: $font-weight-semibold;
+        border-radius: $border-radius-md;
+        cursor: pointer;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        border: none;
+      }
+
+      .btn-primary {
+        background: $color-primary-base;
+        color: white;
+        &:hover { background: $color-primary-dark; }
+      }
+
+      .btn-secondary {
+        background: $color-neutral-100;
+        color: $color-neutral-700;
+        border: 1px solid $color-neutral-200;
+        &:hover { background: $color-neutral-200; }
+      }
+    }
+  }
+}

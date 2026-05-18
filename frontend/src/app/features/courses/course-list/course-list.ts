@@ -47,7 +47,7 @@ export class CourseList implements OnInit {
     courseCode: ['', [Validators.required, Validators.maxLength(20)]],
     description: [''],
     assignedTutorId: [''],
-    courseFee: [150, [Validators.required, Validators.min(0)]]
+    courseFee: [0, [Validators.min(0)]]
   });
 
   ngOnInit() {
@@ -185,7 +185,7 @@ export class CourseList implements OnInit {
       title: formVals.title!,
       description: formVals.description || null,
       assignedTutorId: formVals.assignedTutorId || null,
-      courseFee: formVals.courseFee!
+      courseFee: formVals.courseFee || 0
     };
 
     if (this.modalMode() === 'create') {

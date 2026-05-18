@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SHIELDON.Application.Common;
 using SHIELDON.Application.Features.Payment.DTOs;
 using SHIELDON.Application.Features.Payment.Interfaces;
 using SHIELDON.Domain.Entities;
@@ -23,6 +24,68 @@ public class PaymentService : IPaymentService
         _db = db;
         _config = config;
         _logger = logger;
+    }
+
+    public async Task<PagedResponse<PaymentRecordDto>> GetPaymentHistoryAsync(Guid userId, string userRole, PaymentHistoryQueryParams query, CancellationToken ct = default)
+    {
+        var dbQuery = _db.PaymentRecords
+            .Include(r => r.Course)
+            .Include(r => r.Student)
+            .AsNoTracking()
+            .AsQueryable();
+
+        // Role-based filtering
+        if (userRole == "Student")
+        {
+            dbQuery = dbQuery.Where(r => r.StudentId == userId);
+        }
+
+        // Search filtering
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            var search = query.Search.ToLower();
+            dbQuery = dbQuery.Where(r =>
+                r.Course!.Title.ToLower().Contains(search) ||
+                (r.Student != null && (r.Student.FirstName + " " + r.Student.LastName).ToLower().Contains(search)) ||
+                (r.Student != null && r.Student.StudentId.ToLower().Contains(search)));
+        }
+
+        // Status filtering
+        if (!string.IsNullOrWhiteSpace(query.Status) && Enum.TryParse<PaymentRecordStatus>(query.Status, true, out var statusEnum))
+        {
+            dbQuery = dbQuery.Where(r => r.Status == statusEnum);
+        }
+
+        // Total count
+        var totalCount = await dbQuery.CountAsync(ct);
+
+        // Pagination
+        var records = await dbQuery
+            .OrderByDescending(r => r.CreatedAt)
+            .Skip((query.Page - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .ToListAsync(ct);
+
+        var dtos = records.Select(r => new PaymentRecordDto
+        {
+            Id = r.Id,
+            CourseId = r.CourseId,
+            CourseName = r.Course!.Title,
+            AmountUSD = r.AmountUSD,
+            Status = r.Status.ToString(),
+            PaidAt = r.PaidAt,
+            CreatedAt = r.CreatedAt,
+            StudentName = r.Student != null ? $"{r.Student.FirstName} {r.Student.LastName}" : string.Empty,
+            StudentDisplayId = r.Student?.StudentId ?? string.Empty
+        }).ToList();
+
+        return new PagedResponse<PaymentRecordDto>
+        {
+            Items = dtos,
+            TotalCount = totalCount,
+            PageNumber = query.Page,
+            PageSize = query.PageSize
+        };
     }
 
     public async Task<List<PaymentRecordDto>> GetPendingPaymentsAsync(Guid studentId, CancellationToken ct = default)
@@ -109,13 +172,16 @@ public class PaymentService : IPaymentService
         var webhookSecret = _config["Stripe:WebhookSecret"];
         if (string.IsNullOrEmpty(webhookSecret))
         {
-            _logger.LogError("Stripe WebhookSecret is not configured.");
-            return;
+            _logger.LogError("[STRIPE WEBHOOK] WebhookSecret is not configured in appsettings.");
+            throw new Exception("Stripe WebhookSecret not configured.");
         }
+
+        _logger.LogInformation("[STRIPE WEBHOOK] Received event. Signature header present: {HasSig}", !string.IsNullOrEmpty(stripeSignature));
 
         try
         {
             var stripeEvent = EventUtility.ConstructEvent(payload, stripeSignature, webhookSecret);
+            _logger.LogInformation("[STRIPE WEBHOOK] Event type: {EventType}", stripeEvent.Type);
 
             if (stripeEvent.Type == EventTypes.CheckoutSessionCompleted)
             {
@@ -130,15 +196,23 @@ public class PaymentService : IPaymentService
                             record.Status = PaymentRecordStatus.Paid;
                             record.PaidAt = DateTime.UtcNow;
                             await _db.SaveChangesAsync(ct);
-                            _logger.LogInformation($"Payment confirmed for record {recordId}");
+                            _logger.LogInformation("[STRIPE WEBHOOK] ✅ Payment confirmed for record {RecordId}", recordId);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("[STRIPE WEBHOOK] Record {RecordId} not found or already Paid.", recordId);
                         }
                     }
+                }
+                else
+                {
+                    _logger.LogWarning("[STRIPE WEBHOOK] Session has no paymentRecordId metadata.");
                 }
             }
         }
         catch (StripeException e)
         {
-            _logger.LogError(e, "Stripe Webhook signature verification failed.");
+            _logger.LogError(e, "[STRIPE WEBHOOK] ❌ Signature verification failed. Check that WebhookSecret in appsettings matches the CLI output (whsec_...).");
             throw;
         }
     }

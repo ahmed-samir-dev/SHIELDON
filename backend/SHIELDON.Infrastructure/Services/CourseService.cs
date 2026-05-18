@@ -184,12 +184,44 @@ public class CourseService : ICourseService
                 throw new NotFoundException("Tutor", request.AssignedTutorId.Value);
         }
 
+        bool feeChanged = course.CourseFee != request.CourseFee;
+
         course.Title = request.Title.Trim();
         course.Description = request.Description?.Trim();
         course.AssignedTutorId = request.AssignedTutorId;
         course.CourseFee = request.CourseFee;
         course.IsActive = request.IsActive;
         course.UpdatedAt = DateTime.UtcNow;
+
+        if (feeChanged && request.CourseFee > 0)
+        {
+            var approvedEnrollments = await _db.CourseEnrollments
+                .Where(e => e.CourseId == courseId && e.Status == CourseEnrollmentStatus.Approved)
+                .ToListAsync(ct);
+
+            foreach (var enrollment in approvedEnrollments)
+            {
+                var existingPayment = await _db.PaymentRecords
+                    .FirstOrDefaultAsync(p => p.EnrollmentId == enrollment.Id, ct);
+
+                if (existingPayment == null)
+                {
+                    _db.PaymentRecords.Add(new PaymentRecord
+                    {
+                        StudentId = enrollment.StudentId,
+                        CourseId = enrollment.CourseId,
+                        EnrollmentId = enrollment.Id,
+                        AmountUSD = request.CourseFee,
+                        Status = PaymentRecordStatus.Pending,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+                else if (existingPayment.Status == PaymentRecordStatus.Pending)
+                {
+                    existingPayment.AmountUSD = request.CourseFee;
+                }
+            }
+        }
 
         await _db.SaveChangesAsync(ct);
         return await BuildCourseResponseAsync(course.Id, ct);

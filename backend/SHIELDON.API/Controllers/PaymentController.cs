@@ -19,6 +19,23 @@ public class PaymentController : ControllerBase
     }
 
     private Guid GetUserId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    private string GetUserRole() => User.FindFirstValue(ClaimTypes.Role)!;
+
+    /// <summary>
+    /// Gets paginated payment history for the authenticated user.
+    /// Admins see all payments; Students see only their own.
+    /// </summary>
+    [HttpGet("history")]
+    [Authorize(Roles = "Student,Admin")]
+    [ProducesResponseType(typeof(ApiResponse<PagedResponse<PaymentRecordDto>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPaymentHistory([FromQuery] PaymentHistoryQueryParams query, CancellationToken ct)
+    {
+        var userId = GetUserId();
+        var userRole = GetUserRole();
+        
+        var result = await _paymentService.GetPaymentHistoryAsync(userId, userRole, query, ct);
+        return Ok(ApiResponse<PagedResponse<PaymentRecordDto>>.Ok(result, "Payment history retrieved successfully."));
+    }
 
     /// <summary>
     /// Gets all pending payment records for the authenticated student.
