@@ -2,7 +2,7 @@
 # SHIELDON — Root .gitignore
 # Covers: Angular, .NET, Visual Studio, VS Code, Windows
 # ============================================================
-
+    
 # ── SECRETS — NEVER COMMIT ──────────────────────────────────
 appsettings.Development.json
 appsettings.Production.json
