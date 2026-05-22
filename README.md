@@ -7,7 +7,7 @@
 
 ## Project Overview
 
-**SHIELDON** is a comprehensive educational platform that combines a modern Learning Management System with a robust, browser-based Exam Integrity System. 
+**SHIELDON** is a comprehensive educational platform that combines a modern Learning Management System with a robust, browser-based Exam Integrity System.
 
 Most traditional LMS platforms depend on external software (like Safe Exam Browser or LockDown Browser) to enforce exam security, requiring students to download and install applications. **SHIELDON eliminates this dependency entirely** by building the Anti-Cheating Engine directly into the web platform using standard Web APIs.
 
@@ -16,6 +16,7 @@ Most traditional LMS platforms depend on external software (like Safe Exam Brows
 ## Technology Stack
 
 ### Frontend
+
 - **Framework**: Angular 21 (Standalone Components)
 - **Language**: TypeScript
 - **Styling**: SCSS with CSS Custom Properties
@@ -24,6 +25,7 @@ Most traditional LMS platforms depend on external software (like Safe Exam Brows
 - **Libraries**: SweetAlert2, ngx-toastr, canvas-confetti, Shepherd.js
 
 ### Backend
+
 - **Framework**: .NET 9 ASP.NET Core Web API
 - **Language**: C#
 - **ORM**: Entity Framework Core 9 (Code-First)
@@ -32,6 +34,7 @@ Most traditional LMS platforms depend on external software (like Safe Exam Brows
 - **Mapping**: AutoMapper
 
 ### Database
+
 - **Engine**: Microsoft SQL Server 2022
 
 ---
@@ -49,52 +52,55 @@ SHIELDON follows a **Clean Architecture + Vertical Slice Hybrid** approach:
 
 ## System Roles
 
-| Role | Description |
-|------|-------------|
-| **Admin** | Full system access. Manages courses, users, all exams, and violations system-wide. |
-| **Tutor** | Manages assigned courses. Creates exams, uploads materials, posts announcements, and monitors exam violations. |
+| Role        | Description                                                                                                       |
+| ----------- | ----------------------------------------------------------------------------------------------------------------- |
+| **Admin**   | Full system access. Manages courses, users, all exams, and violations system-wide.                                |
+| **Tutor**   | Manages assigned courses. Creates exams, uploads materials, posts announcements, and monitors exam violations.    |
 | **Student** | Accesses enrolled courses, downloads materials, submits assignments, and takes exams under anti-cheat monitoring. |
 
 ---
 
-## Features
+## 🚀 Comprehensive Feature List (F1 - F31)
 
-### Authentication & User Management
-- Secure Login with JWT Tokens (Access + Refresh tokens).
-- Public Registration with role selection (Student/Tutor).
-- Email Verification flow.
-- Password Reset via email.
-- Profile Management with WebP avatar upload.
-
-### Core Learning Management System
-- Course Management & Enrollment (Create, edit, delete courses; enroll/drop students).
-- File Sharing (Tutors upload course materials; students download).
-- Assignments System (Tutor posts assignments; students submit files; bulk ZIP export for tutors).
-- Announcements Feed with priority pinning.
-- In-App and Email Notifications.
-
-### Examination Management System
-- Centralized Question Bank (MCQ, True/False, Short Answer questions).
-- Exam Creation & Scheduling with secure tokens.
-- Question Randomization and Timed Exam Engine.
-- Auto-Grading for objective questions.
-- Grade Management Panel with weighted grading and CSV export.
-
-### Anti-Cheating Engine
-- **Fullscreen Enforcement**: Forces students to stay in fullscreen mode during exams.
-- **Tab & Focus Detection**: Detects when a student switches tabs or windows.
-- **Keyboard Shortcut Blocking**: Blocks copy/paste and system shortcuts.
-- **Resize Detection**: Monitors window resizing or split-screen attempts.
-- **Warning System**: Escalates warnings up to automatic submission on too many violations.
-
-### Monitoring & Dashboards
-- **Session Timeline**: Visual breakdown of student activity during an exam.
-- **Violation Timeline**: Detailed logs of anti-cheat violations.
-- **Dashboards**: Rich visual analytics powered by Apache ECharts for both Tutors and Admins.
-
-### Enhancements
-- **SHIELDON AI Assistant**: Gemini-powered chatbot for student support (blocked during exams).
-- **Guided Tours**: Role-based onboarding tours powered by Shepherd.js.
+- **F1: Secure Login & Role-Based Redirect** (JWT, single-session enforcement)
+- **F2: Email Verification** (SMTP integration, verification tokens)
+- **F3: Password Reset Via Email** (forgot-password workflow)
+- **F4: Profile Management** (WebP avatar upload, edit profile, change password and reset tour guide)
+- **F5: Public Registration** (Student or Tutor role selection)
+- **F6: Course Management & Enrollment** (CRUD, bulk review, enroll/drop)
+- **F7: File Sharing** (Course Materials)
+- **F8: Announcements** (post, feed, priority pinning)
+- **F9: Assignment Management System** (task lifecycle, ZIP bulk export)
+- **F10: Notifications** (In-app and email) & Advanced Enrollment Polish
+- **F11: Exam Management & Notifications** (CRUD, publish workflow, reminders)
+- **F12: Re-Attempt Requests**
+- **F13: Question Bank Management** (Centralized course-level bank)
+- **F14/F15: Exam Engine + Secure Token** (countdown, navigator, auto-submit)
+- **F16: Exam Results & Auto-Grading** (confetti, per-question review)
+- **F17: Grade Management Panel** (bulk publish, CSV export)
+- **F18: Anti-Cheating Engine** contains:
+  - **18-1:** Pre-exam rules acknowledgment modal
+  - **18-2:** Keyboard shortcut blocking (CTRL+C, ... etc)
+  - **18-3:** Window resize / minimize / split detection
+  - **18-4:** Mouse monitoring (pattern analysis)
+  - **18-5:** Selection by mouse blocking
+  - **18-6:** Blocking Right click options to do operations
+  - **18-7:** Violation intelligence layer (severity + cooldown)
+  - **18-8:** Warning system and force-submit (3-strike escalation)
+  - **18-9:** Monitoring continuity on reconnect
+- **F19: Session timeline view**
+- **F20: Violation timeline view**
+- **F21: Tutor monitoring dashboard**
+- **F22: Admin dashboard and users management**
+- **F23: SHIELDON AI Assistant** (Gemini-powered chatbot, backend proxy, blocked during exams)
+- **F24: Shepherd.js onboarding tours** (Role-based guided tours)
+- **F25: SHIELDON AI Assistant** _(Integrated)_
+- **F26: Real-time Chat System**
+- **F27: Dynamic QR Attendance Tracking**
+- **F28: Calendar & Schedule View**
+- **F29: Online Payment Gateway**
+- **F30: Dark / Light mode**
+- **F31: English / Arabic**
 
 ---
 
@@ -118,60 +124,99 @@ If you are new to development and want to run this project on your own computer,
 
 ---
 
-## Installation & Setup
+## Installation & Setup (Step-by-Step Guide)
 
-Follow these steps in order to get the project running on your device.
+Follow these comprehensive steps in order to properly get the project running on your device from scratch.
 
 ### 1. Clone the Repository
+
 This downloads the project files to your computer.
-1. Open your computer's terminal (or Command Prompt on Windows).
-2. Type this command and press Enter:
+
+1. Open your computer's terminal (or Command Prompt / PowerShell on Windows).
+2. Run this command to download the code:
    ```bash
-   git clone https://github.com/[your-username]/shieldon-lms.git
+   git clone https://github.com/ahmed-samir-dev/SHIELDON.git
    ```
-3. Navigate into the project folder:
+3. Navigate into the newly created project folder:
    ```bash
-   cd shieldon-lms
+   cd SHIELDON
    ```
 
-### 2. Backend Setup
-1. Navigate to the backend folder:
+### 2. Backend Database Configuration (CRUCIAL STEP)
+
+Before running the backend, you must configure it to connect to your local SQL Server.
+
+1. Navigate to the backend directory:
    ```bash
    cd backend
    ```
-2. Open the file `appsettings.json` (or `appsettings.Development.json`) in a text editor like Notepad or VS Code.
-3. Find the line that starts with `"DefaultConnection"` and update the connection string to point to your installed SQL Server instance. It usually looks something like this:
+2. Open the file `SHIELDON.API/appsettings.json` and `SHIELDON.API/appsettings.Development.json` in a text editor (like VS Code or Notepad).
+3. Locate the `"ConnectionStrings"` block. You must update the `"DefaultConnection"` string to match your local SQL Server instance name.
+   - **How to find your Server Name**: Open SQL Server Management Studio (SSMS). The prompt that asks you to connect will show the `Server name` (e.g., `DESKTOP-ABC123\SQLEXPRESS` or `(localdb)\MSSQLLocalDB`).
+   - **Update the string**: Replace the Server part of the connection string. Make sure you use double backslashes `\\` for escaping in JSON.
+
+   _Example of a correct connection string for SQL Express:_
+
    ```json
-   "DefaultConnection": "Server=YOUR_COMPUTER_NAME\\SQLEXPRESS;Database=SHIELDON_DB;Trusted_Connection=True;TrustServerCertificate=True;"
+   "ConnectionStrings": {
+     "DefaultConnection": "Server=YOUR_PC_NAME\\SQLEXPRESS;Database=SHIELDON_DB;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true;"
+   }
    ```
-4. Now, open your terminal in the `backend` folder and run this command to create all the database tables automatically:
+
+4. Save the file(s).
+
+### 3. Initialize and Update the Database
+
+Now we need to tell Entity Framework (the ORM) to build the tables in your SQL Server.
+
+1. Keep your terminal open in the `backend` folder (NOT inside `SHIELDON.API`).
+2. First, ensure you have the EF Core CLI tools installed globally on your machine. Run:
+   ```bash
+   dotnet tool install -g dotnet-ef
+   ```
+   _(If it says it is already installed, that's perfect!)_
+3. Now, run the magical command to apply all migrations and build your database schema from scratch:
    ```bash
    dotnet ef database update --project SHIELDON.Infrastructure --startup-project SHIELDON.API
    ```
-   *(Note: If the terminal says command not found, install the tool first by running: `dotnet tool install -g dotnet-ef`)*
-5. Finally, start the backend API:
+4. **Verification**: Open SSMS, connect to your server, expand "Databases", and you should now see `SHIELDON_DB` with all the tables created!
+
+### 4. Run the Backend API
+
+1. Navigate into the API startup project folder:
    ```bash
    cd SHIELDON.API
+   ```
+2. Start the server:
+   ```bash
    dotnet run
    ```
-   The backend is now running! You can see the live documentation at `http://localhost:5000/swagger`.
+   _(Alternatively, if you want hot-reloading while making changes, use `dotnet watch run`)_
+3. The backend is now actively running! Open your browser and go to the live API documentation at:
+   👉 `http://localhost:5000/swagger`
+4. Keep this terminal window open.
 
-### 3. Frontend Setup
-1. Open a **new, separate** terminal window or tab (keep the backend terminal running).
-2. Navigate to the frontend folder:
+### 5. Run the Frontend Application
+
+1. Open a **new, completely separate** terminal window or tab (you must leave the backend terminal running!).
+2. Navigate to the root `shieldon-lms` folder, then into the frontend directory:
    ```bash
-   cd frontend
+   cd path/to/shieldon-lms/frontend
    ```
-3. Install all the required libraries by running:
+3. Install all required third-party libraries (Node Modules):
    ```bash
    npm install
    ```
-   *(This may take a minute or two as it downloads everything needed).*
-4. Start the frontend application:
+   _(This may take a couple of minutes depending on your internet connection)._
+4. Start the Angular development server:
    ```bash
    npm start
    ```
-5. Open your web browser and go to `http://localhost:4201`. You should see the SHIELDON landing page!
+5. Wait until the terminal says the compilation was successful.
+6. Finally, open your web browser and go to:
+   👉 `http://localhost:4201`
+
+**Congratulations! You are now running SHIELDON on your local machine!**
 
 ---
 
@@ -180,12 +225,16 @@ This downloads the project files to your computer.
 To test the different roles in the system, follow these instructions:
 
 ### 1. Test as Admin
+
 The system comes with a pre-seeded Admin account (you cannot register an Admin account via the app for security reasons).
+
 - **Email**: `admin@shieldon.com`
 - **Password**: `Admin@Shieldon2025!`
 
 ### 2. Test as Tutor or Student
+
 To test the Tutor or Student roles and experience the registration flow:
+
 1. Go to the landing page and click on **Register** (or go to `/register`).
 2. Fill in the details and select the role you want to test (**Tutor** or **Student**).
 3. Complete the registration. You can now log in with the account you just created!
@@ -194,42 +243,10 @@ To test the Tutor or Student roles and experience the registration flow:
 
 ## API Endpoints Reference
 
-The following API modules are implemented and available for interaction:
+The backend exposes a comprehensive RESTful API for all system functions (Authentication, Courses, Exams, Chat, Payments, etc.).
 
-### Authentication & Account
-- `POST /api/auth/login` - Authenticate user & return JWT tokens.
-- `POST /api/auth/register` - Create a new user account.
-- `POST /api/auth/verify-email` - Validate email verification token.
-- `POST /api/auth/forgot-password` - Initiate password reset.
-- `POST /api/auth/reset-password` - Complete password reset.
-- `POST /api/auth/refresh` - Refresh expired access tokens.
-
-### User Profile
-- `GET /api/profile` - Get current user profile details.
-- `PATCH /api/profile` - Update profile information.
-- `POST /api/profile/picture` - Upload a profile avatar (WebP).
-
-### Learning Management
-- `GET /api/courses` - List courses (supports paging and filtering).
-- `POST /api/courses` - Create a new course (Tutor/Admin).
-- `POST /api/courses/{id}/enroll` - Enroll a student in a course.
-- `GET /api/materials` - List course materials and files.
-- `GET /api/announcements` - Fetch course announcements.
-- `GET /api/assignments` - List assignments and submissions.
-
-### Examination & Integrity
-- `GET /api/exams` - List scheduled exams.
-- `POST /api/exams` - Create a new exam.
-- `GET /api/coursequestionbank` - Manage course question bank.
-- `POST /api/examattempts` - Start an exam attempt.
-- `POST /api/violations` - Log an anti-cheat violation.
-- `GET /api/examresults` - Fetch graded exam results.
-- `GET /api/reattempt` - Manage re-attempt requests.
-
-### Miscellaneous
-- `GET /api/notifications` - Fetch user notifications.
-- `GET /api/monitoring` - Fetch data for dashboards.
-- `POST /api/ai/chat` - Interact with the SHIELDON AI Assistant.
+For a complete, interactive list of all API endpoints and their required payloads, please run the backend locally and visit the automatically generated Swagger documentation at:
+👉 `http://localhost:5000/swagger/index.html`
 
 ---
 
@@ -245,4 +262,4 @@ To keep the project organized, we follow a simple Git workflow:
 
 ---
 
-*SHIELDON - "Integrity You Can Trust"*
+_SHIELDON - "Integrity You Can Trust"_

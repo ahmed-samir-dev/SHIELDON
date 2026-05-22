@@ -42,29 +42,38 @@ If you have zero previous technical background and want to run the frontend part
 
 ---
 
-## Installation & Setup
+## Installation & Setup (Step-by-Step Guide)
 
-Follow these steps to get the frontend running:
+> ⚠️ **CRITICAL REQUIREMENT:** The SHIELDON Frontend **cannot function without the Backend API**. You MUST complete the backend database setup and have the backend API running before you can log in or use the frontend. See the root `README.md` for full database configuration steps.
 
-1. Open your terminal (or Command Prompt on Windows).
+Follow these comprehensive steps to get the frontend running:
+
+### 1. Ensure Backend is Running
+1. Verify that your SQL Server is running.
+2. Verify that the `.NET 9` backend is actively running (usually on `http://localhost:5000`).
+3. **Keep the backend terminal open** in the background.
+
+### 2. Run the Frontend Application
+1. Open a **new, completely separate** terminal window (or Command Prompt / PowerShell).
 2. Navigate to the frontend directory of the project:
    ```bash
    cd path/to/SHIELDON/frontend
    ```
-3. Install all the required libraries and dependencies:
+3. Install all the required Node modules and dependencies:
    ```bash
    npm install
    ```
-   *(This may take a minute or two as it downloads the required packages).*
-4. Start the frontend development server:
+   *(This may take a couple of minutes depending on your internet connection as it downloads Angular and all required UI libraries).*
+4. Start the Angular development server:
    ```bash
    npm start
    ```
-5. Once the terminal says the build is complete, open your web browser and go to:
-   ```
-   http://localhost:4201
-   ```
-   *(The port might differ if 4201 is occupied; the terminal will show the exact address).*
+5. Wait until the terminal says "Compiled successfully".
+6. Finally, open your web browser and go to:
+   👉 `http://localhost:4201`
+   *(Note: The port is explicitly set to 4201 to avoid conflicts).*
+
+**Congratulations! The frontend is now running and talking to your local backend.**
 
 ---
 
@@ -98,16 +107,47 @@ src/app/
 
 ---
 
-## Features Implemented
+## 🚀 Comprehensive Feature List (F1 - F31)
 
-- **Dynamic Landing Page**: Premium SaaS-style layout with glassmorphism effects.
-- **Secure Auth Portal**: Role-based access, email verification, and strong password validation.
-- **LMS Course Hub**: Tabbed view for accessing course materials and files.
-- **Secure Exam Engine**: Split Screen detection, timer countdown, and question navigator.
-- **Anti-Cheat Enforcement**: Native browser event tracking (Tab blur, resize, copy/paste blocks).
-- **Visual Dashboards**: Interactive charts for monitoring student performance and violations.
-- **In-App Notifications**: Real-time feedback for enrollment and exam events.
-- **Onboarding Tours**: Guided step-by-step tours for new users.
+- **F1: Secure Login & Role-Based Redirect** (JWT, single-session enforcement)
+- **F2: Email Verification** (SMTP integration, verification tokens)
+- **F3: Password Reset Via Email** (forgot-password workflow)
+- **F4: Profile Management** (WebP avatar upload, edit profile, change password and reset tour guide)
+- **F5: Public Registration** (Student or Tutor role selection)
+- **F6: Course Management & Enrollment** (CRUD, bulk review, enroll/drop)
+- **F7: File Sharing** (Course Materials)
+- **F8: Announcements** (post, feed, priority pinning)
+- **F9: Assignment Management System** (task lifecycle, ZIP bulk export)
+- **F10: Notifications** (In-app and email) & Advanced Enrollment Polish
+- **F11: Exam Management & Notifications** (CRUD, publish workflow, reminders)
+- **F12: Re-Attempt Requests**
+- **F13: Question Bank Management** (Centralized course-level bank)
+- **F14/F15: Exam Engine + Secure Token** (countdown, navigator, auto-submit)
+- **F16: Exam Results & Auto-Grading** (confetti, per-question review)
+- **F17: Grade Management Panel** (bulk publish, CSV export)
+- **F18: Anti-Cheating Engine** contains:
+  - **18-1:** Pre-exam rules acknowledgment modal
+  - **18-2:** Keyboard shortcut blocking (CTRL+C, ... etc)
+  - **18-3:** Window resize / minimize / split detection
+  - **18-4:** Mouse monitoring (pattern analysis)
+  - **18-5:** Selection by mouse blocking
+  - **18-6:** Blocking Right click options to do operations
+  - **18-7:** Violation intelligence layer (severity + cooldown)
+  - **18-8:** Warning system and force-submit (3-strike escalation)
+  - **18-9:** Monitoring continuity on reconnect
+- **F19: Session timeline view**
+- **F20: Violation timeline view**
+- **F21: Tutor monitoring dashboard**
+- **F22: Admin dashboard and users management**
+- **F23: SHIELDON AI Assistant** (Gemini-powered chatbot, backend proxy, blocked during exams)
+- **F24: Shepherd.js onboarding tours** (Role-based guided tours)
+- **F25: SHIELDON AI Assistant** *(Integrated)*
+- **F26: Real-time Chat System**
+- **F27: Dynamic QR Attendance Tracking**
+- **F28: Calendar & Schedule View**
+- **F29: Online Payment Gateway**
+- **F30: Dark / Light mode**
+- **F31: English / Arabic**
 
 ---
 

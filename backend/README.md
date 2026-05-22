@@ -47,36 +47,58 @@ If you have zero previous technical background and want to run the backend part 
 
 ---
 
-## Installation & Setup
+## Installation & Setup (Step-by-Step Guide)
 
-Follow these steps to get the backend running:
+Follow these comprehensive steps in order to properly get the backend running on your device from scratch.
 
-1. Open your terminal (or Command Prompt on Windows).
-2. Navigate to the backend directory of the project:
+### 1. Database Configuration (CRUCIAL STEP)
+Before running the backend, you must configure it to connect to your local SQL Server.
+
+1. Open your terminal and navigate to the backend directory:
    ```bash
    cd path/to/SHIELDON/backend
    ```
-3. Open the file `appsettings.json` in a text editor like Notepad or VS Code.
-4. Find the `"DefaultConnection"` line and update the connection string to point to your installed SQL Server instance. It usually looks like this:
+2. Open the file `SHIELDON.API/appsettings.json` and `SHIELDON.API/appsettings.Development.json` in a text editor (like VS Code or Notepad).
+3. Locate the `"ConnectionStrings"` block. You must update the `"DefaultConnection"` string to match your local SQL Server instance name.
+   - **How to find your Server Name**: Open SQL Server Management Studio (SSMS). The prompt that asks you to connect will show the `Server name` (e.g., `DESKTOP-ABC123\SQLEXPRESS` or `(localdb)\MSSQLLocalDB`).
+   - **Update the string**: Replace the Server part of the connection string. Make sure you use double backslashes `\\` for escaping in JSON.
+   
+   *Example of a correct connection string for SQL Express:*
    ```json
-   "DefaultConnection": "Server=YOUR_COMPUTER_NAME\\SQLEXPRESS;Database=SHIELDON_DB;Trusted_Connection=True;TrustServerCertificate=True;"
+   "ConnectionStrings": {
+     "DefaultConnection": "Server=YOUR_PC_NAME\\SQLEXPRESS;Database=SHIELDON_DB;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=true;"
+   }
    ```
-5. Open your terminal in the `backend` folder and run this command to create all the database tables automatically:
+4. Save the file(s).
+
+### 2. Initialize and Update the Database
+Now we need to tell Entity Framework (the ORM) to build the tables in your SQL Server.
+
+1. Keep your terminal open in the `backend` folder (NOT inside `SHIELDON.API`).
+2. First, ensure you have the EF Core CLI tools installed globally on your machine. Run:
+   ```bash
+   dotnet tool install -g dotnet-ef
+   ```
+   *(If it says it is already installed, that's perfect!)*
+3. Now, run the magical command to apply all migrations and build your database schema from scratch:
    ```bash
    dotnet ef database update --project SHIELDON.Infrastructure --startup-project SHIELDON.API
    ```
-   *(Note: If the terminal says command not found, install the tool first by running: `dotnet tool install -g dotnet-ef`)*
-6. Finally, start the backend API:
+4. **Verification**: Open SSMS, connect to your server, expand "Databases", and you should now see `SHIELDON_DB` with all the tables created!
+
+### 3. Run the Backend API
+1. Navigate into the API startup project folder:
    ```bash
    cd SHIELDON.API
+   ```
+2. Start the server:
+   ```bash
    dotnet run
    ```
-7. The backend is now running! You can see the live documentation and test endpoints at:
-   ```
-   http://localhost:5000/swagger
-   ```
-
----
+   *(Alternatively, if you want hot-reloading while making changes, use `dotnet watch run`)*
+3. The backend is now actively running! Open your browser and go to the live API documentation at:
+   👉 `http://localhost:5000/swagger`
+4. Keep this terminal window open if you plan to run the frontend simultaneously.
 
 ## Architecture & Layers
 
@@ -91,39 +113,7 @@ The backend follows **Clean Architecture** principles to keep the code organized
 
 ## API Endpoints Reference
 
-The following API modules are implemented and available for interaction via Swagger:
+The backend exposes a comprehensive RESTful API for all system functions (Authentication, Courses, Exams, Chat, Payments, etc.). 
 
-### Authentication & Account
-- `POST /api/auth/login` - Authenticate user & return JWT tokens.
-- `POST /api/auth/register` - Create a new user account.
-- `POST /api/auth/verify-email` - Validate email verification token.
-- `POST /api/auth/forgot-password` - Initiate password reset.
-- `POST /api/auth/reset-password` - Complete password reset.
-- `POST /api/auth/refresh` - Refresh expired access tokens.
-
-### User Profile
-- `GET /api/profile` - Get current user profile details.
-- `PATCH /api/profile` - Update profile information.
-- `POST /api/profile/picture` - Upload a profile avatar (WebP).
-
-### Learning Management
-- `GET /api/courses` - List courses (supports paging and filtering).
-- `POST /api/courses` - Create a new course (Tutor/Admin).
-- `POST /api/courses/{id}/enroll` - Enroll a student in a course.
-- `GET /api/materials` - List course materials and files.
-- `GET /api/announcements` - Fetch course announcements.
-- `GET /api/assignments` - List assignments and submissions.
-
-### Examination & Integrity
-- `GET /api/exams` - List scheduled exams.
-- `POST /api/exams` - Create a new exam.
-- `GET /api/coursequestionbank` - Manage course question bank.
-- `POST /api/examattempts` - Start an exam attempt.
-- `POST /api/violations` - Log an anti-cheat violation.
-- `GET /api/examresults` - Fetch graded exam results.
-- `GET /api/reattempt` - Manage re-attempt requests.
-
-### Miscellaneous
-- `GET /api/notifications` - Fetch user notifications.
-- `GET /api/monitoring` - Fetch data for dashboards.
-- `POST /api/ai/chat` - Interact with the SHIELDON AI Assistant.
+For a complete, interactive list of all API endpoints and their required payloads, please run the backend locally and visit the automatically generated Swagger documentation at:
+👉 `http://localhost:5000/swagger/index.html`
