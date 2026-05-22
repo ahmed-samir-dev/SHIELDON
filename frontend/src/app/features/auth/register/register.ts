@@ -6,15 +6,17 @@ import { AuthService } from '../../../core/services/auth.service';
 import { UserRole } from '../../../core/models/user-role.enum';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslateModule],
   templateUrl: './register.html',
   styleUrl: './register.scss'
 })
 export class Register {
+  private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -22,6 +24,7 @@ export class Register {
 
   isLoading = signal(false);
   showPassword = signal(false);
+  showConfirmPassword = signal(false);
   errorMessage = signal<string | null>(null);
   
   // Available roles for registration
@@ -45,6 +48,10 @@ export class Register {
 
   togglePassword(): void {
     this.showPassword.update(v => !v);
+  }
+
+  toggleConfirmPassword(): void {
+    this.showConfirmPassword.update(v => !v);
   }
 
   selectRole(role: UserRole): void {
@@ -74,11 +81,11 @@ export class Register {
       next: () => {
         this.isLoading.set(false);
         Swal.fire({
-          title: 'Account Created!',
-          text: 'We have sent a verification link to your email. Please verify your account before logging in.',
+          title: this.translate.instant('REGISTER.TOAST_SUCCESS_TITLE'),
+          text: this.translate.instant('REGISTER.TOAST_SUCCESS', { name: formValue.firstName }),
           icon: 'success',
           iconColor: 'var(--color-success-base)',
-          confirmButtonText: 'Proceed to Login',
+          confirmButtonText: this.translate.instant('REGISTER.LOG_IN'),
           confirmButtonColor: 'var(--color-primary-base)',
           background: 'var(--color-neutral-white)',
           color: 'var(--color-neutral-900)',

@@ -10,10 +10,10 @@
           <div class="icon-wrapper">
           <lucide-icon [img]="icons.CalendarIcon" class="title-icon"></lucide-icon>
         </div>
-        <span>Calendar & Schedule</span>
+        <span>{{ 'CALENDAR_VIEW.TITLE' | translate }}</span>
       </h1>
       <p class="page-subtitle">
-          View and manage your exams, assignments, and custom events across all courses in one unified interface.
+          {{ 'CALENDAR_VIEW.SUBTITLE' | translate }}
         </p>
       </div>
 
@@ -24,7 +24,7 @@
         (click)="openModal()"
         class="btn-primary">
         <lucide-icon [img]="icons.Plus" class="btn-icon"></lucide-icon>
-        <span>New Event</span>
+        <span>{{ 'CALENDAR_VIEW.BTN_NEW_EVENT' | translate }}</span>
       </button>
     </div>
     </div>
@@ -32,22 +32,22 @@
 
   <!-- Legend -->
   <div class="calendar-legend">
-    <span class="legend-label">Legend:</span>
+    <span class="legend-label">{{ 'CALENDAR_VIEW.LEGEND_LABEL' | translate }}</span>
     <div class="legend-item legend-exam">
       <div class="legend-dot dot-exam"></div>
-      <span class="legend-text">Exams</span>
+      <span class="legend-text">{{ 'CALENDAR_VIEW.LEGEND_EXAM' | translate }}</span>
     </div>
     <div class="legend-item legend-assignment">
       <div class="legend-dot dot-assignment"></div>
-      <span class="legend-text">Assignments</span>
+      <span class="legend-text">{{ 'CALENDAR_VIEW.LEGEND_ASSIGNMENT' | translate }}</span>
     </div>
     <div class="legend-item legend-custom">
       <div class="legend-dot dot-custom"></div>
-      <span class="legend-text">Course Event</span>
+      <span class="legend-text">{{ 'CALENDAR_VIEW.LEGEND_COURSE_EVENT' | translate }}</span>
     </div>
     <div class="legend-item legend-global">
       <div class="legend-dot dot-global"></div>
-      <span class="legend-text">Global Event</span>
+      <span class="legend-text">{{ 'CALENDAR_VIEW.LEGEND_GLOBAL_EVENT' | translate }}</span>
     </div>
   </div>
 
@@ -60,7 +60,7 @@
         <div class="spinner-pulse"></div>
         <div class="spinner-ring"></div>
       </div>
-      <span class="loading-text">Syncing events...</span>
+      <span class="loading-text">{{ 'CALENDAR_VIEW.LOADING' | translate }}</span>
     </div>
 
     <!-- FullCalendar -->

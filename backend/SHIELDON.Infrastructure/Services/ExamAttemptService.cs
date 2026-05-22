@@ -112,7 +112,7 @@ public class ExamAttemptService : IExamAttemptService
             selectedQuestions.AddRange(bankQuestions.Take(rule.Count));
         }
 
-        // ── Final cross-type shuffle — ensures MCQ/TF/SA are interleaved randomly ──
+        // ── Final cross-type shuffle - ensures MCQ/TF/SA are interleaved randomly ──
         for (int i = selectedQuestions.Count - 1; i > 0; i--)
         {
             int j = RandomNumberGenerator.GetInt32(i + 1);

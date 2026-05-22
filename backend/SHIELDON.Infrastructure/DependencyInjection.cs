@@ -4,6 +4,7 @@ using SHIELDON.Application.Features.Payment.Interfaces;
 using SHIELDON.Infrastructure.BackgroundServices;
 using SHIELDON.Infrastructure.Persistence;
 using SHIELDON.Infrastructure.Services;
+using SHIELDON.Infrastructure.Data.Interceptors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,8 +23,14 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        // ── Singletons ───────────────────────────────────────────────────
+        services.AddSingleton<AutoTranslationInterceptor>();
+        services.AddSingleton<TranslationMaterializationInterceptor>();
+        services.AddHttpContextAccessor();
+
         // ── Database ──────────────────────────────────────────────────────
-        services.AddDbContext<AppDbContext>(options =>
+        services.AddDbContext<AppDbContext>((sp, options) =>
+        {
             options.UseSqlServer(
                 configuration.GetConnectionString("DefaultConnection"),
                 sqlOptions =>
@@ -36,7 +43,13 @@ public static class DependencyInjection
 
                     // Fail fast if a query takes too long
                     sqlOptions.CommandTimeout(30);
-                }));
+                });
+
+            // Register our Translation Interceptors
+            var autoInterceptor = sp.GetRequiredService<AutoTranslationInterceptor>();
+            var matInterceptor = sp.GetRequiredService<TranslationMaterializationInterceptor>();
+            options.AddInterceptors(autoInterceptor, matInterceptor);
+        });
 
         // ── Services ──────────────────────────────────────────────────────
         services.AddScoped<IAuthService, AuthService>();
@@ -62,11 +75,15 @@ public static class DependencyInjection
         services.AddScoped<IAttendanceService, AttendanceService>();
         services.AddScoped<ICalendarService, CalendarService>();
         services.AddScoped<IPaymentService, PaymentService>();
+        services.AddScoped<ICurrentLanguageProvider, CurrentLanguageProvider>();
         services.AddSingleton<PresenceTracker>();
 
         // ── HTTP Clients ───────────────────────────────────────────────────
         // Named client used by AIService to call the Gemini REST API
         services.AddHttpClient("Gemini");
+
+        // Register Free Translation API
+        services.AddHttpClient<ITranslationService, LingvaTranslationService>();
 
         // ── Background Services ────────────────────────────────────────────
         services.AddHostedService<ExamReminderBackgroundService>();

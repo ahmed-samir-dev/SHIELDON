@@ -4,7 +4,7 @@ namespace SHIELDON.Application.Interfaces;
 
 /// <summary>
 /// Defines all monitoring operations for the post-exam analytics dashboard.
-/// Dashboards load on demand when the page is navigated to — no real-time polling.
+/// Dashboards load on demand when the page is navigated to - no real-time polling.
 /// </summary>
 public interface IMonitoringService
 {
@@ -23,7 +23,7 @@ public interface IMonitoringService
 
     /// <summary>
     /// Returns the tutor dashboard: per-exam summary cards and paginated submission history.
-    /// Data is computed fresh on each request — no caching or polling.
+    /// Data is computed fresh on each request - no caching or polling.
     /// </summary>
     Task<TutorDashboardResponse> GetTutorDashboardAsync(
         Guid tutorId,

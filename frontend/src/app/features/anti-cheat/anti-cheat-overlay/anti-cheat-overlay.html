@@ -4,17 +4,17 @@
   <div class="strike-overlay final-warning-overlay" *ngIf="antiCheat.strikeLevel() === 2">
     <div class="overlay-content">
       <lucide-angular [img]="Eye" class="icon pulse-icon" size="64"></lucide-angular>
-      <h1>FINAL WARNING</h1>
-      <p class="subtitle">You have accumulated {{ antiCheat.strikeScore() | number:'1.2-2' }} violation points.</p>
+      <h1>{{ 'ANTI_CHEAT_OVERLAY.FINAL_WARNING' | translate }}</h1>
+      <p class="subtitle">{{ ('ANTI_CHEAT_OVERLAY.VIOLATION_POINTS' | translate).replace('{score}', (antiCheat.strikeScore() | number:'1.2-2') || '0') }}</p>
       <div class="rules-reminder">
-        <p>This is your last warning before automatic exam submission. To continue:</p>
+        <p>{{ 'ANTI_CHEAT_OVERLAY.LAST_WARNING' | translate }}</p>
         <ul>
-          <li>Stay in fullscreen mode</li>
-          <li>Do not switch tabs or windows</li>
-          <li>Do not use keyboard shortcuts</li>
+          <li>{{ 'ANTI_CHEAT_OVERLAY.RULE_FULLSCREEN' | translate }}</li>
+          <li>{{ 'ANTI_CHEAT_OVERLAY.RULE_TABS' | translate }}</li>
+          <li>{{ 'ANTI_CHEAT_OVERLAY.RULE_SHORTCUTS' | translate }}</li>
         </ul>
       </div>
-      <button class="btn btn-warning" (click)="antiCheat.dismissStrikeTwo()">I Understand - Return to Exam</button>
+      <button class="btn btn-warning" (click)="antiCheat.dismissStrikeTwo()">{{ 'ANTI_CHEAT_OVERLAY.BTN_UNDERSTAND' | translate }}</button>
     </div>
   </div>
 
@@ -22,11 +22,11 @@
   <div class="strike-overlay terminated-overlay" *ngIf="antiCheat.strikeLevel() >= 3">
     <div class="overlay-content">
       <lucide-angular [img]="ShieldAlert" class="icon shake-icon" size="64"></lucide-angular>
-      <h1>EXAM TERMINATED</h1>
-      <p class="subtitle">Maximum violations exceeded ({{ antiCheat.strikeScore() | number:'1.2-2' }} points).</p>
+      <h1>{{ 'ANTI_CHEAT_OVERLAY.EXAM_TERMINATED' | translate }}</h1>
+      <p class="subtitle">{{ ('ANTI_CHEAT_OVERLAY.MAX_VIOLATIONS' | translate).replace('{score}', (antiCheat.strikeScore() | number:'1.2-2') || '0') }}</p>
       <div class="rules-reminder">
-        <p>Your exam is being <strong>automatically submitted</strong> due to multiple integrity violations.</p>
-        <p style="margin-top: 8px; font-size: 0.9rem; opacity: 0.8;">Submitting your exam and saving all answers...</p>
+        <p [innerHTML]="'ANTI_CHEAT_OVERLAY.AUTO_SUBMITTING' | translate"></p>
+        <p style="margin-top: 8px; font-size: 0.9rem; opacity: 0.8;">{{ 'ANTI_CHEAT_OVERLAY.SAVING_ANSWERS' | translate }}</p>
       </div>
       <div class="progress-bar">
         <div class="progress-fill"></div>

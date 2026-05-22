@@ -1,15 +1,22 @@
+using SHIELDON.Domain.Common;
+
 namespace SHIELDON.Domain.Entities;
 
 /// <summary>
 /// Represents a custom event created by an Admin or Tutor.
 /// Nullable CourseId means it's a global system event.
 /// </summary>
-public class CustomEvent
+public class CustomEvent : ITranslatable
 {
     public Guid Id { get; set; }
     
+    [Translatable]
     public string Title { get; set; } = string.Empty;
+    
+    [Translatable]
     public string? Description { get; set; }
+
+    public string? Translations { get; set; }
     
     public DateTime EventDate { get; set; }
     public DateTime? EventEndDate { get; set; }

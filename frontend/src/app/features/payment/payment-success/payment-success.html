@@ -4,15 +4,15 @@
       <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
     </div>
     
-    <h2>Payment Successful!</h2>
-    <p>Thank you for your payment. Your transaction has been completed and your course access is fully secured.</p>
+    <h2>{{ 'PAYMENT_SUCCESS.TITLE' | translate }}</h2>
+    <p>{{ 'PAYMENT_SUCCESS.DESC' | translate }}</p>
     
     <div class="action-buttons">
       <button (click)="goToDashboard()" class="btn btn-primary">
-        Go to Courses
+        {{ 'PAYMENT_SUCCESS.BTN_COURSES' | translate }}
       </button>
       <a routerLink="/payment-hub" class="btn btn-secondary">
-        Return to Payment Hub
+        {{ 'PAYMENT_SUCCESS.BTN_HUB' | translate }}
       </a>
     </div>
   </div>

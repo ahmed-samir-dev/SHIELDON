@@ -7,11 +7,12 @@ import type { EChartsOption } from 'echarts';
 import { MonitoringService, AttemptTimelineResponse, ViolationSummaryResponse } from '../../../core/services/monitoring.service';
 import { ThemeService } from '../../../core/services/theme.service';
 import { environment } from '../../../../environments/environment';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-attempt-detail',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule, NgxEchartsModule],
+  imports: [CommonModule, RouterModule, LucideAngularModule, NgxEchartsModule, TranslateModule],
   templateUrl: './attempt-detail.html',
   styleUrl: './attempt-detail.scss'
 })
@@ -20,6 +21,7 @@ export class AttemptDetailComponent implements OnInit {
   private router = inject(Router);
   private monitoring = inject(MonitoringService);
   private themeService = inject(ThemeService);
+  public translate = inject(TranslateService);
   apiUrl = environment.apiUrl.replace('/api', '');
 
   // Icons
@@ -65,7 +67,11 @@ export class AttemptDetailComponent implements OnInit {
         axisPointer: { type: 'shadow' }
       },
       legend: {
-        data: ['Critical', 'Medium', 'Minor'],
+        data: [
+          this.translate.instant('ATTEMPT_DETAIL.CHART_LEGEND_CRITICAL'),
+          this.translate.instant('ATTEMPT_DETAIL.CHART_LEGEND_MEDIUM'),
+          this.translate.instant('ATTEMPT_DETAIL.CHART_LEGEND_MINOR')
+        ],
         bottom: 0,
         textStyle: { color: textColor }
       },
@@ -91,21 +97,21 @@ export class AttemptDetailComponent implements OnInit {
       },
       series: [
         {
-          name: 'Critical',
+          name: this.translate.instant('ATTEMPT_DETAIL.CHART_LEGEND_CRITICAL'),
           type: 'bar',
           stack: 'total',
           data: critical,
           itemStyle: { color: '#ef4444' }
         },
         {
-          name: 'Medium',
+          name: this.translate.instant('ATTEMPT_DETAIL.CHART_LEGEND_MEDIUM'),
           type: 'bar',
           stack: 'total',
           data: medium,
           itemStyle: { color: '#f97316' }
         },
         {
-          name: 'Minor',
+          name: this.translate.instant('ATTEMPT_DETAIL.CHART_LEGEND_MINOR'),
           type: 'bar',
           stack: 'total',
           data: minor,
@@ -118,7 +124,7 @@ export class AttemptDetailComponent implements OnInit {
   ngOnInit() {
     const attemptId = this.route.snapshot.paramMap.get('attemptId');
     if (!attemptId) {
-      this.error.set('No attempt ID provided.');
+      this.error.set(this.translate.instant('ATTEMPT_DETAIL.ERR_NO_ID'));
       this.loading.set(false);
       return;
     }
@@ -148,7 +154,7 @@ export class AttemptDetailComponent implements OnInit {
       error: () => {
         if (!hasError) {
           hasError = true;
-          this.error.set('Failed to load attempt timeline.');
+          this.error.set(this.translate.instant('ATTEMPT_DETAIL.ERR_LOAD_TIMELINE'));
           this.loading.set(false);
         }
       }
@@ -163,7 +169,7 @@ export class AttemptDetailComponent implements OnInit {
       error: () => {
         if (!hasError) {
           hasError = true;
-          this.error.set('Failed to load violation summary.');
+          this.error.set(this.translate.instant('ATTEMPT_DETAIL.ERR_LOAD_SUMMARY'));
           this.loading.set(false);
         }
       }

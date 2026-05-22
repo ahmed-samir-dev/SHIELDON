@@ -27,7 +27,7 @@ public record BatchViolationRequest(List<ViolationLogRequest> Violations);
 // ── Outbound: API → Tutor/Admin ────────────────────────────────────────────────
 
 /// <summary>
-/// Summary of a single violation log record — returned to Tutor/Admin dashboards.
+/// Summary of a single violation log record - returned to Tutor/Admin dashboards.
 /// </summary>
 public record ViolationLogResponse(
     Guid Id,
@@ -46,7 +46,7 @@ public record ViolationLogResponse(
 );
 
 /// <summary>
-/// Aggregated violation summary for one student's attempt — used in the
+/// Aggregated violation summary for one student's attempt - used in the
 /// tutor monitoring dashboard to quickly assess the integrity of an attempt.
 /// </summary>
 public record AttemptViolationSummary(

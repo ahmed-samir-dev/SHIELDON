@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { LucideAngularModule, Activity, Users, ShieldAlert, FileText, Monitor, CheckCircle, TrendingUp, AlertTriangle } from 'lucide-angular';
@@ -6,18 +6,24 @@ import { NgxEchartsModule } from 'ngx-echarts';
 import type { EChartsOption } from 'echarts';
 import { MonitoringService, AdminDashboardResponse, ExamStatisticsRow } from '../../../core/services/monitoring.service';
 import { ThemeService } from '../../../core/services/theme.service';
+import { LanguageService } from '../../../core/services/language.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule, NgxEchartsModule],
+  imports: [CommonModule, RouterModule, LucideAngularModule, NgxEchartsModule, TranslateModule],
   templateUrl: './admin-dashboard.html',
   styleUrls: ['./admin-dashboard.scss']
 })
-export class AdminDashboardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit, OnDestroy {
   private monitoring = inject(MonitoringService);
   private router = inject(Router);
   private themeService = inject(ThemeService);
+  private languageService = inject(LanguageService);
+  public translate = inject(TranslateService);
+  private langSub!: Subscription;
 
   // Icons
   Activity = Activity;
@@ -62,7 +68,7 @@ export class AdminDashboardComponent implements OnInit {
     return {
       tooltip: { trigger: 'axis' },
       legend: { 
-        data: ['Exams Taken', 'Violations'], 
+        data: [this.translate.instant('ADMIN_DASHBOARD.CHART_LEGEND_EXAMS'), this.translate.instant('ADMIN_DASHBOARD.CHART_LEGEND_VIOLATIONS')], 
         bottom: 0,
         textStyle: { color: textColor }
       },
@@ -82,7 +88,7 @@ export class AdminDashboardComponent implements OnInit {
       },
       series: [
         {
-          name: 'Exams Taken',
+          name: this.translate.instant('ADMIN_DASHBOARD.CHART_LEGEND_EXAMS'),
           type: 'line',
           smooth: true,
           data: exams,
@@ -98,7 +104,7 @@ export class AdminDashboardComponent implements OnInit {
           }
         },
         {
-          name: 'Violations',
+          name: this.translate.instant('ADMIN_DASHBOARD.CHART_LEGEND_VIOLATIONS'),
           type: 'line',
           smooth: true,
           data: violations,
@@ -139,7 +145,7 @@ export class AdminDashboardComponent implements OnInit {
       },
       series: [
         {
-          name: 'Count',
+          name: this.translate.instant('ADMIN_DASHBOARD.CHART_SERIES_COUNT'),
           type: 'bar',
           data: counts,
           itemStyle: { 
@@ -240,7 +246,7 @@ export class AdminDashboardComponent implements OnInit {
       legend: { show: false },
       series: [
         {
-          name: 'Violations',
+          name: this.translate.instant('ADMIN_DASHBOARD.CHART_LEGEND_VIOLATIONS'),
           type: 'pie',
           radius: ['40%', '70%'],
           center: ['50%', '50%'],
@@ -286,9 +292,9 @@ export class AdminDashboardComponent implements OnInit {
           itemStyle: { borderRadius: 8, borderColor: borderColor, borderWidth: 2 },
           label: { show: false },
           data: [
-            { value: sumSubmitted, name: 'Normal', itemStyle: { color: '#10b981' } },
-            { value: sumInProgress, name: 'Active', itemStyle: { color: '#3b82f6' } },
-            { value: sumForceSubmitted, name: 'Terminated', itemStyle: { color: '#ef4444' } }
+            { value: sumSubmitted, name: this.translate.instant('ADMIN_DASHBOARD.CHART_LEGEND_NORMAL'), itemStyle: { color: '#10b981' } },
+            { value: sumInProgress, name: this.translate.instant('ADMIN_DASHBOARD.CHART_LEGEND_ACTIVE'), itemStyle: { color: '#3b82f6' } },
+            { value: sumForceSubmitted, name: this.translate.instant('ADMIN_DASHBOARD.CHART_LEGEND_TERMINATED'), itemStyle: { color: '#ef4444' } }
           ]
         }
       ]
@@ -297,6 +303,11 @@ export class AdminDashboardComponent implements OnInit {
 
   ngOnInit() {
     this.loadDashboard();
+    this.langSub = this.languageService.languageChange$.subscribe(() => this.loadDashboard());
+  }
+
+  ngOnDestroy() {
+    this.langSub?.unsubscribe();
   }
 
   loadDashboard() {
@@ -310,7 +321,7 @@ export class AdminDashboardComponent implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set('Failed to load admin dashboard data.');
+        this.error.set(this.translate.instant('ADMIN_DASHBOARD.ERR_LOAD'));
         this.loading.set(false);
       }
     });

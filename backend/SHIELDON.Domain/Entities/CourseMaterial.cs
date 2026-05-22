@@ -1,4 +1,5 @@
 using SHIELDON.Domain.Enums;
+using SHIELDON.Domain.Common;
 
 namespace SHIELDON.Domain.Entities;
 
@@ -6,7 +7,7 @@ namespace SHIELDON.Domain.Entities;
 /// Represents a file or external link shared by a Tutor within a course.
 /// Only enrolled students can access materials.
 /// </summary>
-public class CourseMaterial
+public class CourseMaterial : ITranslatable
 {
     public Guid Id { get; set; }
 
@@ -16,10 +17,14 @@ public class CourseMaterial
 
     // ── Content ──────────────────────────────────────────────────
     /// <summary>Display name shown to students (e.g., "Week 3 Lecture Slides").</summary>
+    [Translatable]
     public string Title { get; set; } = string.Empty;
 
     /// <summary>Optional longer description of the material's purpose.</summary>
+    [Translatable]
     public string? Description { get; set; }
+
+    public string? Translations { get; set; }
 
     /// <summary>Whether this material is an uploaded file or an external URL.</summary>
     public MaterialType MaterialType { get; set; }

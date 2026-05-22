@@ -10,7 +10,7 @@ namespace SHIELDON.API.Controllers;
 /// <summary>
 /// Anti-Cheating Engine violation persistence endpoints.
 ///
-/// Student: POST /api/violations/batch — sends violation batches during/after exam.
+/// Student: POST /api/violations/batch - sends violation batches during/after exam.
 /// Tutor/Admin: GET endpoints to inspect violations per attempt or per exam (Phase 5 UI).
 ///
 /// All endpoints require JWT authentication.

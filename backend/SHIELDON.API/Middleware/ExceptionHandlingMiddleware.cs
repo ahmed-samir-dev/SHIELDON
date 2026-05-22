@@ -10,7 +10,7 @@ namespace SHIELDON.API.Middleware;
 /// Catches all unhandled exceptions, maps them to the correct HTTP status code,
 /// and returns a consistent ApiResponse envelope.
 ///
-/// Why: Controllers should not catch exceptions — this middleware is the single safety net.
+/// Why: Controllers should not catch exceptions - this middleware is the single safety net.
 /// All domain exceptions map to specific HTTP status codes here.
 /// </summary>
 public class ExceptionHandlingMiddleware
@@ -81,11 +81,11 @@ public class ExceptionHandlingMiddleware
                 break;
 
             default:
-                // Unexpected error — log full details server-side, return generic message to client
+                // Unexpected error - log full details server-side, return generic message to client
                 statusCode = HttpStatusCode.InternalServerError;
                 message = "An unexpected error occurred. Please try again later.";
                 _logger.LogError(exception,
-                    "Unhandled exception: {ExceptionType} — {Message}",
+                    "Unhandled exception: {ExceptionType} - {Message}",
                     exception.GetType().Name,
                     exception.Message);
                 break;

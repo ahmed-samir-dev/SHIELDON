@@ -3,12 +3,12 @@
   <!-- ══ HEADER ══════════════════════════════════════════════════════ -->
   <div class="assignments-header">
     <div class="header-title">
-      <h2>Assignments</h2>
+      <h2>{{ 'COURSE_ASSIGNMENTS.TITLE' | translate }}</h2>
       <p class="subtitle">
         @if (canManage()) {
-          Create and manage assignments for your students.
+          {{ 'COURSE_ASSIGNMENTS.SUBTITLE_TUTOR' | translate }}
         } @else {
-          View and submit your work for course assignments.
+          {{ 'COURSE_ASSIGNMENTS.SUBTITLE_STUDENT' | translate }}
         }
       </p>
     </div>
@@ -19,7 +19,7 @@
           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
         </svg>
-        Create Assignment
+        {{ 'COURSE_ASSIGNMENTS.BTN_CREATE' | translate }}
       </button>
     }
   </div>
@@ -39,7 +39,7 @@
                 <line x1="12" x2="12" y1="3" y2="15" />
               </svg>
             </div>
-            <h2>Create Assignment</h2>
+            <h2>{{ 'COURSE_ASSIGNMENTS.MODAL_CREATE_TITLE' | translate }}</h2>
           </div>
           <button class="close-btn" (click)="closeCreateModal()" aria-label="Close modal">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -52,22 +52,22 @@
         <form [formGroup]="createForm" (ngSubmit)="submitCreateForm()" class="modal-body">
 
           <div class="form-group">
-            <label>Title <span class="required">*</span></label>
+            <label>{{ 'COURSE_ASSIGNMENTS.LABEL_TITLE' | translate }} <span class="required">*</span></label>
             <div class="input-wrapper">
               <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
               </svg>
-              <input type="text" formControlName="title" placeholder="e.g., Week 3 Homework"
+              <input type="text" formControlName="title" [placeholder]="'COURSE_ASSIGNMENTS.PLACEHOLDER_TITLE' | translate"
                 [class.is-invalid]="createForm.get('title')?.touched && createForm.get('title')?.invalid" />
             </div>
             @if (createForm.get('title')?.touched && createForm.get('title')?.errors?.['required']) {
-              <span class="error-msg">Title is required.</span>
+              <span class="error-msg">{{ 'COURSE_ASSIGNMENTS.ERR_TITLE_REQ' | translate }}</span>
             }
           </div>
 
           <div class="form-group">
-            <label>Instructions <span class="optional">(Optional)</span></label>            <div class="input-wrapper text-area-wrapper">
+            <label>{{ 'COURSE_ASSIGNMENTS.LABEL_INSTRUCTIONS' | translate }} <span class="optional">{{ 'COURSE_ASSIGNMENTS.LABEL_OPTIONAL' | translate }}</span></label>            <div class="input-wrapper text-area-wrapper">
               <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
@@ -75,13 +75,13 @@
                 <line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
               </svg>
               <textarea formControlName="instructions" rows="4"
-                placeholder="Describe the assignment, requirements, rubric, etc."></textarea>
+                [placeholder]="'COURSE_ASSIGNMENTS.PLACEHOLDER_INSTRUCTIONS' | translate"></textarea>
             </div>
           </div>
 
           <div class="form-row two-col-equal">
             <div class="form-group">
-              <label>Due Date <span class="optional">(Optional)</span></label>  <div class="datetime-premium-wrapper">
+              <label>{{ 'COURSE_ASSIGNMENTS.LABEL_DUE_DATE' | translate }} <span class="optional">{{ 'COURSE_ASSIGNMENTS.LABEL_OPTIONAL' | translate }}</span></label>  <div class="datetime-premium-wrapper">
                 <div class="icon-box-sm">
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -95,22 +95,22 @@
             </div>
 
             <div class="form-group">
-              <label>Weight (%) <span class="required">*</span></label>
+              <label>{{ 'COURSE_ASSIGNMENTS.LABEL_WEIGHT' | translate }} <span class="required">*</span></label>
               <div class="input-wrapper">
                 <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
               <input type="number" formControlName="weight" min="0" max="100" placeholder="e.g., 20"
                 [class.is-invalid]="createForm.get('weight')?.touched && createForm.get('weight')?.invalid" />
             </div>
             @if (createForm.get('weight')?.touched && createForm.get('weight')?.errors?.['required']) {
-              <span class="error-msg">Weight is required.</span>
+              <span class="error-msg">{{ 'COURSE_ASSIGNMENTS.ERR_WEIGHT_REQ' | translate }}</span>
             } @else if (createForm.get('weight')?.touched && (createForm.get('weight')?.errors?.['min'] || createForm.get('weight')?.errors?.['max'])) {
-              <span class="error-msg">Weight must be between 0 and 100.</span>
+              <span class="error-msg">{{ 'COURSE_ASSIGNMENTS.ERR_WEIGHT_MINMAX' | translate }}</span>
             }
             </div>
           </div>
 
           <div class="form-group">
-            <label>Reference File <span class="optional">(Optional)</span></label>            <div class="drop-zone" [class.dragging]="isDragging()"
+            <label>{{ 'COURSE_ASSIGNMENTS.LABEL_REF_FILE' | translate }} <span class="optional">{{ 'COURSE_ASSIGNMENTS.LABEL_OPTIONAL' | translate }}</span></label>            <div class="drop-zone" [class.dragging]="isDragging()"
               (dragover)="onDragOver($event)" (dragleave)="onDragLeave()" (drop)="onDrop($event, 'reference')">
               @if (selectedReferenceFile) {
                 <div class="file-selected-badge">
@@ -129,8 +129,8 @@
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                     <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
                   </svg>
-                  <span>Drop file here or <strong>click to browse</strong></span>
-  <span class="limits">Max size: 50 MB <br> Allowed types: PDF, Word, PPT, Excel, Image, ZIP</span>
+                  <span [innerHTML]="'COURSE_ASSIGNMENTS.BROWSE_DRAG' | translate"></span>
+  <span class="limits" [innerHTML]="'COURSE_ASSIGNMENTS.LIMITS_REF' | translate"></span>
   <input id="refFileInput" type="file" hidden
     accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.zip"
     (change)="onReferenceFileSelected($event)" />
@@ -140,12 +140,12 @@
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeCreateModal()" [disabled]="isSubmitting()">Cancel</button>
+            <button type="button" class="btn btn-secondary" (click)="closeCreateModal()" [disabled]="isSubmitting()">{{ 'COURSE_ASSIGNMENTS.BTN_CANCEL' | translate }}</button>
             <button type="submit" class="btn btn-primary" [disabled]="createForm.invalid || isSubmitting()">
               @if (isSubmitting()) {
-                <div class="loader-ring"></div><span>Creating...</span>
+                <div class="loader-ring"></div><span>{{ 'COURSE_ASSIGNMENTS.BTN_CREATING' | translate }}</span>
               } @else {
-                <span>Create Assignment</span>
+                <span>{{ 'COURSE_ASSIGNMENTS.BTN_CREATE_SUBMIT' | translate }}</span>
               }
             </button>
           </div>
@@ -168,7 +168,7 @@
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
               </svg>
             </div>
-            <h2>Edit Assignment</h2>
+            <h2>{{ 'COURSE_ASSIGNMENTS.MODAL_EDIT_TITLE' | translate }}</h2>
           </div>
           <button class="close-btn" (click)="closeEditModal()" aria-label="Close">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -181,7 +181,7 @@
         <form [formGroup]="editForm" (ngSubmit)="submitEditForm()" class="modal-body">
 
           <div class="form-group">
-            <label>Title <span class="required">*</span></label>
+            <label>{{ 'COURSE_ASSIGNMENTS.LABEL_TITLE' | translate }} <span class="required">*</span></label>
             <div class="input-wrapper">
               <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -193,7 +193,7 @@
           </div>
 
           <div class="form-group">
-            <label>Instructions <span class="optional">(Optional)</span></label>            <div class="input-wrapper text-area-wrapper">
+            <label>{{ 'COURSE_ASSIGNMENTS.LABEL_INSTRUCTIONS' | translate }} <span class="optional">{{ 'COURSE_ASSIGNMENTS.LABEL_OPTIONAL' | translate }}</span></label>            <div class="input-wrapper text-area-wrapper">
               <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
@@ -206,7 +206,7 @@
 
           <div class="form-row two-col-equal">
             <div class="form-group">
-              <label>Due Date <span class="optional">(clear to remove)</span></label>  <div class="datetime-premium-wrapper">
+              <label>{{ 'COURSE_ASSIGNMENTS.LABEL_DUE_DATE' | translate }} <span class="optional">{{ 'COURSE_ASSIGNMENTS.LABEL_DUE_DATE_CLEAR' | translate }}</span></label>  <div class="datetime-premium-wrapper">
                 <div class="icon-box-sm">
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -220,7 +220,7 @@
             </div>
 
             <div class="form-group">
-              <label>Weight (%) <span class="required">*</span></label>
+              <label>{{ 'COURSE_ASSIGNMENTS.LABEL_WEIGHT' | translate }} <span class="required">*</span></label>
               <div class="input-wrapper">
                 <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
                 <input type="number" formControlName="weight" min="0" max="100" placeholder="e.g. 20"
@@ -230,12 +230,12 @@
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeEditModal()" [disabled]="isSubmitting()">Cancel</button>
+            <button type="button" class="btn btn-secondary" (click)="closeEditModal()" [disabled]="isSubmitting()">{{ 'COURSE_ASSIGNMENTS.BTN_CANCEL' | translate }}</button>
             <button type="submit" class="btn btn-primary" [disabled]="editForm.invalid || isSubmitting()">
               @if (isSubmitting()) {
-                <div class="loader-ring"></div><span>Saving...</span>
+                <div class="loader-ring"></div><span>{{ 'COURSE_ASSIGNMENTS.BTN_SAVING' | translate }}</span>
               } @else {
-                <span>Save Changes</span>
+                <span>{{ 'COURSE_ASSIGNMENTS.BTN_SAVE_CHANGES' | translate }}</span>
               }
             </button>
           </div>
@@ -258,7 +258,7 @@
                 <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
               </svg>
             </div>
-            <h2>Submit Your Work</h2>
+            <h2>{{ 'COURSE_ASSIGNMENTS.MODAL_SUBMIT_TITLE' | translate }}</h2>
           </div>
           <button class="close-btn" (click)="closeSubmitModal()" aria-label="Close">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -270,7 +270,7 @@
 
         <div class="modal-body">
           @if (selectedAssignment(); as sa) {
-            <p class="submit-hint">Uploading for: <strong>{{ sa.title }}</strong></p>
+            <p class="submit-hint">{{ 'COURSE_ASSIGNMENTS.SUBMIT_HINT' | translate }} <strong>{{ sa.title }}</strong></p>
           }
 
           <div class="drop-zone" [class.dragging]="isDragging()"
@@ -292,8 +292,8 @@
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                   <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
                 </svg>
-                <span>Drop your file here or <strong>click to browse</strong></span>
-  <span class="limits">Max size: 100 MB <br> Allowed types: PDF, Word, PPT, Excel, Images, Video, ZIP, RAR</span>
+                <span [innerHTML]="'COURSE_ASSIGNMENTS.BROWSE_DRAG_SUB' | translate"></span>
+  <span class="limits" [innerHTML]="'COURSE_ASSIGNMENTS.LIMITS_SUB' | translate"></span>
   <input id="subFileInput" type="file" hidden
     accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.mp4,.mov,.avi,.zip,.rar"
     (change)="onSubmissionFileSelected($event)" />
@@ -302,13 +302,13 @@
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeSubmitModal()" [disabled]="isSubmitting()">Cancel</button>
+            <button type="button" class="btn btn-secondary" (click)="closeSubmitModal()" [disabled]="isSubmitting()">{{ 'COURSE_ASSIGNMENTS.BTN_CANCEL' | translate }}</button>
             <button type="button" class="btn btn-primary" (click)="submitMyWork()"
               [disabled]="!selectedSubmissionFile || isSubmitting()">
               @if (isSubmitting()) {
-                <div class="loader-ring"></div><span>Submitting...</span>
+                <div class="loader-ring"></div><span>{{ 'COURSE_ASSIGNMENTS.BTN_SUBMITTING' | translate }}</span>
               } @else {
-                <span>Submit Work</span>
+                <span>{{ 'COURSE_ASSIGNMENTS.BTN_SUBMIT_WORK' | translate }}</span>
               }
             </button>
           </div>
@@ -321,7 +321,7 @@
   @if (isLoading()) {
     <div class="loading-state">
       <div class="spinner"></div>
-      <p>Loading assignments...</p>
+      <p>{{ 'COURSE_ASSIGNMENTS.LOADING' | translate }}</p>
     </div>
   } @else if (assignments().length === 0) {
     <div class="empty-state box-panel">
@@ -335,12 +335,12 @@
         </svg>
       </div>
       @if (canManage()) {
-        <h3>No Assignments Yet</h3>
-        <p>Create your first assignment to get started. Students will see it immediately after you publish it.</p>
-        <button class="btn btn-primary mt-4" (click)="openCreateModal()">Create First Assignment</button>
+        <h3>{{ 'COURSE_ASSIGNMENTS.NO_ASSIGNMENTS_TITLE_TUTOR' | translate }}</h3>
+        <p>{{ 'COURSE_ASSIGNMENTS.NO_ASSIGNMENTS_DESC_TUTOR' | translate }}</p>
+        <button class="btn btn-primary mt-4" (click)="openCreateModal()">{{ 'COURSE_ASSIGNMENTS.BTN_CREATE_FIRST' | translate }}</button>
       } @else {
-        <h3>No Assignments Published</h3>
-        <p>Your Tutor hasn't published any assignments for this course yet.</p>
+        <h3>{{ 'COURSE_ASSIGNMENTS.NO_ASSIGNMENTS_TITLE_STUDENT' | translate }}</h3>
+        <p>{{ 'COURSE_ASSIGNMENTS.NO_ASSIGNMENTS_DESC_STUDENT' | translate }}</p>
       }
     </div>
   } @else {
@@ -381,14 +381,14 @@
               <!-- Tutor/Admin actions -->
               @if (canManage()) {
                 <div class="card-actions">
-                  <button class="action-btn edit-btn" (click)="openEditModal(assignment)" title="Edit assignment">
+                  <button class="action-btn edit-btn" (click)="openEditModal(assignment)" [title]="'COURSE_ASSIGNMENTS.ACTION_EDIT' | translate">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                       <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                     </svg>
                   </button>
-                  <button class="action-btn delete-btn" (click)="deleteAssignment(assignment.id)" title="Delete assignment">
+                  <button class="action-btn delete-btn" (click)="deleteAssignment(assignment.id)" [title]="'COURSE_ASSIGNMENTS.ACTION_DELETE' | translate">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
@@ -412,7 +412,7 @@
                   <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
                 </svg>
                 <span>{{ assignment.referenceFileName }}</span>
-                <button class="chip-action" (click)="downloadReference(assignment)">Download</button>
+                <button class="chip-action" (click)="downloadReference(assignment)">{{ 'COURSE_ASSIGNMENTS.ACTION_DOWNLOAD' | translate }}</button>
               </div>
             }
 
@@ -427,7 +427,7 @@
                       <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/>
                       <line x1="9" y1="9" x2="15" y2="15"/>
                     </svg>
-                    Submission Closed
+                    {{ 'COURSE_ASSIGNMENTS.SUBMISSION_CLOSED' | translate }}
                   </div>
                 } @else if (assignment.mySubmission) {
                   <!-- Already submitted -->
@@ -436,7 +436,7 @@
                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <polyline points="20 6 9 17 4 12"/>
                     </svg>
-                    Submitted
+                    {{ 'COURSE_ASSIGNMENTS.SUBMITTED' | translate }}
                   </div>
                   <div class="my-submission-row">
                     <div class="sub-file-info">
@@ -455,7 +455,7 @@
                           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                           <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
                         </svg>
-                        Download
+                        {{ 'COURSE_ASSIGNMENTS.ACTION_DOWNLOAD' | translate }}
                       </button>
                       @if (!assignment.isPastDue) {
                         <button class="btn btn-sm btn-danger-ghost" (click)="deleteMySubmission(assignment)">
@@ -464,7 +464,7 @@
                             <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
                             <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
                           </svg>
-                          Remove
+                          {{ 'COURSE_ASSIGNMENTS.ACTION_REMOVE' | translate }}
                         </button>
                       }
                     </div>
@@ -477,7 +477,7 @@
                       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                       <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
                     </svg>
-                    Submit My Work
+                    {{ 'COURSE_ASSIGNMENTS.SUBMIT_MY_WORK' | translate }}
                   </button>
                 }
               </div>
@@ -494,7 +494,7 @@
                       <circle cx="9" cy="7" r="4"/>
                       <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                     </svg>
-                    {{ assignment.submissionCount }} {{ assignment.submissionCount === 1 ? 'Submission' : 'Submissions' }}
+                    {{ assignment.submissionCount }} {{ assignment.submissionCount === 1 ? ('COURSE_ASSIGNMENTS.SUBMISSION_SINGULAR' | translate) : ('COURSE_ASSIGNMENTS.SUBMISSIONS_PLURAL' | translate) }}
                   </div>
                   <div class="panel-toggle">
                     @if (isSubmissionsExpanded(assignment.id)) {
@@ -508,7 +508,7 @@
                         <polyline points="6 9 12 15 18 9"/>
                       </svg>
                     }
-                    {{ isSubmissionsExpanded(assignment.id) ? 'Collapse' : 'View Submissions' }}
+                    {{ isSubmissionsExpanded(assignment.id) ? ('COURSE_ASSIGNMENTS.COLLAPSE' | translate) : ('COURSE_ASSIGNMENTS.VIEW_SUBMISSIONS' | translate) }}
                   </div>
                 </div>
 
@@ -517,10 +517,10 @@
                     @if (isLoadingSubmissions(assignment.id)) {
                       <div class="loading-state compact">
                         <div class="spinner-sm"></div>
-                        <span>Loading submissions...</span>
+                        <span>{{ 'COURSE_ASSIGNMENTS.LOADING_SUBS' | translate }}</span>
                       </div>
                     } @else if (getSubmissionsForAssignment(assignment.id).length === 0) {
-                      <div class="no-submissions-msg">No submissions yet.</div>
+                      <div class="no-submissions-msg">{{ 'COURSE_ASSIGNMENTS.NO_SUBS_YET' | translate }}</div>
                     } @else {
                       <!-- Download all ZIP button -->
                       <div class="zip-download-bar">
@@ -528,14 +528,14 @@
                           [disabled]="isDownloadingZip(assignment.id)"
                           (click)="downloadAllZip(assignment)">
                           @if (isDownloadingZip(assignment.id)) {
-                            <div class="loader-ring sm"></div><span>Preparing ZIP...</span>
+                            <div class="loader-ring sm"></div><span>{{ 'COURSE_ASSIGNMENTS.PREPARING_ZIP' | translate }}</span>
                           } @else {
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                               <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
                             </svg>
-                            Download All as ZIP
+                            {{ 'COURSE_ASSIGNMENTS.DOWNLOAD_ZIP' | translate }}
                           }
                         </button>
                       </div>
@@ -562,18 +562,18 @@
                             <span class="sub-date">{{ sub.submittedAt | date:'MMM d, y' }}</span>
                             @if (sub.isReviewed) {
                               <span class="badge" style="background: #dcfce7; color: #166534; font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 9999px;">
-                                Scored: {{ sub.pointsAwarded }} / {{ assignment.maxPoints }}
+                                {{ 'COURSE_ASSIGNMENTS.BADGE_SCORED' | translate }} {{ sub.pointsAwarded }} / {{ assignment.maxPoints }}
                               </span>
                             }
                             <div class="sub-row-actions">
-                              <button class="btn btn-sm btn-ghost" (click)="downloadSub(assignment, sub)" title="Download">
+                              <button class="btn btn-sm btn-ghost" (click)="downloadSub(assignment, sub)" [title]="'COURSE_ASSIGNMENTS.ACTION_DOWNLOAD' | translate">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                                   <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
                                 </svg>
                               </button>
-                              <button class="btn btn-sm btn-icon-danger" (click)="deleteSubmission(assignment, sub.id)" title="Delete">
+                              <button class="btn btn-sm btn-icon-danger" (click)="deleteSubmission(assignment, sub.id)" [title]="'COURSE_ASSIGNMENTS.ACTION_DELETE' | translate">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                   <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>

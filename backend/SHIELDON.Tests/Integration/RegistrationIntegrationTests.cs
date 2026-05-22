@@ -56,7 +56,7 @@ public class RegistrationIntegrationTests : IClassFixture<RegistrationWebAppFact
             "Integration",
             "Test",
             "weak@test.com",
-            "weak",       // Password too short — fails FluentValidation
+            "weak",       // Password too short - fails FluentValidation
             "weak",
             UserRole.Student
         );

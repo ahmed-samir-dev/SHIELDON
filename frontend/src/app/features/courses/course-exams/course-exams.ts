@@ -4,12 +4,15 @@ import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validatio
 import { ExamService } from '../services/exam.service';
 import { QuestionBankService } from '../services/question-bank.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { LanguageService } from '../../../core/services/language.service';
 import Swal from 'sweetalert2';
 import { ToastrService } from 'ngx-toastr';
 import { ExamSummaryResponse } from '../../../core/models/exam.model';
 import { CourseDetailResponse } from '../../../core/models/courses.model';
 import { Router } from '@angular/router';
 import { ExamResultService, ExamAttemptSummaryDto } from '../../exams/services/exam-result';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
 export function atLeastOneQuestionValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -27,7 +30,7 @@ export function atLeastOneQuestionValidator(): ValidatorFn {
 @Component({
   selector: 'app-course-exams',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './course-exams.html',
   styleUrl: './course-exams.scss'
 })
@@ -37,9 +40,12 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
   private examService = inject(ExamService);
   private questionBankService = inject(QuestionBankService);
   public authService = inject(AuthService);
+  private languageService = inject(LanguageService);
   private toastr = inject(ToastrService);
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private translate = inject(TranslateService);
+  private langSub!: Subscription;
 
   exams = signal<ExamSummaryResponse[]>([]);
   isLoading = signal(true);
@@ -82,10 +88,13 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
     this.timeInterval = setInterval(() => {
       this.currentTime.set(new Date());
     }, 1000);
+    // Auto-reload when user toggles language
+    this.langSub = this.languageService.languageChange$.subscribe(() => this.loadExams());
   }
 
   ngOnDestroy() {
     if (this.timeInterval) clearInterval(this.timeInterval);
+    this.langSub?.unsubscribe();
   }
 
   loadExams() {
@@ -96,7 +105,7 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
         this.isLoading.set(false);
       },
       error: () => {
-        this.toastr.error('Failed to load exams');
+        this.toastr.error(this.translate.instant('COURSE_EXAMS.TOAST_LOAD_ERR'));
         this.isLoading.set(false);
       }
     });
@@ -122,7 +131,7 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
     this.editingExam.set(exam);
 
     // Convert UTC ISO strings to local datetime-local format (YYYY-MM-DDTHH:mm)
-    // We MUST use local time here — <input type="datetime-local"> expects local, not UTC.
+    // We MUST use local time here - <input type="datetime-local"> expects local, not UTC.
     const toLocalInput = (isoStr: string): string => {
       const d = new Date(isoStr);
       const pad = (n: number) => n.toString().padStart(2, '0');
@@ -174,17 +183,20 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
         const availableSa = counts['ShortAnswer'] || 0;
 
         if (formValue.mcqCount > availableMcq) {
-          this.toastr.warning(`Not enough MCQ questions in the bank. Selected: ${formValue.mcqCount}, Available: ${availableMcq}`);
+          this.toastr.warning(this.translate.instant('COURSE_EXAMS.TOAST_MCQ_ERR')
+            .replace('{selected}', formValue.mcqCount).replace('{available}', availableMcq));
           this.isSubmitting.set(false);
           return;
         }
         if (formValue.trueFalseCount > availableTf) {
-          this.toastr.warning(`Not enough True/False questions in the bank. Selected: ${formValue.trueFalseCount}, Available: ${availableTf}`);
+          this.toastr.warning(this.translate.instant('COURSE_EXAMS.TOAST_TF_ERR')
+            .replace('{selected}', formValue.trueFalseCount).replace('{available}', availableTf));
           this.isSubmitting.set(false);
           return;
         }
         if (formValue.shortAnswerCount > availableSa) {
-          this.toastr.warning(`Not enough Short Answer questions in the bank. Selected: ${formValue.shortAnswerCount}, Available: ${availableSa}`);
+          this.toastr.warning(this.translate.instant('COURSE_EXAMS.TOAST_SA_ERR')
+            .replace('{selected}', formValue.shortAnswerCount).replace('{available}', availableSa));
           this.isSubmitting.set(false);
           return;
         }
@@ -205,29 +217,29 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
         if (this.editingExamId()) {
           this.examService.updateExam(this.editingExamId()!, request).subscribe({
             next: () => {
-              this.toastr.success('Exam updated successfully');
+              this.toastr.success(this.translate.instant('COURSE_EXAMS.TOAST_UPDATE_SUCCESS'));
               this.finishSubmit();
             },
             error: (err) => {
-              this.toastr.error(err.error?.message || 'Failed to update exam');
+              this.toastr.error(err.error?.message || this.translate.instant('COURSE_EXAMS.TOAST_UPDATE_ERR'));
               this.isSubmitting.set(false);
             }
           });
         } else {
           this.examService.createExam(this.course.id, request).subscribe({
             next: () => {
-              this.toastr.success('Exam created successfully as Draft');
+              this.toastr.success(this.translate.instant('COURSE_EXAMS.TOAST_CREATE_SUCCESS'));
               this.finishSubmit();
             },
             error: (err) => {
-              this.toastr.error(err.error?.message || 'Failed to create exam');
+              this.toastr.error(err.error?.message || this.translate.instant('COURSE_EXAMS.TOAST_CREATE_ERR'));
               this.isSubmitting.set(false);
             }
           });
         }
       },
       error: () => {
-        this.toastr.error('Failed to validate question bank counts.');
+        this.toastr.error(this.translate.instant('COURSE_EXAMS.TOAST_VALIDATE_ERR'));
         this.isSubmitting.set(false);
       }
     });
@@ -241,22 +253,22 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
 
   publishExam(examId: string) {
     Swal.fire({
-      title: 'Publish Exam?',
-      text: 'Students will be notified and this action cannot be undone.',
+      title: this.translate.instant('COURSE_EXAMS.SWAL_PUBLISH_TITLE'),
+      text: this.translate.instant('COURSE_EXAMS.SWAL_PUBLISH_TEXT'),
       icon: 'info',
       showCancelButton: true,
       confirmButtonColor: '#215DAE', // Matches your primary color
       cancelButtonColor: '#87949C',
-      confirmButtonText: 'Yes, publish it'
+      confirmButtonText: this.translate.instant('COURSE_EXAMS.SWAL_BTN_PUBLISH')
     }).then((result) => {
       if (result.isConfirmed) {
         this.examService.publishExam(examId).subscribe({
           next: () => {
-            this.toastr.success('Exam published successfully! Notifications sent to students.');
+            this.toastr.success(this.translate.instant('COURSE_EXAMS.TOAST_PUBLISH_SUCCESS'));
             this.loadExams();
           },
           error: (err) => {
-            this.toastr.error(err.error?.message || 'Failed to publish exam');
+            this.toastr.error(err.error?.message || this.translate.instant('COURSE_EXAMS.TOAST_PUBLISH_ERR'));
           }
         });
       }
@@ -265,22 +277,22 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
 
   deleteExam(examId: string) {
     Swal.fire({
-      title: 'Delete Exam?',
-      text: 'Are you sure you want to delete this draft exam?',
+      title: this.translate.instant('COURSE_EXAMS.SWAL_DEL_TITLE'),
+      text: this.translate.instant('COURSE_EXAMS.SWAL_DEL_TEXT'),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#EF4444', // Matches your danger color
       cancelButtonColor: '#87949C',
-      confirmButtonText: 'Yes, delete it'
+      confirmButtonText: this.translate.instant('COURSE_EXAMS.SWAL_BTN_DEL')
     }).then((result) => {
       if (result.isConfirmed) {
         this.examService.deleteExam(examId).subscribe({
           next: () => {
-            this.toastr.success('Exam deleted successfully');
+            this.toastr.success(this.translate.instant('COURSE_EXAMS.TOAST_DEL_SUCCESS'));
             this.loadExams();
           },
           error: (err) => {
-            this.toastr.error(err.error?.message || 'Failed to delete exam');
+            this.toastr.error(err.error?.message || this.translate.instant('COURSE_EXAMS.TOAST_DEL_ERR'));
           }
         });
       }
@@ -341,7 +353,7 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
         }
       },
       error: () => {
-        this.toastr.error('Failed to load attempts');
+        this.toastr.error(this.translate.instant('COURSE_EXAMS.TOAST_LOAD_ATTEMPTS_ERR'));
         this.router.navigate(['/exam-results', latestAttemptId]);
       }
     });

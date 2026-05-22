@@ -4,18 +4,18 @@
     <div class="header-left">
       <button class="btn-back" (click)="goBack()">
         <lucide-icon [img]="ArrowLeft" size="20"></lucide-icon>
-        Back to Exams
+        {{ 'TUTOR_RESULTS_PANEL.BTN_BACK' | translate }}
       </button>
     </div>
     <div class="header-center">
-      <h1>Results Management</h1>
+      <h1>{{ 'TUTOR_RESULTS_PANEL.TITLE' | translate }}</h1>
     </div>
     <div class="header-right" style="display: flex; gap: 8px;">
       <button class="btn-release" *ngIf="selectedStudentIds().size > 0" (click)="releaseSelectedResults()">
-        Release Selected ({{ selectedStudentIds().size }})
+        {{ ('TUTOR_RESULTS_PANEL.BTN_RELEASE_SELECTED' | translate).replace('{count}', selectedStudentIds().size.toString()) }}
       </button>
       <button class="btn-release" *ngIf="selectedStudentIds().size === 0" (click)="releaseResults()" [disabled]="isLoading() || attempts().length === 0">
-        Release All
+        {{ 'TUTOR_RESULTS_PANEL.BTN_RELEASE_ALL' | translate }}
       </button>
     </div>
   </header>
@@ -29,25 +29,25 @@
         <lucide-icon [img]="Search" size="18" class="search-icon"></lucide-icon>
         <input 
           type="text" 
-          placeholder="Search by student name or ID..." 
+          [placeholder]="'TUTOR_RESULTS_PANEL.SEARCH_PLACEHOLDER' | translate" 
           [value]="searchQuery()"
           (input)="filterAttempts($any($event.target).value)"
         />
       </div>
       <div class="stats">
-        <span>Total Attempts: <strong>{{ attempts().length }}</strong></span>
+        <span [innerHTML]="('TUTOR_RESULTS_PANEL.TOTAL_ATTEMPTS' | translate).replace('{count}', attempts().length.toString())"></span>
       </div>
     </div>
 
     <!-- Loading State -->
     <div class="loading-state" *ngIf="isLoading()">
       <div class="spinner"></div>
-      <p>Loading attempts...</p>
+      <p>{{ 'TUTOR_RESULTS_PANEL.LOADING' | translate }}</p>
     </div>
 
     <!-- Empty State -->
     <div class="empty-state" *ngIf="!isLoading() && filteredAttempts().length === 0">
-      <p>No attempts found.</p>
+      <p>{{ 'TUTOR_RESULTS_PANEL.NO_ATTEMPTS' | translate }}</p>
     </div>
 
     <!-- Data Table -->
@@ -61,13 +61,13 @@
                      [disabled]="unreleasedCount === 0"
                      (change)="toggleAllUnreleased()">
             </th>
-            <th>Student</th>
-            <th>ID</th>
-            <th>Submitted At</th>
-            <th>Status</th>
-            <th>Score</th>
-            <th>Published</th>
-            <th>Actions</th>
+            <th>{{ 'TUTOR_RESULTS_PANEL.COL_STUDENT' | translate }}</th>
+            <th>{{ 'TUTOR_RESULTS_PANEL.COL_ID' | translate }}</th>
+            <th>{{ 'TUTOR_RESULTS_PANEL.COL_SUBMITTED_AT' | translate }}</th>
+            <th>{{ 'TUTOR_RESULTS_PANEL.COL_STATUS' | translate }}</th>
+            <th>{{ 'TUTOR_RESULTS_PANEL.COL_SCORE' | translate }}</th>
+            <th>{{ 'TUTOR_RESULTS_PANEL.COL_PUBLISHED' | translate }}</th>
+            <th>{{ 'TUTOR_RESULTS_PANEL.COL_ACTIONS' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -90,7 +90,7 @@
               <span class="score-text" *ngIf="attempt.score !== null" [ngClass]="attempt.passed ? 'text-success' : 'text-danger'">
                 {{ attempt.score | number:'1.1-1' }}%
               </span>
-              <span class="score-text pending" *ngIf="attempt.score === null">Pending</span>
+              <span class="score-text pending" *ngIf="attempt.score === null">{{ 'TUTOR_RESULTS_PANEL.PENDING' | translate }}</span>
             </td>
             <td>
               <lucide-icon [img]="attempt.isGradePublished ? CheckCircle : Clock" size="18" 
@@ -99,13 +99,13 @@
             </td>
             <td class="actions">
               <button class="btn-action primary" *ngIf="attempt.status === 'Submitted'" (click)="openGradingModal(attempt.attemptId)">
-                Grade
+                {{ 'TUTOR_RESULTS_PANEL.BTN_GRADE' | translate }}
               </button>
               <button class="btn-action secondary" *ngIf="attempt.status === 'Graded' || attempt.status === 'ForceSubmitted'" (click)="openGradingModal(attempt.attemptId)">
-                <lucide-icon [img]="Eye" size="16"></lucide-icon> View
+                <lucide-icon [img]="Eye" size="16"></lucide-icon> {{ 'TUTOR_RESULTS_PANEL.BTN_VIEW' | translate }}
               </button>
               <button class="btn-action primary" *ngIf="attempt.status === 'Graded' && !attempt.isGradePublished" (click)="releaseStudentResult(attempt.studentId)">
-                Release
+                {{ 'TUTOR_RESULTS_PANEL.BTN_RELEASE' | translate }}
               </button>
             </td>
           </tr>
@@ -120,7 +120,7 @@
 <div class="modal-overlay" *ngIf="isGradingModalOpen()">
   <div class="modal-content grading-modal">
     <div class="modal-header">
-      <h2>Short Answer Grading</h2>
+      <h2>{{ 'TUTOR_RESULTS_PANEL.MODAL_TITLE' | translate }}</h2>
       <button class="btn-close" (click)="closeGradingModal()">&times;</button>
     </div>
 
@@ -134,7 +134,7 @@
       <ng-container *ngIf="!isGradingLoading() && gradingResult() as result">
         
         <div class="student-info-card">
-          <p><strong>Attempt Score (Auto-graded so far):</strong> {{ result.score !== null ? (result.score | number:'1.1-1') + '%' : 'Pending' }}</p>
+          <p [innerHTML]="('TUTOR_RESULTS_PANEL.ATTEMPT_SCORE' | translate).replace('{score}', result.score !== null ? (result.score | number:'1.1-1') + '%' : ('TUTOR_RESULTS_PANEL.PENDING' | translate))"></p>
         </div>
 
         <form [formGroup]="gradingForm" (ngSubmit)="submitGrades()">
@@ -144,25 +144,25 @@
               <div class="question-item" *ngIf="q.requiresManualGrading">
                 
                 <div class="q-header">
-                  <span class="q-label">Question {{ i + 1 }}</span>
-                  <span class="q-points">Max: {{ q.points }} pts</span>
+                  <span class="q-label">{{ ('TUTOR_RESULTS_PANEL.QUESTION_N' | translate).replace('{n}', (i + 1).toString()) }}</span>
+                  <span class="q-points">{{ ('TUTOR_RESULTS_PANEL.MAX_PTS' | translate).replace('{points}', q.points.toString()) }}</span>
                 </div>
                 
                 <p class="q-text">{{ q.questionText }}</p>
                 
                 <div class="student-answer">
-                  <strong>Student's Answer:</strong>
-                  <p>{{ q.textAnswer || '(No answer provided)' }}</p>
+                  <strong>{{ 'TUTOR_RESULTS_PANEL.STUDENT_ANSWER' | translate }}</strong>
+                  <p>{{ q.textAnswer || ('TUTOR_RESULTS_PANEL.NO_ANSWER' | translate) }}</p>
                 </div>
 
                 <!-- Find the form group for this question based on questionId -->
                 <ng-container *ngFor="let gradeGroup of shortAnswerGrades.controls; let j = index">
                   <div class="grading-input-group" [formGroupName]="j" *ngIf="gradeGroup.get('questionId')?.value === q.questionId">
-                    <label>Points to Award:</label>
+                    <label>{{ 'TUTOR_RESULTS_PANEL.PTS_TO_AWARD' | translate }}</label>
                     <input type="number" formControlName="pointsAwarded" min="0" [max]="q.points" step="0.5" />
                     
                     <div class="error-msg" *ngIf="gradeGroup.get('pointsAwarded')?.errors?.['max']">
-                      Cannot exceed {{ q.points }} points.
+                      {{ ('TUTOR_RESULTS_PANEL.ERR_MAX_PTS' | translate).replace('{points}', q.points.toString()) }}
                     </div>
                   </div>
                 </ng-container>
@@ -173,9 +173,9 @@
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeGradingModal()">Cancel</button>
+            <button type="button" class="btn btn-secondary" (click)="closeGradingModal()">{{ 'TUTOR_RESULTS_PANEL.BTN_CANCEL' | translate }}</button>
             <button type="submit" class="btn btn-primary" [disabled]="isSubmittingGrades() || gradingForm.invalid">
-              {{ isSubmittingGrades() ? 'Saving...' : 'Save Grades' }}
+              {{ isSubmittingGrades() ? ('TUTOR_RESULTS_PANEL.BTN_SAVING' | translate) : ('TUTOR_RESULTS_PANEL.BTN_SAVE_GRADES' | translate) }}
             </button>
           </div>
         </form>

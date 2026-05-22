@@ -1,24 +1,29 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { LucideAngularModule, Monitor, Search, Filter, AlertTriangle, ShieldAlert, Users, Clock, ArrowRight, Eye, ChevronLeft, ChevronRight, Activity, FileText } from 'lucide-angular';
 import { NgxEchartsModule } from 'ngx-echarts';
 import type { EChartsOption } from 'echarts';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { MonitoringService, TutorDashboardResponse, SubmissionRow, ExamMonitoringSummary } from '../../../core/services/monitoring.service';
+import { LanguageService } from '../../../core/services/language.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-tutor-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule, NgxEchartsModule],
+  imports: [CommonModule, FormsModule, RouterModule, LucideAngularModule, NgxEchartsModule, TranslateModule],
   templateUrl: './tutor-dashboard.html',
   styleUrls: ['./tutor-dashboard.scss']
 })
-export class TutorDashboardComponent implements OnInit {
+export class TutorDashboardComponent implements OnInit, OnDestroy {
   private monitoring = inject(MonitoringService);
   private router = inject(Router);
+  private languageService = inject(LanguageService);
+  public translate = inject(TranslateService);
+  private langSub!: Subscription;
 
   // Icons
   Monitor = Monitor;
@@ -118,6 +123,11 @@ export class TutorDashboardComponent implements OnInit {
     });
 
     this.loadDashboard();
+    this.langSub = this.languageService.languageChange$.subscribe(() => this.loadDashboard());
+  }
+
+  ngOnDestroy() {
+    this.langSub?.unsubscribe();
   }
 
   loadDashboard() {
@@ -140,7 +150,7 @@ export class TutorDashboardComponent implements OnInit {
       },
       error: () => {
         if (!this.dashboardData().examSummaries.length) {
-          this.error.set('Failed to load dashboard data.');
+          this.error.set(this.translate.instant('TUTOR_DASHBOARD.ERR_LOAD'));
         }
         this.loading.set(false);
       }
@@ -197,7 +207,7 @@ export class TutorDashboardComponent implements OnInit {
 
       const chartDataStr = JSON.stringify(chartData);
       if (this.lastViolationChartData === chartDataStr) {
-        // Skip only the violation chart — don't return from the entire method
+        // Skip only the violation chart - don't return from the entire method
       } else {
         this.lastViolationChartData = chartDataStr;
 
@@ -214,7 +224,7 @@ export class TutorDashboardComponent implements OnInit {
         },
         series: [
           {
-            name: 'Violations',
+            name: this.translate.instant('TUTOR_DASHBOARD.CHART_SERIES_VIOLATIONS'),
             type: 'pie',
             radius: ['45%', '70%'],
             center: ['50%', '45%'],
@@ -262,21 +272,28 @@ export class TutorDashboardComponent implements OnInit {
         // 1. Stacked Bar Chart: Submission Status Breakdown
         this.submissionStatusChartOptions.set({
           tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-          legend: { data: ['Done', 'Active', 'Terminated'], bottom: 0 },
+          legend: { data: [
+            this.translate.instant('TUTOR_DASHBOARD.CHART_LEGEND_DONE'),
+            this.translate.instant('TUTOR_DASHBOARD.CHART_LEGEND_ACTIVE'),
+            this.translate.instant('TUTOR_DASHBOARD.CHART_LEGEND_TERMINATED')
+          ], bottom: 0 },
           grid: { left: '3%', right: '4%', bottom: '15%', top: '10%', containLabel: true },
           xAxis: { type: 'category', data: examNames, axisLabel: { color: '#64748b', rotate: 30 } },
           yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: '#f1f5f9', type: 'dashed' } } },
           series: [
-            { name: 'Done', type: 'bar', stack: 'total', data: submitted, itemStyle: { color: '#10b981' } }, // emerald-500
-            { name: 'Active', type: 'bar', stack: 'total', data: inProgress, itemStyle: { color: '#3b82f6' } }, // blue-500
-            { name: 'Terminated', type: 'bar', stack: 'total', data: terminated, itemStyle: { borderRadius: [4, 4, 0, 0], color: '#ef4444' } } // red-500
+            { name: this.translate.instant('TUTOR_DASHBOARD.CHART_LEGEND_DONE'), type: 'bar', stack: 'total', data: submitted, itemStyle: { color: '#10b981' } }, // emerald-500
+            { name: this.translate.instant('TUTOR_DASHBOARD.CHART_LEGEND_ACTIVE'), type: 'bar', stack: 'total', data: inProgress, itemStyle: { color: '#3b82f6' } }, // blue-500
+            { name: this.translate.instant('TUTOR_DASHBOARD.CHART_LEGEND_TERMINATED'), type: 'bar', stack: 'total', data: terminated, itemStyle: { borderRadius: [4, 4, 0, 0], color: '#ef4444' } } // red-500
           ]
         });
 
         // 2. Dual Axis Chart: Score vs Violations
         this.scoreVsViolationsChartOptions.set({
           tooltip: { trigger: 'axis', axisPointer: { type: 'cross' } },
-          legend: { data: ['Avg Score (%)', 'Total Violations'], bottom: 0 },
+          legend: { data: [
+            this.translate.instant('TUTOR_DASHBOARD.CHART_LEGEND_AVG_SCORE'),
+            this.translate.instant('TUTOR_DASHBOARD.CHART_LEGEND_TOTAL_VIOLATIONS')
+          ], bottom: 0 },
           grid: { left: '3%', right: '3%', bottom: '15%', top: '15%', containLabel: true },
           xAxis: [{ type: 'category', data: examNames, axisPointer: { type: 'shadow' }, axisLabel: { color: '#64748b' } }],
           yAxis: [
@@ -293,14 +310,14 @@ export class TutorDashboardComponent implements OnInit {
           ],
           series: [
             {
-              name: 'Avg Score (%)', type: 'bar', data: scores,
+              name: this.translate.instant('TUTOR_DASHBOARD.CHART_LEGEND_AVG_SCORE'), type: 'bar', data: scores,
               itemStyle: { 
                 color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: '#8b5cf6' }, { offset: 1, color: '#c4b5fd' }] }, // violet gradient
                 borderRadius: [4, 4, 0, 0]
               }
             },
             {
-              name: 'Total Violations', type: 'line', yAxisIndex: 1, data: violations,
+              name: this.translate.instant('TUTOR_DASHBOARD.CHART_LEGEND_TOTAL_VIOLATIONS'), type: 'line', yAxisIndex: 1, data: violations,
               smooth: true, itemStyle: { color: '#f97316' }, lineStyle: { width: 3 } // orange-500
             }
           ]
@@ -315,10 +332,10 @@ export class TutorDashboardComponent implements OnInit {
 
   getStatusDisplay(status: string) {
     switch (status) {
-      case 'Submitted': return { label: 'Submitted', icon: 'check-circle', classes: 'bg-green-100 text-green-700' };
-      case 'Graded': return { label: 'Graded', icon: 'check-circle', classes: 'bg-emerald-100 text-emerald-700' };
-      case 'ForceSubmitted': return { label: 'Terminated', icon: 'shield-alert', classes: 'bg-red-100 text-red-700' };
-      default: return { label: status, icon: 'info', classes: 'bg-slate-100 text-slate-700' };
+      case 'Submitted': return { label: this.translate.instant('TUTOR_DASHBOARD.STATUS_SUBMITTED'), icon: 'check-circle', classes: 'bg-green-100 text-green-700' };
+      case 'Graded': return { label: this.translate.instant('TUTOR_DASHBOARD.STATUS_GRADED'), icon: 'check-circle', classes: 'bg-emerald-100 text-emerald-700' };
+      case 'ForceSubmitted': return { label: this.translate.instant('TUTOR_DASHBOARD.STATUS_TERMINATED'), icon: 'shield-alert', classes: 'bg-red-100 text-red-700' };
+      default: return { label: this.translate.instant('EXAM_ENGINE.STATUS_' + status.toUpperCase()), icon: 'info', classes: 'bg-slate-100 text-slate-700' };
     }
   }
 

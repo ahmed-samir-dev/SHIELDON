@@ -9,14 +9,17 @@ import {
   AssignmentSubmissionResponse
 } from '../services/assignment.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { LanguageService } from '../../../core/services/language.service';
 import { ToastrService } from 'ngx-toastr';
 import { CourseDetailResponse } from '../../../core/models/courses.model';
 import Swal from 'sweetalert2';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-course-assignments',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DatePipe],
+  imports: [CommonModule, ReactiveFormsModule, DatePipe, TranslateModule],
   templateUrl: './course-assignments.html',
   styleUrls: ['./course-assignments.scss']
 })
@@ -25,8 +28,11 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
 
   private readonly assignmentService = inject(AssignmentService);
   private readonly authService       = inject(AuthService);
+  private readonly languageService   = inject(LanguageService);
   private readonly fb                = inject(FormBuilder);
   private readonly toastr            = inject(ToastrService);
+  private readonly translate         = inject(TranslateService);
+  private langSub!: Subscription;
 
   // ── State ──────────────────────────────────────────────────────────────
   assignments      = signal<AssignmentResponse[]>([]);
@@ -69,12 +75,15 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
     this.loadAssignments();
     this.initForms();
     this.timer = setInterval(() => this.now.set(Date.now()), 1000);
+    // Auto-reload when user toggles language
+    this.langSub = this.languageService.languageChange$.subscribe(() => this.loadAssignments());
   }
 
   ngOnDestroy(): void {
     if (this.timer) {
       clearInterval(this.timer);
     }
+    this.langSub?.unsubscribe();
   }
 
   private initForms(): void {
@@ -103,9 +112,10 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
           this.assignments.set(res.data);
         }
         this.isLoading.set(false);
+        this.isLoading.set(false);
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Failed to load assignments');
+        this.toastr.error(err.error?.message || this.translate.instant('COURSE_ASSIGNMENTS.TOAST_LOAD_ERR'));
         this.isLoading.set(false);
       }
     });
@@ -170,14 +180,14 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
     this.assignmentService.createAssignment(this.course.id, formData).subscribe({
       next: (res) => {
         if (res.success && res.data) {
-          this.toastr.success('Assignment created successfully!');
+          this.toastr.success(this.translate.instant('COURSE_ASSIGNMENTS.TOAST_CREATE_SUCCESS'));
           this.assignments.update(list => [res.data!, ...list]);
           this.closeCreateModal();
         }
         this.isSubmitting.set(false);
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Failed to create assignment');
+        this.toastr.error(err.error?.message || this.translate.instant('COURSE_ASSIGNMENTS.TOAST_CREATE_ERR'));
         this.isSubmitting.set(false);
       }
     });
@@ -221,7 +231,7 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
     this.assignmentService.updateAssignment(this.course.id, assignment.id, request).subscribe({
       next: (res) => {
         if (res.success && res.data) {
-          this.toastr.success('Assignment updated successfully!');
+          this.toastr.success(this.translate.instant('COURSE_ASSIGNMENTS.TOAST_UPDATE_SUCCESS'));
           this.assignments.update(list =>
             list.map(a => a.id === assignment.id ? res.data! : a)
           );
@@ -230,7 +240,7 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
         this.isSubmitting.set(false);
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Failed to update assignment');
+        this.toastr.error(err.error?.message || this.translate.instant('COURSE_ASSIGNMENTS.TOAST_UPDATE_ERR'));
         this.isSubmitting.set(false);
       }
     });
@@ -240,22 +250,22 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
 
   deleteAssignment(assignmentId: string): void {
     Swal.fire({
-      title: 'Delete Assignment?',
-      text: 'This will permanently delete the assignment and ALL student submissions. This action cannot be undone.',
+      title: this.translate.instant('COURSE_ASSIGNMENTS.SWAL_DELETE_TITLE'),
+      text: this.translate.instant('COURSE_ASSIGNMENTS.SWAL_DELETE_DESC'),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#EF4444',
       cancelButtonColor: '#87949C',
-      confirmButtonText: 'Yes, delete it'
+      confirmButtonText: this.translate.instant('COURSE_ASSIGNMENTS.SWAL_DELETE_CONFIRM')
     }).then(result => {
       if (result.isConfirmed) {
         this.assignmentService.deleteAssignment(this.course.id, assignmentId).subscribe({
           next: () => {
-            this.toastr.success('Assignment deleted successfully');
+            this.toastr.success(this.translate.instant('COURSE_ASSIGNMENTS.TOAST_DELETE_SUCCESS'));
             this.assignments.update(list => list.filter(a => a.id !== assignmentId));
           },
           error: (err) => {
-            this.toastr.error(err.error?.message || 'Failed to delete assignment');
+            this.toastr.error(err.error?.message || this.translate.instant('COURSE_ASSIGNMENTS.TOAST_DELETE_ERR'));
           }
         });
       }
@@ -348,18 +358,18 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
 
   deleteSubmission(assignment: AssignmentResponse, submissionId: string): void {
     Swal.fire({
-      title: 'Delete Submission?',
-      text: 'This will permanently remove this student\'s submission.',
+      title: this.translate.instant('COURSE_ASSIGNMENTS.SWAL_DEL_SUB_TITLE'),
+      text: this.translate.instant('COURSE_ASSIGNMENTS.SWAL_DEL_SUB_DESC'),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#EF4444',
       cancelButtonColor: '#87949C',
-      confirmButtonText: 'Yes, delete it'
+      confirmButtonText: this.translate.instant('COURSE_ASSIGNMENTS.SWAL_DEL_SUB_CONFIRM')
     }).then(result => {
       if (result.isConfirmed) {
         this.assignmentService.deleteSubmission(this.course.id, assignment.id, submissionId).subscribe({
           next: () => {
-            this.toastr.success('Submission deleted');
+            this.toastr.success(this.translate.instant('COURSE_ASSIGNMENTS.TOAST_DEL_SUB_SUCCESS'));
             const map = new Map(this.submissionsMap());
             const subs = (map.get(assignment.id) ?? []).filter(s => s.id !== submissionId);
             map.set(assignment.id, subs);
@@ -371,7 +381,7 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
             );
           },
           error: (err) => {
-            this.toastr.error(err.error?.message || 'Failed to delete submission');
+            this.toastr.error(err.error?.message || this.translate.instant('COURSE_ASSIGNMENTS.TOAST_DEL_SUB_ERR'));
           }
         });
       }
@@ -380,25 +390,25 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
 
   gradeSubmission(assignment: AssignmentResponse, submission: AssignmentSubmissionResponse): void {
     Swal.fire({
-      title: 'Score Submission',
+      title: this.translate.instant('COURSE_ASSIGNMENTS.SWAL_SCORE_TITLE'),
       html: `
         <div class="swal-form-group">
-          <label>Score Awarded (Max: 100)</label>
+          <label>${this.translate.instant('COURSE_ASSIGNMENTS.SWAL_SCORE_LABEL')}</label>
           <input id="swal-points" class="swal2-input" type="number" step="0.5" value="${submission.pointsAwarded ?? ''}" min="0" max="100">
         </div>
         <div class="swal-form-group">
-          <label>Feedback (Optional)</label>
-          <textarea id="swal-feedback" class="swal2-textarea" placeholder="Add feedback...">${submission.feedback || ''}</textarea>
+          <label>${this.translate.instant('COURSE_ASSIGNMENTS.SWAL_FEEDBACK_LABEL')}</label>
+          <textarea id="swal-feedback" class="swal2-textarea" placeholder="${this.translate.instant('COURSE_ASSIGNMENTS.SWAL_FEEDBACK_LABEL')}">${submission.feedback || ''}</textarea>
         </div>
       `,
       showCancelButton: true,
-      confirmButtonText: 'Save Score',
+      confirmButtonText: this.translate.instant('COURSE_ASSIGNMENTS.SWAL_SAVE_SCORE'),
       preConfirm: () => {
         const pointsVal = (document.getElementById('swal-points') as HTMLInputElement).value;
         const feedbackVal = (document.getElementById('swal-feedback') as HTMLTextAreaElement).value;
         
         if (!pointsVal) {
-          Swal.showValidationMessage('Score awarded is required');
+          Swal.showValidationMessage(this.translate.instant('COURSE_ASSIGNMENTS.SWAL_ERR_SCORE_REQ'));
           return null;
         }
 
@@ -412,7 +422,7 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
         this.assignmentService.reviewSubmission(this.course.id, assignment.id, submission.id, result.value).subscribe({
           next: (res) => {
             if (res.success && res.data) {
-              this.toastr.success('Submission scored successfully!');
+              this.toastr.success(this.translate.instant('COURSE_ASSIGNMENTS.TOAST_SCORE_SUCCESS'));
               
               // Update submission locally
               const map = new Map(this.submissionsMap());
@@ -423,7 +433,7 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
             }
           },
           error: (err) => {
-            this.toastr.error(err.error?.message || 'Failed to grade submission');
+            this.toastr.error(err.error?.message || this.translate.instant('COURSE_ASSIGNMENTS.TOAST_SCORE_ERR'));
           }
         });
       }
@@ -452,7 +462,7 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
   submitMyWork(): void {
     const assignment = this.selectedAssignment();
     if (!assignment || !this.selectedSubmissionFile) {
-      this.toastr.warning('Please select a file to submit.');
+      this.toastr.warning(this.translate.instant('COURSE_ASSIGNMENTS.TOAST_WARN_SELECT_FILE'));
       return;
     }
 
@@ -463,7 +473,7 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
     this.assignmentService.submitAssignment(this.course.id, assignment.id, formData).subscribe({
       next: (res) => {
         if (res.success && res.data) {
-          this.toastr.success('Assignment submitted successfully!');
+          this.toastr.success(this.translate.instant('COURSE_ASSIGNMENTS.TOAST_SUBMIT_SUCCESS'));
           this.assignments.update(list =>
             list.map(a => a.id === assignment.id
               ? { ...a, mySubmission: res.data!, submissionCount: a.submissionCount + 1 }
@@ -474,7 +484,7 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
         this.isSubmitting.set(false);
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Failed to submit assignment');
+        this.toastr.error(err.error?.message || this.translate.instant('COURSE_ASSIGNMENTS.TOAST_SUBMIT_ERR'));
         this.isSubmitting.set(false);
       }
     });
@@ -482,20 +492,20 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
 
   deleteMySubmission(assignment: AssignmentResponse): void {
     Swal.fire({
-      title: 'Remove Your Submission?',
-      text: 'You can re-submit a new file afterwards (while the deadline is open).',
+      title: this.translate.instant('COURSE_ASSIGNMENTS.SWAL_RM_SUB_TITLE'),
+      text: this.translate.instant('COURSE_ASSIGNMENTS.SWAL_RM_SUB_DESC'),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#EF4444',
       cancelButtonColor: '#87949C',
-      confirmButtonText: 'Yes, remove it'
+      confirmButtonText: this.translate.instant('COURSE_ASSIGNMENTS.SWAL_RM_SUB_CONFIRM')
     }).then(result => {
       if (result.isConfirmed && assignment.mySubmission) {
         this.assignmentService.deleteSubmission(
           this.course.id, assignment.id, assignment.mySubmission.id
         ).subscribe({
           next: () => {
-            this.toastr.success('Your submission was removed');
+            this.toastr.success(this.translate.instant('COURSE_ASSIGNMENTS.TOAST_RM_SUB_SUCCESS'));
             this.assignments.update(list =>
               list.map(a => a.id === assignment.id
                 ? { ...a, mySubmission: null, submissionCount: a.submissionCount - 1 }
@@ -503,7 +513,7 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
             );
           },
           error: (err) => {
-            this.toastr.error(err.error?.message || 'Failed to remove submission');
+            this.toastr.error(err.error?.message || this.translate.instant('COURSE_ASSIGNMENTS.TOAST_RM_SUB_ERR'));
           }
         });
       }
@@ -532,10 +542,10 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
 
   getDueLabel(assignment: AssignmentResponse): string {
     if (!assignment.dueDate) return '';
-    if (assignment.isPastDue) return 'Past Due';
+    if (assignment.isPastDue) return this.translate.instant('COURSE_ASSIGNMENTS.PAST_DUE');
     
     let diff = new Date(assignment.dueDate).getTime() - this.now();
-    if (diff <= 0) return 'Past Due';
+    if (diff <= 0) return this.translate.instant('COURSE_ASSIGNMENTS.PAST_DUE');
 
     const days  = Math.floor(diff / (1000 * 60 * 60 * 24));
     diff -= days * (1000 * 60 * 60 * 24);
@@ -548,10 +558,12 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
     
     const secs = Math.floor(diff / 1000);
     
-    if (days > 0) return `Due in ${days}d ${hours}h ${mins}m ${secs}s`;
-    if (hours > 0) return `Due in ${hours}h ${mins}m ${secs}s`;
-    if (mins > 0) return `Due in ${mins}m ${secs}s`;
-    return `Due in ${secs}s`;
+    const dueInText = this.translate.instant('COURSE_ASSIGNMENTS.DUE_IN');
+
+    if (days > 0) return `${dueInText} ${days}d ${hours}h ${mins}m ${secs}s`;
+    if (hours > 0) return `${dueInText} ${hours}h ${mins}m ${secs}s`;
+    if (mins > 0) return `${dueInText} ${mins}m ${secs}s`;
+    return `${dueInText} ${secs}s`;
   }
 
   formatBytes(bytes: number): string {

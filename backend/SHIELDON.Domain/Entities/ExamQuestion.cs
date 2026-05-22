@@ -1,4 +1,5 @@
 using SHIELDON.Domain.Enums;
+using SHIELDON.Domain.Common;
 
 namespace SHIELDON.Domain.Entities;
 
@@ -6,7 +7,7 @@ namespace SHIELDON.Domain.Entities;
 /// A single question that lives in a course's centralized question bank.
 /// Questions are no longer exam-specific; any exam in the course can draw from this bank.
 /// </summary>
-public class ExamQuestion
+public class ExamQuestion : ITranslatable
 {
     public Guid Id { get; set; }
 
@@ -14,7 +15,10 @@ public class ExamQuestion
     public Guid CourseId { get; set; }
 
     // ── Content ─────────────────────────────────────────────────
+    [Translatable]
     public string QuestionText { get; set; } = string.Empty;
+    
+    public string? Translations { get; set; }
     public QuestionType Type { get; set; }
     public decimal Points { get; set; }
     public int OrderIndex { get; set; }

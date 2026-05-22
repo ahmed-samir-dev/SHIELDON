@@ -4,15 +4,15 @@
       <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
     </div>
     
-    <h2>Payment Cancelled</h2>
-    <p>Your payment process was cancelled. No charges were made to your account. You can try again at any time from the Payment Hub.</p>
+    <h2>{{ 'PAYMENT_CANCEL.TITLE' | translate }}</h2>
+    <p>{{ 'PAYMENT_CANCEL.DESC' | translate }}</p>
     
     <div class="action-buttons">
       <a routerLink="/payment-hub" class="btn btn-primary">
-        Try Again
+        {{ 'PAYMENT_CANCEL.BTN_TRY_AGAIN' | translate }}
       </a>
       <button (click)="goToDashboard()" class="btn btn-secondary">
-        Go to Courses
+        {{ 'PAYMENT_CANCEL.BTN_COURSES' | translate }}
       </button>
     </div>
   </div>

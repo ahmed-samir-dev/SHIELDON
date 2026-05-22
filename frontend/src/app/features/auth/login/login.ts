@@ -5,15 +5,17 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
 import { UserRole } from '../../../core/models/user-role.enum';
 import { ToastrService } from 'ngx-toastr';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslateModule],
   templateUrl: './login.html',
   styleUrl: './login.scss'
 })
 export class Login {
+  private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -45,7 +47,10 @@ export class Login {
     this.authService.login({ email: email!, password: password! }).subscribe({
       next: (response) => {
         const user = response.data;
-        this.toastr.success(`Welcome back, ${user.firstName}! 👋`, 'Login Successful');
+        this.toastr.success(
+          this.translate.instant('LOGIN.TOAST_SUCCESS', { name: user.firstName }),
+          this.translate.instant('LOGIN.TOAST_SUCCESS_TITLE')
+        );
         const returnUrl = this.route.snapshot.queryParams['returnUrl'] || this._getDashboardRoute(user.role);
         this.router.navigateByUrl(returnUrl);
       },
@@ -55,8 +60,11 @@ export class Login {
         this.errorMessage.set(msg);
         
         // Premium touch: if account is unverified, toast a helpful message
-        if (msg.toLowerCase().includes('verify')) {
-          this.toastr.info('Need a new link? Check the error message below.', 'Account Unverified');
+        if (msg.toLowerCase().includes('verify') || msg.toLowerCase().includes('تحقق')) {
+          this.toastr.info(
+            this.translate.instant('LOGIN.TOAST_UNVERIFIED'),
+            this.translate.instant('LOGIN.TOAST_INFO_TITLE')
+          );
         }
       },
       complete: () => {
@@ -73,11 +81,17 @@ export class Login {
     this.authService.resendVerification({ email }).subscribe({
       next: (res: any) => {
         this.isLoading.set(false);
-        this.toastr.success(res.message || 'Verification email sent! Please check Mailtrap.', 'Success');
+        this.toastr.success(
+          res.message || this.translate.instant('LOGIN.TOAST_RESEND_SUCCESS'),
+          this.translate.instant('LOGIN.TOAST_SUCCESS_TITLE')
+        );
       },
       error: (err) => {
         this.isLoading.set(false);
-        this.toastr.error(err.error?.message || 'Failed to resend email.', 'Error');
+        this.toastr.error(
+          err.error?.message || this.translate.instant('LOGIN.TOAST_RESEND_ERROR'),
+          this.translate.instant('LOGIN.TOAST_ERROR_TITLE')
+        );
       }
     });
   }
@@ -86,7 +100,7 @@ export class Login {
     switch (role) {
       case UserRole.Admin: return '/admin/dashboard';
       case UserRole.Tutor: return '/courses';
-      case UserRole.Student: return '/student/dashboard';
+      case UserRole.Student: return '/courses';
       default: return '/';
     }
   }

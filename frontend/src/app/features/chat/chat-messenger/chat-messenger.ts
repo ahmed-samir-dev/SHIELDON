@@ -5,11 +5,12 @@ import { ChatService } from '../../../core/services/chat.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ChatMessageDto, ChatUserDto, ConversationSummaryDto, SendMessageRequest } from '../../../core/models/chat.model';
 import { environment } from '../../../../environments/environment';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-chat-messenger',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslateModule],
   templateUrl: './chat-messenger.html',
   styleUrls: ['./chat-messenger.scss']
 })
@@ -26,6 +27,10 @@ export class ChatMessengerComponent implements OnInit, OnDestroy {
   availableUsers = signal<ChatUserDto[]>([]);
   userSearchQuery = signal<string>('');
   selectedRoleFilter = signal<string>('All');
+  
+  // Message UI State
+  expandedMessages = signal<Set<string>>(new Set());
+  private typingTimeout: any = null;
 
   ngOnInit(): void {
     this.chatService.startConnection();
@@ -152,9 +157,32 @@ export class ChatMessengerComponent implements OnInit, OnDestroy {
 
   getAvatarUrl(path: string | undefined | null): string | null {
     if (!path) return null;
-    // If it's already an absolute URL (e.g. from Google login), return as is
     if (path.startsWith('http')) return path;
     const apiUrl = environment.apiUrl.replace('/api', '');
     return `${apiUrl}/${path}`;
+  }
+
+  onTyping(): void {
+    const conv = this.activeConversation();
+    if (!conv || conv.conversationId === 'NEW') return;
+
+    if (!this.typingTimeout) {
+      this.chatService.notifyTyping(conv.otherUserId);
+      this.typingTimeout = setTimeout(() => {
+        this.typingTimeout = null;
+      }, 1000); // Only send one typing notification per second while typing
+    }
+  }
+
+  toggleMessageSize(messageId: string): void {
+    this.expandedMessages.update(set => {
+      const newSet = new Set(set);
+      if (newSet.has(messageId)) {
+        newSet.delete(messageId);
+      } else {
+        newSet.add(messageId);
+      }
+      return newSet;
+    });
   }
 }

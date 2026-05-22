@@ -1,4 +1,5 @@
 using SHIELDON.Domain.Enums;
+using SHIELDON.Domain.Common;
 
 namespace SHIELDON.Domain.Entities;
 
@@ -7,12 +8,13 @@ namespace SHIELDON.Domain.Entities;
 /// A course is created by an Admin and assigned to a Tutor.
 /// Students can request enrollment; a Tutor or Admin reviews the request.
 /// </summary>
-public class Course
+public class Course : ITranslatable
 {
     public Guid Id { get; set; }
 
     // ── Core Info ───────────────────────────────────────────────
     /// <summary>Display name of the course (e.g., "Introduction to Networks").</summary>
+    [Translatable]
     public string Title { get; set; } = string.Empty;
 
     /// <summary>
@@ -25,7 +27,10 @@ public class Course
     public decimal CourseFee { get; set; } = 0.00m;
 
     /// <summary>Optional longer description shown on the course page.</summary>
+    [Translatable]
     public string? Description { get; set; }
+
+    public string? Translations { get; set; }
 
     // ── Ownership ───────────────────────────────────────────────
     /// <summary>The Tutor (User) assigned to deliver this course. Null if not yet assigned.</summary>

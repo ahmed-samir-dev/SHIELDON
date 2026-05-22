@@ -1,21 +1,27 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { LucideAngularModule, Search, CheckCircle, XCircle, AlertCircle, Eye, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-angular';
 import Swal from 'sweetalert2';
 import { ReattemptService, ReattemptRequestResponse } from '../services/reattempt.service';
+import { LanguageService } from '../../../core/services/language.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-reattempt-requests',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, LucideAngularModule, TranslateModule],
   templateUrl: './reattempt-requests.html',
   styleUrl: './reattempt-requests.scss'
 })
-export class ReattemptRequestsComponent implements OnInit {
+export class ReattemptRequestsComponent implements OnInit, OnDestroy {
   private reattemptService = inject(ReattemptService);
   private toastr = inject(ToastrService);
+  private languageService = inject(LanguageService);
+  public translate = inject(TranslateService);
+  private langSub!: Subscription;
 
   // Icons
   readonly Search = Search;
@@ -44,6 +50,11 @@ export class ReattemptRequestsComponent implements OnInit {
 
   ngOnInit() {
     this.loadRequests();
+    this.langSub = this.languageService.languageChange$.subscribe(() => this.loadRequests());
+  }
+
+  ngOnDestroy() {
+    this.langSub?.unsubscribe();
   }
 
   loadRequests() {
@@ -62,7 +73,7 @@ export class ReattemptRequestsComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Failed to load requests');
+        this.toastr.error(err.error?.message || this.translate.instant('REATTEMPT_REQUESTS.TOAST_ERR_LOAD'));
         this.isLoading.set(false);
       }
     });
@@ -96,7 +107,7 @@ export class ReattemptRequestsComponent implements OnInit {
 
   viewJustification(req: ReattemptRequestResponse) {
     Swal.fire({
-      title: 'Student Justification',
+      title: this.translate.instant('REATTEMPT_REQUESTS.SWAL_JUSTIFICATION_TITLE'),
       text: req.justification,
       icon: 'info',
       confirmButtonColor: '#215DAE'
@@ -105,13 +116,14 @@ export class ReattemptRequestsComponent implements OnInit {
 
   approveRequest(id: string, studentName: string) {
     Swal.fire({
-      title: 'Approve Request?',
-      text: `Are you sure you want to approve ${studentName}'s re-attempt request? They will be able to take the exam again immediately.`,
+      title: this.translate.instant('REATTEMPT_REQUESTS.SWAL_APPROVE_TITLE'),
+      text: this.translate.instant('REATTEMPT_REQUESTS.SWAL_APPROVE_DESC').replace('{student}', studentName),
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#16A34A',
       cancelButtonColor: '#87949C',
-      confirmButtonText: 'Yes, Approve'
+      confirmButtonText: this.translate.instant('REATTEMPT_REQUESTS.SWAL_BTN_APPROVE'),
+      cancelButtonText: this.translate.instant('EXAM_RESULT_PAGE.SWAL_BTN_CANCEL')
     }).then((result) => {
       if (result.isConfirmed) {
         this.reattemptService.reviewRequest(id, { approved: true }).subscribe({
@@ -119,7 +131,7 @@ export class ReattemptRequestsComponent implements OnInit {
             this.toastr.success(res.message);
             this.loadRequests();
           },
-          error: (err) => this.toastr.error(err.error?.message || 'Failed to approve request')
+          error: (err) => this.toastr.error(err.error?.message || this.translate.instant('REATTEMPT_REQUESTS.TOAST_APPROVE_ERR'))
         });
       }
     });
@@ -127,15 +139,16 @@ export class ReattemptRequestsComponent implements OnInit {
 
   rejectRequest(id: string, studentName: string) {
     Swal.fire({
-      title: 'Reject Request',
-      text: `Rejecting ${studentName}'s request. You may provide an optional reason below.`,
+      title: this.translate.instant('REATTEMPT_REQUESTS.SWAL_REJECT_TITLE'),
+      text: this.translate.instant('REATTEMPT_REQUESTS.SWAL_REJECT_DESC').replace('{student}', studentName),
       input: 'textarea',
-      inputPlaceholder: 'Reason for rejection (optional)...',
+      inputPlaceholder: this.translate.instant('REATTEMPT_REQUESTS.SWAL_REJECT_PLACEHOLDER'),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#DC2626',
       cancelButtonColor: '#87949C',
-      confirmButtonText: 'Reject'
+      confirmButtonText: this.translate.instant('REATTEMPT_REQUESTS.SWAL_BTN_REJECT'),
+      cancelButtonText: this.translate.instant('EXAM_RESULT_PAGE.SWAL_BTN_CANCEL')
     }).then((result) => {
       if (result.isConfirmed) {
         this.reattemptService.reviewRequest(id, { 
@@ -146,7 +159,7 @@ export class ReattemptRequestsComponent implements OnInit {
             this.toastr.success(res.message);
             this.loadRequests();
           },
-          error: (err) => this.toastr.error(err.error?.message || 'Failed to reject request')
+          error: (err) => this.toastr.error(err.error?.message || this.translate.instant('REATTEMPT_REQUESTS.TOAST_REJECT_ERR'))
         });
       }
     });

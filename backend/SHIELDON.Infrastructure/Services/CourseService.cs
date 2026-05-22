@@ -282,7 +282,7 @@ public class CourseService : ICourseService
                     existing.ReviewedAt = null;
                     existing.RequestedAt = DateTime.UtcNow;
                     existing.UpdatedAt = DateTime.UtcNow;
-                    // DO NOT reset RejectionCount — it accumulates for the block check
+                    // DO NOT reset RejectionCount - it accumulates for the block check
 
                     await _db.SaveChangesAsync(ct);
                     await NotifyAdminsAndTutorOfRequestAsync(course.Id, course.Title, studentId, ct);
@@ -305,7 +305,7 @@ public class CourseService : ICourseService
             }
         }
 
-        // No prior record — create a fresh enrollment request
+        // No prior record - create a fresh enrollment request
         var enrollment = new CourseEnrollment
         {
             StudentId = studentId,

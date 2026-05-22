@@ -5,11 +5,12 @@ import { QuestionBankService } from '../services/question-bank.service';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
 import { AddOptionRequest, AddQuestionRequest, ExamQuestion, UpdateQuestionRequest } from '../../../core/models/question.model';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-course-question-bank',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './course-question-bank.component.html',
   styleUrl: './course-question-bank.component.scss'
 })
@@ -19,6 +20,7 @@ export class CourseQuestionBankComponent implements OnInit {
   private questionBankService = inject(QuestionBankService);
   private toastr = inject(ToastrService);
   private fb = inject(FormBuilder);
+  private translate = inject(TranslateService);
 
   questions = signal<ExamQuestion[]>([]);
   mcqCount = computed(() => this.questions().filter(q => q.type === 'MCQ').length);
@@ -77,7 +79,7 @@ export class CourseQuestionBankComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Failed to load questions');
+        this.toastr.error(err.error?.message || this.translate.instant('COURSE_QUESTION_BANK.TOAST_LOAD_ERR'));
         this.isLoading.set(false);
       }
     });
@@ -152,7 +154,7 @@ export class CourseQuestionBankComponent implements OnInit {
     if (this.optionsFormArray.length > 2) {
       this.optionsFormArray.removeAt(index);
     } else {
-      this.toastr.warning('MCQ questions must have at least 2 options.');
+      this.toastr.warning(this.translate.instant('COURSE_QUESTION_BANK.TOAST_MCQ_MIN'));
     }
   }
 
@@ -201,7 +203,7 @@ export class CourseQuestionBankComponent implements OnInit {
         
         const correctCount = options.filter(o => o.isCorrect).length;
         if (correctCount !== 1) {
-          this.toastr.error('MCQ must have exactly 1 correct option.');
+          this.toastr.error(this.translate.instant('COURSE_QUESTION_BANK.TOAST_MCQ_EXACTLY_ONE'));
           this.isSubmitting.set(false);
           return;
         }
@@ -212,11 +214,11 @@ export class CourseQuestionBankComponent implements OnInit {
 
       this.questionBankService.updateQuestion(this.courseId, this.editingQuestionId()!, updateReq).subscribe({
         next: () => {
-          this.toastr.success('Question updated successfully');
+          this.toastr.success(this.translate.instant('COURSE_QUESTION_BANK.TOAST_UPDATE_SUCCESS'));
           this.finishSubmit();
         },
         error: (err) => {
-          this.toastr.error(err.error?.message || 'Failed to update question');
+          this.toastr.error(err.error?.message || this.translate.instant('COURSE_QUESTION_BANK.TOAST_UPDATE_ERR'));
           this.isSubmitting.set(false);
         }
       });
@@ -237,7 +239,7 @@ export class CourseQuestionBankComponent implements OnInit {
         
         const correctCount = options.filter(o => o.isCorrect).length;
         if (correctCount !== 1) {
-          this.toastr.error('MCQ must have exactly 1 correct option.');
+          this.toastr.error(this.translate.instant('COURSE_QUESTION_BANK.TOAST_MCQ_EXACTLY_ONE'));
           this.isSubmitting.set(false);
           return;
         }
@@ -248,11 +250,11 @@ export class CourseQuestionBankComponent implements OnInit {
 
       this.questionBankService.addQuestion(this.courseId, req).subscribe({
         next: () => {
-          this.toastr.success('Question added successfully');
+          this.toastr.success(this.translate.instant('COURSE_QUESTION_BANK.TOAST_ADD_SUCCESS'));
           this.finishSubmit();
         },
         error: (err) => {
-          this.toastr.error(err.error?.message || 'Failed to add question');
+          this.toastr.error(err.error?.message || this.translate.instant('COURSE_QUESTION_BANK.TOAST_ADD_ERR'));
           this.isSubmitting.set(false);
         }
       });
@@ -267,22 +269,22 @@ export class CourseQuestionBankComponent implements OnInit {
 
   deleteQuestion(questionId: string) {
     Swal.fire({
-      title: 'Delete Question?',
-      text: 'Are you sure you want to delete this question? This cannot be undone.',
+      title: this.translate.instant('COURSE_QUESTION_BANK.SWAL_DEL_TITLE'),
+      text: this.translate.instant('COURSE_QUESTION_BANK.SWAL_DEL_TEXT'),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#EF4444',
       cancelButtonColor: '#87949C',
-      confirmButtonText: 'Yes, delete it'
+      confirmButtonText: this.translate.instant('COURSE_QUESTION_BANK.SWAL_BTN_DEL')
     }).then((result) => {
       if (result.isConfirmed) {
         this.questionBankService.deleteQuestion(this.courseId, questionId).subscribe({
           next: () => {
-            this.toastr.success('Question deleted successfully');
+            this.toastr.success(this.translate.instant('COURSE_QUESTION_BANK.TOAST_DEL_SUCCESS'));
             this.loadQuestions();
           },
           error: (err) => {
-            this.toastr.error(err.error?.message || 'Failed to delete question');
+            this.toastr.error(err.error?.message || this.translate.instant('COURSE_QUESTION_BANK.TOAST_DEL_ERR'));
           }
         });
       }
@@ -326,9 +328,9 @@ export class CourseQuestionBankComponent implements OnInit {
 
   formatType(type: string): string {
     switch(type) {
-      case 'MCQ': return 'Multiple Choice';
-      case 'TrueFalse': return 'True/False';
-      case 'ShortAnswer': return 'Short Answer';
+      case 'MCQ': return this.translate.instant('COURSE_QUESTION_BANK.TYPE_MCQ');
+      case 'TrueFalse': return this.translate.instant('COURSE_QUESTION_BANK.TYPE_TF');
+      case 'ShortAnswer': return this.translate.instant('COURSE_QUESTION_BANK.TYPE_SA');
       default: return type;
     }
   }

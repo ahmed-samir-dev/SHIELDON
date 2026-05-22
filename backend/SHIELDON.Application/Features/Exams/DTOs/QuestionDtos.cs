@@ -29,7 +29,7 @@ public record UpdateQuestionRequest(
     bool? TrueFalseCorrectAnswer = null
 );
 
-/// <summary>Bulk reorder payload — send all questions with their new OrderIndex values.</summary>
+/// <summary>Bulk reorder payload - send all questions with their new OrderIndex values.</summary>
 public record ReorderQuestionsRequest(List<QuestionOrderItem> Items);
 public record QuestionOrderItem(Guid QuestionId, int OrderIndex);
 
@@ -59,7 +59,7 @@ public record ExamSelectionRuleResponse(
 // ── Question Bank Response DTOs ───────────────────────────────────────────────
 
 /// <summary>
-/// Full question detail — returned to Tutor/Admin.
+/// Full question detail - returned to Tutor/Admin.
 /// Options include IsCorrect.
 /// Students NEVER receive IsCorrect (filtered at service level).
 /// </summary>

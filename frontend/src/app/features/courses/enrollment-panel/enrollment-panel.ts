@@ -6,11 +6,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { EnrollmentResponse, StudentEnrollmentStatusResponse } from '../../../core/models/courses.model';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-enrollment-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslateModule],
   templateUrl: './enrollment-panel.html',
   styleUrl: './enrollment-panel.scss'
 })
@@ -18,6 +19,7 @@ export class EnrollmentPanel implements OnInit {
   private courseService = inject(CourseService);
   public authService = inject(AuthService);
   private toastr = inject(ToastrService);
+  private translate = inject(TranslateService);
 
   pendingRequests = signal<EnrollmentResponse[]>([]);
   approvedStudents = signal<EnrollmentResponse[]>([]);
@@ -114,7 +116,7 @@ export class EnrollmentPanel implements OnInit {
 
   private handleError() {
     this.isLoading.set(false);
-    this.toastr.error('Failed to load enrollments.');
+    this.toastr.error(this.translate.instant('ENROLLMENT_PANEL.TOAST_LOAD_ERR'));
   }
 
   // ── Review Actions (Admin/Tutor) ───────────────────────────────────────
@@ -155,10 +157,11 @@ export class EnrollmentPanel implements OnInit {
   private executeSingleReview(id: string, approved: boolean, reason: string | null) {
     this.courseService.reviewEnrollment(id, { approved, rejectionReason: reason }).subscribe({
       next: () => {
-        this.toastr.success(`Enrollment ${approved ? 'approved' : 'rejected'} successfully.`);
+        const status = approved ? this.translate.instant('ENROLLMENT_PANEL.STATUS_APPROVED') : this.translate.instant('ENROLLMENT_PANEL.STATUS_REJECTED');
+        this.toastr.success(this.translate.instant('ENROLLMENT_PANEL.TOAST_REVIEW_SUCCESS').replace('{status}', status));
         this.loadData();
       },
-      error: () => this.toastr.error('Failed to process review.')
+      error: () => this.toastr.error(this.translate.instant('ENROLLMENT_PANEL.TOAST_REVIEW_ERR'))
     });
   }
 
@@ -185,21 +188,21 @@ export class EnrollmentPanel implements OnInit {
 
     this.courseService.bulkReviewEnrollments(request).subscribe({
       next: () => {
-        this.toastr.success(`${request.enrollmentIds.length} enrollment(s) processed.`);
+        this.toastr.success(this.translate.instant('ENROLLMENT_PANEL.TOAST_BULK_SUCCESS').replace('{count}', request.enrollmentIds.length.toString()));
         this.loadData();
       },
-      error: () => this.toastr.error('Failed to process bulk review.')
+      error: () => this.toastr.error(this.translate.instant('ENROLLMENT_PANEL.TOAST_BULK_ERR'))
     });
   }
 
   private async promptForRejectionReason(): Promise<string | false> {
     const { value: reason, isConfirmed } = await Swal.fire({
-      title: 'Reject Enrollment',
+      title: this.translate.instant('ENROLLMENT_PANEL.SWAL_REJECT_TITLE'),
       input: 'textarea',
-      inputLabel: 'Reason for Rejection (Optional but recommended)',
-      inputPlaceholder: 'Type your message here...',
+      inputLabel: this.translate.instant('ENROLLMENT_PANEL.SWAL_REJECT_LABEL'),
+      inputPlaceholder: this.translate.instant('ENROLLMENT_PANEL.SWAL_REJECT_PLACEHOLDER'),
       showCancelButton: true,
-      confirmButtonText: 'Reject',
+      confirmButtonText: this.translate.instant('ENROLLMENT_PANEL.SWAL_BTN_REJECT'),
       confirmButtonColor: '#ef4444',
       cancelButtonColor: '#6b7280'
     });

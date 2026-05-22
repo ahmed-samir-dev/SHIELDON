@@ -145,26 +145,7 @@ public class NotificationService : INotificationService
             if (user != null)
             {
                 string frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:4200";
-                string htmlBody = $@"
-                    <div style='font-family: ""Inter"", ""Helvetica Neue"", Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background-color: #F9FAFB; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #E5E7EB;'>
-                        <div style='background-color: #215DAE; padding: 30px 20px; text-align: center;'>
-                            <h1 style='color: #ffffff; margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px;'>SHIELDON</h1>
-                            <p style='color: #DBEAFE; margin: 5px 0 0 0; font-size: 14px;'>Integrity You Can Trust</p>
-                        </div>
-                        <div style='padding: 40px 30px; background-color: #ffffff;'>
-                            <h2 style='color: #111827; margin: 0 0 15px 0; font-size: 20px; font-weight: 600;'>{title}</h2>
-                            <p style='color: #4B5563; line-height: 1.6; margin: 0 0 25px 0; font-size: 16px;'>{message}</p>
-                            <div style='text-align: center; margin: 35px 0 20px 0;'>
-                                <a href='{frontendUrl}' style='background-color: #215DAE; color: #ffffff; padding: 12px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; transition: background-color 0.2s;'>View Dashboard</a>
-                            </div>
-                        </div>
-                        <div style='background-color: #F3F4F6; padding: 20px; text-align: center; color: #6B7280; font-size: 13px; border-top: 1px solid #E5E7EB;'>
-                            <p style='margin: 0;'>This is an automated system notification from SHIELDON LMS.</p>
-                            <p style='margin: 5px 0 0 0;'>Please do not reply directly to this email.</p>
-                        </div>
-                    </div>";
-
-                await _emailService.SendEmailAsync(user.Email, $"{user.FirstName} {user.LastName}", $"SHIELDON: {title}", htmlBody);
+                await _emailService.SendNotificationEmailAsync(user.Email, $"{user.FirstName} {user.LastName}", title, message, frontendUrl);
             }
         }
     }

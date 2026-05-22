@@ -84,7 +84,7 @@ public class AuthService : IAuthService
         // 1. Normalise the email to prevent case-sensitive duplicates
         var email = request.Email.Trim().ToLowerInvariant();
 
-        // 2. Look up user — never expose whether the email exists (use generic error)
+        // 2. Look up user - never expose whether the email exists (use generic error)
         var user = await _db.Users
             .FirstOrDefaultAsync(u => u.Email == email, ct);
 
@@ -228,7 +228,7 @@ public class AuthService : IAuthService
             storedToken.RevokedReason = "Logout";
             await _db.SaveChangesAsync(ct);
         }
-        // Silently succeed even if token not found — idempotent logout
+        // Silently succeed even if token not found - idempotent logout
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -268,7 +268,7 @@ public class AuthService : IAuthService
         var email = request.Email.Trim().ToLowerInvariant();
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
 
-        // Silently succeed if email not found — prevents enumeration
+        // Silently succeed if email not found - prevents enumeration
         if (user is null) return;
 
         if (user.AccountStatus == AccountStatus.Active)
@@ -291,7 +291,7 @@ public class AuthService : IAuthService
         user.UpdatedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync(ct);
 
-        // Send the email (fire-and-forget — don't fail the request on SMTP error)
+        // Send the email (fire-and-forget - don't fail the request on SMTP error)
         _ = _emailService.SendEmailVerificationAsync(user.Email, user.FullName, token);
     }
 

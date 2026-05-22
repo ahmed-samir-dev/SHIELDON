@@ -46,7 +46,7 @@ export class AntiCheatService implements OnDestroy {
     this._strikeTwoAcknowledged.set(true);
   }
 
-  /** Hard reset — call from ExamEngine ngOnInit to guarantee clean state on every visit */
+  /** Hard reset - call from ExamEngine ngOnInit to guarantee clean state on every visit */
   public resetState(): void {
     this._strikeScore.set(0);
     this._strikeTwoAcknowledged.set(false);
@@ -54,7 +54,7 @@ export class AntiCheatService implements OnDestroy {
     this.forceSubmitInProgress = false;
     this.cooldowns.clear();
     this.mousePosBuffer = [];
-    // Do NOT stop listeners here — startMonitoring handles that
+    // Do NOT stop listeners here - startMonitoring handles that
   }
 
   // Violation Stream
@@ -159,7 +159,7 @@ export class AntiCheatService implements OnDestroy {
       this.violationBuffer[this.violationBuffer.length - 1].wasAutoSubmit = true;
     }
 
-    // Final sync — use beacon for reliability
+    // Final sync - use beacon for reliability
     this.syncViolationsBeacon();
     this.attemptId = null;
   }
@@ -256,7 +256,7 @@ export class AntiCheatService implements OnDestroy {
     });
   }
 
-  // Fire via raw fetch immediately — avoids HttpClient zone delays for Critical events
+  // Fire via raw fetch immediately - avoids HttpClient zone delays for Critical events
   private syncViolationsImmediate(): void {
     if (this.violationBuffer.length === 0) return;
     const payload = { violations: [...this.violationBuffer] };
@@ -305,7 +305,7 @@ export class AntiCheatService implements OnDestroy {
     
     if (this.isMonitoring) {
       e.preventDefault();
-      e.returnValue = ''; // Required for Chrome — shows native "Leave site?" dialog
+      e.returnValue = ''; // Required for Chrome - shows native "Leave site?" dialog
     }
   }
 

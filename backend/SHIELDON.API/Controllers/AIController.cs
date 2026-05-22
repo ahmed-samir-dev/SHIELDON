@@ -9,11 +9,11 @@ using SHIELDON.Application.Interfaces;
 namespace SHIELDON.API.Controllers;
 
 /// <summary>
-/// Stage 6.1 — SHIELDON AI Assistant (backend proxy).
+/// Stage 6.1 - SHIELDON AI Assistant (backend proxy).
 ///
-/// POST /api/ai/chat — Proxies a chat message to the Gemini API.
+/// POST /api/ai/chat - Proxies a chat message to the Gemini API.
 ///   All roles: Admin, Tutor, Student (when NOT in an active exam session).
-///   The Gemini API key never reaches the frontend — it lives server-side only.
+///   The Gemini API key never reaches the frontend - it lives server-side only.
 /// </summary>
 [ApiController]
 [Route("api/ai")]

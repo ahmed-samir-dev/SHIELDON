@@ -4,15 +4,17 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastrService } from 'ngx-toastr';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-reset-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslateModule],
   templateUrl: './reset-password.html',
   styleUrl: './reset-password.scss'
 })
 export class ResetPassword implements OnInit {
+  private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
@@ -74,12 +76,15 @@ export class ResetPassword implements OnInit {
       next: () => {
         this.isLoading.set(false);
         this.isSuccess.set(true);
-        this.toastr.success('Your password has been successfully reset.', 'Password Reset');
+        this.toastr.success(
+          this.translate.instant('RESET.SUCCESS_DESC'),
+          this.translate.instant('RESET.SUCCESS_TITLE')
+        );
       },
       error: (err) => {
         this.isLoading.set(false);
         const msg = err.error?.message || 'Failed to reset password. The link might be expired.';
-        this.toastr.error(msg, 'Error');
+        this.toastr.error(msg, this.translate.instant('RESET.TOAST_ERROR_TITLE'));
       }
     });
   }

@@ -79,7 +79,7 @@ public class AuthController : ControllerBase
 
     /// <summary>
     /// POST /api/auth/logout
-    /// Revokes the current refresh token. Silent success — idempotent.
+    /// Revokes the current refresh token. Silent success - idempotent.
     /// Requires authentication (user must pass a valid access token).
     /// </summary>
     [HttpPost("logout")]
@@ -101,7 +101,7 @@ public class AuthController : ControllerBase
     /// <summary>
     /// POST /api/auth/verify-email
     /// Verifies a user's email address using the token from their verification link.
-    /// No authentication required — this is called from the email link.
+    /// No authentication required - this is called from the email link.
     /// </summary>
     [HttpPost("verify-email")]
     [AllowAnonymous]

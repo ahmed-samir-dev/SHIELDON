@@ -1,7 +1,7 @@
 <div class="attendance-student-container">
   <div class="header">
-    <h1>Scan Attendance</h1>
-    <p class="subtitle">Use your camera to scan the dynamic QR code projected by your tutor.</p>
+    <h1>{{ 'ATTENDANCE_STUDENT.TITLE' | translate }}</h1>
+    <p class="subtitle">{{ 'ATTENDANCE_STUDENT.SUBTITLE' | translate }}</p>
   </div>
 
   <div class="scanner-card">
@@ -9,17 +9,17 @@
       <div class="scan-prompt">
         <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h3"/><path d="M20 7V4h-3"/><path d="M4 17v3h3"/><path d="M20 17v3h-3"/><rect width="6" height="6" x="9" y="9" rx="1"/></svg>
         <button class="btn-primary" (click)="startScanner()">
-          Open Camera & Scan
+          {{ 'ATTENDANCE_STUDENT.BTN_SCAN' | translate }}
         </button>
       </div>
 
       @if (isDev) {
         <div class="debug-scanner mt-4 p-4 border border-dashed rounded" style="border-color: var(--color-border); margin-top: 1.5rem; padding: 1.5rem; border-radius: 8px; border-style: dashed;">
-          <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--color-text-light);">Developer Testing (Local Only)</h4>
-          <p style="font-size: 0.8rem; margin-bottom: 1rem; color: var(--color-text-muted);">Paste the QR Payload here from the network tab to test the scan flow without a camera.</p>
+          <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--color-text-light);">{{ 'ATTENDANCE_STUDENT.DEV_TESTING' | translate }}</h4>
+          <p style="font-size: 0.8rem; margin-bottom: 1rem; color: var(--color-text-muted);">{{ 'ATTENDANCE_STUDENT.DEV_DESC' | translate }}</p>
           <div style="display: flex; gap: 0.5rem;">
-            <input #debugPayload type="text" placeholder="e.g. {checkId}|{secret}" class="form-input" style="flex: 1;">
-            <button class="btn-secondary" (click)="handleSuccessfulScan(debugPayload.value)">Simulate Scan</button>
+            <input #debugPayload type="text" [placeholder]="'ATTENDANCE_STUDENT.DEV_PLACEHOLDER' | translate" class="form-input" style="flex: 1;">
+            <button class="btn-secondary" (click)="handleSuccessfulScan(debugPayload.value)">{{ 'ATTENDANCE_STUDENT.BTN_SIMULATE_SCAN' | translate }}</button>
           </div>
         </div>
       }
@@ -28,7 +28,7 @@
     @if (isScanning()) {
       <div class="scanner-active">
         <div id="reader"></div>
-        <button class="btn-secondary" (click)="stopScanner()">Cancel Scan</button>
+        <button class="btn-secondary" (click)="stopScanner()">{{ 'ATTENDANCE_STUDENT.BTN_CANCEL_SCAN' | translate }}</button>
       </div>
     }
 
@@ -41,16 +41,16 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
           }
         </div>
-        <h2>{{ scanResult()?.success ? 'Success!' : 'Scan Failed' }}</h2>
+        <h2>{{ scanResult()?.success ? ('ATTENDANCE_STUDENT.SCAN_SUCCESS' | translate) : ('ATTENDANCE_STUDENT.SCAN_FAILED' | translate) }}</h2>
         <p>{{ scanResult()?.message }}</p>
         
-        <button class="btn-primary mt-3" (click)="startScanner()">Scan Another</button>
+        <button class="btn-primary mt-3" (click)="startScanner()">{{ 'ATTENDANCE_STUDENT.BTN_SCAN_ANOTHER' | translate }}</button>
       </div>
     }
   </div>
 
   <div class="history-section">
-    <h2>My Attendance History</h2>
+    <h2>{{ 'ATTENDANCE_STUDENT.HISTORY_TITLE' | translate }}</h2>
     
     <div class="history-list">
       @for (record of history(); track record.checkId) {
@@ -62,14 +62,14 @@
           <div class="scan-details">
             <div class="status">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              Present {{ record.isManual ? '(Manual)' : '' }}
+              {{ record.isManual ? ('ATTENDANCE_STUDENT.STATUS_PRESENT_MANUAL' | translate) : ('ATTENDANCE_STUDENT.STATUS_PRESENT' | translate) }}
             </div>
             <span class="date">{{ record.scannedAt | date:'medium' }}</span>
           </div>
         </div>
       } @empty {
         <div class="empty-state">
-          <p>You haven't scanned any attendance QR codes yet.</p>
+          <p>{{ 'ATTENDANCE_STUDENT.NO_SCANS' | translate }}</p>
         </div>
       }
     </div>

@@ -3,12 +3,12 @@
   <!-- ══ HEADER ══════════════════════════════════════════════════════ -->
   <div class="exams-header">
     <div class="header-title">
-      <h2>Exams</h2>
+      <h2>{{ 'COURSE_EXAMS.TITLE' | translate }}</h2>
       <p class="subtitle">
         @if (canManageExams()) {
-        Create and manage assessment exams for this course.
+        {{ 'COURSE_EXAMS.SUBTITLE_TUTOR' | translate }}
         } @else {
-        View and take available exams for your course.
+        {{ 'COURSE_EXAMS.SUBTITLE_STUDENT' | translate }}
         }
       </p>
     </div>
@@ -20,7 +20,7 @@
         <line x1="12" y1="5" x2="12" y2="19" />
         <line x1="5" y1="12" x2="19" y2="12" />
       </svg>
-      Create Exam
+      {{ 'COURSE_EXAMS.BTN_CREATE' | translate }}
     </button>
     }
   </div>
@@ -29,7 +29,7 @@
   @if (isLoading()) {
   <div class="loading-state">
     <div class="spinner"></div>
-    <p>Loading exams...</p>
+    <p>{{ 'COURSE_EXAMS.LOADING' | translate }}</p>
   </div>
   } @else if (exams().length === 0) {
   <div class="empty-state">
@@ -42,8 +42,8 @@
         <path d="M9 17h3" />
       </svg>
     </div>
-    <h3>No Exams Found</h3>
-    <p>There are currently no exams available for this course.</p>
+    <h3>{{ 'COURSE_EXAMS.EMPTY_TITLE' | translate }}</h3>
+    <p>{{ 'COURSE_EXAMS.EMPTY_DESC' | translate }}</p>
   </div>
   } @else {
   <div class="exams-feed">
@@ -68,7 +68,7 @@
                 <line x1="15" y1="9" x2="9" y2="15" />
                 <line x1="9" y1="9" x2="15" y2="15" />
               </svg>
-              Expired
+              {{ 'COURSE_EXAMS.STATUS_EXPIRED' | translate }}
             </div>
             } @else if (isExamScheduled(exam)) {
             <div class="timing-badge scheduled">
@@ -77,12 +77,12 @@
                 <circle cx="12" cy="12" r="10" />
                 <polyline points="12 6 12 12 16 14" />
               </svg>
-              Scheduled
+              {{ 'COURSE_EXAMS.STATUS_SCHEDULED' | translate }}
             </div>
             } @else if (isExamActive(exam)) {
             <div class="timing-badge active">
               <span class="live-dot"></span>
-              Active
+              {{ 'COURSE_EXAMS.STATUS_ACTIVE' | translate }}
             </div>
             }
           </div>
@@ -91,28 +91,28 @@
         <h4 class="exam-title">{{ exam.title }}</h4>
 
         <div class="exam-meta">
-          <div class="meta-item" title="Time Limit">
+          <div class="meta-item" [title]="'COURSE_EXAMS.LABEL_TIME_LIMIT' | translate">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
             </svg>
-            {{ exam.timeLimit }} mins
+            {{ exam.timeLimit }} {{ 'COURSE_EXAMS.MINS' | translate }}
           </div>
-          <div class="meta-item" title="Max Attempts">
+          <div class="meta-item" [title]="'COURSE_EXAMS.LABEL_ATTEMPTS' | translate">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="1 4 1 10 7 10"></polyline>
               <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
             </svg>
-            {{ exam.maxAttempts }} Attempt{{ exam.maxAttempts !== 1 ? 's' : '' }}
+            {{ exam.maxAttempts }} {{ exam.maxAttempts !== 1 ? ('COURSE_EXAMS.ATTEMPTS' | translate) : ('COURSE_EXAMS.ATTEMPT' | translate) }}
           </div>
-          <div class="meta-item" title="Pass Score">
+          <div class="meta-item" [title]="'COURSE_EXAMS.LABEL_PASS_SCORE' | translate">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="20 6 9 17 4 12" />
             </svg>
-            {{ exam.passScore }}% Pass
+            {{ exam.passScore }}% {{ 'COURSE_EXAMS.PASS' | translate }}
           </div>
           <div class="meta-item" title="Question Count">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -121,39 +121,38 @@
               <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
               <path d="M12 17h.01" />
             </svg>
-            {{ getExamQuestionCount(exam) }} Questions
+            {{ getExamQuestionCount(exam) }} {{ 'COURSE_EXAMS.QUESTIONS' | translate }}
           </div>
         </div>
 
         @if (isExamScheduled(exam)) {
         <div class="exam-schedule">
-          <p>Starts: {{ exam.scheduledAt | date:'MMM d, y, h:mm a' }}</p>
+          <p>{{ 'COURSE_EXAMS.STARTS' | translate }}: {{ exam.scheduledAt | date:'MMM d, y, h:mm a' }}</p>
         </div>
         } @else if (exam.scheduledEndAt && !isExamExpired(exam)) {
         <div class="exam-schedule">
-          <p>Deadline: {{ exam.scheduledEndAt | date:'MMM d, y, h:mm a' }}</p>
+          <p>{{ 'COURSE_EXAMS.DEADLINE' | translate }}: {{ exam.scheduledEndAt | date:'MMM d, y, h:mm a' }}</p>
         </div>
         }
 
         <div class="card-actions">
-          <!-- Student Actions -->
           @if (!canManageExams()) {
             @if (exam.latestAttemptId) {
               <div class="action-grid" style="display: flex; gap: 8px;">
                 <button class="btn btn-secondary flex-1"
                   [disabled]="exam.status !== 'Published' || isExamScheduled(exam) || isExamExpired(exam)"
                   (click)="takeExam(exam.id)">
-                  {{ isExamExpired(exam) ? 'Deadline Passed' : (isExamScheduled(exam) ? 'Starts at ' + (exam.scheduledAt | date:'MMM d, h:mm a') : 'Take Again') }}
+                  {{ isExamExpired(exam) ? ('COURSE_EXAMS.BTN_DEADLINE_PASSED' | translate) : (isExamScheduled(exam) ? ('COURSE_EXAMS.BTN_STARTS_AT' | translate) + ' ' + (exam.scheduledAt | date:'MMM d, h:mm a') : ('COURSE_EXAMS.BTN_TAKE_AGAIN' | translate)) }}
                 </button>
                 <button class="btn btn-primary flex-1" (click)="viewResults(exam.id, exam.latestAttemptId)">
-                  View Result
+                  {{ 'COURSE_EXAMS.BTN_VIEW_RESULT' | translate }}
                 </button>
               </div>
             } @else {
               <button class="btn btn-secondary w-100"
                 [disabled]="exam.status !== 'Published' || isExamScheduled(exam) || isExamExpired(exam)"
                 (click)="takeExam(exam.id)">
-                {{ isExamExpired(exam) ? 'Deadline Passed' : (isExamScheduled(exam) ? 'Starts at ' + (exam.scheduledAt | date:'MMM d, h:mm a') : 'Take Exam') }}
+                {{ isExamExpired(exam) ? ('COURSE_EXAMS.BTN_DEADLINE_PASSED' | translate) : (isExamScheduled(exam) ? ('COURSE_EXAMS.BTN_STARTS_AT' | translate) + ' ' + (exam.scheduledAt | date:'MMM d, h:mm a') : ('COURSE_EXAMS.BTN_TAKE_EXAM' | translate)) }}
               </button>
             }
           }
@@ -162,39 +161,39 @@
           @if (canManageExams()) {
           <div class="tutor-actions full-width">
             @if (exam.status === 'Draft') {
-            <button class="modern-action-btn publish" title="Publish Exam" (click)="publishExam(exam.id)">
+            <button class="modern-action-btn publish" [title]="'COURSE_EXAMS.ACTION_PUBLISH' | translate" (click)="publishExam(exam.id)">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"></line>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
               </svg>
-              <span>Publish</span>
+              <span>{{ 'COURSE_EXAMS.ACTION_PUBLISH' | translate }}</span>
             </button>
             }
 
             @if (exam.status !== 'Draft') {
-            <button class="modern-action-btn results" title="Manage Results" (click)="manageResults(exam.id)">
+            <button class="modern-action-btn results" [title]="'COURSE_EXAMS.ACTION_RESULTS' | translate" (click)="manageResults(exam.id)">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 20V10"></path>
                 <path d="M18 20V4"></path>
                 <path d="M6 20v-4"></path>
               </svg>
-              <span>Results</span>
+              <span>{{ 'COURSE_EXAMS.ACTION_RESULTS' | translate }}</span>
             </button>
             }
 
-            <button class="modern-action-btn edit" title="View/Edit Details" (click)="openEditModal(exam)">
+            <button class="modern-action-btn edit" [title]="'COURSE_EXAMS.ACTION_EDIT' | translate" (click)="openEditModal(exam)">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
               </svg>
-              <span>Edit</span>
+              <span>{{ 'COURSE_EXAMS.ACTION_EDIT' | translate }}</span>
             </button>
 
             @if (exam.status === 'Draft' || isExamExpired(exam)) {
-            <button class="modern-action-btn delete" title="Delete Exam" (click)="deleteExam(exam.id)">
+            <button class="modern-action-btn delete" [title]="'COURSE_EXAMS.ACTION_DELETE' | translate" (click)="deleteExam(exam.id)">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="3 6 5 6 21 6"></polyline>
@@ -202,7 +201,7 @@
                 <line x1="10" y1="11" x2="10" y2="17"></line>
                 <line x1="14" y1="11" x2="14" y2="17"></line>
               </svg>
-              <span>Delete</span>
+              <span>{{ 'COURSE_EXAMS.ACTION_DELETE' | translate }}</span>
             </button>
             }
           </div>
@@ -229,7 +228,7 @@
               <polyline points="9 14 11 16 15 11"></polyline>
             </svg>
           </div>
-          <h2>{{ editingExamId() ? 'Edit Exam Details' : 'Create New Exam' }}</h2>
+          <h2>{{ editingExamId() ? ('COURSE_EXAMS.MODAL_TITLE_EDIT' | translate) : ('COURSE_EXAMS.MODAL_TITLE_CREATE' | translate) }}</h2>
         </div>
         <button class="close-btn" (click)="closeModal()" aria-label="Close modal">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -254,30 +253,30 @@
             </svg>
           </div>
           <div class="reopen-banner-text">
-            <strong>This exam has expired.</strong>
-            Set a new Scheduled End Date in the future below to re-open it for students.
+            <strong>{{ 'COURSE_EXAMS.REOPEN_BANNER_STRONG' | translate }}</strong>
+            {{ 'COURSE_EXAMS.REOPEN_BANNER_TEXT' | translate }}
           </div>
         </div>
         }
 
 <div class="form-row two-col-equal">
           <div class="form-group">
-            <label>Title <span class="required">*</span></label>
+            <label>{{ 'COURSE_EXAMS.LABEL_TITLE' | translate }} <span class="required">*</span></label>
             <div class="input-wrapper">
               <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
               </svg>
-              <input type="text" formControlName="title" placeholder="e.g. Midterm Assessment"
+              <input type="text" formControlName="title" [placeholder]="'COURSE_EXAMS.PLACEHOLDER_TITLE' | translate"
                 [class.is-invalid]="examForm.get('title')?.touched && examForm.get('title')?.invalid" />
             </div>
             @if (examForm.get('title')?.touched && examForm.get('title')?.invalid) {
-            <span class="error-msg">Title is required.</span>
+            <span class="error-msg">{{ 'COURSE_EXAMS.ERR_TITLE_REQ' | translate }}</span>
             }
           </div>
 
           <div class="form-group">
-            <label>Instructions <span class="optional">(Optional)</span></label>
+            <label>{{ 'COURSE_EXAMS.LABEL_INSTRUCTIONS' | translate }} <span class="optional">{{ 'COURSE_EXAMS.LABEL_OPTIONAL' | translate }}</span></label>
             <div class="input-wrapper text-area-wrapper">
               <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -289,14 +288,14 @@
                 <line x1="3" y1="18" x2="3.01" y2="18" />
               </svg>
               <textarea formControlName="instructions" rows="2"
-                placeholder="Provide instructions for students..."></textarea>
+                [placeholder]="'COURSE_EXAMS.PLACEHOLDER_INSTRUCTIONS' | translate"></textarea>
             </div>
           </div>
         </div>
 
         <div class="form-row two-col-equal">
           <div class="form-group">
-            <label>Time Limit <span class="required">*</span></label>
+            <label>{{ 'COURSE_EXAMS.LABEL_TIME_LIMIT' | translate }} <span class="required">*</span></label>
             <div class="input-wrapper">
               <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -309,7 +308,7 @@
           </div>
 
           <div class="form-group">
-            <label>Attempts <span class="required">*</span></label>
+            <label>{{ 'COURSE_EXAMS.LABEL_ATTEMPTS' | translate }} <span class="required">*</span></label>
             <div class="input-wrapper">
               <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -324,7 +323,7 @@
 
         <div class="form-row two-col-equal">
           <div class="form-group">
-            <label>Pass Score (%) <span class="required">*</span></label>
+            <label>{{ 'COURSE_EXAMS.LABEL_PASS_SCORE' | translate }} <span class="required">*</span></label>
             <div class="input-wrapper">
               <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -336,7 +335,7 @@
           </div>
 
           <div class="form-group">
-            <label>Weight (%) <span class="required">*</span></label>
+            <label>{{ 'COURSE_EXAMS.LABEL_WEIGHT' | translate }} <span class="required">*</span></label>
             <div class="input-wrapper">
               <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
               <input type="number" formControlName="weight" min="0" max="100" placeholder="e.g. 20"
@@ -347,21 +346,21 @@
 
         <div class="form-row three-col-equal">
           <div class="form-group">
-            <label>MCQ Questions <span class="optional">(Optional)</span></label>
+            <label>{{ 'COURSE_EXAMS.LABEL_MCQ' | translate }} <span class="optional">{{ 'COURSE_EXAMS.LABEL_OPTIONAL' | translate }}</span></label>
             <div class="input-wrapper">
               <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
               <input type="number" formControlName="mcqCount" placeholder="0" min="0" />
             </div>
           </div>
           <div class="form-group">
-            <label>True/False Questions <span class="optional">(Optional)</span></label>
+            <label>{{ 'COURSE_EXAMS.LABEL_TF' | translate }} <span class="optional">{{ 'COURSE_EXAMS.LABEL_OPTIONAL' | translate }}</span></label>
             <div class="input-wrapper">
               <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               <input type="number" formControlName="trueFalseCount" placeholder="0" min="0" />
             </div>
           </div>
           <div class="form-group">
-            <label>Short Answer Questions <span class="optional">(Optional)</span></label>
+            <label>{{ 'COURSE_EXAMS.LABEL_SA' | translate }} <span class="optional">{{ 'COURSE_EXAMS.LABEL_OPTIONAL' | translate }}</span></label>
             <div class="input-wrapper">
               <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="3" x2="21" y2="7"/><path d="M21 7L13.5 14.5 9 15l.5-4.5L17 3z"/><path d="M19 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg>
               <input type="number" formControlName="shortAnswerCount" placeholder="0" min="0" />
@@ -374,14 +373,14 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
           </div>
           <div class="alert-content">
-            <span class="alert-title">Questions Required</span>
-            <span class="alert-desc">Please include at least one question (MCQ, True/False, or Short Answer) to build a valid exam.</span>
+            <span class="alert-title">{{ 'COURSE_EXAMS.ALERT_REQ_TITLE' | translate }}</span>
+            <span class="alert-desc">{{ 'COURSE_EXAMS.ALERT_REQ_DESC' | translate }}</span>
           </div>
         </div>
 
         <div class="form-row two-col-equal">
           <div class="form-group">
-            <label>Scheduled Start Date <span class="optional">(Optional)</span></label>
+            <label>{{ 'COURSE_EXAMS.LABEL_SCHEDULED_START' | translate }} <span class="optional">{{ 'COURSE_EXAMS.LABEL_OPTIONAL' | translate }}</span></label>
             <div class="datetime-premium-wrapper">
               <div class="icon-box-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
@@ -398,9 +397,9 @@
 
           <div class="form-group" [class.reopen-highlight]="isEditingExpiredExam()">
             <label>
-              Scheduled End Date <span class="optional">(Optional)</span>
+              {{ 'COURSE_EXAMS.LABEL_SCHEDULED_END' | translate }} <span class="optional">{{ 'COURSE_EXAMS.LABEL_OPTIONAL' | translate }}</span>
               @if (isEditingExpiredExam()) {
-              <span class="reopen-label-hint">← Set a future date to re-open</span>
+              <span class="reopen-label-hint">{{ 'COURSE_EXAMS.REOPEN_HINT' | translate }}</span>
               }
             </label>
             <div class="datetime-premium-wrapper">
@@ -420,14 +419,14 @@
 
 <!-- ── Modern Radio Cards: Result Visibility ── -->
         <div class="form-group">
-          <label>Result Visibility <span class="required">*</span></label>
+          <label>{{ 'COURSE_EXAMS.LABEL_VISIBILITY' | translate }} <span class="required">*</span></label>
           <div class="visibility-premium-hint">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10" />
               <line x1="12" y1="16" x2="12" y2="12" />
               <line x1="12" y1="8" x2="12.01" y2="8" />
             </svg>
-            <span>Controls when students can view their score and detailed feedback.</span>
+            <span>{{ 'COURSE_EXAMS.VISIBILITY_HINT' | translate }}</span>
           </div>
 
           <div class="visibility-cards-grid">
@@ -438,8 +437,8 @@
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
               </div>
               <div class="card-content">
-                <span class="card-title">Immediate</span>
-                <span class="card-desc">Right after submission</span>
+                <span class="card-title">{{ 'COURSE_EXAMS.VISIBILITY_IMMEDIATE_TITLE' | translate }}</span>
+                <span class="card-desc">{{ 'COURSE_EXAMS.VISIBILITY_IMMEDIATE_DESC' | translate }}</span>
               </div>
             </label>
 
@@ -450,8 +449,8 @@
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
               </div>
               <div class="card-content">
-                <span class="card-title">Manual Release</span>
-                <span class="card-desc">Tutor releases scores</span>
+                <span class="card-title">{{ 'COURSE_EXAMS.VISIBILITY_MANUAL_TITLE' | translate }}</span>
+                <span class="card-desc">{{ 'COURSE_EXAMS.VISIBILITY_MANUAL_DESC' | translate }}</span>
               </div>
             </label>
           </div>
@@ -459,12 +458,12 @@
 
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" (click)="closeModal()"
-            [disabled]="isSubmitting()">Cancel</button>
+            [disabled]="isSubmitting()">{{ 'COURSE_EXAMS.BTN_CANCEL' | translate }}</button>
           <button type="submit" class="btn btn-primary" [disabled]="examForm.invalid || isSubmitting()">
             @if (isSubmitting()) {
-            <div class="loader-ring"></div><span>{{ editingExamId() ? 'Updating...' : 'Creating...' }}</span>
+            <div class="loader-ring"></div><span>{{ editingExamId() ? ('COURSE_EXAMS.BTN_UPDATING' | translate) : ('COURSE_EXAMS.BTN_CREATING' | translate) }}</span>
             } @else {
-            <span>{{ editingExamId() ? 'Update Exam' : 'Create Draft Exam' }}</span>
+            <span>{{ editingExamId() ? ('COURSE_EXAMS.BTN_UPDATE' | translate) : ('COURSE_EXAMS.BTN_CREATE_DRAFT' | translate) }}</span>
             }
           </button>
         </div>
@@ -478,7 +477,7 @@
 <div class="attempt-picker-overlay" *ngIf="showAttemptPicker()" (click)="closeAttemptPicker()">
   <div class="attempt-picker-modal" (click)="$event.stopPropagation()">
     <div class="picker-header">
-      <h3>Select an Attempt to View</h3>
+      <h3>{{ 'COURSE_EXAMS.PICKER_TITLE' | translate }}</h3>
       <button class="picker-close" (click)="closeAttemptPicker()">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
@@ -488,10 +487,10 @@
         *ngFor="let attempt of studentAttemptsForPicker(); let idx = index"
         class="picker-item"
         (click)="viewSpecificAttempt(attempt.attemptId)">
-        <div class="attempt-num">Attempt {{ studentAttemptsForPicker().length - idx }}</div>
+        <div class="attempt-num">{{ 'COURSE_EXAMS.PICKER_ATTEMPT_NUM' | translate }} {{ studentAttemptsForPicker().length - idx }}</div>
         <div class="attempt-meta">
           <span class="attempt-score" [class.pass]="attempt.passed" [class.fail]="!attempt.passed && attempt.score !== null">
-            {{ attempt.score !== null ? (attempt.score | number:'1.1-1') + '%' : 'Pending' }}
+            {{ attempt.score !== null ? (attempt.score | number:'1.1-1') + '%' : ('COURSE_EXAMS.PICKER_PENDING' | translate) }}
           </span>
           <span class="attempt-date" *ngIf="attempt.submittedAt">{{ attempt.submittedAt | date:'MMM d, y, h:mm a' }}</span>
         </div>

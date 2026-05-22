@@ -15,7 +15,7 @@ public class ExamAttemptQuestionConfiguration : IEntityTypeConfiguration<ExamAtt
             .HasForeignKey(aq => aq.AttemptId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // No cascade on question deletion — keep the snapshot intact for grading history
+        // No cascade on question deletion - keep the snapshot intact for grading history
         builder.HasOne(aq => aq.Question)
             .WithMany()
             .HasForeignKey(aq => aq.QuestionId)

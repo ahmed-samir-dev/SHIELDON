@@ -4,16 +4,22 @@ import { AttendanceService } from '../../../core/services/attendance.service';
 import { StudentAttendanceHistoryDto } from '../../../core/models/attendance.model';
 import { Html5Qrcode, Html5QrcodeScannerState } from 'html5-qrcode';
 import { environment } from '../../../../environments/environment';
+import { LanguageService } from '../../../core/services/language.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-attendance-student',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './attendance-student.html',
   styleUrls: ['./attendance-student.scss']
 })
 export class AttendanceStudentComponent implements OnInit, OnDestroy {
   private attendanceService = inject(AttendanceService);
+  private languageService = inject(LanguageService);
+  public translate = inject(TranslateService);
+  private langSub!: Subscription;
 
   isDev = !environment.production;
   history = signal<StudentAttendanceHistoryDto[]>([]);
@@ -25,10 +31,12 @@ export class AttendanceStudentComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.loadHistory();
+    this.langSub = this.languageService.languageChange$.subscribe(() => this.loadHistory());
   }
 
   ngOnDestroy() {
     this.stopScanner();
+    this.langSub?.unsubscribe();
   }
 
   private loadHistory() {
@@ -56,7 +64,7 @@ export class AttendanceStudentComponent implements OnInit, OnDestroy {
           // parse errors are ignored, it just keeps scanning
         }
       ).catch(err => {
-        this.scanResult.set({ success: false, message: `Failed to start camera: ${err}` });
+        this.scanResult.set({ success: false, message: this.translate.instant('ATTENDANCE_STUDENT.ERR_CAMERA').replace('{err}', err) });
         this.isScanning.set(false);
       });
     }, 100);
@@ -79,7 +87,7 @@ export class AttendanceStudentComponent implements OnInit, OnDestroy {
     const parts = decodedText.split('|');
     if (parts.length !== 2) {
       this.stopScanner();
-      this.scanResult.set({ success: false, message: 'Invalid QR Code format.' });
+      this.scanResult.set({ success: false, message: this.translate.instant('ATTENDANCE_STUDENT.ERR_INVALID_QR') });
       return;
     }
 
@@ -90,11 +98,11 @@ export class AttendanceStudentComponent implements OnInit, OnDestroy {
 
     this.attendanceService.scanQrCode(checkId, { secret }).subscribe({
       next: (res) => {
-        this.scanResult.set({ success: true, message: 'Attendance marked successfully!' });
+        this.scanResult.set({ success: true, message: this.translate.instant('ATTENDANCE_STUDENT.MSG_SUCCESS') });
         this.loadHistory(); // refresh history
       },
       error: (err) => {
-        this.scanResult.set({ success: false, message: err.error?.message || 'Failed to mark attendance.' });
+        this.scanResult.set({ success: false, message: err.error?.message || this.translate.instant('ATTENDANCE_STUDENT.MSG_FAILED') });
       }
     });
   }

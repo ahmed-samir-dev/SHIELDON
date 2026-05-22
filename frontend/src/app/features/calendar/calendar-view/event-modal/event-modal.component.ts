@@ -5,11 +5,12 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { LucideAngularModule, X, Calendar, Type, AlignLeft, BookOpen, Clock } from 'lucide-angular';
 import { CalendarEventDto, CreateCustomEventRequest, UpdateCustomEventRequest, EventType } from '../../../../core/models/calendar.model';
 import { CourseResponse } from '../../../../core/models/courses.model';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-event-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule],
+  imports: [CommonModule, ReactiveFormsModule, LucideAngularModule, TranslateModule],
   templateUrl: './event-modal.component.html',
   styleUrl: './event-modal.component.scss',
   animations: [

@@ -8,7 +8,7 @@ This file is safe to commit. It documents what secrets each team member must con
 ## Backend: `appsettings.Development.json`
 
 Create this file at: `backend/SHIELDON.API/appsettings.Development.json`
-This file is **gitignored** — it will never be committed.
+This file is **gitignored** - it will never be committed.
 
 ```json
 {

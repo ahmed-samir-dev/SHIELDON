@@ -1,7 +1,7 @@
-# SHIELDON — Integrity You Can Trust
+# SHIELDON - Integrity You Can Trust
 
 > A full-stack Learning Management System (LMS) with a built-in browser-native Anti-Cheating Engine.
-> Built as a graduation project — no external exam-locking software required.
+> Built as a graduation project - no external exam-locking software required.
 
 ---
 
@@ -245,4 +245,4 @@ To keep the project organized, we follow a simple Git workflow:
 
 ---
 
-*SHIELDON — "Integrity You Can Trust"*
+*SHIELDON - "Integrity You Can Trust"*

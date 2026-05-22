@@ -1,4 +1,5 @@
 using SHIELDON.Domain.Enums;
+using SHIELDON.Domain.Common;
 
 namespace SHIELDON.Domain.Entities;
 
@@ -7,7 +8,7 @@ namespace SHIELDON.Domain.Entities;
 /// Important-priority announcements are pinned at the top and
 /// bypass notification aggregation for immediate delivery.
 /// </summary>
-public class Announcement
+public class Announcement : ITranslatable
 {
     public Guid Id { get; set; }
 
@@ -17,10 +18,14 @@ public class Announcement
 
     // ── Content ──────────────────────────────────────────────────
     /// <summary>Short title of the announcement (shown in list and notification).</summary>
+    [Translatable]
     public string Title { get; set; } = string.Empty;
 
     /// <summary>Full content of the announcement (supports multi-line text).</summary>
+    [Translatable]
     public string Content { get; set; } = string.Empty;
+
+    public string? Translations { get; set; }
 
     // ── Priority ─────────────────────────────────────────────────
     /// <summary>

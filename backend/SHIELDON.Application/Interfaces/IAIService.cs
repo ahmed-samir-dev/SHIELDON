@@ -2,7 +2,7 @@ namespace SHIELDON.Application.Interfaces;
 
 /// <summary>
 /// Proxies chat messages to the Gemini API and returns AI-generated replies.
-/// The Gemini API key is NEVER exposed to the frontend — all calls go through this service.
+/// The Gemini API key is NEVER exposed to the frontend - all calls go through this service.
 /// </summary>
 public interface IAIService
 {

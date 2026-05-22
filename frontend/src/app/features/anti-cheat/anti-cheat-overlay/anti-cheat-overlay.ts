@@ -2,11 +2,12 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, AlertTriangle, Eye, ShieldAlert } from 'lucide-angular';
 import { AntiCheatService } from '../anti-cheat.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-anti-cheat-overlay',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, TranslateModule],
   templateUrl: './anti-cheat-overlay.html',
   styleUrls: ['./anti-cheat-overlay.scss']
 })

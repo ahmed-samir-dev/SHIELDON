@@ -6,11 +6,12 @@ import { ExamResultService, ExamAttemptSummaryDto, ExamResultResponse } from '..
 import { ToastrService } from 'ngx-toastr';
 import { LucideAngularModule, ArrowLeft, Search, CheckCircle, Clock, Eye, AlertCircle } from 'lucide-angular';
 import Swal from 'sweetalert2';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-tutor-results-panel',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, LucideAngularModule, TranslateModule],
   templateUrl: './tutor-results-panel.html',
   styleUrl: './tutor-results-panel.scss',
   providers: [DatePipe]
@@ -21,6 +22,7 @@ export class TutorResultsPanel implements OnInit {
   private examResultService = inject(ExamResultService);
   private toastr = inject(ToastrService);
   private fb = inject(FormBuilder);
+  public translate = inject(TranslateService);
 
   // Icons
   readonly ArrowLeft = ArrowLeft;
@@ -82,7 +84,7 @@ export class TutorResultsPanel implements OnInit {
     this.courseId = this.route.snapshot.paramMap.get('courseId') || '';
 
     if (!this.examId) {
-      this.toastr.error('Invalid Exam ID');
+      this.toastr.error(this.translate.instant('TUTOR_RESULTS_PANEL.TOAST_ERR_INVALID_ID'));
       this.goBack();
       return;
     }
@@ -99,7 +101,7 @@ export class TutorResultsPanel implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Failed to load attempts');
+        this.toastr.error(err.error?.message || this.translate.instant('TUTOR_RESULTS_PANEL.TOAST_ERR_LOAD'));
         this.isLoading.set(false);
       }
     });
@@ -129,22 +131,23 @@ export class TutorResultsPanel implements OnInit {
 
   releaseResults() {
     Swal.fire({
-      title: 'Release All Results?',
-      text: 'This will publish all graded attempts and notify students. You cannot undo this.',
+      title: this.translate.instant('TUTOR_RESULTS_PANEL.SWAL_RELEASE_ALL_TITLE'),
+      text: this.translate.instant('TUTOR_RESULTS_PANEL.SWAL_RELEASE_ALL_DESC'),
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#215DAE',
-      confirmButtonText: 'Yes, release all'
+      confirmButtonText: this.translate.instant('TUTOR_RESULTS_PANEL.SWAL_BTN_RELEASE_ALL'),
+      cancelButtonText: this.translate.instant('TUTOR_RESULTS_PANEL.BTN_CANCEL')
     }).then((res) => {
       if (res.isConfirmed) {
         this.examResultService.releaseResults(this.examId).subscribe({
           next: (response) => {
-            this.toastr.success(response.data || 'Results released successfully');
+            this.toastr.success(response.data || this.translate.instant('TUTOR_RESULTS_PANEL.TOAST_RELEASE_ALL_SUCCESS'));
             this.selectedStudentIds.set(new Set());
             this.loadAttempts();
           },
           error: (err) => {
-            this.toastr.error(err.error?.message || 'Failed to release results');
+            this.toastr.error(err.error?.message || this.translate.instant('TUTOR_RESULTS_PANEL.TOAST_RELEASE_ALL_ERR'));
           }
         });
       }
@@ -153,24 +156,25 @@ export class TutorResultsPanel implements OnInit {
 
   releaseStudentResult(studentId: string) {
     Swal.fire({
-      title: 'Release Result?',
-      text: 'This will publish this student\'s result and notify them.',
+      title: this.translate.instant('TUTOR_RESULTS_PANEL.SWAL_RELEASE_ONE_TITLE'),
+      text: this.translate.instant('TUTOR_RESULTS_PANEL.SWAL_RELEASE_ONE_DESC'),
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#215DAE',
-      confirmButtonText: 'Yes, release'
+      confirmButtonText: this.translate.instant('TUTOR_RESULTS_PANEL.SWAL_BTN_RELEASE_ONE'),
+      cancelButtonText: this.translate.instant('TUTOR_RESULTS_PANEL.BTN_CANCEL')
     }).then((res) => {
       if (res.isConfirmed) {
         this.examResultService.releaseResults(this.examId, { studentIds: [studentId] }).subscribe({
           next: (response) => {
-            this.toastr.success(response.data || 'Student result released successfully');
+            this.toastr.success(response.data || this.translate.instant('TUTOR_RESULTS_PANEL.TOAST_RELEASE_ONE_SUCCESS'));
             const current = new Set(this.selectedStudentIds());
             current.delete(studentId);
             this.selectedStudentIds.set(current);
             this.loadAttempts();
           },
           error: (err) => {
-            this.toastr.error(err.error?.message || 'Failed to release result');
+            this.toastr.error(err.error?.message || this.translate.instant('TUTOR_RESULTS_PANEL.TOAST_RELEASE_ONE_ERR'));
           }
         });
       }
@@ -182,22 +186,23 @@ export class TutorResultsPanel implements OnInit {
     if (selected.length === 0) return;
 
     Swal.fire({
-      title: `Release ${selected.length} Result(s)?`,
-      text: 'This will publish grades for the selected students and notify them.',
+      title: this.translate.instant('TUTOR_RESULTS_PANEL.SWAL_RELEASE_SEL_TITLE').replace('{count}', selected.length.toString()),
+      text: this.translate.instant('TUTOR_RESULTS_PANEL.SWAL_RELEASE_SEL_DESC'),
       icon: 'question',
       showCancelButton: true,
       confirmButtonColor: '#215DAE',
-      confirmButtonText: 'Yes, release them'
+      confirmButtonText: this.translate.instant('TUTOR_RESULTS_PANEL.SWAL_BTN_RELEASE_SEL'),
+      cancelButtonText: this.translate.instant('TUTOR_RESULTS_PANEL.BTN_CANCEL')
     }).then((res) => {
       if (res.isConfirmed) {
         this.examResultService.releaseResults(this.examId, { studentIds: selected }).subscribe({
           next: (response) => {
-            this.toastr.success(response.data || 'Selected results released successfully');
+            this.toastr.success(response.data || this.translate.instant('TUTOR_RESULTS_PANEL.TOAST_RELEASE_SEL_SUCCESS'));
             this.selectedStudentIds.set(new Set());
             this.loadAttempts();
           },
           error: (err) => {
-            this.toastr.error(err.error?.message || 'Failed to release selected results');
+            this.toastr.error(err.error?.message || this.translate.instant('TUTOR_RESULTS_PANEL.TOAST_RELEASE_SEL_ERR'));
           }
         });
       }
@@ -240,7 +245,7 @@ export class TutorResultsPanel implements OnInit {
         this.isGradingLoading.set(false);
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Failed to load attempt details');
+        this.toastr.error(err.error?.message || this.translate.instant('TUTOR_RESULTS_PANEL.TOAST_ERR_LOAD_DETAILS'));
         this.closeGradingModal();
       }
     });
@@ -265,13 +270,13 @@ export class TutorResultsPanel implements OnInit {
 
     this.examResultService.gradeShortAnswers(this.currentAttemptId, request).subscribe({
       next: (res) => {
-        this.toastr.success('Grades saved successfully');
+        this.toastr.success(this.translate.instant('TUTOR_RESULTS_PANEL.TOAST_GRADE_SUCCESS'));
         this.closeGradingModal();
         this.loadAttempts();
         this.isSubmittingGrades.set(false);
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Failed to save grades');
+        this.toastr.error(err.error?.message || this.translate.instant('TUTOR_RESULTS_PANEL.TOAST_GRADE_ERR'));
         this.isSubmittingGrades.set(false);
       }
     });

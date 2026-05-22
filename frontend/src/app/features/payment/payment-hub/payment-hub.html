@@ -5,23 +5,23 @@
     <div class="header-content">
       <h1>
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-        Payment Hub
+        {{ 'PAYMENT_HUB.TITLE' | translate }}
       </h1>
-      <p class="subtitle" *ngIf="isStudent">Manage your course fees and view your payment history securely.</p>
-      <p class="subtitle" *ngIf="isAdmin">View and search through all student payment transactions across all courses.</p>
+      <p class="subtitle" *ngIf="isStudent">{{ 'PAYMENT_HUB.SUBTITLE_STUDENT' | translate }}</p>
+      <p class="subtitle" *ngIf="isAdmin">{{ 'PAYMENT_HUB.SUBTITLE_ADMIN' | translate }}</p>
     </div>
   </div>
 
   <!-- PENDING PAYMENTS SECTION (Students Only) -->
   <ng-container *ngIf="isStudent">
     <div class="section-title" *ngIf="!isLoadingPending && pendingPayments.length > 0">
-      <h2>Pending Fees</h2>
+      <h2>{{ 'PAYMENT_HUB.PENDING_FEES' | translate }}</h2>
     </div>
 
     <!-- Loading State -->
     <div *ngIf="isLoadingPending" class="loading-state">
       <div class="spinner"></div>
-      <p>Loading your payments...</p>
+      <p>{{ 'PAYMENT_HUB.LOADING_PAYMENTS' | translate }}</p>
     </div>
 
     <!-- Empty State -->
@@ -29,8 +29,8 @@
       <div class="empty-icon">
         <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
       </div>
-      <h3>All Caught Up!</h3>
-      <p>You have no pending course fees. Dive back into your courses and enjoy your learning journey.</p>
+      <h3>{{ 'PAYMENT_HUB.ALL_CAUGHT_UP' | translate }}</h3>
+      <p>{{ 'PAYMENT_HUB.NO_PENDING_DESC' | translate }}</p>
     </div>
     <br>
     <!-- Payment Cards Grid -->
@@ -49,10 +49,10 @@
           <h3 class="course-title" [title]="payment.courseName">{{ payment.courseName }}</h3>
           
           <div class="price-section">
-            <span class="price-label">Amount Due</span>
+            <span class="price-label">{{ 'PAYMENT_HUB.AMOUNT_DUE' | translate }}</span>
             <div class="price-row">
               <span class="price-value">${{ payment.amountUSD }}</span>
-              <span class="price-currency">USD</span>
+              <span class="price-currency">{{ 'PAYMENT_HUB.CURRENCY' | translate }}</span>
             </div>
           </div>
         </div>
@@ -61,7 +61,7 @@
           <button class="btn-pay" (click)="payCourseFee(payment)" [disabled]="isProcessing">
             <svg *ngIf="!isProcessing" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
             <div *ngIf="isProcessing" class="loader-ring"></div>
-            <span>{{ isProcessing ? 'Processing...' : 'Checkout with Stripe' }}</span>
+            <span>{{ isProcessing ? ('PAYMENT_HUB.BTN_PROCESSING' | translate) : ('PAYMENT_HUB.BTN_CHECKOUT' | translate) }}</span>
           </button>
         </div>
       </div>
@@ -74,23 +74,23 @@
   <!-- PAYMENT HISTORY SECTION -->
   <div class="history-section">
     <div class="section-header-row">
-      <h2>Payment History</h2>
+      <h2>{{ 'PAYMENT_HUB.HISTORY_TITLE' | translate }}</h2>
       
       <div class="action-bar">
         <!-- Search Input -->
         <div class="search-box">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" placeholder="Search {{ isAdmin ? 'students, ' : '' }}courses..." />
+          <input type="text" [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" [placeholder]="isAdmin ? ('PAYMENT_HUB.SEARCH_PLACEHOLDER_ADMIN' | translate) : ('PAYMENT_HUB.SEARCH_PLACEHOLDER_STUDENT' | translate)" />
         </div>
         
         <!-- Status Filter -->
         <div class="filter-box">
           <select [(ngModel)]="statusFilter" (change)="onStatusFilterChange()">
-            <option value="">All Statuses</option>
-            <option value="Paid">Paid</option>
-            <option value="Pending">Pending</option>
-            <option value="Processing">Processing</option>
-            <option value="Failed">Failed</option>
+            <option value="">{{ 'PAYMENT_HUB.FILTER_ALL' | translate }}</option>
+            <option value="Paid">{{ 'PAYMENT_HUB.FILTER_PAID' | translate }}</option>
+            <option value="Pending">{{ 'PAYMENT_HUB.FILTER_PENDING' | translate }}</option>
+            <option value="Processing">{{ 'PAYMENT_HUB.FILTER_PROCESSING' | translate }}</option>
+            <option value="Failed">{{ 'PAYMENT_HUB.FILTER_FAILED' | translate }}</option>
           </select>
         </div>
       </div>
@@ -99,12 +99,12 @@
     <!-- Loading State -->
     <div *ngIf="isLoadingHistory" class="loading-state history-loading">
       <div class="spinner"></div>
-      <p>Loading history records...</p>
+      <p>{{ 'PAYMENT_HUB.LOADING_HISTORY' | translate }}</p>
     </div>
 
     <!-- Empty State -->
     <div *ngIf="!isLoadingHistory && historyRecords.length === 0" class="empty-state minimal">
-      <p>No payment records found matching your criteria.</p>
+      <p>{{ 'PAYMENT_HUB.NO_RECORDS' | translate }}</p>
     </div>
 
     <!-- History Table -->
@@ -113,14 +113,14 @@
         <thead>
           <tr>
             <!-- Admin specific columns -->
-            <th *ngIf="isAdmin">Student Name</th>
-            <th *ngIf="isAdmin">Student ID</th>
+            <th *ngIf="isAdmin">{{ 'PAYMENT_HUB.COL_STUDENT_NAME' | translate }}</th>
+            <th *ngIf="isAdmin">{{ 'PAYMENT_HUB.COL_STUDENT_ID' | translate }}</th>
             
             <!-- Shared columns -->
-            <th>Course Name</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Date</th>
+            <th>{{ 'PAYMENT_HUB.COL_COURSE' | translate }}</th>
+            <th>{{ 'PAYMENT_HUB.COL_AMOUNT' | translate }}</th>
+            <th>{{ 'PAYMENT_HUB.COL_STATUS' | translate }}</th>
+            <th>{{ 'PAYMENT_HUB.COL_DATE' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -153,7 +153,7 @@
     <!-- Pagination -->
     <div class="pagination-controls" *ngIf="!isLoadingHistory && totalPages > 1">
       <button class="btn-page-nav" [disabled]="currentPage === 1" (click)="changePage(currentPage - 1)">
-        &laquo; Prev
+        <span [innerHTML]="'PAYMENT_HUB.BTN_PREV' | translate"></span>
       </button>
       
       <div class="page-numbers">
@@ -166,7 +166,7 @@
       </div>
 
       <button class="btn-page-nav" [disabled]="currentPage === totalPages" (click)="changePage(currentPage + 1)">
-        Next &raquo;
+        <span [innerHTML]="'PAYMENT_HUB.BTN_NEXT' | translate"></span>
       </button>
     </div>
   </div>

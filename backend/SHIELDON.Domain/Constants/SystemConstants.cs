@@ -2,7 +2,7 @@ namespace SHIELDON.Domain.Constants;
 
 /// <summary>
 /// System-wide constants for SHIELDON.
-/// Never use magic numbers or strings — always reference these constants.
+/// Never use magic numbers or strings - always reference these constants.
 /// </summary>
 public static class SystemConstants
 {

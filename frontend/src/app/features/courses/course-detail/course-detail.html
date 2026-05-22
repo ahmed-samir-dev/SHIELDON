@@ -1,7 +1,7 @@
 @if (isLoading()) {
   <div class="loading-state">
     <div class="spinner"></div>
-    <p>Loading Course Data...</p>
+    <p>{{ 'COURSE_DETAIL.LOADING' | translate }}</p>
   </div>
 } @else if (course(); as courseData) {
   <div class="course-hub">
@@ -12,7 +12,7 @@
       <div class="nav-back">
         <a routerLink="/courses" class="back-link">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          Back to Courses
+          {{ 'COURSE_DETAIL.BACK_TO_COURSES' | translate }}
         </a>
       </div>
 
@@ -22,9 +22,9 @@
             <div class="course-badges">
               <span class="badge-code">{{ courseData.courseCode }}</span>
               @if (courseData.isActive) {
-                <span class="badge-status active">Active</span>
+                <span class="badge-status active">{{ 'COURSE_DETAIL.ACTIVE' | translate }}</span>
               } @else {
-                <span class="badge-status archived">Archived</span>
+                <span class="badge-status archived">{{ 'COURSE_DETAIL.ARCHIVED' | translate }}</span>
               }
             </div>
             
@@ -34,28 +34,28 @@
           @if (!authService.isStudent()) {
             <a [routerLink]="['/courses', courseData.id, 'attendance']" class="btn-take-attendance">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg>
-              Take Attendance
+              {{ 'COURSE_DETAIL.TAKE_ATTENDANCE' | translate }}
             </a>
           }
         </div>
-        <p class="course-description">{{ courseData.description || 'No description provided for this course.' }}</p>
+        <p class="course-description">{{ courseData.description || ('COURSE_DETAIL.NO_DESC' | translate) }}</p>
         
         <div class="course-stats">
           <div class="stat-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            <span>{{ courseData.enrolledStudentCount }} Students</span>
+            <span>{{ courseData.enrolledStudentCount }} {{ 'COURSE_DETAIL.STUDENTS' | translate }}</span>
           </div>
 
 
 
           <div class="stat-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-            <span>{{ courseData.announcementCount }} Announcements</span>
+            <span>{{ courseData.announcementCount }} {{ 'COURSE_DETAIL.ANNOUNCEMENTS' | translate }}</span>
           </div>
 
           <div class="stat-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
-            <span>{{ courseData.materialCount }} Materials</span>
+            <span>{{ courseData.materialCount }} {{ 'COURSE_DETAIL.MATERIALS' | translate }}</span>
           </div>
 
           <div class="stat-item">
@@ -66,7 +66,7 @@
               <line x1="16" y1="17" x2="8" y2="17"/>
               <polyline points="10 9 9 9 8 9"/>
             </svg>
-            <span>{{ courseData.assignmentCount }} Assignments</span>
+            <span>{{ courseData.assignmentCount }} {{ 'COURSE_DETAIL.ASSIGNMENTS' | translate }}</span>
           </div>
 
           <div class="stat-item">
@@ -75,7 +75,7 @@
               <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
               <polyline points="9 14 11 16 15 11"></polyline>
             </svg>
-            <span>{{ authService.isStudent() ? courseData.publishedExamCount : courseData.examCount }} Exams</span>
+            <span>{{ authService.isStudent() ? courseData.publishedExamCount : courseData.examCount }} {{ 'COURSE_DETAIL.EXAMS' | translate }}</span>
           </div>
 
           @if (courseData.assignedTutorName) {
@@ -94,7 +94,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
             </svg>
-            Announcements
+            {{ 'COURSE_DETAIL.ANNOUNCEMENTS' | translate }}
           </button>
           
           <button class="tab-btn" 
@@ -104,7 +104,7 @@
               <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
               <polyline points="14 2 14 8 20 8"/>
             </svg>
-            Materials
+            {{ 'COURSE_DETAIL.MATERIALS' | translate }}
           </button>
 
           <button class="tab-btn" 
@@ -117,7 +117,7 @@
               <line x1="16" y1="17" x2="8" y2="17"/>
               <polyline points="10 9 9 9 8 9"/>
             </svg>
-            Assignments
+            {{ 'COURSE_DETAIL.ASSIGNMENTS' | translate }}
           </button>
 
           <button class="tab-btn" 
@@ -128,7 +128,7 @@
               <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
               <polyline points="9 14 11 16 15 11"></polyline>
             </svg>
-            Exams
+            {{ 'COURSE_DETAIL.EXAMS' | translate }}
           </button>
 
           @if (!authService.isStudent()) {
@@ -139,7 +139,7 @@
                 <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
                 <circle cx="12" cy="11" r="3"/>
               </svg>
-              Question Bank
+              {{ 'COURSE_DETAIL.QUESTION_BANK' | translate }}
             </button>
 
             <button class="tab-btn" 
@@ -148,7 +148,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
               </svg>
-              Grades Panel
+              {{ 'COURSE_DETAIL.GRADES_PANEL' | translate }}
             </button>
           }
         </nav>

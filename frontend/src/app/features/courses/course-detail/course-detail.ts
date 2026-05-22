@@ -11,16 +11,18 @@ import { CourseAssignmentsComponent } from '../course-assignments/course-assignm
 import { CourseExamsComponent } from '../course-exams/course-exams';
 import { CourseQuestionBankComponent } from '../question-bank/course-question-bank.component';
 import { CourseGrades } from '../../grades/course-grades/course-grades';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-course-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, CourseMaterialsComponent, CourseAnnouncementsComponent, CourseAssignmentsComponent, CourseExamsComponent, CourseQuestionBankComponent, CourseGrades],
+  imports: [CommonModule, RouterLink, CourseMaterialsComponent, CourseAnnouncementsComponent, CourseAssignmentsComponent, CourseExamsComponent, CourseQuestionBankComponent, CourseGrades, TranslateModule],
   templateUrl: './course-detail.html',
   styleUrl: './course-detail.scss'
 })
 // Main course detail component
 export class CourseDetail implements OnInit {
+  private translate = inject(TranslateService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private courseService = inject(CourseService);
@@ -56,7 +58,7 @@ export class CourseDetail implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.toastr.error('Failed to load course details.');
+        this.toastr.error(this.translate.instant('COURSE_DETAIL.TOAST_LOAD_ERR'));
         this.isLoading.set(false);
       }
     });

@@ -9,11 +9,13 @@ import { NotificationPanelComponent } from '../../shared/components/notification
 import { AiChatPanelComponent } from '../../shared/components/ai-chat-panel/ai-chat-panel';
 import { ChatService } from '../../core/services/chat.service';
 import { ThemeService } from '../../core/services/theme.service';
+import { LanguageService } from '../../core/services/language.service';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, NotificationPanelComponent, AiChatPanelComponent],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, NotificationPanelComponent, AiChatPanelComponent, TranslateModule],
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.scss',
   providers: [AiService]
@@ -23,7 +25,9 @@ export class DashboardLayout implements AfterViewInit {
   shepherdService = inject(ShepherdService);
   chatService = inject(ChatService);
   themeService = inject(ThemeService);
+  languageService = inject(LanguageService);
   router = inject(Router);
+
 
   isMobileMenuOpen = false;
   apiUrl = environment.apiUrl.replace('/api', '');
