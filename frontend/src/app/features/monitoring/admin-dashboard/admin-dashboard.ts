@@ -9,11 +9,12 @@ import { ThemeService } from '../../../core/services/theme.service';
 import { LanguageService } from '../../../core/services/language.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
+import { UsersManagementComponent } from '../../admin/users-management/users-management';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule, NgxEchartsModule, TranslateModule],
+  imports: [CommonModule, RouterModule, LucideAngularModule, NgxEchartsModule, TranslateModule, UsersManagementComponent],
   templateUrl: './admin-dashboard.html',
   styleUrls: ['./admin-dashboard.scss']
 })

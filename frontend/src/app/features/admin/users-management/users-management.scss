@@ -1,0 +1,542 @@
+@import "../../../../assets/styles/variables";
+
+// ── Users section within admin dashboard ─────────────────────────────────────
+
+lucide-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  ::ng-deep svg { display: block; }
+}
+
+// ── Section header ──────────────────────────────────────────────────────────
+.users-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 24px;
+  background: var(--theme-bg-secondary);
+  border-bottom: 1px solid var(--theme-border);
+}
+
+.users-section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  .table-title {
+    font-weight: 600;
+    color: var(--theme-text-main);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.125rem;
+    margin: 0;
+
+    lucide-icon { color: var(--theme-text-muted); }
+  }
+
+  .users-total-badge {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: $color-primary-base;
+    background: rgba($color-primary-base, 0.08);
+    border: 1px solid rgba($color-primary-base, 0.15);
+    padding: 4px 12px;
+    border-radius: 99px;
+  }
+}
+
+// ── Filters bar ──────────────────────────────────────────────────────────────
+.users-filters-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+
+  .users-search-wrapper {
+    position: relative;
+    flex: 1 1 220px;
+    min-width: 180px;
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--theme-text-muted);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 8px 12px 8px 36px;
+      background: var(--theme-bg-surface);
+      border: 1px solid var(--theme-border);
+      border-radius: 8px;
+      font-size: 0.82rem;
+      color: var(--theme-text-main);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-sizing: border-box;
+
+      &::placeholder { color: var(--theme-text-muted); }
+
+      &:focus {
+        border-color: $color-primary-base;
+        box-shadow: 0 0 0 3px rgba($color-primary-base, 0.12);
+      }
+    }
+  }
+
+  .filter-select {
+    padding: 8px 12px;
+    background: var(--theme-bg-surface);
+    border: 1px solid var(--theme-border);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: var(--theme-text-main);
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    flex-shrink: 0;
+
+    &:focus {
+      border-color: $color-primary-base;
+      box-shadow: 0 0 0 3px rgba($color-primary-base, 0.12);
+    }
+  }
+}
+
+// ── Error state ──────────────────────────────────────────────────────────────
+.users-error-state {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  background: rgba($color-danger-base, 0.06);
+  color: $color-danger-base;
+  border-bottom: 1px solid rgba($color-danger-base, 0.15);
+  font-size: 0.85rem;
+
+  .retry-btn {
+    margin-left: auto;
+    padding: 5px 12px;
+    background: $color-danger-base;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    &:hover { opacity: 0.85; }
+  }
+}
+
+// ── Users table ──────────────────────────────────────────────────────────────
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.users-table {
+  width: 100%;
+  font-size: 0.85rem;
+
+  thead {
+    background-color: var(--theme-bg-secondary);
+    
+    tr {
+      border-bottom: 2px solid var(--theme-border);
+    }
+  }
+
+  thead th {
+    padding: 10px 16px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--theme-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+
+    &.align-center { text-align: center; }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid var(--theme-border);
+      transition: background-color 0.15s ease;
+
+      &:last-child { border-bottom: none; }
+      &:hover { background-color: var(--theme-bg-hover); }
+
+      &.row-locked {
+        background: rgba($color-danger-base, 0.02);
+        &:hover { background: rgba($color-danger-base, 0.05); }
+      }
+
+      &.row-disabled { opacity: 0.65; }
+    }
+
+    td {
+      padding: 10px 16px;
+      vertical-align: middle;
+      color: var(--theme-text-main);
+
+      &.align-center { text-align: center; }
+    }
+  }
+}
+
+// ── User cell ────────────────────────────────────────────────────────────────
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .user-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, $color-primary-base, #7c3aed);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--theme-border);
+    transition: border-color 0.2s;
+
+    &.avatar-locked {
+      border-color: rgba($color-danger-base, 0.5);
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .initials {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: white;
+      letter-spacing: 0.02em;
+    }
+  }
+
+  .user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+
+    .user-name {
+      font-weight: 600;
+      color: var(--theme-text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 0.85rem;
+    }
+
+    .user-email {
+      font-size: 0.72rem;
+      color: var(--theme-text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+// ── Role & ID ────────────────────────────────────────────────────────────────
+.role-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  width: fit-content;
+
+  &.role-tutor {
+    background: rgba(79, 70, 229, 0.1);
+    color: #4f46e5;
+    border: 1px solid rgba(79, 70, 229, 0.2);
+  }
+
+  &.role-student {
+    background: rgba(14, 165, 233, 0.1);
+    color: #0284c7;
+    border: 1px solid rgba(14, 165, 233, 0.2);
+  }
+}
+
+.role-id {
+  font-size: 0.72rem;
+  color: var(--theme-text-muted);
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  white-space: nowrap;
+}
+
+// ── Status badge ─────────────────────────────────────────────────────────────
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &.status-active {
+    background: rgba(22, 163, 74, 0.1);
+    color: #16a34a;
+    border: 1px solid rgba(22, 163, 74, 0.2);
+  }
+
+  &.status-locked {
+    background: rgba($color-danger-base, 0.1);
+    color: $color-danger-base;
+    border: 1px solid rgba($color-danger-base, 0.2);
+  }
+
+  &.status-unverified {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+
+  &.status-disabled {
+    background: var(--theme-bg-secondary);
+    color: var(--theme-text-muted);
+    border: 1px solid var(--theme-border);
+  }
+}
+
+// ── Date & misc text ─────────────────────────────────────────────────────────
+.date-text {
+  font-size: 0.78rem;
+  color: var(--theme-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.text-muted {
+  font-size: 0.78rem;
+  color: var(--theme-text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+// ── Action buttons ───────────────────────────────────────────────────────────
+.action-btns {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+  &.lock-btn {
+    background: $color-danger-base;
+    border-color: darken($color-danger-base, 5%);
+
+    &:hover {
+      background: darken($color-danger-base, 8%);
+      border-color: darken($color-danger-base, 12%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba($color-danger-base, 0.25);
+    }
+    
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba($color-danger-base, 0.2);
+    }
+  }
+
+  &.unlock-btn {
+    background: #16a34a; // Green base
+    border-color: darken(#16a34a, 5%);
+
+    &:hover {
+      background: darken(#16a34a, 6%);
+      border-color: darken(#16a34a, 10%);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+    }
+    
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(22, 163, 74, 0.2);
+    }
+  }
+}
+
+// ── Empty row ────────────────────────────────────────────────────────────────
+.empty-row {
+  padding: 48px 24px !important;
+  text-align: center !important;
+  color: var(--theme-text-muted) !important;
+
+  lucide-icon {
+    margin-bottom: 10px;
+    opacity: 0.3;
+  }
+
+  p {
+    margin: 0 0 12px;
+    font-size: 0.85rem;
+  }
+
+  .retry-btn {
+    padding: 6px 16px;
+    background: $color-primary-base;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    &:hover { opacity: 0.85; }
+  }
+}
+
+// ── Skeleton loading ─────────────────────────────────────────────────────────
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton-row td {
+  padding: 12px 16px !important;
+}
+
+.skeleton-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.skeleton-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, var(--theme-border) 25%, var(--theme-border-strong) 50%, var(--theme-border) 75%);
+  background-size: 400px 100%;
+  animation: shimmer 1.4s infinite;
+  flex-shrink: 0;
+}
+
+.skeleton-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.skeleton-line {
+  height: 10px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--theme-border) 25%, var(--theme-border-strong) 50%, var(--theme-border) 75%);
+  background-size: 400px 100%;
+  animation: shimmer 1.4s infinite;
+
+  &.wide   { width: 110px; }
+  &.medium { width: 70px; }
+  &.narrow { width: 42px; }
+}
+
+.skeleton-text {
+  color: transparent !important;
+  background: var(--theme-border-strong);
+  border-radius: 4px;
+  animation: pulse-opacity 1.5s infinite;
+  display: inline-block;
+  min-width: 50px;
+}
+
+@keyframes pulse-opacity {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+// ── Pagination bar ───────────────────────────────────────────────────────────
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-top: 1px solid var(--theme-border);
+  background: var(--theme-bg-secondary);
+  gap: 12px;
+  flex-wrap: wrap;
+
+  .pagination-info {
+    font-size: 0.78rem;
+    color: var(--theme-text-muted);
+  }
+
+  .pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+.page-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--theme-border);
+  background: var(--theme-bg-surface);
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--theme-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled):not(.active) {
+    border-color: $color-primary-base;
+    color: $color-primary-base;
+    background: rgba($color-primary-base, 0.05);
+  }
+
+  &.active {
+    background: $color-primary-base;
+    border-color: $color-primary-base;
+    color: white;
+    font-weight: 700;
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
