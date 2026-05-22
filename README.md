@@ -2,11 +2,10 @@
 
 <div align="center">
   <img src="https://img.shields.io/badge/.NET-5C2D91?style=for-the-badge&logo=.net&logoColor=white" alt=".NET" />
-  <img src="https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white" alt="Angular" />
-  <img src="https://img.shields.io/badge/SQL_Server-CC292B?style=for-the-badge&logo=microsoftsqlserver&logoColor=white" alt="SQL Server" />
-  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white" alt="C#" />
-  <img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white" alt="Angular" />
+    <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/SQL_Server-CC292B?style=for-the-badge&logo=microsoftsqlserver&logoColor=white" alt="SQL Server" />
 </div>
 
 > A full-stack Learning Management System (LMS) with a built-in browser-native Anti-Cheating Engine.
@@ -83,15 +82,6 @@ SHIELDON follows a **Clean Architecture + Vertical Slice Hybrid** approach:
 - **F16: Exam Results & Auto-Grading** (confetti, per-question review)
 - **F17: Grade Management Panel** (bulk publish, CSV export)
 - **F18: Anti-Cheating Engine** contains:
-  - **18-1:** Pre-exam rules acknowledgment modal
-  - **18-2:** Keyboard shortcut blocking (CTRL+C, ... etc)
-  - **18-3:** Window resize / minimize / split detection
-  - **18-4:** Mouse monitoring (pattern analysis)
-  - **18-5:** Selection by mouse blocking
-  - **18-6:** Blocking Right click options to do operations
-  - **18-7:** Violation intelligence layer (severity + cooldown)
-  - **18-8:** Warning system and force-submit (3-strike escalation)
-  - **18-9:** Monitoring continuity on reconnect
 - **F19: Session timeline view**
 - **F20: Violation timeline view**
 - **F21: Tutor monitoring dashboard**
