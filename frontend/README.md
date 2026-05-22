@@ -1,5 +1,12 @@
 # SHIELDON - Frontend
 
+<div align="center">
+  <img src="https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white" alt="Angular" />
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/Sass-CC6699?style=for-the-badge&logo=sass&logoColor=white" alt="Sass" />
+</div>
+
 > The user interface for the SHIELDON Learning Management System & Anti-Cheating Engine.
 > Built with Angular 21.
 
@@ -10,21 +17,20 @@
 This directory contains the frontend application for the **SHIELDON** platform. It provides a modern, responsive, and secure user interface for students, tutors, and administrators. 
 
 The frontend is responsible for:
-- Delivering the Learning Management System experience (viewing courses, downloading materials, submitting assignments).
-- Enforcing the **Anti-Cheating Engine** rules natively in the browser during exams.
-- Displaying rich visual analytics and monitoring dashboards using Apache ECharts.
-- Providing an interactive AI assistant for student support.
+- 📚 Delivering the Learning Management System experience (viewing courses, downloading materials, submitting assignments).
+- 🛡️ Enforcing the **Anti-Cheating Engine** rules natively in the browser during exams.
+- 📈 Displaying rich visual analytics and monitoring dashboards using Apache ECharts.
+- 🤖 Providing an interactive AI assistant for student support.
 
 ---
 
 ## Technology Stack
 
-- **Framework**: Angular 21 (Standalone Components)
-- **Language**: TypeScript (Strict mode enabled)
-- **Styling**: Vanilla CSS / SCSS with CSS Custom Properties (Design Tokens)
-- **Charts**: Apache ECharts (via ngx-echarts)
-- **Icons**: Lucide Icons (Exclusively)
-- **UI Feedback**: SweetAlert2 (Modals), ngx-toastr (Toasts)
+- 🅰️ **Framework**: Angular 21 (Standalone Components)
+- 🔷 **Language**: TypeScript (Strict mode enabled)
+- 🎨 **Styling**: Vanilla CSS / SCSS with CSS Custom Properties (Design Tokens)
+- 📊 **Charts**: Apache ECharts (via ngx-echarts)
+- 🧩 **UI / UX**: Lucide Icons, SweetAlert2, ngx-toastr, canvas-confetti, Shepherd.js
 - **Animations**: canvas-confetti (for results), CSS keyframes
 - **Guided Tours**: Shepherd.js
 

@@ -1,5 +1,14 @@
 # SHIELDON - Integrity You Can Trust
 
+<div align="center">
+  <img src="https://img.shields.io/badge/.NET-5C2D91?style=for-the-badge&logo=.net&logoColor=white" alt=".NET" />
+  <img src="https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white" alt="Angular" />
+  <img src="https://img.shields.io/badge/SQL_Server-CC292B?style=for-the-badge&logo=microsoftsqlserver&logoColor=white" alt="SQL Server" />
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white" alt="C#" />
+  <img src="https://img.shields.io/badge/Node.js-43853D?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
+</div>
+
 > A full-stack Learning Management System (LMS) with a built-in browser-native Anti-Cheating Engine.
 > Built as a graduation project - no external exam-locking software required.
 
@@ -16,26 +25,21 @@ Most traditional LMS platforms depend on external software (like Safe Exam Brows
 ## Technology Stack
 
 ### Frontend
-
-- **Framework**: Angular 21 (Standalone Components)
-- **Language**: TypeScript
-- **Styling**: SCSS with CSS Custom Properties
-- **Charts**: Apache ECharts (via ngx-echarts)
-- **Icons**: Lucide Icons
-- **Libraries**: SweetAlert2, ngx-toastr, canvas-confetti, Shepherd.js
+- 🅰️ **Framework**: Angular 21 (Standalone Components)
+- 🔷 **Language**: TypeScript
+- 🎨 **Styling**: SCSS with CSS Custom Properties
+- 📊 **Charts**: Apache ECharts (via ngx-echarts)
+- 🧩 **UI / UX**: Lucide Icons, SweetAlert2, ngx-toastr, canvas-confetti, Shepherd.js
 
 ### Backend
-
-- **Framework**: .NET 9 ASP.NET Core Web API
-- **Language**: C#
-- **ORM**: Entity Framework Core 9 (Code-First)
-- **Email**: MailKit / MimeKit
-- **Validation**: FluentValidation
-- **Mapping**: AutoMapper
+- 🟣 **Framework**: .NET 9 ASP.NET Core Web API
+- #️⃣ **Language**: C#
+- 🗄️ **ORM**: Entity Framework Core 9 (Code-First)
+- ✉️ **Email**: MailKit / MimeKit
+- ✅ **Validation**: FluentValidation
 
 ### Database
-
-- **Engine**: Microsoft SQL Server 2022
+- 💽 **Engine**: Microsoft SQL Server 2022
 
 ---
 
