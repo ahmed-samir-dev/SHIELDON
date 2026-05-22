@@ -1,0 +1,228 @@
+d:\Projects\SHIELDON\frontend\src\app\app.routes.ts:6: // ── Mobile Guard ──────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\app.routes.ts:13: // ── Public Routes (Guest) ─────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\app.routes.ts:42: // ── Auth Verification Routes (Standalone) ─────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\app.routes.ts:56: // ── Exam Engine (Distraction-Free Authenticated) ────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\app.routes.ts:70: // ── Authenticated Routes (Protected by authGuard) ─────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\app.routes.ts:87: // ── Attendance ── (must come BEFORE courses/:id to avoid route conflict)
+d:\Projects\SHIELDON\frontend\src\app\app.routes.ts:184: // ── Fallback ───────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\core\models\attendance.model.ts:53: // ── SignalR Events ──
+d:\Projects\SHIELDON\frontend\src\app\core\services\attendance.service.ts:33: // ── REST API Methods ──
+d:\Projects\SHIELDON\frontend\src\app\core\services\attendance.service.ts:71: // ── SignalR Methods ──
+d:\Projects\SHIELDON\frontend\src\app\core\services\auth.service.ts:19: // ── Reactive State (Angular Signals) ──────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\core\services\auth.service.ts:29: // ── Public API ────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\core\services\auth.service.ts:102: // ── Storage Helpers ───────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\core\services\chat.service.ts:28: // ── Reactive State (Angular Signals) ──────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\core\services\chat.service.ts:38: // ── REST Methods ─────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\core\services\chat.service.ts:56: // ── SignalR Methods ──────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\core\services\chat.service.ts:130: // ── State Management ──────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\core\services\monitoring.service.ts:7: // ─────────────────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\core\services\monitoring.service.ts:9: // ─────────────────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\core\services\monitoring.service.ts:22: // ─────────────────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\core\services\monitoring.service.ts:24: // ─────────────────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\core\services\monitoring.service.ts:52: // ─────────────────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\core\services\monitoring.service.ts:54: // ─────────────────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\core\services\monitoring.service.ts:81: // ─────────────────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\core\services\monitoring.service.ts:83: // ─────────────────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\core\services\monitoring.service.ts:120: // ─────────────────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\core\services\monitoring.service.ts:122: // ─────────────────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\core\services\monitoring.service.ts:153: // ── Tutor / Admin ──────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\core\services\profile.service.ts:38: // ── Sync with Auth Identity ──────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\anti-cheat\anti-cheat-overlay\anti-cheat-overlay.scss:13: /* ── Strike 1: Banner ────────────────────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\anti-cheat\anti-cheat-overlay\anti-cheat-overlay.scss:49: /* ── Strike 2 & 3: Overlays ──────────────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\anti-cheat\anti-cheat-overlay\anti-cheat-overlay.scss:132: content: "•";
+d:\Projects\SHIELDON\frontend\src\app\features\anti-cheat\anti-cheat-overlay\anti-cheat-overlay.scss:166: /* ── Animations ──────────────────────────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\anti-cheat\anti-cheat.service.ts:95: // ── Lifecycle ─────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\anti-cheat\anti-cheat.service.ts:186: // ── Processing ────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\anti-cheat\anti-cheat.service.ts:243: // ── Sync ──────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\anti-cheat\anti-cheat.service.ts:312: // ── Event Handlers ────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\attendance\attendance-tutor\attendance-tutor.ts:76: // ── Private helpers ──────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\attendance\attendance-tutor\attendance-tutor.ts:187: // ── Public actions ───────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\auth\login\login.scss:14: // ── Left: Brand Panel ────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\auth\login\login.scss:89: // ── Right: Form Panel ────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\auth\login\login.scss:119: // ── Alert ─────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\auth\login\login.scss:161: // ── Form Groups ─────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\auth\login\login.scss:243: // ── Row ──────────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\auth\login\login.scss:274: // ── Submit Button  ────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\auth\login\login.scss:318: // ── Footer ───────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\auth\register\register.scss:5: /* ── REGISTRATION PAGE REFINEMENT ─────────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\auth\register\register.scss:100: /* ── ROLE SELECTOR ────────────────────────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\auth\register\register.scss:204: /* ── ERROR REFINEMENT ──────────────────────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\auth\register\register.scss:215: /* ── SPINNER ──────────────────────────────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\auth\register\register.scss:230: /* ── UTILITIES ─────────────────────────────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\calendar\calendar-view\calendar-view.component.ts:194: hours = hours ? hours : 12; // midnight → 12
+d:\Projects\SHIELDON\frontend\src\app\features\chat\chat-messenger\chat-messenger.scss:15: // ── Sidebar (Inbox) ────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\chat\chat-messenger\chat-messenger.scss:147: // ── Main Chat Area ────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\chat\chat-messenger\chat-messenger.scss:314: // ── Badges ─────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\chat\chat-messenger\chat-messenger.scss:325: // ── Modals ─────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\chat\chat-messenger\chat-messenger.scss:476: // ── Badges & Indicators ──────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-announcements\course-announcements.scss:4: // ─────────────────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-announcements\course-announcements.scss:6: // ─────────────────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-announcements\course-announcements.scss:15: // ── Header ──────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-announcements\course-announcements.scss:43: // ── Priority Type Cards (reused from course-materials pattern) ───────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-announcements\course-announcements.scss:109: // ── Empty State ──────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-announcements\course-announcements.scss:159: // ── Announcements Feed ───────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-announcements\course-announcements.scss:329: // ── Loading State ─────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.html:3: <!-- ══ HEADER ══════════════════════════════════════════════════════ -->
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.html:27: <!-- ══ CREATE ASSIGNMENT MODAL ══════════════════════════════════════ -->
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.html:123: <button type="button" class="remove-file-btn" (click)="selectedReferenceFile = null">✕</button>
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.html:157: <!-- ══ EDIT ASSIGNMENT MODAL ══════════════════════════════════════════ -->
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.html:247: <!-- ══ STUDENT: SUBMIT MODAL ════════════════════════════════════════ -->
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.html:286: <button type="button" class="remove-file-btn" (click)="selectedSubmissionFile = null">✕</button>
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.html:320: <!-- ══ CONTENT ═══════════════════════════════════════════════════════ -->
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.html:350: <!-- ── Assignment Card ── -->
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.html:419: <!-- ── Student View: Submission Status ── -->
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.html:486: <!-- ── Tutor/Admin View: Submission Panel ── -->
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.scss:4: // ─────────────────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.scss:6: // ─────────────────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.scss:16: // ── Header ──────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.scss:50: // ── Loading & Empty States ──────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.scss:130: // ── Assignments Feed & Cards ────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.scss:311: // ── Student Submission Area ─────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.scss:372: // ── Tutor Submissions Panel ──────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.scss:503: // ── Shared buttons & inputs ─────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.scss:578: // ── Animations ──────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.ts:37: // ── State ──────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.ts:65: // ── Computed roles ─────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.ts:105: // ── Load ───────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.ts:124: // ── Create Assignment ──────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.ts:196: // ── Edit Assignment ────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.ts:249: // ── Delete Assignment ──────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.ts:275: // ── Reference File Download ────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.ts:282: // ── Submissions expansion (Tutor/Admin) ───────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.ts:332: // ── Download Submission / ZIP ──────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.ts:443: // ── Student submission ─────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-assignments\course-assignments.ts:532: // ── Utility helpers ────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-exams\course-exams.html:3: <!-- ══ HEADER ══════════════════════════════════════════════════════ -->
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-exams\course-exams.html:28: <!-- ══ CONTENT ═══════════════════════════════════════════════════════ -->
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-exams\course-exams.html:216: <!-- ══ CREATE EXAM MODAL ══════════════════════════════════════════ -->
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-exams\course-exams.html:244: <!-- ── Re-open banner (only shown when editing an expired exam) ── -->
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-exams\course-exams.html:420: <!-- ── Modern Radio Cards: Result Visibility ── -->
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-exams\course-exams.scss:4: // ─────────────────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-exams\course-exams.scss:6: // ─────────────────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-exams\course-exams.scss:15: // ── Header ──────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-exams\course-exams.scss:49: // ── Empty State ──────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-exams\course-exams.scss:99: // ── Exams Feed & Cards ───────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-exams\course-exams.scss:370: // ── Modal Specific Overrides ───────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-exams\course-exams.scss:429: // ── Form UI Enhancements ───────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-exams\course-exams.scss:546: // ── Animations ─────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-exams\course-exams.scss:551: // ── Re-open Expired Exam Banner ─────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-exams\course-exams.scss:593: // ── Re-open field highlight (End Date input when exam is expired) ────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-exams\course-exams.scss:622: // ── Modern Radio Cards Grid ───────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-exams\course-exams.scss:742: // ── Modern Alert Banner ──────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-exams\course-exams.scss:790: // ── Attempt Picker Modal ──────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-list\course-list.html:130: <!-- ── ELEGANT COURSE FORM MODAL ── -->
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-list\course-list.scss:411: // ── CUSTOM ELEGANT MODAL OVERLAY ──────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-list\course-list.ts:41: // ── Pagination State ─────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-list\course-list.ts:45: // ── Modal State ──────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-list\course-list.ts:152: // ── Modal Actions ────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-list\course-list.ts:243: // ── Other Actions ────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\course-materials\course-materials.html:119: <button type="button" class="remove-file-btn" (click)="clearFile()">✕</button>
+d:\Projects\SHIELDON\frontend\src\app\features\courses\enrollment-panel\enrollment-panel.html:27: <!-- ── ADMIN / TUTOR VIEW ── -->
+d:\Projects\SHIELDON\frontend\src\app\features\courses\enrollment-panel\enrollment-panel.html:186: <!-- ── STUDENT VIEW ── -->
+d:\Projects\SHIELDON\frontend\src\app\features\courses\enrollment-panel\enrollment-panel.ts:122: // ── Review Actions (Admin/Tutor) ───────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\exam-engine\exam-engine.scss:20: /* ── Rules State (Premium Design) ──────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\exam-engine\exam-engine.scss:273: /* ── Active Engine State ──────────────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\exam-engine\exam-engine.scss:666: /* ── Full Page Spinner Overlay ────────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\exam-engine\exam-engine.scss:706: /* ── Review Screen Polish ────────────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\exam-engine\exam-engine.ts:131: // ✅ Always hard-reset anti-cheat state when entering the exam engine
+d:\Projects\SHIELDON\frontend\src\app\features\courses\exam-engine\exam-engine.ts:238: // ── Navigation ──
+d:\Projects\SHIELDON\frontend\src\app\features\courses\exam-engine\exam-engine.ts:259: // ── Auto-Save ──
+d:\Projects\SHIELDON\frontend\src\app\features\courses\exam-engine\exam-engine.ts:291: // ── Submit ──
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:13: /* ── Header ────────────────────────────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:76: /* ── Status Badges ─────────────────────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:90: /* ✨ NEW: Shared Type & Points Badges (Moved here to work everywhere) */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:111: /* ── Stats Bar ─────────────────────────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:138: /* ── Empty State (Unified with course-exams.scss) ──────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:188: /* ── Questions Grid & Cards ────────────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:310: /* ── Modal Details Styling ──────────────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:464: /* ── Pagination Controls ────────────────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:508: /* ── Modal Options Management ──────────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:616: /* ── Modal UI Enhancements & Fixes ──────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:628: gap: 20px !important; /* ✨ PERFECT UNIFORM SPACING BETWEEN ALL ROWS */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:633: /* ✨ Force the gray footer to stretch perfectly to the bottom edges */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:642: /* ── Top Layout Grid ── */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:656: /* ── Explicit Form Field Styling (Modern UI) ── */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:659: margin-bottom: 0 !important; /* ✨ KILLS THE INHERITED DEAD SPACING */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:704: /* ✨ NEW: Sleek disabled state for Edit Mode */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:727: /* ── Modern Dropdown Select Wrapper ── */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:787: /* ── Dynamic Options Area ── */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:921: /* ✨ True/False Static Text Styling */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:941: /* ✨ Modern Instruction Banner */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:966: /* ✨ NEW: Warning theme for the Edit Mode locked banner */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\question-bank\course-question-bank.component.scss:980: /* ✨ Premium Toggle Switch Card */
+d:\Projects\SHIELDON\frontend\src\app\features\courses\services\assignment.service.ts:7: // ── Response Interfaces ────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\services\assignment.service.ts:45: // ── Request Interfaces ─────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\services\assignment.service.ts:64: // ── Service ────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\services\assignment.service.ts:71: // ── Assignments ────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\services\assignment.service.ts:108: // ── Submissions ────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\services\course.service.ts:26: // ── Course CRUD ────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\services\course.service.ts:68: // ── Enrollment Workflow ───────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\services\exam.service.ts:16: // ── Course-scoped operations ────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\courses\services\exam.service.ts:33: // ── Exam-scoped operations ──────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\exams\exam-result-page\exam-result-page.scss:258: // ── Attempt Picker Modal ──────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\exams\tutor-results-panel\tutor-results-panel.html:119: <!-- ── Grading Modal ──────────────────────────────────────────────────────── -->
+d:\Projects\SHIELDON\frontend\src\app\features\exams\tutor-results-panel\tutor-results-panel.scss:195: /* ── Modal Styles ───────────────────────────────────────────────────────── */
+d:\Projects\SHIELDON\frontend\src\app\features\exams\tutor-results-panel\tutor-results-panel.ts:212: // ── Short Answer Grading ──────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\grades\services\grade.service.ts:7: // ── Request Interfaces ─────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\grades\services\grade.service.ts:28: // ── Response Interfaces ────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\grades\services\grade.service.ts:79: // ── Service ────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\grades\services\grade.service.ts:86: // ── Tutor/Admin Endpoints ──────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\grades\services\grade.service.ts:130: // ── Student Endpoints ──────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\monitoring\attempt-detail\attempt-detail.scss:12: // ─── Back Header ─────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\monitoring\attempt-detail\attempt-detail.scss:49: // ─── Skeleton ────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\monitoring\attempt-detail\attempt-detail.scss:88: // ─── Error ───────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\monitoring\attempt-detail\attempt-detail.scss:107: // ─── Hero Banner ─────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\monitoring\attempt-detail\attempt-detail.scss:241: // ─── KPI Strip ───────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\monitoring\attempt-detail\attempt-detail.scss:319: // ─── Main Grid ───────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\monitoring\attempt-detail\attempt-detail.scss:331: // ─── Panel Shared ────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\monitoring\attempt-detail\attempt-detail.scss:358: // ─── Timeline Panel ──────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\monitoring\attempt-detail\attempt-detail.scss:392: // ─── Timeline Node ───────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\monitoring\attempt-detail\attempt-detail.scss:566: // ─── Chart Panel ─────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\payment\payment-hub\payment-hub.scss:3: // ─── Page Header (same pattern as course-list) ────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\payment\payment-hub\payment-hub.scss:48: // ─── Loading State ──────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\payment\payment-hub\payment-hub.scss:68: // ─── Empty State (same pattern as course-list) ──────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\payment\payment-hub\payment-hub.scss:109: // ─── Payment Card Grid ──────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\payment\payment-hub\payment-hub.scss:117: // ─── Payment Card (reuses course-card pattern) ──────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\payment\payment-hub\payment-hub.scss:307: // ─── Payment History Section ────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\public\landing\landing.scss:35: // ── HERO SECTION ─────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\public\landing\landing.scss:331: // ── STATS SECTION ────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\public\landing\landing.scss:370: // ── FEATURES SECTION ─────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\public\landing\landing.scss:489: // ── CTA SECTION ──────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\public\landing\landing.scss:542: // ── ANIMATIONS ───────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\features\public\mobile-blocked\mobile-blocked.ts:108: content: "•";
+d:\Projects\SHIELDON\frontend\src\app\layouts\dashboard-layout\dashboard-layout.scss:11: // ── Sidebar ─────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\layouts\dashboard-layout\dashboard-layout.scss:171: // ── Main Content Area ───────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\app\layouts\dashboard-layout\dashboard-layout.scss:298: // ── Responsive Design ───────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\assets\i18n\ar.json:74: "F_ANTI_CHEAT": "🛡️ محرك مكافحة الغش",
+d:\Projects\SHIELDON\frontend\src\assets\i18n\ar.json:76: "F_SMART_EXAM": "🎓 امتحانات ذكية",
+d:\Projects\SHIELDON\frontend\src\assets\i18n\ar.json:92: "TOAST_SUCCESS": "مرحباً بعودتك، {{name}}! 👋",
+d:\Projects\SHIELDON\frontend\src\assets\i18n\ar.json:116: "PASS_PLACEHOLDER": "••••••••",
+d:\Projects\SHIELDON\frontend\src\assets\i18n\ar.json:121: "CONFIRM_PLACEHOLDER": "••••••••",
+d:\Projects\SHIELDON\frontend\src\assets\i18n\ar.json:574: "REOPEN_HINT": "← عيّن تاريخ مستقبلي لإعادة الفتح",
+d:\Projects\SHIELDON\frontend\src\assets\i18n\ar.json:724: "TOAST_VIOLATION_TITLE": "🚨 تم إنهاء الامتحان",
+d:\Projects\SHIELDON\frontend\src\assets\i18n\ar.json:726: "SWAL_STRIKE_TITLE": "⚠️ تحذير: تم اكتشاف انتهاك للنزاهة",
+d:\Projects\SHIELDON\frontend\src\assets\i18n\ar.json:1013: "NOTES_PREVIEW": "📝 يحتوي على ملاحظات",
+d:\Projects\SHIELDON\frontend\src\assets\i18n\en.json:74: "F_ANTI_CHEAT": "🛡️ Anti-Cheat Engine",
+d:\Projects\SHIELDON\frontend\src\assets\i18n\en.json:76: "F_SMART_EXAM": "🎓 Smart Exams",
+d:\Projects\SHIELDON\frontend\src\assets\i18n\en.json:92: "TOAST_SUCCESS": "Welcome back, {{name}}! 👋",
+d:\Projects\SHIELDON\frontend\src\assets\i18n\en.json:116: "PASS_PLACEHOLDER": "••••••••",
+d:\Projects\SHIELDON\frontend\src\assets\i18n\en.json:121: "CONFIRM_PLACEHOLDER": "••••••••",
+d:\Projects\SHIELDON\frontend\src\assets\i18n\en.json:574: "REOPEN_HINT": "← Set a future date to re-open",
+d:\Projects\SHIELDON\frontend\src\assets\i18n\en.json:724: "TOAST_VIOLATION_TITLE": "🚨 Exam Terminated",
+d:\Projects\SHIELDON\frontend\src\assets\i18n\en.json:726: "SWAL_STRIKE_TITLE": "⚠️ Warning: Integrity Violation Detected",
+d:\Projects\SHIELDON\frontend\src\assets\i18n\en.json:1013: "NOTES_PREVIEW": "📝 Has Notes",
+d:\Projects\SHIELDON\frontend\src\assets\styles\_modal.scss:301: // ✨ THE FIX: We push the invisible calendar trigger to the far right.
+d:\Projects\SHIELDON\frontend\src\assets\styles\_modal.scss:402: /* ── Global Progress Button ── */
+d:\Projects\SHIELDON\frontend\src\assets\styles\_modal.scss:433: /* ── Global Drop Zone ── */
+d:\Projects\SHIELDON\frontend\src\assets\styles\_shepherd-theme.scss:3: // ── Custom SHIELDON Theme for Shepherd.js ──
+d:\Projects\SHIELDON\frontend\src\styles.scss:53: // ── CUSTOM SCROLLBAR ────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\styles.scss:71: // ── PREMIUM SWEETALERT2 STYLING ─────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\styles.scss:128: // ── ARABIC FONT SUPPORT ─────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\styles.scss:146: // ── GLOBAL RTL TABLE ALIGNMENT ───────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\styles.scss:168: // ── GLOBAL RTL FLEX/CARD ALIGNMENT ──────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\styles.scss:179: // ── COURSE CARD RTL ──────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\styles.scss:199: // ── PAGINATION RTL ───────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\styles.scss:204: // ── ANNOUNCEMENT/ASSIGNMENT CARDS RTL ───────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\styles.scss:212: // ── MODAL RTL ────────────────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\styles.scss:237: // ── ENROLLMENT PANEL RTL ─────────────────────────────────────────────────────
+d:\Projects\SHIELDON\frontend\src\styles.scss:244: // ── SEARCH BOX RTL ───────────────────────────────────────────────────────────

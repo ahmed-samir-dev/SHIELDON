@@ -11,7 +11,7 @@ namespace SHIELDON.API.Controllers;
 /// Manages the re-attempt request lifecycle.
 ///
 /// Access control:
-///   - Admin: full access — can list all requests and review any
+///   - Admin: full access - can list all requests and review any
 ///   - Tutor: can list and review requests for their assigned courses
 ///   - Student: can submit requests and view their own
 /// </summary>

@@ -4,23 +4,23 @@
       <lucide-icon [img]="BarChart2" class="header-icon"></lucide-icon>
     </div>
     <div class="title-area">
-      <h1>My Grades</h1>
-      <p>View your academic performance across all courses.</p>
+      <h1>{{ 'MY_GRADES.TITLE' | translate }}</h1>
+      <p>{{ 'MY_GRADES.SUBTITLE' | translate }}</p>
     </div>
   </header>
 
   <div *ngIf="isLoading()" class="loading-state">
     <div class="spinner"></div>
-    <p>Loading your grades...</p>
+    <p>{{ 'MY_GRADES.LOADING' | translate }}</p>
   </div>
 
   <div *ngIf="!isLoading() && courseGroups().length === 0" class="empty-state">
     <div class="empty-icon-wrapper">
       <lucide-icon [img]="Award" class="empty-icon"></lucide-icon>
     </div>
-    <h3>No Grades Available</h3>
-    <p>You don't have any published grades yet. Complete exams and assignments to see them here.</p>
-    <a routerLink="/courses" class="btn btn-primary mt-4">Browse Courses</a>
+    <h3>{{ 'MY_GRADES.NO_GRADES_TITLE' | translate }}</h3>
+    <p>{{ 'MY_GRADES.NO_GRADES_DESC' | translate }}</p>
+    <a routerLink="/courses" class="btn btn-primary mt-4">{{ 'MY_GRADES.BTN_BROWSE_COURSES' | translate }}</a>
   </div>
 
   <div *ngIf="!isLoading() && courseGroups().length > 0" class="course-cards-list">
@@ -30,11 +30,11 @@
           <lucide-icon [img]="isExpanded(group.courseId) ? ChevronDown : ChevronRight" class="expand-icon" style="color: #6b7280; width: 20px; height: 20px;"></lucide-icon>
           <div class="course-info">
             <a [routerLink]="['/courses', group.courseId]" class="course-title" (click)="$event.stopPropagation()">{{ group.courseTitle }}</a>
-            <span class="items-count">{{ group.grades.length }} Items Graded</span>
+            <span class="items-count">{{ ('MY_GRADES.ITEMS_GRADED' | translate).replace('{count}', group.grades.length.toString()) }}</span>
           </div>
         </div>
         <div class="total-score-pill">
-          <span class="label">Course Score</span>
+          <span class="label">{{ 'MY_GRADES.COURSE_SCORE' | translate }}</span>
           <span class="value">{{ group.totalScore | number:'1.0-2' }}%</span>
         </div>
       </div>
@@ -43,12 +43,12 @@
         <table class="student-grades-table">
           <thead>
             <tr>
-              <th>Item</th>
-              <th>Type</th>
-              <th>Score</th>
-              <th>Weight</th>
-              <th>Contribution</th>
-              <th>Published</th>
+              <th>{{ 'MY_GRADES.COL_ITEM' | translate }}</th>
+              <th>{{ 'MY_GRADES.COL_TYPE' | translate }}</th>
+              <th>{{ 'MY_GRADES.COL_SCORE' | translate }}</th>
+              <th>{{ 'MY_GRADES.COL_WEIGHT' | translate }}</th>
+              <th>{{ 'MY_GRADES.COL_CONTRIBUTION' | translate }}</th>
+              <th>{{ 'MY_GRADES.COL_PUBLISHED' | translate }}</th>
             </tr>
           </thead>
           <tbody>

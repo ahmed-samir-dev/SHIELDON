@@ -52,7 +52,7 @@ public class CourseConfiguration : IEntityTypeConfiguration<Course>
             .IsRequired()
             .HasColumnType("DATETIME2");
 
-        // ── FK: AssignedTutor (nullable — course may be unassigned) ──
+        // ── FK: AssignedTutor (nullable - course may be unassigned) ──
         builder.HasOne(c => c.AssignedTutor)
             .WithMany()
             .HasForeignKey(c => c.AssignedTutorId)

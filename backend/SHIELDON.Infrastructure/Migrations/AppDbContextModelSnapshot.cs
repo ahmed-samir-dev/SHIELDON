@@ -60,6 +60,9 @@ namespace SHIELDON.Infrastructure.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
 
+                    b.Property<string>("Translations")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("DATETIME2");
 
@@ -120,6 +123,9 @@ namespace SHIELDON.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Translations")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("DATETIME2");
@@ -426,6 +432,9 @@ namespace SHIELDON.Infrastructure.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<string>("Translations")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("DATETIME2");
 
@@ -544,6 +553,9 @@ namespace SHIELDON.Infrastructure.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("nvarchar(300)");
 
+                    b.Property<string>("Translations")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("DATETIME2");
 
@@ -588,6 +600,9 @@ namespace SHIELDON.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Translations")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -652,6 +667,9 @@ namespace SHIELDON.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Translations")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -758,6 +776,9 @@ namespace SHIELDON.Infrastructure.Migrations
 
                     b.Property<string>("QuestionText")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Translations")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type")
@@ -1025,6 +1046,9 @@ namespace SHIELDON.Infrastructure.Migrations
 
                     b.Property<Guid>("QuestionId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Translations")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

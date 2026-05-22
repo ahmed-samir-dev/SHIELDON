@@ -8,13 +8,13 @@ using SHIELDON.Application.Interfaces;
 namespace SHIELDON.API.Controllers;
 
 /// <summary>
-/// Phase 6 — Post-Exam Monitoring & Dashboards endpoints.
+/// Phase 6 - Post-Exam Monitoring & Dashboards endpoints.
 /// 
 /// Tutor/Admin:
-///   GET  /api/attempts/{attemptId}/timeline           — full violation timeline
-///   GET  /api/attempts/{attemptId}/violations/summary — violation stats + chart data
-///   GET  /api/monitoring/tutor/dashboard              — tutor dashboard data (historical)
-///   GET  /api/monitoring/admin/dashboard              — admin dashboard data (historical)
+///   GET  /api/attempts/{attemptId}/timeline           - full violation timeline
+///   GET  /api/attempts/{attemptId}/violations/summary - violation stats + chart data
+///   GET  /api/monitoring/tutor/dashboard              - tutor dashboard data (historical)
+///   GET  /api/monitoring/admin/dashboard              - admin dashboard data (historical)
 /// </summary>
 [ApiController]
 [Authorize]

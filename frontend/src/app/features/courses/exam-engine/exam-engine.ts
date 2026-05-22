@@ -12,13 +12,14 @@ import { ExamDetailResponse } from '../../../core/models/exam.model';
 import { ExamAttemptService, StartExamResponse, StudentQuestionDto, QuestionType } from '../services/exam-attempt';
 import { AntiCheatService } from '../../anti-cheat/anti-cheat.service';
 import { AntiCheatOverlayComponent } from '../../anti-cheat/anti-cheat-overlay/anti-cheat-overlay';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 type EngineState = 'loading' | 'rules' | 'active' | 'review' | 'submitting' | 'error';
 
 @Component({
   selector: 'app-exam-engine',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, AntiCheatOverlayComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, AntiCheatOverlayComponent, TranslateModule],
   templateUrl: './exam-engine.html',
   styleUrls: ['./exam-engine.scss']
 })
@@ -29,6 +30,7 @@ export class ExamEngine implements OnInit, OnDestroy {
   private attemptService = inject(ExamAttemptService);
   private toastr = inject(ToastrService);
   public antiCheat = inject(AntiCheatService);
+  private translate = inject(TranslateService);
 
   // Icons
   Clock = Clock;
@@ -110,9 +112,9 @@ export class ExamEngine implements OnInit, OnDestroy {
           if (this.antiCheat.strikeLevel() === 1 && !this.antiCheat.strikeOneAcknowledged()) {
             Swal.fire({
               icon: 'warning',
-              title: '⚠️ Warning: Integrity Violation Detected',
-              html: 'Suspicious activity has been logged.<br><br>Please do not use keyboard shortcuts or resize your screen.<br><br><strong>Further violations will result in automatic exam termination.</strong>',
-              confirmButtonText: 'I Understand — Return to Exam',
+              title: this.translate.instant('EXAM_ENGINE.SWAL_STRIKE_TITLE'),
+              html: this.translate.instant('EXAM_ENGINE.SWAL_STRIKE_DESC'),
+              confirmButtonText: this.translate.instant('EXAM_ENGINE.SWAL_STRIKE_BTN'),
               confirmButtonColor: '#f59e0b',
               allowOutsideClick: false,
               allowEscapeKey: false
@@ -169,7 +171,7 @@ export class ExamEngine implements OnInit, OnDestroy {
         this.state.set('rules');
       },
       error: () => {
-        this.toastr.error('Could not load exam details');
+        this.toastr.error(this.translate.instant('EXAM_ENGINE.TOAST_ERR_LOAD'));
         this.state.set('error');
       }
     });
@@ -184,10 +186,10 @@ export class ExamEngine implements OnInit, OnDestroy {
         this.startTimer(res.data.expiresAt);
         this.state.set('active');
         this.antiCheat.startMonitoring(res.data.attemptId);
-        this.toastr.success('Exam started! Good luck.');
+        this.toastr.success(this.translate.instant('EXAM_ENGINE.TOAST_EXAM_STARTED'));
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Failed to start exam');
+        this.toastr.error(err.error?.message || this.translate.instant('EXAM_ENGINE.TOAST_ERR_START'));
         this.state.set('rules');
       }
     });
@@ -280,7 +282,7 @@ export class ExamEngine implements OnInit, OnDestroy {
         this.savingState.update(s => ({ ...s, [question.id]: false }));
       },
       error: () => {
-        this.toastr.error('Failed to save answer. Please check connection.');
+        this.toastr.error(this.translate.instant('EXAM_ENGINE.TOAST_ERR_SAVE'));
         this.savingState.update(s => ({ ...s, [question.id]: false }));
       }
     });
@@ -298,12 +300,12 @@ export class ExamEngine implements OnInit, OnDestroy {
 
   submitFinal(): void {
     Swal.fire({
-      title: 'Submit Final?',
-      text: "You won't be able to change your answers after submitting.",
+      title: this.translate.instant('EXAM_ENGINE.SWAL_SUBMIT_TITLE'),
+      text: this.translate.instant('EXAM_ENGINE.SWAL_SUBMIT_DESC'),
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Yes, submit exam!',
-      cancelButtonText: 'No, return to review'
+      confirmButtonText: this.translate.instant('EXAM_ENGINE.SWAL_BTN_YES'),
+      cancelButtonText: this.translate.instant('EXAM_ENGINE.SWAL_BTN_NO')
     }).then((result: any) => {
       if (result.isConfirmed) {
         this.submitExam();
@@ -321,7 +323,7 @@ export class ExamEngine implements OnInit, OnDestroy {
 
     this.attemptService.submitExam(attemptId).subscribe({
       next: (res) => {
-        this.toastr.success('Exam submitted successfully!');
+        this.toastr.success(this.translate.instant('EXAM_ENGINE.TOAST_SUBMIT_SUCCESS'));
         
         // Route conditionally based on resultVisibility and status
         if (res.data?.resultVisibility === 'Immediate' && res.data?.status === 'Graded') {
@@ -331,7 +333,7 @@ export class ExamEngine implements OnInit, OnDestroy {
         }
       },
       error: (err) => {
-        this.toastr.error('Failed to submit exam. Contact support.');
+        this.toastr.error(this.translate.instant('EXAM_ENGINE.TOAST_ERR_SUBMIT'));
         this.state.set('active');
         this.antiCheat.resumeMonitoring(attemptId);
         this.startTimer(this.attemptData()!.expiresAt); // Restart timer visually
@@ -349,12 +351,12 @@ export class ExamEngine implements OnInit, OnDestroy {
 
     // Toast notification at default position (bottom-right)
     this.toastr.error(
-      'Your exam has been automatically submitted due to repeated integrity violations.',
-      '🚨 Exam Terminated',
+      this.translate.instant('EXAM_ENGINE.TOAST_AUTO_SUBMIT_VIOLATION'),
+      this.translate.instant('EXAM_ENGINE.TOAST_VIOLATION_TITLE'),
       { timeOut: 6000, progressBar: true }
     );
 
-    // Submit and navigate — the red overlay is already covering the screen
+    // Submit and navigate - the red overlay is already covering the screen
     this.attemptService.submitExam(attemptId).subscribe({
       next: (res) => {
         this.antiCheat.resetState(); // Clear red overlay
@@ -364,7 +366,7 @@ export class ExamEngine implements OnInit, OnDestroy {
         );
       },
       error: () => {
-        // Even on API error, navigate away — exam is considered terminated
+        // Even on API error, navigate away - exam is considered terminated
         this.antiCheat.resetState();
         this.router.navigate(['/courses', courseId]);
       }
@@ -379,7 +381,7 @@ export class ExamEngine implements OnInit, OnDestroy {
 
     this.attemptService.forceSubmitExam(attemptId).subscribe({
       next: () => {
-        this.toastr.success('Exam was auto-submitted due to time expiry.');
+        this.toastr.success(this.translate.instant('EXAM_ENGINE.TOAST_AUTO_SUBMIT_EXPIRY'));
         setTimeout(() => {
           this.router.navigate(['/courses', this.examDetails()?.courseId], { queryParams: { tab: 'exams' } });
         }, 1500);

@@ -48,7 +48,7 @@ public class ExamReminderBackgroundService : BackgroundService
             }
             catch (OperationCanceledException)
             {
-                // Host is shutting down — exit the loop cleanly without crashing.
+                // Host is shutting down - exit the loop cleanly without crashing.
                 break;
             }
             catch (Exception ex)

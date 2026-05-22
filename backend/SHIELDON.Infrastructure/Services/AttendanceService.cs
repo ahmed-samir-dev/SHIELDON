@@ -31,7 +31,7 @@ public class AttendanceService : IAttendanceService
             CourseId = courseId,
             TutorId = tutorId,
             Title = string.IsNullOrWhiteSpace(title)
-                ? $"Attendance Check — {DateTime.UtcNow:dd MMM yyyy, HH:mm} UTC"
+                ? $"Attendance Check - {DateTime.UtcNow:dd MMM yyyy, HH:mm} UTC"
                 : title.Trim(),
             CreatedAt = DateTime.UtcNow,
             IsActive = true,

@@ -26,7 +26,7 @@ public class AssignmentConfiguration : IEntityTypeConfiguration<Assignment>
         builder.Property(a => a.Instructions)
             .HasColumnType("NVARCHAR(MAX)");
 
-        // ── Reference File (all nullable — file is optional) ────
+        // ── Reference File (all nullable - file is optional) ────
         builder.Property(a => a.ReferenceFileName)
             .HasMaxLength(500);
 

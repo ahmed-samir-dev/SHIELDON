@@ -110,7 +110,7 @@ var builder = WebApplication.CreateBuilder(args);
             ValidateAudience = true,
             ValidAudience = builder.Configuration["JwtSettings:Audience"] ?? "SHIELDON-Users",
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero // No tolerance — token expiry is exact
+            ClockSkew = TimeSpan.Zero // No tolerance - token expiry is exact
         };
 
         // SignalR: browsers cannot set Authorization headers on WebSocket connections.
@@ -150,7 +150,7 @@ var builder = WebApplication.CreateBuilder(args);
         {
             Title = "SHIELDON API",
             Version = "v1",
-            Description = "SHIELDON LMS & Anti-Cheating Engine REST API — Integrity You Can Trust",
+            Description = "SHIELDON LMS & Anti-Cheating Engine REST API - Integrity You Can Trust",
             Contact = new OpenApiContact { Name = "SHIELDON Team" }
         });
 
@@ -238,7 +238,7 @@ if (app.Environment.IsDevelopment())
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "SHIELDON API v1");
         options.RoutePrefix = "swagger";
-        options.DocumentTitle = "SHIELDON API — Swagger UI";
+        options.DocumentTitle = "SHIELDON API - Swagger UI";
     });
 }
 
@@ -271,9 +271,9 @@ app.MapHub<AttendanceHub>("/hubs/attendance");
 // ── BACKGROUND SERVICES (API-layer) ──────────────────────────────────────────
 // AttendanceRotationService is registered above via builder.Services
 
-Log.Information("SHIELDON API starting — environment: {Env}", app.Environment.EnvironmentName);
+Log.Information("SHIELDON API starting - environment: {Env}", app.Environment.EnvironmentName);
 
-// Serilog try/catch only wraps Run() — not the full build pipeline.
+// Serilog try/catch only wraps Run() - not the full build pipeline.
 // This lets WebApplicationFactory propagate startup exceptions in integration tests.
 try
 {

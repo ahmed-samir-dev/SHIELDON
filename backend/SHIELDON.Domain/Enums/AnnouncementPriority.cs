@@ -5,7 +5,7 @@ namespace SHIELDON.Domain.Enums;
 /// </summary>
 public enum AnnouncementPriority
 {
-    /// <summary>Standard announcement — shown in date-descending order.</summary>
+    /// <summary>Standard announcement - shown in date-descending order.</summary>
     Normal = 0,
 
     /// <summary>

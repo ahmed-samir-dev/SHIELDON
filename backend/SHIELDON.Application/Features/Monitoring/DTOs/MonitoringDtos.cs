@@ -38,10 +38,10 @@ public class ViolationTimelineEntry
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// VIOLATION SUMMARY (unchanged — used for the chart endpoint)
+// VIOLATION SUMMARY (unchanged - used for the chart endpoint)
 // ─────────────────────────────────────────────────────────────────────────────
 
-/// <summary>Aggregate statistics for all violations in one attempt — used for the summary cards row.</summary>
+/// <summary>Aggregate statistics for all violations in one attempt - used for the summary cards row.</summary>
 public class ViolationSummaryResponse
 {
     public int TotalViolations { get; set; }

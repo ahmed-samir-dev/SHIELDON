@@ -7,11 +7,12 @@ import QRCode from 'qrcode';
 import { environment } from '../../../../environments/environment';
 import { RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-attendance-tutor',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslateModule],
   templateUrl: './attendance-tutor.html',
   styleUrls: ['./attendance-tutor.scss']
 })
@@ -20,6 +21,7 @@ export class AttendanceTutorComponent implements OnInit, OnDestroy {
 
   private route = inject(ActivatedRoute);
   private attendanceService = inject(AttendanceService);
+  public translate = inject(TranslateService);
 
   courseId = signal<string>('');
   activeCheck = signal<AttendanceCheckDetailDto | null>(null);
@@ -102,7 +104,7 @@ export class AttendanceTutorComponent implements OnInit, OnDestroy {
         await this.attendanceService.startSignalRConnection();
         await this.attendanceService.joinCheckAsTutor(checkId);
 
-        // Render QR immediately via REST — no waiting for the 5s timer
+        // Render QR immediately via REST - no waiting for the 5s timer
         this.fetchAndRenderQr(checkId);
 
         // Poll every 5s to stay in sync with the backend's secret rotation
@@ -111,7 +113,7 @@ export class AttendanceTutorComponent implements OnInit, OnDestroy {
         this.isLoading.set(false);
       },
       error: () => {
-        this.errorMsg.set('Failed to load check details');
+        this.errorMsg.set(this.translate.instant('ATTENDANCE_TUTOR.ERR_LOAD_DETAILS'));
         this.isLoading.set(false);
       }
     });
@@ -129,7 +131,7 @@ export class AttendanceTutorComponent implements OnInit, OnDestroy {
         this.scheduleNextQrFetch(checkId, expiresAt);
       },
       error: () => {
-        console.warn('Could not fetch QR payload — retrying in 2s');
+        console.warn('Could not fetch QR payload - retrying in 2s');
         setTimeout(() => {
           if (this.activeCheck()?.isActive) this.fetchAndRenderQr(checkId);
         }, 2000);
@@ -189,7 +191,7 @@ export class AttendanceTutorComponent implements OnInit, OnDestroy {
     this.attendanceService.startCheck({ courseId: this.courseId() }).subscribe({
       next: (res) => this.loadCheckDetails(res.data.id),
       error: (err) => {
-        this.errorMsg.set(err.error?.message || 'Failed to start check');
+        this.errorMsg.set(err.error?.message || this.translate.instant('ATTENDANCE_TUTOR.ERR_START_CHECK'));
         this.isLoading.set(false);
       }
     });
@@ -200,12 +202,12 @@ export class AttendanceTutorComponent implements OnInit, OnDestroy {
     if (!check) return;
 
     Swal.fire({
-      title: 'End Attendance Session?',
-      text: 'Are you sure you want to end this attendance check? The QR will become invalid.',
+      title: this.translate.instant('ATTENDANCE_TUTOR.SWAL_END_TITLE'),
+      text: this.translate.instant('ATTENDANCE_TUTOR.SWAL_END_DESC'),
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Yes, End Session',
-      cancelButtonText: 'Cancel',
+      confirmButtonText: this.translate.instant('ATTENDANCE_TUTOR.SWAL_BTN_YES'),
+      cancelButtonText: this.translate.instant('ATTENDANCE_TUTOR.SWAL_BTN_CANCEL'),
       confirmButtonColor: '#e11d48'
     }).then((result) => {
       if (result.isConfirmed) {
@@ -221,7 +223,7 @@ export class AttendanceTutorComponent implements OnInit, OnDestroy {
             this.isLoading.set(false);
           },
           error: () => {
-            this.errorMsg.set('Failed to end check');
+            this.errorMsg.set(this.translate.instant('ATTENDANCE_TUTOR.ERR_END_CHECK'));
             this.isLoading.set(false);
           }
         });
@@ -243,7 +245,7 @@ export class AttendanceTutorComponent implements OnInit, OnDestroy {
         this.students.update(list => list.map(s =>
           s.id === student.id ? { ...s, isPresent: previousState, isManual: student.isManual } : s
         ));
-        alert('Failed to update student presence manually.');
+        alert(this.translate.instant('ATTENDANCE_TUTOR.ALERT_MANUAL_FAIL'));
       }
     });
   }

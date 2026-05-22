@@ -1,20 +1,29 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PaymentService } from '../../../core/services/payment.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { LanguageService } from '../../../core/services/language.service';
 import { PaymentRecordDto, PaymentHistoryQueryParams } from '../../../core/models/payment.model';
 import Swal from 'sweetalert2';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-payment-hub',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, TranslateModule],
   templateUrl: './payment-hub.html',
   styleUrl: './payment-hub.scss'
 })
-export class PaymentHubComponent implements OnInit {
+export class PaymentHubComponent implements OnInit, OnDestroy {
+  private paymentService = inject(PaymentService);
+  public authService = inject(AuthService);
+  private languageService = inject(LanguageService);
+  public translate = inject(TranslateService);
+  private langSub!: Subscription;
+
   // Pending Payments State
   pendingPayments: PaymentRecordDto[] = [];
   isLoadingPending = true;
@@ -32,19 +41,21 @@ export class PaymentHubComponent implements OnInit {
   searchQuery = '';
   statusFilter = '';
 
-  constructor(
-    private paymentService: PaymentService,
-    public authService: AuthService
-  ) {}
-
   ngOnInit(): void {
     if (this.isStudent) {
       this.loadPendingPayments();
     } else {
-      this.isLoadingPending = false; // Admin doesn't load pending
+      this.isLoadingPending = false;
     }
-    
     this.loadHistory();
+    this.langSub = this.languageService.languageChange$.subscribe(() => {
+      if (this.isStudent) this.loadPendingPayments();
+      this.loadHistory();
+    });
+  }
+
+  ngOnDestroy() {
+    this.langSub?.unsubscribe();
   }
 
   get isStudent(): boolean {
@@ -104,7 +115,7 @@ export class PaymentHubComponent implements OnInit {
       error: (err) => {
         console.error('Error creating checkout session:', err);
         this.isProcessing = false;
-        Swal.fire('Error', err.error?.message || 'Failed to initiate payment.', 'error');
+        Swal.fire('Error', err.error?.message || this.translate.instant('PAYMENT_HUB.ERR_INIT'), 'error');
       }
     });
   }

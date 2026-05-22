@@ -3,7 +3,7 @@ namespace SHIELDON.Application.Interfaces;
 /// <summary>
 /// Contract for storing and retrieving files on the server.
 /// Implemented in SHIELDON.Infrastructure/Services/FileService.cs.
-/// Files are NEVER served directly from disk — always through an API controller.
+/// Files are NEVER served directly from disk - always through an API controller.
 /// Note: Uses Stream instead of IFormFile to keep Application layer free from ASP.NET Core dependency.
 /// </summary>
 public interface IFileService

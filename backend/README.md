@@ -1,4 +1,4 @@
-# SHIELDON — Backend
+# SHIELDON - Backend
 
 > The core API, business logic, and database orchestration for the SHIELDON Learning Management System & Anti-Cheating Engine.
 > Built with .NET 9.

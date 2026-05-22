@@ -5,10 +5,13 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { provideToastr } from 'ngx-toastr';
 import { importProvidersFrom } from '@angular/core';
 import { NgxEchartsModule } from 'ngx-echarts';
+import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { routes } from './app.routes';
 import { loadingInterceptor } from './core/interceptors/loading.interceptor';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { languageInterceptor } from './core/interceptors/language.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -18,7 +21,7 @@ export const appConfig: ApplicationConfig = {
       withComponentInputBinding()
     ),
     provideHttpClient(
-      withInterceptors([ authInterceptor, loadingInterceptor ])
+      withInterceptors([ authInterceptor, languageInterceptor, loadingInterceptor ])
     ),
     provideAnimationsAsync(), // Required for Angular animations (notification panel etc.)
     provideToastr({
@@ -28,6 +31,15 @@ export const appConfig: ApplicationConfig = {
       progressBar: true,
       newestOnTop: true,
     }),
-    importProvidersFrom(NgxEchartsModule.forRoot({ echarts: () => import('echarts') }))
+    importProvidersFrom(
+      NgxEchartsModule.forRoot({ echarts: () => import('echarts') })
+    ),
+    provideTranslateService({
+      defaultLanguage: 'en'
+    }),
+    provideTranslateHttpLoader({
+      prefix: './assets/i18n/',
+      suffix: '.json'
+    })
   ]
 };

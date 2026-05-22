@@ -52,7 +52,7 @@ public class MonitoringService : IMonitoringService
         {
             AttemptId       = attempt.Id,
             StudentName     = attempt.Student != null ? $"{attempt.Student.FirstName} {attempt.Student.LastName}" : "Unknown",
-            StudentCode     = attempt.Student?.StudentId ?? "—",
+            StudentCode     = attempt.Student?.StudentId ?? "-",
             StudentProfilePictureUrl = attempt.Student?.ProfilePictureUrl,
             ExamTitle       = attempt.Exam.Title,
             CourseTitle     = attempt.Exam.Course!.Title,
@@ -293,8 +293,8 @@ public class MonitoringService : IMonitoringService
             {
                 AttemptId       = a.Id,
                 StudentName     = a.Student != null ? $"{a.Student.FirstName} {a.Student.LastName}" : "Unknown",
-                StudentCode     = a.Student?.StudentId ?? "—",
-                ExamTitle       = a.Exam?.Title ?? "—",
+                StudentCode     = a.Student?.StudentId ?? "-",
+                ExamTitle       = a.Exam?.Title ?? "-",
                 Status          = a.Status.ToString(),
                 SubmittedAt     = a.SubmittedAt,
                 Score           = a.Score,

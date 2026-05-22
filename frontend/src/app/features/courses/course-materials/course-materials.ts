@@ -7,17 +7,19 @@ import { MaterialResponse } from '../../../core/models/material.model';
 import { ToastrService } from 'ngx-toastr';
 import { CourseDetailResponse } from '../../../core/models/courses.model';
 import Swal from 'sweetalert2';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-course-materials',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './course-materials.html',
   styleUrls: ['./course-materials.scss']
 })
 export class CourseMaterialsComponent implements OnInit {
   @Input() course!: CourseDetailResponse;
 
+  private readonly translate = inject(TranslateService);
   private readonly materialService = inject(MaterialService);
   private readonly authService = inject(AuthService);
   private readonly formBuilder = inject(FormBuilder);
@@ -49,7 +51,7 @@ isDragging = signal<boolean>(false);
     if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
       const file = event.dataTransfer.files[0];
       if (file.size > 100 * 1024 * 1024) {
-        this.fileError.set('File size exceeds 100 MB limit.');
+        this.fileError.set(this.translate.instant('COURSE_MATERIALS.ERR_FILE_SIZE'));
         this.selectedFile = null;
         return;
       }
@@ -112,7 +114,7 @@ isDragging = signal<boolean>(false);
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Failed to load materials');
+        this.toastr.error(err.error?.message || this.translate.instant('COURSE_MATERIALS.TOAST_LOAD_ERR'));
         this.isLoading.set(false);
       }
     });
@@ -125,7 +127,7 @@ isDragging = signal<boolean>(false);
       
       // Basic validation
       if (file.size > 100 * 1024 * 1024) { // 100 MB
-        this.fileError.set('File size exceeds 100 MB limit.');
+        this.fileError.set(this.translate.instant('COURSE_MATERIALS.ERR_FILE_SIZE'));
         this.selectedFile = null;
         return;
       }
@@ -157,7 +159,7 @@ isDragging = signal<boolean>(false);
 
     const type = this.uploadForm.value.materialType;
     if (type === 'File' && !this.selectedFile) {
-      this.fileError.set('Please select a file to upload.');
+      this.fileError.set(this.translate.instant('COURSE_MATERIALS.ERR_SELECT_FILE'));
       return;
     }
 
@@ -180,14 +182,14 @@ isDragging = signal<boolean>(false);
     this.materialService.addMaterial(this.course.id, formData).subscribe({
       next: (res) => {
         if (res.success && res.data) {
-          this.toastr.success(res.message || 'Material added successfully');
+          this.toastr.success(res.message || this.translate.instant('COURSE_MATERIALS.TOAST_ADD_SUCCESS'));
           this.materials.update(docs => [res.data!, ...docs]);
           this.toggleUploadForm();
         }
         this.isSubmitting.set(false);
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Failed to add material');
+        this.toastr.error(err.error?.message || this.translate.instant('COURSE_MATERIALS.TOAST_ADD_ERR'));
         this.isSubmitting.set(false);
       }
     });
@@ -200,28 +202,28 @@ isDragging = signal<boolean>(false);
     }
     
     // It's a file, fetch via service
-    this.toastr.info('Starting download...', 'Please wait', { timeOut: 2000 });
+    this.toastr.info(this.translate.instant('COURSE_MATERIALS.TOAST_DOWNLOAD_INFO'), this.translate.instant('COURSE_MATERIALS.TOAST_DOWNLOAD_WAIT'), { timeOut: 2000 });
     this.materialService.downloadMaterial(this.course.id, material.id);
   }
 
   deleteMaterial(materialId: string): void {
     Swal.fire({
-      title: 'Delete Material?',
-      text: "This action cannot be undone.",
+      title: this.translate.instant('COURSE_MATERIALS.SWAL_DELETE_TITLE'),
+      text: this.translate.instant('COURSE_MATERIALS.SWAL_DELETE_DESC'),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#EF4444',
       cancelButtonColor: '#87949C',
-      confirmButtonText: 'Yes, delete it'
+      confirmButtonText: this.translate.instant('COURSE_MATERIALS.SWAL_DELETE_CONFIRM')
     }).then((result) => {
       if (result.isConfirmed) {
         this.materialService.deleteMaterial(this.course.id, materialId).subscribe({
           next: () => {
-            this.toastr.success('Material deleted successfully');
+            this.toastr.success(this.translate.instant('COURSE_MATERIALS.TOAST_DELETE_SUCCESS'));
             this.materials.update(docs => docs.filter(m => m.id !== materialId));
           },
           error: (err) => {
-            this.toastr.error(err.error?.message || 'Failed to delete material');
+            this.toastr.error(err.error?.message || this.translate.instant('COURSE_MATERIALS.TOAST_DELETE_ERR'));
           }
         });
       }

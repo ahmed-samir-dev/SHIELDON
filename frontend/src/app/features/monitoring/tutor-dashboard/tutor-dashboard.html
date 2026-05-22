@@ -4,10 +4,10 @@
     <div class="header-content">
       <div class="header-badge">
         <lucide-icon name="Activity" [size]="16"></lucide-icon>
-        Analytics
+        {{ 'TUTOR_DASHBOARD.BADGE_ANALYTICS' | translate }}
       </div>
-      <h1 class="header-title">Exam Analytics</h1>
-      <p class="header-subtitle">Review historical exam statistics and violation reports for completed sessions.</p>
+      <h1 class="header-title">{{ 'TUTOR_DASHBOARD.TITLE' | translate }}</h1>
+      <p class="header-subtitle">{{ 'TUTOR_DASHBOARD.SUBTITLE' | translate }}</p>
     </div>
   </header>
 
@@ -21,11 +21,11 @@
     <div class="dashboard-content">
       <!-- Grouped Exams by Course (Scalable) -->
       <div class="course-filters-modern">
-        <h2 class="section-title">Exam Summaries</h2>
+        <h2 class="section-title">{{ 'TUTOR_DASHBOARD.SECTION_SUMMARIES' | translate }}</h2>
         <div class="search-box-modern">
           <lucide-icon name="Search" [size]="18" class="search-icon"></lucide-icon>
           <input type="text" [value]="courseSearchQuery()" (input)="courseSearchQuery.set($any($event.target).value)"
-                 placeholder="Search courses or exams..." class="search-input">
+                 [placeholder]="'TUTOR_DASHBOARD.SEARCH_PLACEHOLDER' | translate" class="search-input">
         </div>
       </div>
 
@@ -34,11 +34,11 @@
         <div class="pagination-controls" *ngIf="totalPages() > 1">
           <button class="btn-page" [disabled]="coursePage() === 1" (click)="changePage(-1)">
             <lucide-icon name="ChevronLeft" [size]="16"></lucide-icon>
-            Prev
+            {{ 'TUTOR_DASHBOARD.PAGINATION_PREV' | translate }}
           </button>
-          <span class="page-info">Page {{ coursePage() }} of {{ totalPages() }}</span>
+          <span class="page-info">{{ ('TUTOR_DASHBOARD.PAGINATION_PAGE_INFO' | translate).replace('{page}', coursePage().toString()).replace('{total}', totalPages().toString()) }}</span>
           <button class="btn-page" [disabled]="coursePage() === totalPages()" (click)="changePage(1)">
-            Next
+            {{ 'TUTOR_DASHBOARD.PAGINATION_NEXT' | translate }}
             <lucide-icon name="ChevronRight" [size]="16"></lucide-icon>
           </button>
         </div>
@@ -50,10 +50,10 @@
             <div class="course-info">
               <lucide-icon name="FileText" [size]="20" class="course-icon"></lucide-icon>
               <h3 class="course-title">{{ group.courseTitle }}</h3>
-              <span class="course-badge">{{ group.exams.length }} Exams</span>
+              <span class="course-badge">{{ ('TUTOR_DASHBOARD.BADGE_EXAMS' | translate).replace('{count}', group.exams.length.toString()) }}</span>
             </div>
             <div class="header-actions">
-              <span>View Details</span>
+              <span>{{ 'TUTOR_DASHBOARD.BTN_VIEW_DETAILS' | translate }}</span>
               <lucide-icon name="ChevronDown" [size]="18" class="chevron"></lucide-icon>
             </div>
           </button>
@@ -66,19 +66,19 @@
               
               <div class="exam-stats">
                 <div class="stat-item">
-                  <span class="stat-label">Done</span>
+                  <span class="stat-label">{{ 'TUTOR_DASHBOARD.STAT_DONE' | translate }}</span>
                   <span class="stat-value text-green">{{ exam.submittedCount }}</span>
                 </div>
                 <div class="stat-item">
-                  <span class="stat-label">Terminated</span>
+                  <span class="stat-label">{{ 'TUTOR_DASHBOARD.STAT_TERMINATED' | translate }}</span>
                   <span class="stat-value text-red">{{ exam.forceSubmittedCount }}</span>
                 </div>
                 <div class="stat-item">
-                  <span class="stat-label">Violations</span>
+                  <span class="stat-label">{{ 'TUTOR_DASHBOARD.STAT_VIOLATIONS' | translate }}</span>
                   <span class="stat-value text-orange">{{ exam.totalViolations }}</span>
                 </div>
                 <div class="stat-item">
-                  <span class="stat-label">Avg Score</span>
+                  <span class="stat-label">{{ 'TUTOR_DASHBOARD.STAT_AVG_SCORE' | translate }}</span>
                   <span class="stat-value">{{ exam.averageScore !== null ? (exam.averageScore | number:'1.1-2') + '%' : 'N/A' }}</span>
                 </div>
               </div>
@@ -90,40 +90,40 @@
         <div *ngIf="filteredCourses().length === 0" class="empty-exams">
           <ng-container *ngIf="loading()">
             <div class="subtle-loader"></div>
-            Loading exam summaries...
+            {{ 'TUTOR_DASHBOARD.LOADING_SUMMARIES' | translate }}
           </ng-container>
-          <ng-container *ngIf="!loading()">No exams found matching your search.</ng-container>
+          <ng-container *ngIf="!loading()">{{ 'TUTOR_DASHBOARD.NO_EXAMS_FOUND' | translate }}</ng-container>
         </div>
       </div>
 
       <div class="analytics-row">
         <!-- Violation Types Chart (1/2 width) -->
         <div class="violation-chart-card">
-          <h3 class="card-title">Violation Distribution</h3>
+          <h3 class="card-title">{{ 'TUTOR_DASHBOARD.CHART_VIOLATION_DIST' | translate }}</h3>
           <div class="chart-area" *ngIf="dashboardData().violationTypeDistribution.length > 0">
             <div echarts [options]="violationChartOptions()" class="echarts-full"></div>
           </div>
           <div *ngIf="dashboardData().violationTypeDistribution.length === 0" class="empty-chart">
             <ng-container *ngIf="loading()">
               <div class="subtle-loader"></div>
-              Loading analytics...
+              {{ 'TUTOR_DASHBOARD.LOADING_ANALYTICS' | translate }}
             </ng-container>
-            <ng-container *ngIf="!loading()">No violations recorded yet.</ng-container>
+            <ng-container *ngIf="!loading()">{{ 'TUTOR_DASHBOARD.NO_VIOLATIONS' | translate }}</ng-container>
           </div>
         </div>
 
         <!-- Submission Status (1/2 width) -->
         <div class="violation-chart-card">
-          <h3 class="card-title">Submission Outcomes</h3>
+          <h3 class="card-title">{{ 'TUTOR_DASHBOARD.CHART_SUBMISSION_OUTCOMES' | translate }}</h3>
           <div class="chart-area" *ngIf="dashboardData().examSummaries.length > 0">
             <div echarts [options]="submissionStatusChartOptions()" class="echarts-full"></div>
           </div>
           <div *ngIf="dashboardData().examSummaries.length === 0" class="empty-chart">
             <ng-container *ngIf="loading()">
               <div class="subtle-loader"></div>
-              Loading analytics...
+              {{ 'TUTOR_DASHBOARD.LOADING_ANALYTICS' | translate }}
             </ng-container>
-            <ng-container *ngIf="!loading()">No exams available to analyze.</ng-container>
+            <ng-container *ngIf="!loading()">{{ 'TUTOR_DASHBOARD.NO_EXAMS_ANALYZE' | translate }}</ng-container>
           </div>
         </div>
       </div>
@@ -131,16 +131,16 @@
       <div class="analytics-row full-width">
         <!-- Score vs Violations (Full width) -->
         <div class="violation-chart-card full-width">
-          <h3 class="card-title">Average Score vs Total Violations</h3>
+          <h3 class="card-title">{{ 'TUTOR_DASHBOARD.CHART_SCORE_VS_VIOLATIONS' | translate }}</h3>
           <div class="chart-area" *ngIf="dashboardData().examSummaries.length > 0">
             <div echarts [options]="scoreVsViolationsChartOptions()" class="echarts-full"></div>
           </div>
           <div *ngIf="dashboardData().examSummaries.length === 0" class="empty-chart">
             <ng-container *ngIf="loading()">
               <div class="subtle-loader"></div>
-              Loading analytics...
+              {{ 'TUTOR_DASHBOARD.LOADING_ANALYTICS' | translate }}
             </ng-container>
-            <ng-container *ngIf="!loading()">No data available.</ng-container>
+            <ng-container *ngIf="!loading()">{{ 'TUTOR_DASHBOARD.NO_DATA_AVAILABLE' | translate }}</ng-container>
           </div>
         </div>
       </div>
@@ -151,7 +151,7 @@
           <div class="grid-header">
             <h2 class="grid-title">
               <lucide-icon name="Users" [size]="20"></lucide-icon>
-              Recent Submissions
+              {{ 'TUTOR_DASHBOARD.SECTION_RECENT_SUBMISSIONS' | translate }}
             </h2>
 
             <!-- Filters -->
@@ -159,14 +159,14 @@
               <div class="search-box">
                 <lucide-icon name="Search" [size]="16" class="search-icon"></lucide-icon>
                 <input type="text" [value]="searchQuery()" (input)="onSearchInput($event)"
-                  name="search" placeholder="Search student..." class="form-control">
+                  name="search" [placeholder]="'TUTOR_DASHBOARD.SEARCH_STUDENT_PLACEHOLDER' | translate" class="form-control">
               </div>
               <select [value]="statusFilter()" (change)="onStatusChange($event)" name="status"
                 class="form-control status-select">
-                <option value="All">All Statuses</option>
-                <option value="Submitted">Submitted</option>
-                <option value="Graded">Graded</option>
-                <option value="ForceSubmitted">Terminated</option>
+                <option value="All">{{ 'TUTOR_DASHBOARD.FILTER_ALL_STATUSES' | translate }}</option>
+                <option value="Submitted">{{ 'TUTOR_DASHBOARD.FILTER_SUBMITTED' | translate }}</option>
+                <option value="Graded">{{ 'TUTOR_DASHBOARD.FILTER_GRADED' | translate }}</option>
+                <option value="ForceSubmitted">{{ 'TUTOR_DASHBOARD.FILTER_TERMINATED' | translate }}</option>
               </select>
             </div>
           </div>
@@ -175,11 +175,11 @@
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Student</th>
-                  <th>Exam</th>
-                  <th>Status</th>
-                  <th class="align-center">Violations</th>
-                  <th class="align-right">Actions</th>
+                  <th>{{ 'TUTOR_DASHBOARD.COL_STUDENT' | translate }}</th>
+                  <th>{{ 'TUTOR_DASHBOARD.COL_EXAM' | translate }}</th>
+                  <th>{{ 'TUTOR_DASHBOARD.COL_STATUS' | translate }}</th>
+                  <th class="align-center">{{ 'TUTOR_DASHBOARD.COL_VIOLATIONS' | translate }}</th>
+                  <th class="align-right">{{ 'TUTOR_DASHBOARD.COL_ACTIONS' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -190,14 +190,14 @@
                   </td>
                   <td>
                     <p class="exam-name" [title]="session.examTitle">{{ session.examTitle }}</p>
-                    <p class="exam-time">Submitted: {{ session.submittedAt | date:'shortTime' }}</p>
+                    <p class="exam-time">{{ ('TUTOR_DASHBOARD.EXAM_SUBMITTED_TIME' | translate).replace('{time}', (session.submittedAt | date:'shortTime') || '') }}</p>
                   </td>
                   <td>
                     <span class="status-badge" [ngClass]="getStatusDisplay(session.status).classes">
                       <lucide-icon [name]="getStatusDisplay(session.status).icon" [size]="14"></lucide-icon>
                       {{ getStatusDisplay(session.status).label }}
                     </span>
-                    <p class="exam-score" *ngIf="session.score !== null">Score: {{ session.score }}%</p>
+                    <p class="exam-score" *ngIf="session.score !== null">{{ ('TUTOR_DASHBOARD.EXAM_SCORE' | translate).replace('{score}', session.score.toString()) }}</p>
                   </td>
                   <td class="align-center">
                     <span class="violation-severity-badge" [ngClass]="getSeverityBadge(session.highestSeverity)">
@@ -207,7 +207,7 @@
                   <td class="align-right">
                     <button (click)="goToTimeline(session.attemptId)" class="btn-review">
                       <lucide-icon name="Activity" [size]="14"></lucide-icon>
-                      Timeline
+                      {{ 'TUTOR_DASHBOARD.BTN_TIMELINE' | translate }}
                     </button>
                   </td>
                 </tr>
@@ -216,9 +216,9 @@
                   <td colspan="5" class="empty-row">
                     <ng-container *ngIf="loading()">
                       <div class="subtle-loader"></div>
-                      Loading submissions data...
+                      {{ 'TUTOR_DASHBOARD.LOADING_SUBMISSIONS' | translate }}
                     </ng-container>
-                    <ng-container *ngIf="!loading()">No submissions match your search criteria.</ng-container>
+                    <ng-container *ngIf="!loading()">{{ 'TUTOR_DASHBOARD.NO_SUBMISSIONS' | translate }}</ng-container>
                   </td>
                 </tr>
               </tbody>
@@ -228,15 +228,17 @@
           <!-- Pagination Controls -->
           <div class="pagination-controls" *ngIf="dashboardData().totalSubmissions > submissionsPageSize || submissionsPage() > 1">
             <div class="pagination-stats">
-              Showing <span class="font-medium">{{ dashboardData().totalSubmissions === 0 ? 0 : (submissionsPage() - 1) * submissionsPageSize + 1 }}</span>
-              to <span class="font-medium">{{ Math.min(submissionsPage() * submissionsPageSize, dashboardData().totalSubmissions) }}</span>
-              of <span class="font-medium">{{ dashboardData().totalSubmissions }}</span> submissions
+              {{ ('TUTOR_DASHBOARD.PAGINATION_SHOWING' | translate)
+                .replace('{start}', (dashboardData().totalSubmissions === 0 ? 0 : (submissionsPage() - 1) * submissionsPageSize + 1).toString())
+                .replace('{end}', Math.min(submissionsPage() * submissionsPageSize, dashboardData().totalSubmissions).toString())
+                .replace('{total}', dashboardData().totalSubmissions.toString())
+              }}
             </div>
             
             <div class="pagination-actions">
               <button class="btn-page" [disabled]="submissionsPage() === 1" (click)="changeLivePage(-1)">
                 <lucide-icon name="ChevronLeft" [size]="16"></lucide-icon>
-                Previous
+                {{ 'TUTOR_DASHBOARD.PAGINATION_PREV' | translate }}
               </button>
               
               <div class="page-numbers">
@@ -247,7 +249,7 @@
               <button class="btn-page" 
                 [disabled]="submissionsPage() * submissionsPageSize >= dashboardData().totalSubmissions" 
                 (click)="changeLivePage(1)">
-                Next
+                {{ 'TUTOR_DASHBOARD.PAGINATION_NEXT' | translate }}
                 <lucide-icon name="ChevronRight" [size]="16"></lucide-icon>
               </button>
             </div>

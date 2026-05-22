@@ -6,7 +6,7 @@ using SHIELDON.Domain.Enums;
 namespace SHIELDON.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// Configuration for ExamQuestion — the centralized course question bank.
+/// Configuration for ExamQuestion - the centralized course question bank.
 /// Questions are now course-scoped (CourseId FK) and can be reused across exams.
 /// </summary>
 public class ExamQuestionConfiguration : IEntityTypeConfiguration<ExamQuestion>

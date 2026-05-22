@@ -3,15 +3,17 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-verify-email',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './verify-email.html',
   styleUrl: './verify-email.scss'
 })
 export class VerifyEmail implements OnInit {
+  private translate = inject(TranslateService);
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
   private router = inject(Router);
@@ -34,7 +36,7 @@ export class VerifyEmail implements OnInit {
 
       if (!e || !t) {
         this.isVerifying.set(false);
-        this.errorMessage.set('Invalid verification link. Missing email or token parameter.');
+        this.errorMessage.set(this.translate.instant('VERIFY.INV_LINK_TITLE'));
         return;
       }
 

@@ -1,3 +1,5 @@
+using SHIELDON.Domain.Common;
+
 namespace SHIELDON.Domain.Entities;
 
 /// <summary>
@@ -5,7 +7,7 @@ namespace SHIELDON.Domain.Entities;
 /// Students view this, read the instructions, optionally download the reference file,
 /// and then upload their own <see cref="AssignmentSubmission"/> as their answer.
 /// </summary>
-public class Assignment
+public class Assignment : ITranslatable
 {
     public Guid Id { get; set; }
 
@@ -18,13 +20,17 @@ public class Assignment
 
     // ── Content ──────────────────────────────────────────────────
     /// <summary>Short title shown in the assignment list (e.g., "Week 3 Homework").</summary>
+    [Translatable]
     public string Title { get; set; } = string.Empty;
 
     /// <summary>
     /// Optional full instructions, problem description, or rubric.
     /// Supports multi-line plain text.
     /// </summary>
+    [Translatable]
     public string? Instructions { get; set; }
+
+    public string? Translations { get; set; }
 
     // ── Reference File (optional) ────────────────────────────────
     /// <summary>Original filename of the reference file as uploaded by the Tutor (e.g., "problem-set.pdf").</summary>

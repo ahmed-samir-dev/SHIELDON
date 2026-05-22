@@ -23,19 +23,9 @@ export function getStudentTourSteps(): StepOptions[] {
     },
     {
       id: 'student-courses',
-      title: 'Courses Hub',
+      title: 'Courses',
       text: 'Browse available courses, send enrollment requests, and access course materials and exams for the ones you are enrolled in.',
       attachTo: { element: '#nav-courses', on: 'right' },
-      buttons: [
-        { text: 'Back', action: () => Shepherd.activeTour?.back(), classes: 'shepherd-button-secondary' },
-        { text: 'Next', action: () => Shepherd.activeTour?.next(), classes: 'shepherd-button-primary' }
-      ]
-    },
-    {
-      id: 'student-enrollments',
-      title: 'Enrollments',
-      text: 'Track the status of your course enrollment requests.',
-      attachTo: { element: '#nav-enrollments', on: 'right' },
       buttons: [
         { text: 'Back', action: () => Shepherd.activeTour?.back(), classes: 'shepherd-button-secondary' },
         { text: 'Next', action: () => Shepherd.activeTour?.next(), classes: 'shepherd-button-primary' }
@@ -52,10 +42,90 @@ export function getStudentTourSteps(): StepOptions[] {
       ]
     },
     {
+      id: 'student-enrollments',
+      title: 'Enrollments',
+      text: 'Track the status of your course enrollment requests.',
+      attachTo: { element: '#nav-enrollments', on: 'right' },
+      buttons: [
+        { text: 'Back', action: () => Shepherd.activeTour?.back(), classes: 'shepherd-button-secondary' },
+        { text: 'Next', action: () => Shepherd.activeTour?.next(), classes: 'shepherd-button-primary' }
+      ]
+    },
+    {
+      id: 'student-attendance',
+      title: 'Attendance',
+      text: 'Quickly scan QR codes to mark your presence in live lectures.',
+      attachTo: { element: '#nav-attendance', on: 'right' },
+      buttons: [
+        { text: 'Back', action: () => Shepherd.activeTour?.back(), classes: 'shepherd-button-secondary' },
+        { text: 'Next', action: () => Shepherd.activeTour?.next(), classes: 'shepherd-button-primary' }
+      ]
+    },
+    {
+      id: 'student-payments',
+      title: 'Payments',
+      text: 'Pay your pending course fees securely.',
+      attachTo: { element: '#nav-payment-hub', on: 'right' },
+      buttons: [
+        { text: 'Back', action: () => Shepherd.activeTour?.back(), classes: 'shepherd-button-secondary' },
+        { text: 'Next', action: () => Shepherd.activeTour?.next(), classes: 'shepherd-button-primary' }
+      ]
+    },
+    {
+      id: 'student-calendar',
+      title: 'Calendar',
+      text: 'Check your upcoming deadlines and class schedules.',
+      attachTo: { element: '#nav-calendar', on: 'right' },
+      buttons: [
+        { text: 'Back', action: () => Shepherd.activeTour?.back(), classes: 'shepherd-button-secondary' },
+        { text: 'Next', action: () => Shepherd.activeTour?.next(), classes: 'shepherd-button-primary' }
+      ]
+    },
+    {
+      id: 'student-chat',
+      title: 'Messages',
+      text: 'Message your tutors or peers directly.',
+      attachTo: { element: '#nav-chat', on: 'right' },
+      buttons: [
+        { text: 'Back', action: () => Shepherd.activeTour?.back(), classes: 'shepherd-button-secondary' },
+        { text: 'Next', action: () => Shepherd.activeTour?.next(), classes: 'shepherd-button-primary' }
+      ]
+    },
+    {
       id: 'student-ai',
       title: 'SHIELDON AI Assistant',
       text: 'Got questions? Use the AI assistant to help you understand difficult concepts or summarize materials.',
       attachTo: { element: '#nav-ai-btn', on: 'right' },
+      buttons: [
+        { text: 'Back', action: () => Shepherd.activeTour?.back(), classes: 'shepherd-button-secondary' },
+        { text: 'Next', action: () => Shepherd.activeTour?.next(), classes: 'shepherd-button-primary' }
+      ]
+    },
+    {
+      id: 'student-notifications',
+      title: 'Notification Center',
+      text: 'Check here for important alerts, grading updates, and new messages.',
+      attachTo: { element: '.bell-btn', on: 'bottom' },
+      buttons: [
+        { text: 'Back', action: () => Shepherd.activeTour?.back(), classes: 'shepherd-button-secondary' },
+        { text: 'Next', action: () => Shepherd.activeTour?.next(), classes: 'shepherd-button-primary' }
+      ]
+    },
+    {
+      id: 'student-theme',
+      title: 'Theme Toggle',
+      text: 'Switch between light and dark mode for a comfortable viewing experience.',
+      attachTo: { element: '.theme-toggle-btn', on: 'bottom' },
+      buttons: [
+        { text: 'Back', action: () => Shepherd.activeTour?.back(), classes: 'shepherd-button-secondary' },
+        { text: 'Next', action: () => Shepherd.activeTour?.next(), classes: 'shepherd-button-primary' }
+      ]
+    },
+    {
+      id: 'student-language',
+      title: 'Language Toggle',
+      text: 'Change the interface language seamlessly between English and Arabic.',
+      attachTo: { element: '.language-toggle-btn', on: 'bottom' },
       buttons: [
         { text: 'Back', action: () => Shepherd.activeTour?.back(), classes: 'shepherd-button-secondary' },
         { text: 'Next', action: () => Shepherd.activeTour?.next(), classes: 'shepherd-button-primary' }

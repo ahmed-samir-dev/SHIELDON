@@ -7,11 +7,12 @@ import { LucideAngularModule, CheckCircle, XCircle, ArrowLeft, Clock, FileText, 
 import confetti from 'canvas-confetti';
 import Swal from 'sweetalert2';
 import { ReattemptService, StudentReattemptStatusResponse } from '../services/reattempt.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-exam-result-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, LucideAngularModule, TranslateModule],
   templateUrl: './exam-result-page.html',
   styleUrl: './exam-result-page.scss'
 })
@@ -21,6 +22,7 @@ export class ExamResultPage implements OnInit, OnDestroy {
   private examResultService = inject(ExamResultService);
   private reattemptService = inject(ReattemptService);
   private toastr = inject(ToastrService);
+  private translate = inject(TranslateService);
 
   // Icons
   readonly CheckCircle = CheckCircle;
@@ -49,7 +51,7 @@ export class ExamResultPage implements OnInit, OnDestroy {
     this.route.paramMap.subscribe(params => {
       const attemptId = params.get('attemptId');
       if (!attemptId) {
-        this.toastr.error('Invalid attempt ID');
+        this.toastr.error(this.translate.instant('EXAM_RESULT_PAGE.TOAST_ERR_INVALID_ID'));
         this.router.navigate(['/courses']);
         return;
       }
@@ -87,7 +89,7 @@ export class ExamResultPage implements OnInit, OnDestroy {
         this.loadExistingReattemptRequest(res.data.examId);
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Failed to load exam result');
+        this.toastr.error(err.error?.message || this.translate.instant('EXAM_RESULT_PAGE.TOAST_ERR_LOAD'));
         this.isLoading.set(false);
       }
     });
@@ -182,21 +184,21 @@ export class ExamResultPage implements OnInit, OnDestroy {
     if (!examId) return;
 
     Swal.fire({
-      title: 'Request Re-attempt',
-      text: 'Please provide a justification for why you need another attempt at this exam.',
+      title: this.translate.instant('EXAM_RESULT_PAGE.SWAL_REQ_TITLE'),
+      text: this.translate.instant('EXAM_RESULT_PAGE.SWAL_REQ_DESC'),
       input: 'textarea',
-      inputPlaceholder: 'Type your justification here... (min 20 characters)',
+      inputPlaceholder: this.translate.instant('EXAM_RESULT_PAGE.SWAL_PLACEHOLDER'),
       inputAttributes: {
         'aria-label': 'Justification for re-attempt'
       },
       showCancelButton: true,
-      confirmButtonText: 'Submit Request',
-      cancelButtonText: 'Cancel',
+      confirmButtonText: this.translate.instant('EXAM_RESULT_PAGE.SWAL_BTN_SUBMIT'),
+      cancelButtonText: this.translate.instant('EXAM_RESULT_PAGE.SWAL_BTN_CANCEL'),
       confirmButtonColor: '#215DAE',
       cancelButtonColor: '#87949C',
       inputValidator: (value) => {
         if (!value || value.trim().length < 20) {
-          return 'Justification must be at least 20 characters.';
+          return this.translate.instant('EXAM_RESULT_PAGE.SWAL_VAL_ERR');
         }
         return null;
       }
@@ -208,7 +210,7 @@ export class ExamResultPage implements OnInit, OnDestroy {
             this.existingReattemptRequest.set(res.data);
           },
           error: (err) => {
-            this.toastr.error(err.error?.message || 'Failed to submit request');
+            this.toastr.error(err.error?.message || this.translate.instant('EXAM_RESULT_PAGE.TOAST_REQ_ERR'));
           }
         });
       }

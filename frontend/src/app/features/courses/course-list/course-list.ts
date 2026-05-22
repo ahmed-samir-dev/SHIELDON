@@ -1,25 +1,31 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { CourseService } from '../services/course.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { LanguageService } from '../../../core/services/language.service';
 import { CourseResponse, CourseQueryParams, UserBasicResponse, StudentEnrollmentStatusResponse } from '../../../core/models/courses.model';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-course-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './course-list.html',
   styleUrl: './course-list.scss'
 })
-export class CourseList implements OnInit {
+export class CourseList implements OnInit, OnDestroy {
+  private translate = inject(TranslateService);
   private courseService = inject(CourseService);
   public authService = inject(AuthService);
+  private languageService = inject(LanguageService);
   private toastr = inject(ToastrService);
   private fb = inject(FormBuilder);
+  private langSub!: Subscription;
 
   courses = signal<CourseResponse[]>([]);
   tutors = signal<UserBasicResponse[]>([]);
@@ -62,6 +68,15 @@ export class CourseList implements OnInit {
     if (this.authService.isStudent()) {
       this.loadMyEnrollments();
     }
+
+    // Auto-reload translated course data whenever the user toggles language
+    this.langSub = this.languageService.languageChange$.subscribe(() => {
+      this.loadCourses();
+    });
+  }
+
+  ngOnDestroy() {
+    this.langSub?.unsubscribe();
   }
 
   loadMyEnrollments() {
@@ -74,7 +89,7 @@ export class CourseList implements OnInit {
   loadTutors() {
     this.courseService.getTutors().subscribe({
       next: (res) => this.tutors.set(res.data),
-      error: () => this.toastr.error('Failed to load tutors.')
+      error: () => this.toastr.error(this.translate.instant('COURSE_LIST.TOAST_LOAD_TUTORS_ERR'))
     });
   }
 
@@ -88,7 +103,7 @@ export class CourseList implements OnInit {
         this.isLoading.set(false);
       },
       error: () => {
-        this.toastr.error('Failed to load courses.');
+        this.toastr.error(this.translate.instant('COURSE_LIST.TOAST_LOAD_COURSES_ERR'));
         this.isLoading.set(false);
       }
     });
@@ -192,13 +207,13 @@ export class CourseList implements OnInit {
       const createReq = { ...request, courseCode: formVals.courseCode! };
       this.courseService.createCourse(createReq).subscribe({
         next: () => {
-          this.toastr.success('Course created successfully!');
+          this.toastr.success(this.translate.instant('COURSE_LIST.TOAST_CREATE_SUCCESS'));
           this.closeModal();
           this.loadCourses();
           this.isSubmitting.set(false);
         },
         error: (err) => {
-          this.toastr.error(err.error?.message || 'Failed to create course');
+          this.toastr.error(err.error?.message || this.translate.instant('COURSE_LIST.TOAST_CREATE_ERR'));
           this.isSubmitting.set(false);
         }
       });
@@ -212,13 +227,13 @@ export class CourseList implements OnInit {
 
       this.courseService.updateCourse(this.selectedCourseId()!, updateReq).subscribe({
         next: () => {
-          this.toastr.success('Course updated successfully!');
+          this.toastr.success(this.translate.instant('COURSE_LIST.TOAST_UPDATE_SUCCESS'));
           this.closeModal();
           this.loadCourses();
           this.isSubmitting.set(false);
         },
         error: (err) => {
-          this.toastr.error(err.error?.message || 'Failed to update course');
+          this.toastr.error(err.error?.message || this.translate.instant('COURSE_LIST.TOAST_UPDATE_ERR'));
           this.isSubmitting.set(false);
         }
       });
@@ -240,11 +255,12 @@ export class CourseList implements OnInit {
 
     this.courseService.updateCourse(course.id, request).subscribe({
       next: () => {
-        this.toastr.success(`Course ${isActive ? 'published' : 'archived'} successfully.`);
+        const status = isActive ? this.translate.instant('COURSE_LIST.TITLE_PUBLISH') : this.translate.instant('COURSE_LIST.TITLE_ARCHIVE');
+        this.toastr.success(this.translate.instant('COURSE_LIST.TOAST_STATUS_SUCCESS', { status: status }));
         this.loadCourses();
       },
       error: (err) => {
-        const msg = err.error?.message || 'Failed to update course status.';
+        const msg = err.error?.message || this.translate.instant('COURSE_LIST.TOAST_STATUS_ERR');
         this.toastr.error(msg);
       }
     });
@@ -253,12 +269,39 @@ export class CourseList implements OnInit {
   requestEnrollment(courseId: string) {
     this.courseService.requestEnrollment(courseId).subscribe({
       next: () => {
-        this.toastr.success('Enrollment request submitted successfully!');
+        this.toastr.success(this.translate.instant('COURSE_LIST.TOAST_ENROLL_SUCCESS'));
+        
+        // Real-time optimistic update
+        const course = this.courses().find(c => c.id === courseId);
+        if (course) {
+          const newEnrollment: StudentEnrollmentStatusResponse = {
+            courseId: course.id,
+            courseTitle: course.title,
+            status: 'Pending',
+            rejectionCount: 0,
+            cooldownUntil: null,
+            rejectionReason: null,
+            requestedAt: new Date().toISOString()
+          };
+          
+          this.myEnrollments.update(enrollments => {
+            const exists = enrollments.find(e => e.courseId === courseId);
+            if (exists) {
+              return enrollments.map(e => e.courseId === courseId ? { ...e, status: 'Pending' } : e);
+            }
+            return [...enrollments, newEnrollment];
+          });
+          
+          // Remove from view if filtering by 'Available to enroll'
+          if (this.query.enrollmentStatus === 'unenrolled') {
+            this.courses.update(courses => courses.filter(c => c.id !== courseId));
+          }
+        }
       },
       error: (err) => {
-        const msg = err.error?.message || 'Failed to request enrollment. You may be blocked or on cooldown.';
+        const msg = err.error?.message || this.translate.instant('COURSE_LIST.SWAL_ENROLL_ERR_DESC');
         Swal.fire({
-          title: 'Enrollment Error',
+          title: this.translate.instant('COURSE_LIST.SWAL_ENROLL_ERR_TITLE'),
           text: msg,
           icon: 'error',
           confirmButtonColor: '#3b82f6'

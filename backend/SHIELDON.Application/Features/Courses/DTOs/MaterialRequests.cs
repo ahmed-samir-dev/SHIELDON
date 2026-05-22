@@ -16,7 +16,7 @@ public record AddMaterialRequest(
 
 /// <summary>
 /// Request to update the metadata (title, description) of an existing material.
-/// File bytes and URLs cannot be changed after upload — delete and re-upload instead.
+/// File bytes and URLs cannot be changed after upload - delete and re-upload instead.
 /// </summary>
 public record UpdateMaterialRequest(
     string Title,

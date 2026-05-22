@@ -57,7 +57,7 @@ public class ViolationLogConfiguration : IEntityTypeConfiguration<ViolationLog>
         // ── Relationships ────────────────────────────────────────────────────
 
         // ViolationLog → ExamAttempt (many violations per attempt)
-        // No cascade delete from attempt — violations are audit records, keep them even if attempt is deleted
+        // No cascade delete from attempt - violations are audit records, keep them even if attempt is deleted
         builder.HasOne(v => v.Attempt)
             .WithMany()
             .HasForeignKey(v => v.AttemptId)

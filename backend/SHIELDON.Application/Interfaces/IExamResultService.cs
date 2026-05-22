@@ -32,7 +32,7 @@ public interface IExamResultService
     // ── Tutor / Admin ──────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Returns all attempts for a given exam — for the tutor results panel.
+    /// Returns all attempts for a given exam - for the tutor results panel.
     /// </summary>
     Task<ApiResponse<IReadOnlyList<ExamAttemptSummaryDto>>> GetExamAttemptsAsync(
         Guid examId,

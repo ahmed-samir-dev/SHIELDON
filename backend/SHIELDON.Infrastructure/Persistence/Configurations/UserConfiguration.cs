@@ -29,7 +29,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .HasMaxLength(256);
 
-        // Unique constraint on email — prevents duplicate registrations
+        // Unique constraint on email - prevents duplicate registrations
         builder.HasIndex(u => u.Email)
             .IsUnique()
             .HasDatabaseName("IX_Users_Email");
@@ -78,7 +78,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.ResetPasswordCodeExpiresAt)
             .HasColumnType("datetime2");
 
-        // ── Navigation — Tokens ───────────────────────────────
+        // ── Navigation - Tokens ───────────────────────────────
         builder.HasMany(u => u.RefreshTokens)
             .WithOne(t => t.User)
             .HasForeignKey(t => t.UserId)

@@ -100,6 +100,18 @@ public class ChatHub : Hub
         return await _presenceTracker.GetOnlineUsers();
     }
 
+    /// <summary>
+    /// Broadcasts a typing indicator to a specific recipient.
+    /// </summary>
+    public async Task NotifyTyping(Guid recipientId)
+    {
+        var senderId = GetCurrentUserId();
+        if (senderId == Guid.Empty) return;
+
+        await Clients.Group(recipientId.ToString())
+                     .SendAsync("UserIsTyping", senderId.ToString());
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
 
     private Guid GetCurrentUserId()

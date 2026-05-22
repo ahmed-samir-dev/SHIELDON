@@ -3,9 +3,9 @@
   <header class="detail-header">
     <button class="btn-back" (click)="goBack()">
       <lucide-icon name="ArrowLeft" [size]="16"></lucide-icon>
-      Back
+      {{ 'ATTEMPT_DETAIL.BTN_BACK' | translate }}
     </button>
-    <div class="breadcrumb">Exam Analytics / Attempt Timeline</div>
+    <div class="breadcrumb">{{ 'ATTEMPT_DETAIL.BREADCRUMB' | translate }}</div>
   </header>
 
   <!-- Skeleton Loader -->
@@ -65,11 +65,11 @@
           'outcome-active': timelineData()!.status === 'InProgress'
         }">
           <lucide-icon [name]="timelineData()!.status === 'ForceSubmitted' ? 'ShieldAlert' : 'CheckCircle'" [size]="18"></lucide-icon>
-          {{ timelineData()!.status === 'ForceSubmitted' ? 'Force Submitted' : timelineData()!.status }}
+          {{ timelineData()!.status === 'ForceSubmitted' ? ('ATTEMPT_DETAIL.STATUS_FORCE_SUBMITTED' | translate) : ('EXAM_ENGINE.STATUS_' + timelineData()!.status.toUpperCase() | translate) }}
         </div>
         <div class="hero-score" *ngIf="timelineData()!.score !== null">
           <span class="score-value">{{ timelineData()!.score | number:'1.0-0' }}<sup>%</sup></span>
-          <span class="score-label">Score</span>
+          <span class="score-label">{{ 'ATTEMPT_DETAIL.SCORE_LABEL' | translate }}</span>
         </div>
       </div>
     </div>
@@ -80,15 +80,15 @@
         <lucide-icon name="Clock" [size]="20" class="kpi-icon indigo"></lucide-icon>
         <div class="kpi-data">
           <span class="kpi-val">{{ timelineData()!.startedAt | date:'HH:mm' }}</span>
-          <span class="kpi-lbl">Started</span>
+          <span class="kpi-lbl">{{ 'ATTEMPT_DETAIL.KPI_STARTED' | translate }}</span>
         </div>
       </div>
       <div class="kpi-divider"></div>
       <div class="kpi-tile">
         <lucide-icon name="CheckCircle" [size]="20" class="kpi-icon emerald"></lucide-icon>
         <div class="kpi-data">
-          <span class="kpi-val">{{ timelineData()!.submittedAt ? (timelineData()!.submittedAt | date:'HH:mm') : '—' }}</span>
-          <span class="kpi-lbl">Submitted</span>
+          <span class="kpi-val">{{ timelineData()!.submittedAt ? (timelineData()!.submittedAt | date:'HH:mm') : '-' }}</span>
+          <span class="kpi-lbl">{{ 'ATTEMPT_DETAIL.KPI_SUBMITTED' | translate }}</span>
         </div>
       </div>
       <div class="kpi-divider"></div>
@@ -96,7 +96,7 @@
         <lucide-icon name="AlertTriangle" [size]="20" class="kpi-icon red"></lucide-icon>
         <div class="kpi-data">
           <span class="kpi-val">{{ timelineData()!.criticalCount }}</span>
-          <span class="kpi-lbl">Critical</span>
+          <span class="kpi-lbl">{{ 'ATTEMPT_DETAIL.KPI_CRITICAL' | translate }}</span>
         </div>
       </div>
       <div class="kpi-divider"></div>
@@ -104,7 +104,7 @@
         <lucide-icon name="AlertCircle" [size]="20" class="kpi-icon amber"></lucide-icon>
         <div class="kpi-data">
           <span class="kpi-val">{{ timelineData()!.mediumCount }}</span>
-          <span class="kpi-lbl">Medium</span>
+          <span class="kpi-lbl">{{ 'ATTEMPT_DETAIL.KPI_MEDIUM' | translate }}</span>
         </div>
       </div>
       <div class="kpi-divider"></div>
@@ -112,7 +112,7 @@
         <lucide-icon name="Activity" [size]="20" class="kpi-icon blue"></lucide-icon>
         <div class="kpi-data">
           <span class="kpi-val">{{ timelineData()!.minorCount }}</span>
-          <span class="kpi-lbl">Minor</span>
+          <span class="kpi-lbl">{{ 'ATTEMPT_DETAIL.KPI_MINOR' | translate }}</span>
         </div>
       </div>
       <div class="kpi-divider"></div>
@@ -120,7 +120,7 @@
         <lucide-icon name="ShieldAlert" [size]="20" class="kpi-icon slate"></lucide-icon>
         <div class="kpi-data">
           <span class="kpi-val">{{ timelineData()!.totalViolations }}</span>
-          <span class="kpi-lbl">Total</span>
+          <span class="kpi-lbl">{{ 'ATTEMPT_DETAIL.KPI_TOTAL' | translate }}</span>
         </div>
       </div>
     </div>
@@ -132,13 +132,13 @@
       <div class="timeline-panel">
         <div class="panel-header">
           <lucide-icon name="Activity" [size]="18"></lucide-icon>
-          <h2>Event Timeline</h2>
-          <span class="panel-count">{{ timelineData()!.violations.length }} events</span>
+          <h2>{{ 'ATTEMPT_DETAIL.TL_HEADER' | translate }}</h2>
+          <span class="panel-count">{{ ('ATTEMPT_DETAIL.TL_COUNT' | translate).replace('{count}', timelineData()!.violations.length.toString()) }}</span>
         </div>
 
         <div class="timeline-empty" *ngIf="timelineData()!.violations.length === 0">
           <lucide-icon name="CheckCircle" [size]="40" class="text-green-400"></lucide-icon>
-          <p>No violations recorded for this session.</p>
+          <p>{{ 'ATTEMPT_DETAIL.TL_EMPTY' | translate }}</p>
         </div>
 
         <div class="timeline-feed" *ngIf="timelineData()!.violations.length > 0">
@@ -150,7 +150,7 @@
             <div class="tl-connector"></div>
             <div class="tl-content">
               <span class="tl-time">{{ timelineData()!.startedAt | date:'HH:mm:ss' }}</span>
-              <span class="tl-label">Exam Started</span>
+              <span class="tl-label">{{ 'ATTEMPT_DETAIL.TL_EXAM_STARTED' | translate }}</span>
             </div>
           </div>
 
@@ -169,11 +169,11 @@
               <div class="tl-meta">
                 <span class="tl-time">{{ v.occurredAt | date:'HH:mm:ss' }}</span>
                 <span *ngIf="v.type === 'Violation'" class="tl-severity-badge" [ngClass]="getSeverityBadgeClass(v.severity)">
-                  {{ v.severity }}
+                  {{ 'ATTEMPT_DETAIL.CHART_LEGEND_' + v.severity.toUpperCase() | translate }}
                 </span>
                 <span *ngIf="v.wasAutoSubmit" class="tl-auto-tag">
                   <lucide-icon name="ShieldAlert" [size]="10"></lucide-icon>
-                  Auto-Submit
+                  {{ 'ATTEMPT_DETAIL.TL_AUTO_SUBMIT' | translate }}
                 </span>
               </div>
               <p class="tl-desc">{{ v.description }}</p>
@@ -189,8 +189,8 @@
               <lucide-icon [name]="timelineData()!.status === 'ForceSubmitted' ? 'ShieldAlert' : 'CheckCircle'" [size]="14"></lucide-icon>
             </div>
             <div class="tl-content">
-              <span class="tl-time">{{ timelineData()!.submittedAt ? (timelineData()!.submittedAt | date:'HH:mm:ss') : '—' }}</span>
-              <span class="tl-label">{{ timelineData()!.status === 'ForceSubmitted' ? 'Force Submitted' : 'Exam Submitted' }}</span>
+              <span class="tl-time">{{ timelineData()!.submittedAt ? (timelineData()!.submittedAt | date:'HH:mm:ss') : '-' }}</span>
+              <span class="tl-label">{{ timelineData()!.status === 'ForceSubmitted' ? ('ATTEMPT_DETAIL.STATUS_FORCE_SUBMITTED' | translate) : ('ATTEMPT_DETAIL.TL_EXAM_SUBMITTED' | translate) }}</span>
             </div>
           </div>
 
@@ -201,7 +201,7 @@
       <div class="chart-panel" *ngIf="summaryData() && summaryData()!.chartData.length > 0">
         <div class="panel-header">
           <lucide-icon name="Activity" [size]="18"></lucide-icon>
-          <h2>Violations Over Time</h2>
+          <h2>{{ 'ATTEMPT_DETAIL.CHART_HEADER' | translate }}</h2>
         </div>
         <div class="echarts-wrapper">
           <div echarts [options]="chartOptions()" class="echarts-el"></div>

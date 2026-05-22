@@ -7,7 +7,7 @@ namespace SHIELDON.Application.Interfaces;
 ///
 /// Business rules:
 ///   - Only Tutor assigned to the course (or Admin) can modify the bank
-///   - Questions are course-scoped — they are NOT tied to a single exam
+///   - Questions are course-scoped - they are NOT tied to a single exam
 ///   - MCQ: exactly 1 option must be IsCorrect; at least 2 options required
 ///   - TrueFalse: auto-creates/manages exactly 2 options ("True" / "False")
 ///   - ShortAnswer: no options; will be manually graded later

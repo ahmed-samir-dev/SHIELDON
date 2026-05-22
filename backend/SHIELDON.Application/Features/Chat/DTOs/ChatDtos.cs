@@ -48,7 +48,7 @@ public class ConversationSummaryDto
     public int UnreadCount { get; set; }
 }
 
-/// <summary>A user available to start a chat with — used to populate the "New Chat" user list.</summary>
+/// <summary>A user available to start a chat with - used to populate the "New Chat" user list.</summary>
 public class ChatUserDto
 {
     public Guid Id { get; set; }

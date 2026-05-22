@@ -3,7 +3,7 @@ namespace SHIELDON.Domain.Entities;
 /// <summary>
 /// Records that a specific student was marked present in an AttendanceCheck.
 /// Existence of a record = present. Absence of a record = absent.
-/// One record per (AttendanceCheckId, StudentId) pair — enforced by DB unique index.
+/// One record per (AttendanceCheckId, StudentId) pair - enforced by DB unique index.
 /// </summary>
 public class AttendanceRecord
 {

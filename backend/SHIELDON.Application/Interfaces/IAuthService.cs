@@ -5,7 +5,7 @@ namespace SHIELDON.Application.Interfaces;
 /// <summary>
 /// Authentication service contract.
 /// Handles login, token refresh, logout, and email verification operations.
-/// Lives in the Application layer — no dependency on ASP.NET Core.
+/// Lives in the Application layer - no dependency on ASP.NET Core.
 /// </summary>
 public interface IAuthService
 {
@@ -28,7 +28,7 @@ public interface IAuthService
     Task<LoginResponse> RefreshTokenAsync(string refreshToken, CancellationToken ct = default);
 
     /// <summary>
-    /// Revokes the given refresh token for the specified user — used on logout.
+    /// Revokes the given refresh token for the specified user - used on logout.
     /// </summary>
     Task LogoutAsync(Guid userId, string refreshToken, CancellationToken ct = default);
 

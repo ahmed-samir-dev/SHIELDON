@@ -1,26 +1,32 @@
-import { Component, Input, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AnnouncementService, AnnouncementResponse } from '../services/announcement.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { LanguageService } from '../../../core/services/language.service';
 import { ToastrService } from 'ngx-toastr';
 import { CourseDetailResponse } from '../../../core/models/courses.model';
 import Swal from 'sweetalert2';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-course-announcements',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DatePipe],
+  imports: [CommonModule, ReactiveFormsModule, DatePipe, TranslateModule],
   templateUrl: './course-announcements.html',
   styleUrls: ['./course-announcements.scss']
 })
-export class CourseAnnouncementsComponent implements OnInit {
+export class CourseAnnouncementsComponent implements OnInit, OnDestroy {
   @Input() course!: CourseDetailResponse;
 
+  private readonly translate = inject(TranslateService);
   private readonly announcementService = inject(AnnouncementService);
   private readonly authService = inject(AuthService);
+  private readonly languageService = inject(LanguageService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly toastr = inject(ToastrService);
+  private langSub!: Subscription;
 
   announcements = signal<AnnouncementResponse[]>([]);
   isLoading = signal<boolean>(true);
@@ -38,6 +44,12 @@ export class CourseAnnouncementsComponent implements OnInit {
   ngOnInit(): void {
     this.loadAnnouncements();
     this.initForm();
+    // Auto-reload when user toggles language
+    this.langSub = this.languageService.languageChange$.subscribe(() => this.loadAnnouncements());
+  }
+
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
   }
 
   private initForm(): void {
@@ -58,7 +70,7 @@ export class CourseAnnouncementsComponent implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Failed to load announcements');
+        this.toastr.error(err.error?.message || this.translate.instant('COURSE_ANNOUNCEMENTS.TOAST_LOAD_ERR'));
         this.isLoading.set(false);
       }
     });
@@ -82,7 +94,7 @@ onSubmit(): void {
     this.announcementService.createAnnouncement(this.course.id, this.postForm.value).subscribe({
       next: (res) => {
         if (res.success && res.data) {
-          this.toastr.success('Announcement posted successfully!');
+          this.toastr.success(this.translate.instant('COURSE_ANNOUNCEMENTS.TOAST_POST_SUCCESS'));
           this.announcements.update(list => {
             if (res.data!.priority === 'Important') return [res.data!, ...list];
             const firstNormal = list.findIndex(a => a.priority === 'Normal');
@@ -94,7 +106,7 @@ onSubmit(): void {
         this.isSubmitting.set(false);
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Failed to post announcement');
+        this.toastr.error(err.error?.message || this.translate.instant('COURSE_ANNOUNCEMENTS.TOAST_POST_ERR'));
         this.isSubmitting.set(false);
       }
     });
@@ -102,22 +114,22 @@ onSubmit(): void {
 
   deleteAnnouncement(announcementId: string): void {
     Swal.fire({
-      title: 'Delete Announcement?',
-      text: 'This will permanently remove this announcement for all students.',
+      title: this.translate.instant('COURSE_ANNOUNCEMENTS.SWAL_DELETE_TITLE'),
+      text: this.translate.instant('COURSE_ANNOUNCEMENTS.SWAL_DELETE_DESC'),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#EF4444',
       cancelButtonColor: '#87949C',
-      confirmButtonText: 'Yes, delete it'
+      confirmButtonText: this.translate.instant('COURSE_ANNOUNCEMENTS.SWAL_DELETE_CONFIRM')
     }).then((result) => {
       if (result.isConfirmed) {
         this.announcementService.deleteAnnouncement(this.course.id, announcementId).subscribe({
           next: () => {
-            this.toastr.success('Announcement deleted successfully');
+            this.toastr.success(this.translate.instant('COURSE_ANNOUNCEMENTS.TOAST_DELETE_SUCCESS'));
             this.announcements.update(list => list.filter(a => a.id !== announcementId));
           },
           error: (err) => {
-            this.toastr.error(err.error?.message || 'Failed to delete announcement');
+            this.toastr.error(err.error?.message || this.translate.instant('COURSE_ANNOUNCEMENTS.TOAST_DELETE_ERR'));
           }
         });
       }

@@ -1,4 +1,4 @@
-# SHIELDON — Frontend
+# SHIELDON - Frontend
 
 > The user interface for the SHIELDON Learning Management System & Anti-Cheating Engine.
 > Built with Angular 21.

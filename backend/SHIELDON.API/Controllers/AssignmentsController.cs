@@ -291,7 +291,7 @@ public class AssignmentsController : ControllerBase
             assignmentId, GetUserId(), GetUserRole(), cancellationToken);
 
         if (zipStream is null)
-            return NoContent(); // 204 — no submissions yet
+            return NoContent(); // 204 - no submissions yet
 
         return File(zipStream, "application/zip", zipFileName);
     }

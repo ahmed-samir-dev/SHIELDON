@@ -16,11 +16,12 @@ import { CalendarEventDto, EventType, CreateCustomEventRequest, UpdateCustomEven
 import { CourseResponse } from '../../../core/models/courses.model';
 import { EventModalComponent } from './event-modal/event-modal.component';
 import Swal from 'sweetalert2';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-calendar-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, FullCalendarModule, LucideAngularModule, EventModalComponent],
+  imports: [CommonModule, FormsModule, FullCalendarModule, LucideAngularModule, EventModalComponent, TranslateModule],
   templateUrl: './calendar-view.component.html',
   styleUrls: ['./calendar-view.component.scss']
 })
@@ -29,6 +30,7 @@ export class CalendarViewComponent implements OnInit {
   private courseService = inject(CourseService);
   private authService = inject(AuthService);
   private toastr = inject(ToastrService);
+  public translate = inject(TranslateService);
 
   @ViewChild('calendar') calendarComponent: any;
 
@@ -116,7 +118,7 @@ export class CalendarViewComponent implements OnInit {
       },
       error: () => {
         this.isLoading = false;
-        this.toastr.error('Failed to load calendar events');
+        this.toastr.error(this.translate.instant('CALENDAR_VIEW.ERR_LOAD_EVENTS'));
       }
     });
   }
@@ -174,16 +176,16 @@ export class CalendarViewComponent implements OnInit {
     
     if (eventType === EventType.Exam) {
       iconHtml = `<svg class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>`;
-      typeLabel = 'Exam';
+      typeLabel = this.translate.instant('CALENDAR_VIEW.EVENT_EXAM');
     } else if (eventType === EventType.Assignment) {
       iconHtml = `<svg class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>`;
-      typeLabel = 'Assignment';
+      typeLabel = this.translate.instant('CALENDAR_VIEW.EVENT_ASSIGNMENT');
     } else {
       iconHtml = `<svg class="event-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>`;
-      typeLabel = originalEvent.courseId ? 'Course Event' : 'Global Event';
+      typeLabel = originalEvent.courseId ? this.translate.instant('CALENDAR_VIEW.EVENT_COURSE') : this.translate.instant('CALENDAR_VIEW.EVENT_GLOBAL');
     }
     
-    // Show only time (HH:MM AM/PM) — the day/month is visible in the calendar grid already
+    // Show only time (HH:MM AM/PM) - the day/month is visible in the calendar grid already
     const dateObj = new Date(originalEvent.startDate);
     let hours = dateObj.getHours();
     const minutes = dateObj.getMinutes().toString().padStart(2, '0');
@@ -229,10 +231,10 @@ export class CalendarViewComponent implements OnInit {
 
   showEditOrViewPopup(event: CalendarEventDto) {
     const isGlobal = !event.courseId;
-    const typeLabel = isGlobal ? 'Global Event' : 'Course Event';
+    const typeLabel = isGlobal ? this.translate.instant('CALENDAR_VIEW.EVENT_GLOBAL') : this.translate.instant('CALENDAR_VIEW.EVENT_COURSE');
     const scopeLabel = isGlobal
-      ? 'Global — visible to all students'
-      : (event.courseName || 'Course Event');
+      ? this.translate.instant('CALENDAR_VIEW.SCOPE_GLOBAL_DESC')
+      : (event.courseName || this.translate.instant('CALENDAR_VIEW.EVENT_COURSE'));
 
     Swal.fire({
       title: `<span style="font-size:17px;font-weight:700;color:#111827">${event.title}</span>`,
@@ -243,28 +245,28 @@ export class CalendarViewComponent implements OnInit {
             border:1px solid ${isGlobal ? '#a7f3d0' : '#bfdbfe'};margin-bottom:14px">${typeLabel}</span>
           <div style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden">
             <div style="display:flex;gap:12px;padding:8px 12px;border-bottom:1px solid #f3f4f6">
-              <span style="font-weight:600;min-width:80px;color:#374151;font-size:13px">${isGlobal ? 'Scope' : 'Course'}</span>
+              <span style="font-weight:600;min-width:80px;color:#374151;font-size:13px">${isGlobal ? this.translate.instant('CALENDAR_VIEW.SCOPE') : this.translate.instant('CALENDAR_VIEW.COURSE')}</span>
               <span style="color:#6b7280;font-size:13px">${scopeLabel}</span>
             </div>
             <div style="display:flex;gap:12px;padding:8px 12px;border-bottom:1px solid #f3f4f6">
-              <span style="font-weight:600;min-width:80px;color:#374151;font-size:13px">Starts</span>
+              <span style="font-weight:600;min-width:80px;color:#374151;font-size:13px">${this.translate.instant('CALENDAR_VIEW.STARTS')}</span>
               <span style="color:#6b7280;font-size:13px">${new Date(event.startDate).toLocaleString('en-US', {dateStyle:'medium', timeStyle:'short'})}</span>
             </div>
             ${event.endDate ? `<div style="display:flex;gap:12px;padding:8px 12px">
-              <span style="font-weight:600;min-width:80px;color:#374151;font-size:13px">Ends</span>
+              <span style="font-weight:600;min-width:80px;color:#374151;font-size:13px">${this.translate.instant('CALENDAR_VIEW.ENDS')}</span>
               <span style="color:#6b7280;font-size:13px">${new Date(event.endDate).toLocaleString('en-US', {dateStyle:'medium', timeStyle:'short'})}</span>
             </div>` : ''}
           </div>
           ${event.description ? `<div style="margin-top:12px;padding:10px 14px;background:#f9fafb;border-radius:8px;border:1px solid #e5e7eb">
-            <p style="font-weight:600;font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Description</p>
+            <p style="font-weight:600;font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">${this.translate.instant('CALENDAR_VIEW.DESCRIPTION')}</p>
             <p style="font-size:13px;color:#6b7280;white-space:pre-wrap;margin:0">${event.description}</p>
           </div>` : ''}
         </div>`,
       showCancelButton: false,
       showDenyButton: true,
       showConfirmButton: true,
-      confirmButtonText: '&#9998; Edit Event',
-      denyButtonText: '&#128465; Delete',
+      confirmButtonText: this.translate.instant('CALENDAR_VIEW.BTN_EDIT'),
+      denyButtonText: this.translate.instant('CALENDAR_VIEW.BTN_DELETE'),
       confirmButtonColor: '#3b82f6',
       denyButtonColor: '#ef4444',
       width: 460
@@ -289,13 +291,13 @@ export class CalendarViewComponent implements OnInit {
     let badgeBorder: string;
 
     if (isExam) {
-      typeLabel = 'Exam'; badgeBg = '#fef2f2'; badgeColor = '#dc2626'; badgeBorder = '#fecaca';
+      typeLabel = this.translate.instant('CALENDAR_VIEW.EVENT_EXAM'); badgeBg = '#fef2f2'; badgeColor = '#dc2626'; badgeBorder = '#fecaca';
     } else if (isAssignment) {
-      typeLabel = 'Assignment'; badgeBg = '#fff7ed'; badgeColor = '#ea580c'; badgeBorder = '#fed7aa';
+      typeLabel = this.translate.instant('CALENDAR_VIEW.EVENT_ASSIGNMENT'); badgeBg = '#fff7ed'; badgeColor = '#ea580c'; badgeBorder = '#fed7aa';
     } else if (isGlobal) {
-      typeLabel = 'Global Event'; badgeBg = '#ecfdf5'; badgeColor = '#059669'; badgeBorder = '#a7f3d0';
+      typeLabel = this.translate.instant('CALENDAR_VIEW.EVENT_GLOBAL'); badgeBg = '#ecfdf5'; badgeColor = '#059669'; badgeBorder = '#a7f3d0';
     } else {
-      typeLabel = 'Course Event'; badgeBg = '#eff6ff'; badgeColor = '#1d4ed8'; badgeBorder = '#bfdbfe';
+      typeLabel = this.translate.instant('CALENDAR_VIEW.EVENT_COURSE'); badgeBg = '#eff6ff'; badgeColor = '#1d4ed8'; badgeBorder = '#bfdbfe';
     }
 
     // Use courseName directly from the DTO (populated by the API)
@@ -313,8 +315,8 @@ export class CalendarViewComponent implements OnInit {
 
     // Course row: skip entirely for Global Events; show name for others
     const courseRow = isGlobal
-      ? row('Scope', 'Global &mdash; visible to all enrolled students')
-      : (courseName ? row('Course', courseName) : '');
+      ? row(this.translate.instant('CALENDAR_VIEW.SCOPE'), this.translate.instant('CALENDAR_VIEW.SCOPE_GLOBAL_DESC_FULL'))
+      : (courseName ? row(this.translate.instant('CALENDAR_VIEW.COURSE'), courseName) : '');
 
     const htmlContent = `
       <div style="text-align:left">
@@ -322,12 +324,12 @@ export class CalendarViewComponent implements OnInit {
                background:${badgeBg};color:${badgeColor};border:1px solid ${badgeBorder};margin-bottom:16px">${typeLabel}</span>
         <div style="border:1px solid #e5e7eb;border-radius:10px;overflow:hidden">
           ${courseRow}
-          ${row('Starts', startStr)}
-          ${endStr ? row('Ends', endStr) : ''}
+          ${row(this.translate.instant('CALENDAR_VIEW.STARTS'), startStr)}
+          ${endStr ? row(this.translate.instant('CALENDAR_VIEW.ENDS'), endStr) : ''}
         </div>
         ${event.description ? `
           <div style="margin-top:12px;padding:10px 14px;background:#f9fafb;border-radius:8px;border:1px solid #e5e7eb">
-            <p style="font-weight:600;font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Description</p>
+            <p style="font-weight:600;font-size:11px;color:#9ca3af;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">${this.translate.instant('CALENDAR_VIEW.DESCRIPTION')}</p>
             <p style="font-size:13px;color:#6b7280;white-space:pre-wrap;margin:0">${event.description}</p>
           </div>` : ''}
       </div>`;
@@ -335,7 +337,7 @@ export class CalendarViewComponent implements OnInit {
     Swal.fire({
       title: `<span style="font-size:18px;font-weight:700;color:#111827">${event.title}</span>`,
       html: htmlContent,
-      confirmButtonText: 'Close',
+      confirmButtonText: this.translate.instant('CALENDAR_VIEW.BTN_CLOSE'),
       confirmButtonColor: '#3b82f6',
       width: 480
     });
@@ -359,48 +361,48 @@ export class CalendarViewComponent implements OnInit {
       this.calendarService.updateCustomEvent(this.selectedEvent.id, payload as UpdateCustomEventRequest).subscribe({
         next: (res) => {
           if (res.success) {
-            this.toastr.success('Event updated successfully');
+            this.toastr.success(this.translate.instant('CALENDAR_VIEW.MSG_EVENT_UPDATED'));
             this.closeModal();
             this.fetchEvents(); // Refresh
           }
         },
-        error: (err: any) => this.toastr.error(err.error?.message || 'Failed to update event')
+        error: (err: any) => this.toastr.error(err.error?.message || this.translate.instant('CALENDAR_VIEW.ERR_UPDATE'))
       });
     } else {
       // Create
       this.calendarService.createCustomEvent(payload as CreateCustomEventRequest).subscribe({
         next: (res) => {
           if (res.success) {
-            this.toastr.success('Event created successfully');
+            this.toastr.success(this.translate.instant('CALENDAR_VIEW.MSG_EVENT_CREATED'));
             this.closeModal();
             this.fetchEvents(); // Refresh
           }
         },
-        error: (err: any) => this.toastr.error(err.error?.message || 'Failed to create event')
+        error: (err: any) => this.toastr.error(err.error?.message || this.translate.instant('CALENDAR_VIEW.ERR_CREATE'))
       });
     }
   }
 
   deleteEvent(eventId: string) {
     Swal.fire({
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
+      title: this.translate.instant('CALENDAR_VIEW.SWAL_DELETE_TITLE'),
+      text: this.translate.instant('CALENDAR_VIEW.SWAL_DELETE_TEXT'),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#ef4444', // Red
       cancelButtonColor: '#64748b',  // Slate 500
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonText: this.translate.instant('CALENDAR_VIEW.SWAL_DELETE_CONFIRM')
     }).then((result) => {
       if (result.isConfirmed) {
         this.calendarService.deleteCustomEvent(eventId).subscribe({
           next: (res) => {
             if (res.success) {
-              this.toastr.success('Event deleted successfully');
+              this.toastr.success(this.translate.instant('CALENDAR_VIEW.MSG_EVENT_DELETED'));
               this.closeModal();
               this.fetchEvents();
             }
           },
-          error: (err: any) => this.toastr.error(err.error?.message || 'Failed to delete event')
+          error: (err: any) => this.toastr.error(err.error?.message || this.translate.instant('CALENDAR_VIEW.ERR_DELETE'))
         });
       }
     });

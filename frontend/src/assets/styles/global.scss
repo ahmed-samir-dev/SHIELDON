@@ -149,3 +149,19 @@ button {
   box-shadow: $shadow-lg;
   font-family: $font-family-primary;
 }
+
+// RTL Support overrides
+[dir="rtl"] {
+  // Use a font better suited for Arabic if preferred, otherwise fallback to base
+  font-family: 'Inter', system-ui, sans-serif;
+  
+  // Base text alignment adjustments if necessary
+  text-align: right;
+  
+  .text-center { text-align: center; }
+  
+  // Flex layout mirroring can often handle RTL automatically,
+  // but specific margins/paddings that used physical left/right need override.
+  
+  // Custom scrollbar position in RTL browsers is automatic, but styles remain the same
+}

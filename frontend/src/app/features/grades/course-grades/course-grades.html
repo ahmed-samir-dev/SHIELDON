@@ -6,24 +6,24 @@
   <div class="filters-bar">
     <div class="search-box">
       <lucide-icon [img]="Search" class="search-icon"></lucide-icon>
-      <input type="text" placeholder="Search by student name or ID..." (keyup)="onSearch($event)" />
+      <input type="text" [placeholder]="'COURSE_GRADES.SEARCH_PLACEHOLDER' | translate" (keyup)="onSearch($event)" />
     </div>
     
     <div class="filter-group">
-      <label>Type:</label>
+      <label>{{ 'COURSE_GRADES.FILTER_TYPE_LABEL' | translate }}</label>
       <select (change)="filterByType($event)">
-        <option value="All">All Items</option>
-        <option value="Exam">Exams</option>
-        <option value="Assignment">Assignments</option>
+        <option value="All">{{ 'COURSE_GRADES.FILTER_TYPE_ALL' | translate }}</option>
+        <option value="Exam">{{ 'COURSE_GRADES.FILTER_TYPE_EXAMS' | translate }}</option>
+        <option value="Assignment">{{ 'COURSE_GRADES.FILTER_TYPE_ASSIGNMENTS' | translate }}</option>
       </select>
     </div>
 
     <div class="filter-group">
-      <label>Status:</label>
+      <label>{{ 'COURSE_GRADES.FILTER_STATUS_LABEL' | translate }}</label>
       <select (change)="filterByStatus($event)">
-        <option value="All">All Statuses</option>
-        <option value="Published">Published</option>
-        <option value="Unpublished">Unpublished</option>
+        <option value="All">{{ 'COURSE_GRADES.FILTER_STATUS_ALL' | translate }}</option>
+        <option value="Published">{{ 'COURSE_GRADES.FILTER_STATUS_PUBLISHED' | translate }}</option>
+        <option value="Unpublished">{{ 'COURSE_GRADES.FILTER_STATUS_UNPUBLISHED' | translate }}</option>
       </select>
     </div>
 
@@ -31,11 +31,11 @@
     <div class="actions-area" style="margin-left: auto; display: flex; gap: 12px;">
       <button class="btn btn-secondary btn-sm" (click)="exportCsv()">
         <lucide-icon [img]="Download" class="icon"></lucide-icon>
-        Export CSV
+        {{ 'COURSE_GRADES.BTN_EXPORT_CSV' | translate }}
       </button>
       <button class="btn btn-primary btn-sm" (click)="publishAllUnpublished()">
         <lucide-icon [img]="CheckSquare" class="icon"></lucide-icon>
-        Bulk Publish All
+        {{ 'COURSE_GRADES.BTN_BULK_PUBLISH' | translate }}
       </button>
     </div>
   </div>
@@ -43,7 +43,7 @@
   <!-- Loading State -->
   <div *ngIf="isLoading()" class="loading-state">
     <div class="spinner"></div>
-    <p>Loading grades...</p>
+    <p>{{ 'COURSE_GRADES.LOADING_GRADES' | translate }}</p>
   </div>
 
   <!-- Empty State -->
@@ -51,8 +51,8 @@
     <div class="empty-icon-wrapper">
       <lucide-icon [img]="AlertCircle" class="empty-icon"></lucide-icon>
     </div>
-    <h3>No Grades Found</h3>
-    <p>No student grade records match your current filters.</p>
+    <h3>{{ 'COURSE_GRADES.NO_GRADES_TITLE' | translate }}</h3>
+    <p>{{ 'COURSE_GRADES.NO_GRADES_DESC' | translate }}</p>
   </div>
 
   <!-- Grade Table (Accordion Style) -->
@@ -61,11 +61,11 @@
       <thead>
         <tr>
           <th class="col-expand"></th>
-          <th>Student</th>
-          <th>Student ID</th>
-          <th>Items Count</th>
-          <th>Total Weight</th>
-          <th>Final Score</th>
+          <th>{{ 'COURSE_GRADES.COL_STUDENT' | translate }}</th>
+          <th>{{ 'COURSE_GRADES.COL_STUDENT_ID' | translate }}</th>
+          <th>{{ 'COURSE_GRADES.COL_ITEMS_COUNT' | translate }}</th>
+          <th>{{ 'COURSE_GRADES.COL_TOTAL_WEIGHT' | translate }}</th>
+          <th>{{ 'COURSE_GRADES.COL_FINAL_SCORE' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -81,10 +81,10 @@
                 <span class="email">{{ summary.studentEmail }}</span>
               </div>
             </td>
-            <td>{{ summary.studentDisplayId || 'N/A' }}</td>
-            <td><span class="badge badge-neutral">{{ summary.grades.length }} items</span></td>
+            <td>{{ summary.studentDisplayId || ('COURSE_GRADES.NA' | translate) }}</td>
+            <td><span class="badge badge-neutral">{{ ('COURSE_GRADES.BADGE_ITEMS' | translate).replace('{count}', summary.grades.length.toString()) }}</span></td>
             <td>{{ summary.totalWeightAssigned | number:'1.0-2' }}%</td>
-            <td class="font-bold text-primary">{{ summary.finalWeightedScore !== null ? (summary.finalWeightedScore | number:'1.0-2') + '%' : 'N/A' }}</td>
+            <td class="font-bold text-primary">{{ summary.finalWeightedScore !== null ? (summary.finalWeightedScore | number:'1.0-2') + '%' : ('COURSE_GRADES.NA' | translate) }}</td>
           </tr>
 
           <!-- Expanded Nested Rows -->
@@ -94,13 +94,13 @@
                 <table class="nested-table">
                   <thead>
                     <tr>
-                      <th>Item</th>
-                      <th>Type</th>
-                      <th>Score</th>
-                      <th>Weight</th>
-                      <th>Weighted</th>
-                      <th>Status</th>
-                      <th>Actions</th>
+                      <th>{{ 'COURSE_GRADES.COL_ITEM' | translate }}</th>
+                      <th>{{ 'COURSE_GRADES.COL_TYPE' | translate }}</th>
+                      <th>{{ 'COURSE_GRADES.COL_SCORE' | translate }}</th>
+                      <th>{{ 'COURSE_GRADES.COL_WEIGHT' | translate }}</th>
+                      <th>{{ 'COURSE_GRADES.COL_WEIGHTED' | translate }}</th>
+                      <th>{{ 'COURSE_GRADES.COL_STATUS' | translate }}</th>
+                      <th>{{ 'COURSE_GRADES.COL_ACTIONS' | translate }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -115,8 +115,9 @@
                         <div class="score-display">
                           <span>{{ grade.score | number:'1.0-2' }} / {{ grade.maxScore }}</span>
                         </div>
-                        <div class="notes-preview" *ngIf="grade.notes" title="{{ grade.notes }}">
-                          📝 Has Notes
+                        <div class="notes-preview" *ngIf="grade.notes" [title]="grade.notes" style="display: inline-flex; align-items: center; gap: 4px;">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+                          {{ 'COURSE_GRADES.NOTES_PREVIEW' | translate }}
                         </div>
                       </td>
                       <td>
@@ -128,15 +129,15 @@
                       <td>
                         <span class="status-badge" [ngClass]="grade.isPublished ? 'published' : 'unpublished'">
                           <lucide-icon [img]="grade.isPublished ? CheckCircle : AlertCircle" class="status-icon"></lucide-icon>
-                          {{ grade.isPublished ? 'Published' : 'Draft' }}
+                          {{ grade.isPublished ? ('COURSE_GRADES.STATUS_PUBLISHED' | translate) : ('COURSE_GRADES.STATUS_DRAFT' | translate) }}
                         </span>
                       </td>
                       <td class="actions-cell">
                         <button class="btn-evaluate" *ngIf="grade.type === 'Assignment'" (click)="evaluateAssignment(grade)">
-                          Evaluate
+                          {{ 'COURSE_GRADES.BTN_EVALUATE' | translate }}
                         </button>
                         <button class="btn-publish" *ngIf="!grade.isPublished" (click)="publishGrade(grade)">
-                          Publish
+                          {{ 'COURSE_GRADES.BTN_PUBLISH' | translate }}
                         </button>
                       </td>
                     </tr>
@@ -144,7 +145,7 @@
                 </table>
               </div>
               <div class="empty-nested" *ngIf="summary.grades.length === 0">
-                No grade items for this student.
+                {{ 'COURSE_GRADES.NO_GRADE_ITEMS' | translate }}
               </div>
             </td>
           </tr>
@@ -155,10 +156,13 @@
 
   <!-- Pagination Controls -->
   <div class="pagination-footer" *ngIf="!isLoading() && totalPages() > 1">
-    <span class="page-info">Showing page {{ currentPage() }} of {{ totalPages() }} ({{ totalCount() }} total)</span>
+    <span class="page-info">{{ ('COURSE_GRADES.PAGE_INFO' | translate)
+      .replace('{page}', currentPage().toString())
+      .replace('{total}', totalPages().toString())
+      .replace('{count}', totalCount().toString()) }}</span>
     <div class="page-buttons">
-      <button [disabled]="currentPage() === 1" (click)="changePage(currentPage() - 1)">Previous</button>
-      <button [disabled]="currentPage() === totalPages()" (click)="changePage(currentPage() + 1)">Next</button>
+      <button [disabled]="currentPage() === 1" (click)="changePage(currentPage() - 1)">{{ 'COURSE_GRADES.BTN_PREV' | translate }}</button>
+      <button [disabled]="currentPage() === totalPages()" (click)="changePage(currentPage() + 1)">{{ 'COURSE_GRADES.BTN_NEXT' | translate }}</button>
     </div>
   </div>
 </div>

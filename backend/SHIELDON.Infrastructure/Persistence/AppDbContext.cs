@@ -34,7 +34,7 @@ public class AppDbContext : DbContext
     // ── Phase 3: Examination & Grading ──────────────────────────────
     public DbSet<Exam> Exams { get; set; } = null!;
 
-    // Question Bank — course-level, shared across exams
+    // Question Bank - course-level, shared across exams
     public DbSet<ExamQuestion> ExamQuestions { get; set; } = null!;
     public DbSet<QuestionOption> QuestionOptions { get; set; } = null!;
 

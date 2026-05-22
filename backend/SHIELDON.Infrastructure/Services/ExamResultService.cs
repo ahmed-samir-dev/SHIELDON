@@ -76,7 +76,7 @@ public class ExamResultService : IExamResultService
             canRequestReattempt = await CanRequestReattemptAsync(attempt, exam, ct);
         }
 
-        // Build question reviews — only if result is visible
+        // Build question reviews - only if result is visible
         IReadOnlyList<QuestionReviewDto>? reviews = null;
         if (resultVisible)
         {
@@ -359,7 +359,7 @@ public class ExamResultService : IExamResultService
         // Tutors and Admins always see everything, UNLESS they are viewing their own attempt
         if ((role is "Tutor" or "Admin") && attempt.StudentId != requestingUserId) return true;
 
-        // Attempt still in progress — nothing to show
+        // Attempt still in progress - nothing to show
         if (attempt.Status == AttemptStatus.InProgress) return false;
 
         return exam.ResultVisibility switch
@@ -367,7 +367,7 @@ public class ExamResultService : IExamResultService
             ResultVisibility.Immediate => true,
             // ManualRelease: visible only after Tutor/Admin explicitly releases (IsPublished = true)
             ResultVisibility.ManualRelease => gradeRecord?.IsPublished == true,
-            // Scheduled: not implemented — treat as ManualRelease (hidden until manual release)
+            // Scheduled: not implemented - treat as ManualRelease (hidden until manual release)
             ResultVisibility.Scheduled => gradeRecord?.IsPublished == true,
             _ => false
         };
@@ -418,7 +418,7 @@ public class ExamResultService : IExamResultService
     /// </summary>
     private async Task<bool> CanRequestReattemptAsync(ExamAttempt latestAttempt, Exam exam, CancellationToken ct)
     {
-        // Student passed — no re-attempt needed
+        // Student passed - no re-attempt needed
         if (latestAttempt.Score.HasValue && latestAttempt.Score >= exam.PassScore)
             return false;
 
@@ -435,7 +435,7 @@ public class ExamResultService : IExamResultService
 
         int totalAllowed = exam.MaxAttempts + approvedReattempts;
 
-        // Attempts not yet exhausted — student can just try again
+        // Attempts not yet exhausted - student can just try again
         if (completedAttempts < totalAllowed)
             return false;
 

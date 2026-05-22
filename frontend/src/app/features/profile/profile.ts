@@ -6,15 +6,17 @@ import { ShepherdService } from '../../core/services/shepherd.service';
 import { UserProfileResponse } from '../../core/models/profile.model';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../../environments/environment';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './profile.html',
   styleUrl: './profile.scss'
 })
 export class ProfileComponent implements OnInit {
+  private translate = inject(TranslateService);
   private profileService = inject(ProfileService);
   private shepherdService = inject(ShepherdService);
   private fb = inject(FormBuilder);
@@ -77,7 +79,7 @@ export class ProfileComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-        this.toastr.error('Failed to load profile data.');
+        this.toastr.error(this.translate.instant('PROFILE.TOAST_LOAD_ERR'));
       }
     });
   }
@@ -95,11 +97,11 @@ export class ProfileComponent implements OnInit {
       next: (res) => {
         this.profileData.set(res.data);
         this.isSaving.set(false);
-        this.toastr.success('Profile updated successfully.');
+        this.toastr.success(this.translate.instant('PROFILE.TOAST_UPDATE_SUCCESS'));
       },
       error: () => {
         this.isSaving.set(false);
-        this.toastr.error('Failed to update profile.');
+        this.toastr.error(this.translate.instant('PROFILE.TOAST_UPDATE_ERR'));
       }
     });
   }
@@ -111,12 +113,12 @@ export class ProfileComponent implements OnInit {
     // Client side validation (matches backend allowed types)
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(file.type)) {
-      this.toastr.error('Only JPG, PNG, and WebP images are allowed.');
+      this.toastr.error(this.translate.instant('PROFILE.TOAST_PIC_TYPE_ERR'));
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) { // 5MB limit
-      this.toastr.error('Image size must be less than 5MB.');
+      this.toastr.error(this.translate.instant('PROFILE.TOAST_PIC_SIZE_ERR'));
       return;
     }
 
@@ -125,11 +127,11 @@ export class ProfileComponent implements OnInit {
       next: (res) => {
         this.profileData.set(res.data);
         this.isUploading.set(false);
-        this.toastr.success('Profile picture updated!');
+        this.toastr.success(this.translate.instant('PROFILE.TOAST_PIC_SUCCESS'));
       },
       error: (err) => {
         this.isUploading.set(false);
-        this.toastr.error(err.error?.message || 'Failed to upload picture.');
+        this.toastr.error(err.error?.message || this.translate.instant('PROFILE.TOAST_PIC_ERR'));
       }
     });
   }
@@ -178,11 +180,11 @@ export class ProfileComponent implements OnInit {
       next: () => {
         this.isChangingPassword.set(false);
         this.changePasswordForm.reset();
-        this.toastr.success('Password changed successfully.');
+        this.toastr.success(this.translate.instant('PROFILE.TOAST_PASS_SUCCESS'));
       },
       error: (err) => {
         this.isChangingPassword.set(false);
-        const msg = err.error?.message || 'Failed to change password.';
+        const msg = err.error?.message || this.translate.instant('PROFILE.TOAST_PASS_ERR');
         this.toastr.error(msg);
       }
     });

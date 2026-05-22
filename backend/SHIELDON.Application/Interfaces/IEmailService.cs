@@ -3,7 +3,7 @@ namespace SHIELDON.Application.Interfaces;
 /// <summary>
 /// Contract for sending emails via SMTP.
 /// Implemented in SHIELDON.Infrastructure/Services/EmailService.cs.
-/// The Application layer depends ONLY on this interface — never on the implementation.
+/// The Application layer depends ONLY on this interface - never on the implementation.
 /// </summary>
 public interface IEmailService
 {
@@ -21,4 +21,7 @@ public interface IEmailService
 
     /// <summary>Sends a generic templated email.</summary>
     Task SendEmailAsync(string toEmail, string toName, string subject, string htmlBody);
+
+    /// <summary>Sends a system notification email.</summary>
+    Task SendNotificationEmailAsync(string toEmail, string toName, string title, string message, string frontendUrl);
 }

@@ -2,7 +2,7 @@ namespace SHIELDON.Application.Common;
 
 /// <summary>
 /// The unified API response envelope used by every endpoint in SHIELDON.
-/// Every response — success or error — wraps its data in this format.
+/// Every response - success or error - wraps its data in this format.
 /// This ensures the frontend always receives a predictable, typed structure.
 /// </summary>
 /// <typeparam name="T">The type of the response data payload.</typeparam>

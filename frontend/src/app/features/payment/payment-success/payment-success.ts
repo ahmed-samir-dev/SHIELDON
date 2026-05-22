@@ -2,11 +2,12 @@ import { Component, OnInit, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import confetti from 'canvas-confetti';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-payment-success',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './payment-success.html',
   styleUrl: './payment-success.scss'
 })

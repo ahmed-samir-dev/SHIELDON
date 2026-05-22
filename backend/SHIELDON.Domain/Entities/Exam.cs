@@ -1,15 +1,21 @@
 using SHIELDON.Domain.Enums;
+using SHIELDON.Domain.Common;
 
 namespace SHIELDON.Domain.Entities;
 
-public class Exam
+public class Exam : ITranslatable
 {
     public Guid Id { get; set; }
 
     // ── Core Info ───────────────────────────────────────────────
     public Guid CourseId { get; set; }
+    [Translatable]
     public string Title { get; set; } = string.Empty;
+    
+    [Translatable]
     public string? Instructions { get; set; }
+
+    public string? Translations { get; set; }
     
     /// <summary>Time limit in minutes.</summary>
     public int TimeLimit { get; set; }

@@ -12,6 +12,7 @@ import {
   SendMessageRequest 
 } from '../models/chat.model';
 import { ToastrService } from 'ngx-toastr';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root'
@@ -20,6 +21,7 @@ export class ChatService {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   private toastr = inject(ToastrService);
+  private translate = inject(TranslateService);
 
   private hubConnection: HubConnection | null = null;
   
@@ -32,6 +34,9 @@ export class ChatService {
   readonly unreadTotalCount = this._unreadTotalCount.asReadonly();
   readonly onlineUsers = this._onlineUsers.asReadonly();
   readonly isConnected = signal<boolean>(false);
+  
+  readonly typingUsers = signal<string[]>([]);
+  private typingTimeouts = new Map<string, any>();
 
   // ── REST Methods ─────────────────────────────────────────────────────────
 
@@ -66,6 +71,21 @@ export class ChatService {
 
     this.hubConnection.on('UserIsOffline', (userId: string) => {
       this._onlineUsers.update(users => users.filter(id => id !== userId));
+    });
+
+    this.hubConnection.on('UserIsTyping', (userId: string) => {
+      this.typingUsers.update(users => users.includes(userId) ? users : [...users, userId]);
+      
+      if (this.typingTimeouts.has(userId)) {
+        clearTimeout(this.typingTimeouts.get(userId));
+      }
+
+      const timeout = setTimeout(() => {
+        this.typingUsers.update(users => users.filter(id => id !== userId));
+        this.typingTimeouts.delete(userId);
+      }, 1500); // Fast timeout for close to real-time feel
+      
+      this.typingTimeouts.set(userId, timeout);
     });
   }
 
@@ -113,7 +133,7 @@ export class ChatService {
 
   async sendMessage(request: SendMessageRequest): Promise<void> {
     if (!this.hubConnection || this.hubConnection.state !== 'Connected') {
-      this.toastr.error('Not connected to chat server.', 'Error');
+      this.toastr.error(this.translate.instant('CHAT_SERVICE.ERR_NOT_CONNECTED'), this.translate.instant('CHAT_SERVICE.ERR_TITLE'));
       return;
     }
 
@@ -121,7 +141,16 @@ export class ChatService {
       await this.hubConnection.invoke('SendMessage', request);
     } catch (err) {
       console.error('Error sending message: ', err);
-      this.toastr.error('Failed to send message.', 'Error');
+      this.toastr.error(this.translate.instant('CHAT_SERVICE.ERR_SEND_MSG'), this.translate.instant('CHAT_SERVICE.ERR_TITLE'));
+    }
+  }
+
+  async notifyTyping(recipientId: string): Promise<void> {
+    if (!this.hubConnection || this.hubConnection.state !== 'Connected') return;
+    try {
+      await this.hubConnection.invoke('NotifyTyping', recipientId);
+    } catch (err) {
+      // Ignore typing errors silently
     }
   }
 
@@ -160,7 +189,7 @@ export class ChatService {
     } else {
       // If the message is for another conversation and from someone else
       if (message.senderId !== currentUserId) {
-        this.toastr.info(`${message.senderName}: ${message.content}`, 'New Message');
+        this.toastr.info(`${message.senderName}: ${message.content}`, this.translate.instant('CHAT_SERVICE.NEW_MSG_TITLE'));
       }
     }
 

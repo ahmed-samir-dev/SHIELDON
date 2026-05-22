@@ -14,7 +14,7 @@ namespace SHIELDON.Infrastructure.Services;
 /// Security contract:
 ///   - Correct answers (IsCorrect) are NEVER returned in student-facing calls.
 ///   - Only the assigned Tutor or any Admin can modify the bank.
-///   - Questions are course-scoped — no exam locking required.
+///   - Questions are course-scoped - no exam locking required.
 /// </summary>
 public class QuestionService : IQuestionService
 {
@@ -101,7 +101,7 @@ public class QuestionService : IQuestionService
 
             case QuestionType.ShortAnswer:
                 if (request.Options?.Count > 0)
-                    throw new BusinessRuleException("ShortAnswer questions do not have options — they are manually graded.");
+                    throw new BusinessRuleException("ShortAnswer questions do not have options - they are manually graded.");
                 break;
         }
 

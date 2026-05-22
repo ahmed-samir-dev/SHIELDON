@@ -4,7 +4,7 @@ namespace SHIELDON.Application.Features.Courses.DTOs;
 
 /// <summary>
 /// Summary of a course returned in list views.
-/// Contains enough info for a card or table row — no deep associations.
+/// Contains enough info for a card or table row - no deep associations.
 /// </summary>
 public record CourseResponse(
     Guid Id,
@@ -66,7 +66,7 @@ public record EnrollmentResponse(
 
 /// <summary>
 /// Student-facing view of their own enrollment status for a course.
-/// Simplified — hides reviewer details.
+/// Simplified - hides reviewer details.
 /// </summary>
 public record StudentEnrollmentStatusResponse(
     Guid CourseId,

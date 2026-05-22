@@ -35,7 +35,7 @@ public class JwtService : IJwtService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        // Claims embedded in the JWT — available without a database lookup on every request
+        // Claims embedded in the JWT - available without a database lookup on every request
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -78,7 +78,7 @@ public class JwtService : IJwtService
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
             ValidateIssuer = false,
             ValidateAudience = false,
-            ValidateLifetime = false // Allow expired tokens — we're just extracting claims
+            ValidateLifetime = false // Allow expired tokens - we're just extracting claims
         };
 
         var tokenHandler = new JwtSecurityTokenHandler();

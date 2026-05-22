@@ -4,15 +4,17 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastrService } from 'ngx-toastr';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-forgot-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslateModule],
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.scss'
 })
 export class ForgotPassword {
+  private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private toastr = inject(ToastrService);
@@ -42,7 +44,7 @@ export class ForgotPassword {
         // Generic success message should mostly be used to prevent enumeration,
         // but if backend fails completely, toast it.
         const msg = err.error?.message || 'Something went wrong. Please try again.';
-        this.toastr.error(msg, 'Error');
+        this.toastr.error(msg, this.translate.instant('FORGOT.TOAST_ERROR_TITLE'));
       }
     });
   }

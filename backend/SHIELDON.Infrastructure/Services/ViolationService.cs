@@ -188,7 +188,7 @@ public class ViolationService : IViolationService
         var wasForceSubmitted = violations.Any(v => v.WasAutoSubmit);
 
         var studentName      = student != null ? $"{student.FirstName} {student.LastName}" : "Unknown";
-        var studentDisplayId = student?.StudentId ?? student?.TutorId ?? "—";
+        var studentDisplayId = student?.StudentId ?? student?.TutorId ?? "-";
 
         return new AttemptViolationSummary(
             AttemptId:        attemptId,

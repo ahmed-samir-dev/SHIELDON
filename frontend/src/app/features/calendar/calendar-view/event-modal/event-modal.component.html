@@ -14,7 +14,7 @@
     <!-- Header -->
     <div class="modal-header">
       <h3 class="modal-title">
-        {{ isEditMode ? 'Edit Event' : 'Create New Event' }}
+        {{ isEditMode ? ('EVENT_MODAL.TITLE_EDIT' | translate) : ('EVENT_MODAL.TITLE_CREATE' | translate) }}
       </h3>
       <button 
         type="button" 
@@ -29,7 +29,7 @@
       
       <!-- Title -->
       <div class="form-group">
-        <label for="title" class="form-label">Event Title <span class="required-asterisk">*</span></label>
+        <label for="title" class="form-label">{{ 'EVENT_MODAL.LABEL_TITLE' | translate }} <span class="required-asterisk">*</span></label>
         <div class="input-wrapper">
           <div class="input-icon">
             <lucide-icon [img]="icons.Type" size="18"></lucide-icon>
@@ -39,17 +39,17 @@
             id="title" 
             formControlName="title"
             class="form-input"
-            placeholder="e.g., Midterm Review Session"
+            [placeholder]="'EVENT_MODAL.PLACEHOLDER_TITLE' | translate"
           >
         </div>
         <div *ngIf="eventForm.get('title')?.touched && eventForm.get('title')?.errors?.['required']" class="error-message">
-          Title is required.
+          {{ 'EVENT_MODAL.ERR_TITLE_REQUIRED' | translate }}
         </div>
       </div>
 
       <!-- Description -->
       <div class="form-group">
-        <label for="description" class="form-label">Description</label>
+        <label for="description" class="form-label">{{ 'EVENT_MODAL.LABEL_DESC' | translate }}</label>
         <div class="input-wrapper textarea-wrapper">
           <div class="input-icon textarea-icon">
             <lucide-icon [img]="icons.AlignLeft" size="18"></lucide-icon>
@@ -59,7 +59,7 @@
             formControlName="description"
             rows="3"
             class="form-input form-textarea"
-            placeholder="Optional details about this event..."
+            [placeholder]="'EVENT_MODAL.PLACEHOLDER_DESC' | translate"
           ></textarea>
         </div>
       </div>
@@ -68,7 +68,7 @@
       <div class="form-row">
         <!-- Start Date -->
         <div class="form-group">
-          <label for="eventDate" class="form-label">Start Time <span class="required-asterisk">*</span></label>
+          <label for="eventDate" class="form-label">{{ 'EVENT_MODAL.LABEL_START' | translate }} <span class="required-asterisk">*</span></label>
           <div class="input-wrapper">
             <div class="input-icon">
               <lucide-icon [img]="icons.Clock" size="18"></lucide-icon>
@@ -84,7 +84,7 @@
 
         <!-- End Date -->
         <div class="form-group">
-          <label for="eventEndDate" class="form-label">End Time (Optional)</label>
+          <label for="eventEndDate" class="form-label">{{ 'EVENT_MODAL.LABEL_END' | translate }}</label>
           <div class="input-wrapper">
             <div class="input-icon">
               <lucide-icon [img]="icons.Clock" size="18"></lucide-icon>
@@ -101,7 +101,7 @@
 
       <!-- Course Selection -->
       <div class="form-group">
-        <label for="courseId" class="form-label">Associated Course</label>
+        <label for="courseId" class="form-label">{{ 'EVENT_MODAL.LABEL_COURSE' | translate }}</label>
         <div class="input-wrapper">
           <div class="input-icon">
             <lucide-icon [img]="icons.BookOpen" size="18"></lucide-icon>
@@ -111,8 +111,8 @@
             formControlName="courseId"
             class="form-input form-select"
           >
-            <option *ngIf="isAdmin" value="">Global Event (No Course)</option>
-            <option *ngIf="!isAdmin" value="" disabled selected>Select a course</option>
+            <option *ngIf="isAdmin" value="">{{ 'EVENT_MODAL.OPTION_GLOBAL' | translate }}</option>
+            <option *ngIf="!isAdmin" value="" disabled selected>{{ 'EVENT_MODAL.OPTION_SELECT_COURSE' | translate }}</option>
             <option *ngFor="let course of courses" [value]="course.id">
               {{ course.courseCode }} - {{ course.title }}
             </option>
@@ -133,7 +133,7 @@
             type="button"
             (click)="onDelete()"
             class="btn-danger">
-            Delete
+            {{ 'EVENT_MODAL.BTN_DELETE' | translate }}
           </button>
         </div>
         <div class="footer-right">
@@ -141,13 +141,13 @@
             type="button" 
             (click)="close.emit()"
             class="btn-secondary">
-            Cancel
+            {{ 'EVENT_MODAL.BTN_CANCEL' | translate }}
           </button>
           <button 
             type="submit" 
             [disabled]="eventForm.invalid"
             class="btn-primary">
-            {{ isEditMode ? 'Save Changes' : 'Create Event' }}
+            {{ isEditMode ? ('EVENT_MODAL.BTN_SAVE' | translate) : ('EVENT_MODAL.BTN_CREATE' | translate) }}
           </button>
         </div>
       </div>

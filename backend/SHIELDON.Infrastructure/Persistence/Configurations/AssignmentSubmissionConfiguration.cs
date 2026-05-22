@@ -6,7 +6,7 @@ namespace SHIELDON.Infrastructure.Persistence.Configurations;
 
 /// <summary>
 /// EF Core table configuration for AssignmentSubmissions.
-/// A StudentId + AssignmentId pair must be unique — one student, one submission per assignment.
+/// A StudentId + AssignmentId pair must be unique - one student, one submission per assignment.
 /// Cascade delete from Assignment ensures submissions are cleaned up when an assignment is deleted.
 /// </summary>
 public class AssignmentSubmissionConfiguration : IEntityTypeConfiguration<AssignmentSubmission>

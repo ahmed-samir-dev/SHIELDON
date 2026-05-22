@@ -130,7 +130,7 @@ public class AssignmentService : IAssignmentService
             // We'll write file after entity creation below.
         }
 
-        // Create entity (without file path yet — we'll update if file was provided)
+        // Create entity (without file path yet - we'll update if file was provided)
         var creator = await _db.Users.FindAsync(new object[] { requestingUserId }, ct)
             ?? throw new NotFoundException("User", requestingUserId);
 

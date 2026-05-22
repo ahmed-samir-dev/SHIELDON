@@ -1,22 +1,28 @@
-import { Component, OnInit, inject, signal, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { LucideAngularModule, Search, Download, CheckCircle, XCircle, AlertCircle, ChevronDown, ChevronRight, Edit2, CheckSquare } from 'lucide-angular';
 import Swal from 'sweetalert2';
 import { GradeService, CourseGradeSummaryResponse, GradeItemResponse } from '../services/grade.service';
+import { LanguageService } from '../../../core/services/language.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-course-grades',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, LucideAngularModule, TranslateModule],
   templateUrl: './course-grades.html',
   styleUrl: './course-grades.scss'
 })
-export class CourseGrades implements OnInit {
+export class CourseGrades implements OnInit, OnChanges, OnDestroy {
   private gradeService = inject(GradeService);
   private route = inject(ActivatedRoute);
   private toastr = inject(ToastrService);
+  private languageService = inject(LanguageService);
+  public translate = inject(TranslateService);
+  private langSub!: Subscription;
 
   // Icons
   readonly Search = Search;
@@ -50,6 +56,13 @@ export class CourseGrades implements OnInit {
     if (this.courseId) {
       this.loadGrades();
     }
+    this.langSub = this.languageService.languageChange$.subscribe(() => {
+      if (this.courseId) this.loadGrades();
+    });
+  }
+
+  ngOnDestroy() {
+    this.langSub?.unsubscribe();
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -135,15 +148,15 @@ export class CourseGrades implements OnInit {
 
   evaluateAssignment(grade: GradeItemResponse) {
     Swal.fire({
-      title: 'Evaluate Assignment',
+      title: this.translate.instant('COURSE_GRADES.SWAL_EVALUATE_TITLE'),
       html: `
         <div class="swal-form-group" style="text-align: left;">
-          <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">Score (Max: ${grade.maxScore})</label>
+          <label style="display: block; margin-bottom: 8px; font-weight: 500; color: #374151;">${this.translate.instant('COURSE_GRADES.SWAL_SCORE_LABEL').replace('{max}', grade.maxScore.toString())}</label>
           <input id="swal-score" class="swal2-input" type="number" step="0.5" value="${grade.score}" max="${grade.maxScore}" min="0" style="margin: 0; width: 100%; box-sizing: border-box;">
         </div>
       `,
       showCancelButton: true,
-      confirmButtonText: 'Save Score',
+      confirmButtonText: this.translate.instant('COURSE_GRADES.SWAL_BTN_SAVE'),
       preConfirm: () => {
         const scoreVal = (document.getElementById('swal-score') as HTMLInputElement).value;
         
@@ -156,10 +169,10 @@ export class CourseGrades implements OnInit {
       if (result.isConfirmed) {
         this.gradeService.updateGrade(grade.id, result.value).subscribe({
           next: () => {
-            this.toastr.success('Assignment evaluated successfully');
+            this.toastr.success(this.translate.instant('COURSE_GRADES.TOAST_EVALUATE_SUCCESS'));
             this.loadGrades();
           },
-          error: (err) => this.toastr.error(err.error?.message || 'Failed to evaluate assignment')
+          error: (err) => this.toastr.error(err.error?.message || this.translate.instant('COURSE_GRADES.TOAST_EVALUATE_FAIL'))
         });
       }
     });
@@ -170,27 +183,27 @@ export class CourseGrades implements OnInit {
     
     this.gradeService.publishGrades(this.courseId, { gradeIds: [grade.id] }).subscribe({
       next: (msg) => {
-        this.toastr.success(msg.data || 'Grade published');
+        this.toastr.success(msg.data || this.translate.instant('COURSE_GRADES.TOAST_PUBLISH_SUCCESS'));
         this.loadGrades();
       },
-      error: (err) => this.toastr.error(err.error?.message || 'Failed to publish')
+      error: (err) => this.toastr.error(err.error?.message || this.translate.instant('COURSE_GRADES.TOAST_PUBLISH_FAIL'))
     });
   }
 
   publishAllUnpublished() {
     Swal.fire({
-      title: 'Bulk Publish Grades',
-      text: 'Are you sure you want to publish all currently unpublished grades matching your current filters in this course?',
+      title: this.translate.instant('COURSE_GRADES.SWAL_BULK_PUBLISH_TITLE'),
+      text: this.translate.instant('COURSE_GRADES.SWAL_BULK_PUBLISH_DESC'),
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3b82f6',
       cancelButtonColor: '#ef4444',
-      confirmButtonText: 'Yes, Publish All'
+      confirmButtonText: this.translate.instant('COURSE_GRADES.SWAL_BTN_PUBLISH_ALL')
     }).then((result) => {
       if (result.isConfirmed) {
         this.gradeService.publishGrades(this.courseId, { publishAll: true }).subscribe({
           next: (res) => {
-            const msg = res.data || (res as any).message || 'Grades published successfully';
+            const msg = res.data || (res as any).message || this.translate.instant('COURSE_GRADES.TOAST_BULK_SUCCESS');
             if (msg.includes('No unpublished')) {
               this.toastr.info(msg);
             } else {
@@ -198,7 +211,7 @@ export class CourseGrades implements OnInit {
             }
             this.loadGrades();
           },
-          error: (err) => this.toastr.error(err.error?.message || 'Bulk publish failed')
+          error: (err) => this.toastr.error(err.error?.message || this.translate.instant('COURSE_GRADES.TOAST_BULK_FAIL'))
         });
       }
     });

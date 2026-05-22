@@ -3,13 +3,13 @@
   <header class="panel-header">
     <div class="header-content">
       <div class="title-group">
-        <h1>Re-attempt Requests</h1>
-        <p class="subtitle">Review and manage student requests for additional exam attempts.</p>
+        <h1>{{ 'REATTEMPT_REQUESTS.TITLE' | translate }}</h1>
+        <p class="subtitle">{{ 'REATTEMPT_REQUESTS.SUBTITLE' | translate }}</p>
       </div>
       <div class="actions">
         <button class="btn btn-outline" (click)="loadRequests()" [disabled]="isLoading()">
           <lucide-icon [img]="RefreshCw" size="18" [class.spinning]="isLoading()"></lucide-icon>
-          Refresh
+          {{ 'REATTEMPT_REQUESTS.BTN_REFRESH' | translate }}
         </button>
       </div>
     </div>
@@ -22,7 +22,7 @@
           class="tab-btn" 
           [class.active]="currentStatusFilter() === tab"
           (click)="filterByStatus(tab)">
-          {{ tab }}
+          {{ 'REATTEMPT_REQUESTS.TAB_' + tab.toUpperCase() | translate }}
         </button>
       </div>
 
@@ -31,7 +31,7 @@
         <lucide-icon [img]="Search" size="16" class="search-icon"></lucide-icon>
         <input 
           type="text" 
-          placeholder="Search student, exam, course..." 
+          [placeholder]="'REATTEMPT_REQUESTS.SEARCH_PLACEHOLDER' | translate" 
           [value]="searchTerm()"
           (input)="onSearch($event)">
       </div>
@@ -43,14 +43,14 @@
     <!-- Loading State -->
     <div class="loading-state" *ngIf="isLoading()">
       <div class="spinner"></div>
-      <p>Loading requests...</p>
+      <p>{{ 'REATTEMPT_REQUESTS.LOADING' | translate }}</p>
     </div>
 
     <!-- Empty State -->
     <div class="empty-state" *ngIf="!isLoading() && requests().length === 0">
       <lucide-icon [img]="AlertCircle" size="48" class="text-neutral-400 mb-4"></lucide-icon>
-      <h3>No Requests Found</h3>
-      <p>There are currently no re-attempt requests matching the selected filter.</p>
+      <h3>{{ 'REATTEMPT_REQUESTS.NO_REQUESTS' | translate }}</h3>
+      <p>{{ 'REATTEMPT_REQUESTS.NO_REQUESTS_DESC' | translate }}</p>
     </div>
 
     <!-- Data Table -->
@@ -58,12 +58,12 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>Student</th>
-            <th>Exam / Course</th>
-            <th>Attempts</th>
-            <th>Status</th>
-            <th>Requested At</th>
-            <th class="actions-col">Actions</th>
+            <th>{{ 'REATTEMPT_REQUESTS.COL_STUDENT' | translate }}</th>
+            <th>{{ 'REATTEMPT_REQUESTS.COL_EXAM_COURSE' | translate }}</th>
+            <th>{{ 'REATTEMPT_REQUESTS.COL_ATTEMPTS' | translate }}</th>
+            <th>{{ 'REATTEMPT_REQUESTS.COL_STATUS' | translate }}</th>
+            <th>{{ 'REATTEMPT_REQUESTS.COL_REQUESTED_AT' | translate }}</th>
+            <th class="actions-col">{{ 'REATTEMPT_REQUESTS.COL_ACTIONS' | translate }}</th>
           </tr>
         </thead>
         <tbody>
@@ -91,7 +91,7 @@
             
             <td>
               <div class="status-badge" [ngClass]="'status-' + req.status.toLowerCase()">
-                {{ req.status }}
+                {{ 'REATTEMPT_REQUESTS.TAB_' + req.status.toUpperCase() | translate }}
               </div>
             </td>
             
@@ -102,16 +102,16 @@
             <td class="actions-col">
               <div class="action-buttons">
                 <!-- View Justification (Always available) -->
-                <button class="btn-icon view" (click)="viewJustification(req)" title="View Justification">
+                <button class="btn-icon view" (click)="viewJustification(req)" [title]="'REATTEMPT_REQUESTS.BTN_VIEW_JUSTIFICATION' | translate">
                   <lucide-icon [img]="Eye" size="18"></lucide-icon>
                 </button>
                 
                 <!-- Approve / Reject (Only for Pending) -->
                 <ng-container *ngIf="req.status === 'Pending'">
-                  <button class="btn-icon approve" (click)="approveRequest(req.id, req.studentName)" title="Approve Request">
+                  <button class="btn-icon approve" (click)="approveRequest(req.id, req.studentName)" [title]="'REATTEMPT_REQUESTS.BTN_APPROVE' | translate">
                     <lucide-icon [img]="CheckCircle" size="18"></lucide-icon>
                   </button>
-                  <button class="btn-icon reject" (click)="rejectRequest(req.id, req.studentName)" title="Reject Request">
+                  <button class="btn-icon reject" (click)="rejectRequest(req.id, req.studentName)" [title]="'REATTEMPT_REQUESTS.BTN_REJECT' | translate">
                     <lucide-icon [img]="XCircle" size="18"></lucide-icon>
                   </button>
                 </ng-container>
@@ -125,14 +125,14 @@
 
     <!-- Pagination -->
     <div class="pagination-footer" *ngIf="!isLoading() && totalPages() > 1">
-      <span class="pagination-info">Showing page {{ currentPage() }} of {{ totalPages() }}</span>
+      <span class="pagination-info">{{ ('REATTEMPT_REQUESTS.PAGINATION_INFO' | translate).replace('{current}', currentPage().toString()).replace('{total}', totalPages().toString()) }}</span>
       <div class="pagination-controls">
         <button class="btn-page" [disabled]="currentPage() === 1" (click)="changePage(currentPage() - 1)">
           <lucide-icon [img]="ChevronLeft" size="16"></lucide-icon>
-          Prev
+          {{ 'REATTEMPT_REQUESTS.BTN_PREV' | translate }}
         </button>
         <button class="btn-page" [disabled]="currentPage() === totalPages()" (click)="changePage(currentPage() + 1)">
-          Next
+          {{ 'REATTEMPT_REQUESTS.BTN_NEXT' | translate }}
           <lucide-icon [img]="ChevronRight" size="16"></lucide-icon>
         </button>
       </div>

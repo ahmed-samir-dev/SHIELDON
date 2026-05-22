@@ -10,10 +10,10 @@ namespace SHIELDON.API.Controllers;
 /// <summary>
 /// Handles exam result retrieval, short-answer manual grading, and result publication.
 /// Routes:
-///   GET  /api/exam-attempts/{attemptId}/result  — Student/Tutor/Admin get result
-///   GET  /api/exams/{examId}/attempts            — Tutor/Admin get all attempts
-///   POST /api/exam-attempts/{attemptId}/grade-short-answers — Tutor/Admin grade short answers
-///   POST /api/exams/{examId}/release-results     — Tutor/Admin release results
+///   GET  /api/exam-attempts/{attemptId}/result  - Student/Tutor/Admin get result
+///   GET  /api/exams/{examId}/attempts            - Tutor/Admin get all attempts
+///   POST /api/exam-attempts/{attemptId}/grade-short-answers - Tutor/Admin grade short answers
+///   POST /api/exams/{examId}/release-results     - Tutor/Admin release results
 /// </summary>
 [ApiController]
 [Route("api")]

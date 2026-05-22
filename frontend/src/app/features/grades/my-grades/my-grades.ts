@@ -1,9 +1,12 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { LucideAngularModule, BarChart2, CheckCircle, AlertCircle, Award, ChevronDown, ChevronRight } from 'lucide-angular';
 import { GradeService, MyGradeItemResponse } from '../services/grade.service';
+import { LanguageService } from '../../../core/services/language.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
 interface CourseGradesGroup {
   courseId: string;
@@ -15,13 +18,16 @@ interface CourseGradesGroup {
 @Component({
   selector: 'app-my-grades',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, LucideAngularModule, TranslateModule],
   templateUrl: './my-grades.html',
   styleUrl: './my-grades.scss'
 })
-export class MyGrades implements OnInit {
+export class MyGrades implements OnInit, OnDestroy {
   private gradeService = inject(GradeService);
   private toastr = inject(ToastrService);
+  private languageService = inject(LanguageService);
+  public translate = inject(TranslateService);
+  private langSub!: Subscription;
 
   // Icons
   readonly BarChart2 = BarChart2;
@@ -51,6 +57,11 @@ export class MyGrades implements OnInit {
 
   ngOnInit() {
     this.loadMyGrades();
+    this.langSub = this.languageService.languageChange$.subscribe(() => this.loadMyGrades());
+  }
+
+  ngOnDestroy() {
+    this.langSub?.unsubscribe();
   }
 
   loadMyGrades() {
@@ -62,7 +73,7 @@ export class MyGrades implements OnInit {
         this.isLoading.set(false);
       },
       error: (err) => {
-        this.toastr.error(err.error?.message || 'Failed to load your grades');
+        this.toastr.error(err.error?.message || this.translate.instant('MY_GRADES.TOAST_LOAD_FAIL'));
         this.isLoading.set(false);
       }
     });
