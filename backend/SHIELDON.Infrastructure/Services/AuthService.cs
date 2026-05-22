@@ -97,10 +97,14 @@ public class AuthService : IAuthService
             case AccountStatus.Unverified:
                 throw new ForbiddenException("Please verify your email address before logging in.");
             case AccountStatus.Locked:
-                throw new ForbiddenException("Your account has been locked. Please reset your password.");
-            case AccountStatus.Disabled:
-                RecordLoginLog(user, false);
-                throw new ForbiddenException("Your account has been disabled. Please contact support.");
+                if (user.FailedLoginAttempts >= MaxFailedAttempts)
+                {
+                    throw new ForbiddenException("Your account has been locked due to too many failed login attempts. Please reset your password to unlock it.");
+                }
+                else
+                {
+                    throw new ForbiddenException("Your account has been locked by an administrator. Please contact support.");
+                }
         }
 
         // 4. Verify password
@@ -274,8 +278,8 @@ public class AuthService : IAuthService
         if (user.AccountStatus == AccountStatus.Active)
             throw new BusinessRuleException("This account is already verified.");
 
-        if (user.AccountStatus == AccountStatus.Disabled)
-            throw new ForbiddenException("Your account has been disabled. Please contact support.");
+        if (user.AccountStatus == AccountStatus.Locked)
+            throw new ForbiddenException("Your account has been locked. Please contact support.");
 
         // Rate limit: don't resend if a token was issued less than 2 minutes ago
         if (user.VerificationCodeExpiresAt.HasValue &&
@@ -303,6 +307,11 @@ public class AuthService : IAuthService
 
         // Silently succeed if email not found to prevent enumeration attacks
         if (user is null) return;
+
+        if (user.AccountStatus == AccountStatus.Locked && user.FailedLoginAttempts < MaxFailedAttempts)
+        {
+            throw new ForbiddenException("Your account has been locked by an administrator. Please contact support.");
+        }
 
         // Rate limit: prevent spamming reset emails
         if (user.ResetPasswordCodeExpiresAt.HasValue &&
@@ -348,8 +357,9 @@ public class AuthService : IAuthService
         user.ResetPasswordCode = null;
         user.ResetPasswordCodeExpiresAt = null;
 
-        // Unlock account and reset failed attempts if necessary
-        if (user.AccountStatus == AccountStatus.Locked)
+        // Unlock account ONLY if it was auto-locked by the system (FailedLoginAttempts >= 5)
+        // If an Admin locked it, FailedLoginAttempts will be 0, so it remains locked.
+        if (user.AccountStatus == AccountStatus.Locked && user.FailedLoginAttempts >= MaxFailedAttempts)
         {
             user.AccountStatus = AccountStatus.Active;
         }

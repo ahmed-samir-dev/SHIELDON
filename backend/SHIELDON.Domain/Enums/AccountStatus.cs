@@ -11,7 +11,5 @@ public enum AccountStatus
     /// <summary>Account was created but email has not been verified yet.</summary>
     Unverified,
     /// <summary>Account was locked after too many failed login attempts. Reset password to unlock.</summary>
-    Locked,
-    /// <summary>Account was disabled by an Admin. User cannot log in.</summary>
-    Disabled
+    Locked
 }

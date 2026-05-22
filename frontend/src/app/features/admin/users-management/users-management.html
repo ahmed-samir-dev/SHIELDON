@@ -1,0 +1,231 @@
+<!-- Users Management Section Header -->
+<div class="users-section-header">
+  <div class="users-section-title-row">
+    <h2 class="table-title">
+      <lucide-icon name="Users" [size]="20"></lucide-icon>
+      Users Management
+    </h2>
+    <span class="users-total-badge" [class.skeleton-text]="loading()">{{ totalCount() }} users</span>
+  </div>
+
+  <!-- Filters Bar -->
+  <div class="users-filters-bar">
+    <!-- Search -->
+    <div class="users-search-wrapper">
+      <lucide-icon name="Search" [size]="16" class="search-icon"></lucide-icon>
+      <input
+        id="user-search"
+        type="text"
+        class="search-input"
+        placeholder="Search by name, email, ID..."
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="onSearchChange()"
+      />
+    </div>
+
+    <!-- Role Filter -->
+    <select id="role-filter" class="filter-select" [(ngModel)]="roleFilter" (ngModelChange)="onFilterChange()">
+      <option value="">All Roles</option>
+      <option value="Tutor">Tutors Only</option>
+      <option value="Student">Students Only</option>
+    </select>
+
+    <!-- Status Filter -->
+    <select id="status-filter" class="filter-select" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
+      <option value="">All Statuses</option>
+      <option value="Active">Active</option>
+      <option value="Locked">Locked</option>
+      <option value="Unverified">Unverified</option>
+    </select>
+
+  </div>
+</div>
+
+<!-- Error State -->
+@if (usersError()) {
+  <div class="users-error-state">
+    <lucide-icon name="AlertTriangle" [size]="18"></lucide-icon>
+    <span>{{ usersError() }}</span>
+    <button class="retry-btn" (click)="loadUsers()">Retry</button>
+  </div>
+}
+
+<!-- Table -->
+<div class="table-responsive">
+  <table class="data-table users-table">
+    <thead>
+      <tr>
+        <th class="align-center" style="width: 50px;">No.</th>
+        <th>User</th>
+        <th>Role</th>
+        <th>ID</th>
+        <th>Status</th>
+        <th>Email Verified</th>
+        <th>Joined</th>
+        <th>Last Login</th>
+        <th class="align-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Loading Skeletons -->
+      @if (usersLoading()) {
+        @for (i of [1,2,3,4,5]; track i) {
+          <tr class="skeleton-row">
+            <td class="align-center"><div class="skeleton-line narrow" style="margin: 0 auto;"></div></td>
+            <td><div class="skeleton-user"><div class="skeleton-avatar"></div><div class="skeleton-lines"><div class="skeleton-line wide"></div><div class="skeleton-line narrow"></div></div></div></td>
+            <td><div class="skeleton-line narrow"></div></td>
+            <td><div class="skeleton-line narrow"></div></td>
+            <td><div class="skeleton-line medium"></div></td>
+            <td><div class="skeleton-line medium"></div></td>
+            <td><div class="skeleton-line medium"></div></td>
+            <td><div class="skeleton-line narrow" style="margin: 0 auto;"></div></td>
+            <td class="align-center"><div class="skeleton-line narrow" style="margin: 0 auto;"></div></td>
+          </tr>
+        }
+      }
+
+      <!-- Data Rows -->
+      @if (!usersLoading()) {
+        @for (user of usersList(); track trackByUserId($index, user)) {
+          <tr [class.row-locked]="user.accountStatus === 'Locked'" [class.row-disabled]="user.accountStatus === 'Disabled'">
+
+            <!-- No. -->
+            <td class="align-center text-muted">
+              {{ (usersCurrentPage() - 1) * usersPageSize + $index + 1 }}
+            </td>
+
+            <!-- User Info -->
+            <td>
+              <div class="user-cell">
+                <div class="user-avatar" [class.avatar-locked]="user.accountStatus === 'Locked'">
+                  @if (getAvatarUrl(user)) {
+                    <img [src]="getAvatarUrl(user)" [alt]="user.fullName" />
+                  } @else {
+                    <span class="initials">{{ getInitials(user) }}</span>
+                  }
+                </div>
+                <div class="user-info">
+                  <span class="user-name">{{ user.fullName }}</span>
+                  <span class="user-email">{{ user.email }}</span>
+                </div>
+              </div>
+            </td>
+
+            <!-- Role -->
+            <td>
+              <span class="role-badge" [class.role-tutor]="user.role === 'Tutor'" [class.role-student]="user.role === 'Student'">
+                {{ user.role }}
+              </span>
+            </td>
+
+            <!-- ID -->
+            <td>
+              <span class="role-id">{{ getRoleId(user) }}</span>
+            </td>
+
+            <!-- Status -->
+            <td>
+              <div class="status-badge" [class]="'status-' + user.accountStatus.toLowerCase()">
+                @switch (user.accountStatus) {
+                  @case ('Active') { <lucide-icon name="CheckCircle" [size]="13"></lucide-icon> }
+                  @case ('Locked') { <lucide-icon name="LockKeyhole" [size]="13"></lucide-icon> }
+                  @case ('Unverified') { <lucide-icon name="Clock" [size]="13"></lucide-icon> }
+                  @case ('Disabled') { <lucide-icon name="XCircle" [size]="13"></lucide-icon> }
+                }
+                {{ user.accountStatus }}
+              </div>
+            </td>
+
+            <!-- Email Verified -->
+            <td>
+              @if (user.emailVerifiedAt) {
+                <span class="date-text" title="{{ user.emailVerifiedAt | date:'medium' }}">
+                  <lucide-icon name="CheckCircle" [size]="13"></lucide-icon>
+                  {{ user.emailVerifiedAt | date:'d MMM y' }}
+                </span>
+              } @else {
+                <span class="date-text text-muted">
+                  <lucide-icon name="XCircle" [size]="13"></lucide-icon>
+                  Not verified
+                </span>
+              }
+            </td>
+
+            <!-- Joined -->
+            <td>
+              <span class="date-text">{{ user.createdAt | date:'d MMM y' }}</span>
+            </td>
+
+            <!-- Last Login -->
+            <td>
+              @if (user.lastLoginAt) {
+                <span class="date-text" title="{{ user.lastLoginAt | date:'medium' }}">{{ user.lastLoginAt | date:'d MMM y, HH:mm' }}</span>
+              } @else {
+                <span class="text-muted">Never</span>
+              }
+            </td>
+
+            <!-- Actions -->
+            <td class="align-center">
+              <div class="action-btns">
+                @if (user.accountStatus === 'Locked') {
+                  <button
+                    id="unlock-btn-{{ user.id }}"
+                    class="action-btn unlock-btn"
+                    (click)="unlockUser(user)"
+                    title="Unlock account"
+                  >
+                    <lucide-icon name="LockKeyholeOpen" [size]="14"></lucide-icon>
+                    Unlock
+                  </button>
+                } @else if (user.accountStatus === 'Active' || user.accountStatus === 'Unverified') {
+                  <button
+                    id="lock-btn-{{ user.id }}"
+                    class="action-btn lock-btn"
+                    (click)="lockUser(user)"
+                    title="Lock account"
+                  >
+                    <lucide-icon name="LockKeyhole" [size]="14"></lucide-icon>
+                    Lock
+                  </button>
+                }
+              </div>
+            </td>
+
+          </tr>
+        }
+
+        <!-- Empty State -->
+        @if (usersList().length === 0) {
+          <tr>
+            <td colspan="9" class="empty-row">
+              <lucide-icon name="Users" [size]="40"></lucide-icon>
+              <p>No users found matching your filters.</p>
+              <button class="retry-btn" (click)="searchQuery=''; roleFilter=''; statusFilter=''; onFilterChange()">Clear Filters</button>
+            </td>
+          </tr>
+        }
+      }
+    </tbody>
+  </table>
+</div>
+
+<!-- Pagination -->
+@if (!usersLoading() && usersTotalPages() > 1) {
+  <div class="pagination-bar">
+    <span class="pagination-info">
+      Showing {{ (usersCurrentPage() - 1) * usersPageSize + 1 }}–{{ getUsersPageEnd() }} of {{ usersTotalCount() }} users
+    </span>
+    <div class="pagination-controls">
+      <button class="page-btn" [disabled]="usersCurrentPage() === 1" (click)="changeUsersPage(usersCurrentPage() - 1)">
+        <lucide-icon name="ChevronLeft" [size]="16"></lucide-icon>
+      </button>
+      @for (page of getUsersPagesArray(); track page) {
+        <button class="page-btn" [class.active]="page === usersCurrentPage()" (click)="changeUsersPage(page)">{{ page }}</button>
+      }
+      <button class="page-btn" [disabled]="usersCurrentPage() === usersTotalPages()" (click)="changeUsersPage(usersCurrentPage() + 1)">
+        <lucide-icon name="ChevronRight" [size]="16"></lucide-icon>
+      </button>
+    </div>
+  </div>
+}

@@ -76,6 +76,7 @@ public static class DependencyInjection
         services.AddScoped<ICalendarService, CalendarService>();
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<ICurrentLanguageProvider, CurrentLanguageProvider>();
+        services.AddScoped<IUserService, UserService>();
         services.AddSingleton<PresenceTracker>();
 
         // ── HTTP Clients ───────────────────────────────────────────────────

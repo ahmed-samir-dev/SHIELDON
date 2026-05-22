@@ -191,18 +191,25 @@
         <!-- Assign Tutor -->
         <div class="form-group">
           <label>{{ 'COURSE_LIST.LABEL_TUTOR' | translate }}</label>
-          <div class="input-wrapper select-wrapper">
-            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            <select formControlName="assignedTutorId">
-              <option value="" disabled selected hidden>{{ 'COURSE_LIST.OPTION_UNASSIGNED' | translate }}</option>
-              @for (tutor of tutors(); track tutor.id) {
-                <option [value]="tutor.id">{{ tutor.fullName }} ({{ tutor.email }})</option>
-              }
-            </select>
-            <div class="chevron">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          @if (authService.isAdmin()) {
+            <div class="input-wrapper select-wrapper">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <select formControlName="assignedTutorId">
+                <option value="" disabled selected hidden>{{ 'COURSE_LIST.OPTION_UNASSIGNED' | translate }}</option>
+                @for (tutor of tutors(); track tutor.id) {
+                  <option [value]="tutor.id">{{ tutor.fullName }} ({{ tutor.email }})</option>
+                }
+              </select>
+              <div class="chevron">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </div>
             </div>
-          </div>
+          } @else {
+            <div class="input-wrapper" style="background: var(--theme-bg-secondary); cursor: not-allowed; opacity: 0.8;">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <input type="text" [value]="authService.currentUser()?.fullName" disabled class="form-control" style="background: transparent; border: none; padding-left: 36px; padding-top: 8px; padding-bottom: 8px;">
+            </div>
+          }
         </div>
 
         <!-- Course Fee -->

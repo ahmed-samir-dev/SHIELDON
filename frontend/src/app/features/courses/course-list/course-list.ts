@@ -62,7 +62,7 @@ export class CourseList implements OnInit, OnDestroy {
     }
 
     this.loadCourses();
-    if (this.authService.isAdmin() || this.authService.isTutor()) {
+    if (this.authService.isAdmin()) {
       this.loadTutors();
     }
     if (this.authService.isStudent()) {
@@ -160,19 +160,20 @@ export class CourseList implements OnInit, OnDestroy {
   }
 
   openEditModal(course: CourseResponse) {
+    this.modalMode.set('edit');
+    this.selectedCourseId.set(course.id);
     this.courseForm.patchValue({
       title: course.title,
       courseCode: course.courseCode,
       description: course.description || '',
       assignedTutorId: course.assignedTutorId || '',
-      courseFee: course.courseFee
+      courseFee: course.courseFee || 0
     });
     
     // Disable course code editing for existing courses
     this.courseForm.get('courseCode')?.disable();
 
-    // If Tutor, prevent changing the assigned tutor
-    if (this.authService.isTutor()) {
+    if (!this.authService.isAdmin()) {
       this.courseForm.get('assignedTutorId')?.disable();
     } else {
       this.courseForm.get('assignedTutorId')?.enable();
