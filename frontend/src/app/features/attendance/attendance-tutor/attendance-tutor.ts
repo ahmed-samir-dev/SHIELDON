@@ -104,10 +104,10 @@ export class AttendanceTutorComponent implements OnInit, OnDestroy {
         await this.attendanceService.startSignalRConnection();
         await this.attendanceService.joinCheckAsTutor(checkId);
 
-        // Render QR immediately via REST - no waiting for the 5s timer
+        // Render QR immediately via REST - no waiting for the 10s timer
         this.fetchAndRenderQr(checkId);
 
-        // Poll every 5s to stay in sync with the backend's secret rotation
+        // Poll every 10s to stay in sync with the backend's secret rotation
         this.startQrPolling(checkId);
 
         this.isLoading.set(false);

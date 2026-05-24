@@ -40,6 +40,16 @@ export class QuestionBankService {
     return this.http.delete<void>(`${this.apiUrl}/courses/${courseId}/question-bank/${questionId}`);
   }
 
+  uploadImage(courseId: string, questionId: string, file: File): Observable<ApiResponse<string>> {
+    const formData = new FormData();
+    formData.append('image', file);
+    return this.http.post<ApiResponse<string>>(`${this.apiUrl}/courses/${courseId}/question-bank/${questionId}/image`, formData);
+  }
+
+  deleteImage(courseId: string, questionId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/courses/${courseId}/question-bank/${questionId}/image`);
+  }
+
   reorderQuestions(courseId: string, request: ReorderQuestionsRequest): Observable<void> {
     return this.http.patch<void>(`${this.apiUrl}/courses/${courseId}/question-bank/reorder`, request);
   }

@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using SHIELDON.Application.Features.Exams.DTOs;
 using SHIELDON.Application.Interfaces;
@@ -19,10 +21,16 @@ namespace SHIELDON.Infrastructure.Services;
 public class QuestionService : IQuestionService
 {
     private readonly AppDbContext _db;
+    private readonly IWebHostEnvironment _env;
 
-    public QuestionService(AppDbContext db)
+    private static readonly HashSet<string> AllowedImageExtensions =
+        [".jpg", ".jpeg", ".png", ".gif", ".webp"];
+    private const long MaxImageSizeBytes = 5 * 1024 * 1024; // 5 MB
+
+    public QuestionService(AppDbContext db, IWebHostEnvironment env)
     {
         _db = db;
+        _env = env;
     }
 
     // ── Add Question ──────────────────────────────────────────────────────────
@@ -380,6 +388,72 @@ public class QuestionService : IQuestionService
         await _db.SaveChangesAsync(ct);
     }
 
+    // ── Image Upload ────────────────────────────────────────────────────────────
+
+    public async Task<string> UploadQuestionImageAsync(
+        Guid questionId,
+        Stream imageStream,
+        string fileName,
+        long fileSize,
+        Guid requestingUserId,
+        string requestingUserRole,
+        CancellationToken ct = default)
+    {
+        var question = await LoadQuestionAsync(questionId, ct);
+        AuthorizeForCourse(question.Course!, requestingUserId, requestingUserRole);
+
+        var ext = Path.GetExtension(fileName).ToLowerInvariant();
+        if (!AllowedImageExtensions.Contains(ext))
+            throw new BusinessRuleException($"Invalid file type '{ext}'. Allowed: {string.Join(", ", AllowedImageExtensions)}");
+
+        if (fileSize > MaxImageSizeBytes)
+            throw new BusinessRuleException("Image file is too large. Maximum allowed size is 5 MB.");
+
+        // Delete old image if exists
+        if (!string.IsNullOrEmpty(question.ImageUrl))
+            DeleteImageFile(question.ImageUrl);
+
+        var folder = Path.Combine(_env.WebRootPath, "Uploads", "questions");
+        Directory.CreateDirectory(folder);
+        var newFileName = $"{Guid.NewGuid()}{ext}";
+        var filePath = Path.Combine(folder, newFileName);
+
+        await using var fileStream = new FileStream(filePath, FileMode.Create);
+        await imageStream.CopyToAsync(fileStream, ct);
+
+        question.ImageUrl = $"/Uploads/questions/{newFileName}";
+        await _db.SaveChangesAsync(ct);
+        return question.ImageUrl;
+    }
+
+    public async Task DeleteQuestionImageAsync(
+        Guid questionId,
+        Guid requestingUserId,
+        string requestingUserRole,
+        CancellationToken ct = default)
+    {
+        var question = await LoadQuestionAsync(questionId, ct);
+        AuthorizeForCourse(question.Course!, requestingUserId, requestingUserRole);
+
+        if (string.IsNullOrEmpty(question.ImageUrl))
+            return; // No image to delete
+
+        DeleteImageFile(question.ImageUrl);
+        question.ImageUrl = null;
+        await _db.SaveChangesAsync(ct);
+    }
+
+    private void DeleteImageFile(string relativeUrl)
+    {
+        try
+        {
+            var filePath = Path.Combine(_env.WebRootPath, relativeUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+            if (File.Exists(filePath))
+                File.Delete(filePath);
+        }
+        catch { /* swallow - file cleanup is best-effort */ }
+    }
+
     // ── Private Helpers ───────────────────────────────────────────────────────
 
     private async Task<Course> LoadCourseAsync(Guid courseId, CancellationToken ct)
@@ -429,6 +503,7 @@ public class QuestionService : IQuestionService
             Id: q.Id,
             CourseId: q.CourseId,
             QuestionText: q.QuestionText,
+            ImageUrl: q.ImageUrl,
             Type: q.Type.ToString(),
             Points: q.Points,
             OrderIndex: q.OrderIndex,

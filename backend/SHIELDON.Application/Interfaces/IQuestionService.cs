@@ -96,4 +96,27 @@ public interface IQuestionService
         Guid requestingUserId,
         string requestingUserRole,
         CancellationToken ct = default);
+
+    // ── Image management ─────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Saves the uploaded image file for a question.
+    /// Max 5 MB. Allowed extensions: .jpg, .jpeg, .png, .gif, .webp
+    /// Returns the relative URL of the saved image.
+    /// </summary>
+    Task<string> UploadQuestionImageAsync(
+        Guid questionId,
+        Stream imageStream,
+        string fileName,
+        long fileSize,
+        Guid requestingUserId,
+        string requestingUserRole,
+        CancellationToken ct = default);
+
+    /// <summary>Removes the image from a question and deletes the file from storage.</summary>
+    Task DeleteQuestionImageAsync(
+        Guid questionId,
+        Guid requestingUserId,
+        string requestingUserRole,
+        CancellationToken ct = default);
 }

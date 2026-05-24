@@ -18,6 +18,7 @@ export enum QuestionType {
 export interface StudentQuestionDto {
   id: string;
   text: string;
+  imageUrl?: string;
   type: QuestionType;
   points: number;
   options: StudentOptionDto[];

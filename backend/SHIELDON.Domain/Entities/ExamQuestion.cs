@@ -18,6 +18,9 @@ public class ExamQuestion : ITranslatable
     [Translatable]
     public string QuestionText { get; set; } = string.Empty;
     
+    /// <summary>Optional image to display alongside the question for extra visual clarity.</summary>
+    public string? ImageUrl { get; set; }
+    
     public string? Translations { get; set; }
     public QuestionType Type { get; set; }
     public decimal Points { get; set; }

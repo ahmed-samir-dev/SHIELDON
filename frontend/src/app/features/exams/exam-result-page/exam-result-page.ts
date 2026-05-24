@@ -8,6 +8,7 @@ import confetti from 'canvas-confetti';
 import Swal from 'sweetalert2';
 import { ReattemptService, StudentReattemptStatusResponse } from '../services/reattempt.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-exam-result-page',
@@ -159,11 +160,8 @@ export class ExamResultPage implements OnInit, OnDestroy {
 
   goBack() {
     const courseId = this.result()?.courseId; 
-    if (courseId) {
-      this.router.navigate(['/courses', courseId], { queryParams: { tab: 'exams' } });
-    } else {
-      this.router.navigate(['/courses']);
-    }
+    this.result.set(null);
+    this.router.navigate(['/courses', courseId], { queryParams: { tab: 'exams' } });
   }
 
   viewAttempt(attemptId: string) {
@@ -185,26 +183,56 @@ export class ExamResultPage implements OnInit, OnDestroy {
 
     Swal.fire({
       title: this.translate.instant('EXAM_RESULT_PAGE.SWAL_REQ_TITLE'),
-      text: this.translate.instant('EXAM_RESULT_PAGE.SWAL_REQ_DESC'),
-      input: 'textarea',
-      inputPlaceholder: this.translate.instant('EXAM_RESULT_PAGE.SWAL_PLACEHOLDER'),
-      inputAttributes: {
-        'aria-label': 'Justification for re-attempt'
-      },
+      html: `
+        <div style="text-align: left; padding-top: 10px;">
+          <div style="display: flex; gap: 12px; margin-bottom: 20px; padding: 12px 16px; background: rgba(33, 93, 174, 0.08); border-radius: 10px; border-left: 4px solid #215DAE;">
+             <svg style="flex-shrink: 0; margin-top: 2px;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#215DAE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+             <p style="margin: 0; font-size: 14px; color: var(--theme-text-main); line-height: 1.5;">${this.translate.instant('EXAM_RESULT_PAGE.SWAL_REQ_DESC')}</p>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; color: var(--theme-text-secondary); margin-bottom: 8px;">Justification / Reason *</label>
+            <textarea id="swal-input-justification" placeholder="${this.translate.instant('EXAM_RESULT_PAGE.SWAL_PLACEHOLDER')}" style="width: 100%; height: 110px; padding: 14px; border: 1px solid var(--theme-border); border-radius: 10px; background: var(--theme-bg-secondary); color: var(--theme-text-main); font-family: inherit; font-size: 14px; resize: none; outline: none; transition: all 0.2s ease;" onfocus="this.style.borderColor='#215DAE'; this.style.boxShadow='0 0 0 4px rgba(33, 93, 174, 0.1)'" onblur="this.style.borderColor='var(--theme-border)'; this.style.boxShadow='none'"></textarea>
+          </div>
+          
+          <div>
+             <label style="display: block; font-size: 13px; font-weight: 600; color: var(--theme-text-secondary); margin-bottom: 8px;">Proof Attachment (Optional, max 10MB)</label>
+             <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed var(--theme-border); border-radius: 10px; padding: 20px; background: var(--theme-bg-secondary); transition: all 0.2s ease;" onmouseover="this.style.borderColor='#215DAE'; this.style.background='rgba(33, 93, 174, 0.02)'" onmouseout="this.style.borderColor='var(--theme-border)'; this.style.background='var(--theme-bg-secondary)'">
+               <svg style="margin-bottom: 10px; color: var(--theme-text-secondary);" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+               <input type="file" id="swal-input-file" style="width: 100%; font-size: 13px; color: var(--theme-text-secondary); cursor: pointer;" accept="image/*,.pdf,.doc,.docx" />
+             </div>
+          </div>
+        </div>
+      `,
       showCancelButton: true,
       confirmButtonText: this.translate.instant('EXAM_RESULT_PAGE.SWAL_BTN_SUBMIT'),
       cancelButtonText: this.translate.instant('EXAM_RESULT_PAGE.SWAL_BTN_CANCEL'),
       confirmButtonColor: '#215DAE',
       cancelButtonColor: '#87949C',
-      inputValidator: (value) => {
-        if (!value || value.trim().length < 20) {
-          return this.translate.instant('EXAM_RESULT_PAGE.SWAL_VAL_ERR');
+      preConfirm: () => {
+        const justification = (document.getElementById('swal-input-justification') as HTMLTextAreaElement).value;
+        const fileInput = document.getElementById('swal-input-file') as HTMLInputElement;
+        
+        if (!justification || justification.trim().length < 20) {
+          Swal.showValidationMessage(this.translate.instant('EXAM_RESULT_PAGE.SWAL_VAL_ERR'));
+          return false;
         }
-        return null;
+
+        let file: File | undefined;
+        if (fileInput.files && fileInput.files.length > 0) {
+          file = fileInput.files[0];
+          if (file.size > 10 * 1024 * 1024) { // 10MB
+            Swal.showValidationMessage('File size must not exceed 10MB.');
+            return false;
+          }
+        }
+
+        return { justification: justification.trim(), file };
       }
     }).then((swalResult) => {
       if (swalResult.isConfirmed && swalResult.value) {
-        this.reattemptService.submitRequest(examId, { justification: swalResult.value }).subscribe({
+        const { justification, file } = swalResult.value;
+        this.reattemptService.submitRequest(examId, { justification }, file).subscribe({
           next: (res) => {
             this.toastr.success(res.message);
             this.existingReattemptRequest.set(res.data);
@@ -215,5 +243,12 @@ export class ExamResultPage implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  getImageUrl(url: string | null | undefined): string {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    const apiUrl = environment.apiUrl.replace('/api', '');
+    return `${apiUrl}/${url}`;
   }
 }

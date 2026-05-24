@@ -8,6 +8,7 @@ export interface ExamQuestion {
   id: string;
   courseId: string;
   questionText: string;
+  imageUrl?: string;
   type: string; // "MCQ" | "TrueFalse" | "ShortAnswer"
   points: number;
   orderIndex: number;

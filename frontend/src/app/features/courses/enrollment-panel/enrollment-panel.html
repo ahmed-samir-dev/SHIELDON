@@ -98,18 +98,53 @@
           </tbody>
         </table>
       </div>
+
+      @if (pendingTotalCount() > pendingPageSize) {
+        <div class="pagination-footer">
+          <div class="pagination-info">
+            {{ 'ENROLLMENT_PANEL.PAGINATION_SHOWING' | translate }} {{ (pendingPage() - 1) * pendingPageSize + 1 }} - 
+            {{ mathMin(pendingPage() * pendingPageSize, pendingTotalCount()) }} 
+            {{ 'ENROLLMENT_PANEL.PAGINATION_OF' | translate }} {{ pendingTotalCount() }} {{ 'ENROLLMENT_PANEL.PAGINATION_STUDENTS' | translate }}
+          </div>
+          <div class="pagination-controls">
+            <button class="btn-page" [disabled]="pendingPage() === 1" (click)="onPendingPageChange(pendingPage() - 1)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            
+            <span class="page-current">{{ 'ENROLLMENT_PANEL.PAGINATION_PAGE' | translate }} {{ pendingPage() }} {{ 'ENROLLMENT_PANEL.PAGINATION_OF' | translate }} {{ pendingTotalPages }}</span>
+
+            <button class="btn-page" [disabled]="pendingPage() >= pendingTotalPages" (click)="onPendingPageChange(pendingPage() + 1)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </div>
+        </div>
+      }
     }
   }
 
   @if (activeTab() === 'approved') {
-    <div class="table-actions">
+    <div class="table-actions" style="display: flex; gap: 1rem; flex-wrap: wrap;">
       <div class="search-box">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
         <input type="text" 
               [placeholder]="'ENROLLMENT_PANEL.PLACEHOLDER_SEARCH' | translate" 
               [ngModel]="approvedSearch()"
-              (ngModelChange)="onApprovedSearch($event)"
+              (ngModelChange)="approvedSearch.set($event); onApprovedSearch()"
               class="search-input">
+      </div>
+
+      <div class="filter-box">
+        <input type="date" class="form-control"
+               [ngModel]="approvedDateFrom()"
+               (ngModelChange)="approvedDateFrom.set($event); onApprovedSearch()"
+               title="{{ 'ENROLLMENT_PANEL.FILTER_DATE_FROM' | translate }}">
+      </div>
+      
+      <div class="filter-box">
+        <input type="date" class="form-control"
+               [ngModel]="approvedDateTo()"
+               (ngModelChange)="approvedDateTo.set($event); onApprovedSearch()"
+               title="{{ 'ENROLLMENT_PANEL.FILTER_DATE_TO' | translate }}">
       </div>
     </div>
 
@@ -171,9 +206,9 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
               </button>
               
-              <span class="page-current">{{ 'ENROLLMENT_PANEL.PAGINATION_PAGE' | translate }} {{ approvedPage() }} {{ 'ENROLLMENT_PANEL.PAGINATION_OF' | translate }} {{ totalPages }}</span>
+              <span class="page-current">{{ 'ENROLLMENT_PANEL.PAGINATION_PAGE' | translate }} {{ approvedPage() }} {{ 'ENROLLMENT_PANEL.PAGINATION_OF' | translate }} {{ approvedTotalPages }}</span>
 
-              <button class="btn-page" [disabled]="approvedPage() >= totalPages" (click)="onApprovedPageChange(approvedPage() + 1)">
+              <button class="btn-page" [disabled]="approvedPage() >= approvedTotalPages" (click)="onApprovedPageChange(approvedPage() + 1)">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
               </button>
             </div>
@@ -185,10 +220,46 @@
 
   <!-- ── STUDENT VIEW ── -->
   @if (authService.isStudent()) {
-    @if (!isLoading() && studentRequests().length === 0) {
+    <div class="table-actions" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+      <div class="search-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" 
+              [placeholder]="'ENROLLMENT_PANEL.PLACEHOLDER_SEARCH_COURSE' | translate" 
+              [ngModel]="studentSearch()"
+              (ngModelChange)="studentSearch.set($event); onStudentSearch()"
+              class="search-input">
+      </div>
+      
+      <div class="filter-box">
+        <input type="date" class="form-control"
+               [ngModel]="studentDateFrom()"
+               (ngModelChange)="studentDateFrom.set($event); onStudentSearch()"
+               title="{{ 'ENROLLMENT_PANEL.FILTER_DATE_FROM' | translate }}">
+      </div>
+      
+      <div class="filter-box">
+        <input type="date" class="form-control"
+               [ngModel]="studentDateTo()"
+               (ngModelChange)="studentDateTo.set($event); onStudentSearch()"
+               title="{{ 'ENROLLMENT_PANEL.FILTER_DATE_TO' | translate }}">
+      </div>
+
+      <div class="filter-box">
+        <select class="form-select"
+                [ngModel]="studentStatus()"
+                (ngModelChange)="studentStatus.set($event); onStudentSearch()">
+          <option value="">{{ 'ENROLLMENT_PANEL.STATUS_ALL' | translate }}</option>
+          <option value="Pending">{{ 'ENROLLMENT_PANEL.STATUS_PENDING' | translate }}</option>
+          <option value="Approved">{{ 'ENROLLMENT_PANEL.STATUS_APPROVED' | translate }}</option>
+          <option value="Rejected">{{ 'ENROLLMENT_PANEL.STATUS_REJECTED' | translate }}</option>
+        </select>
+      </div>
+    </div>
+
+    @if (!isLoading() && studentEnrollments().length === 0) {
       <div class="empty-state">
         <div class="empty-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
         </div>
         <h3>{{ 'ENROLLMENT_PANEL.EMPTY_STUDENT_TITLE' | translate }}</h3>
         <p>{{ 'ENROLLMENT_PANEL.EMPTY_STUDENT_DESC' | translate }}</p>
@@ -205,7 +276,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (req of studentRequests(); track req.courseId) {
+            @for (req of studentEnrollments(); track req.courseId) {
               <tr>
                 <td><span class="primary-text fw-medium">{{ req.courseTitle }}</span></td>
                 <td>
@@ -231,6 +302,27 @@
           </tbody>
         </table>
       </div>
+      
+      @if (studentTotalCount() > studentPageSize) {
+        <div class="pagination-footer">
+          <div class="pagination-info">
+            {{ 'ENROLLMENT_PANEL.PAGINATION_SHOWING' | translate }} {{ (studentPage() - 1) * studentPageSize + 1 }} - 
+            {{ mathMin(studentPage() * studentPageSize, studentTotalCount()) }} 
+            {{ 'ENROLLMENT_PANEL.PAGINATION_OF' | translate }} {{ studentTotalCount() }} {{ 'ENROLLMENT_PANEL.PAGINATION_REQUESTS' | translate }}
+          </div>
+          <div class="pagination-controls">
+            <button class="btn-page" [disabled]="studentPage() === 1" (click)="onStudentPageChange(studentPage() - 1)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            
+            <span class="page-current">{{ 'ENROLLMENT_PANEL.PAGINATION_PAGE' | translate }} {{ studentPage() }} {{ 'ENROLLMENT_PANEL.PAGINATION_OF' | translate }} {{ studentTotalPages }}</span>
+
+            <button class="btn-page" [disabled]="studentPage() >= studentTotalPages" (click)="onStudentPageChange(studentPage() + 1)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </div>
+        </div>
+      }
     }
   }
 </div>

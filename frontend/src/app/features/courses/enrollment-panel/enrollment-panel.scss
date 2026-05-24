@@ -364,13 +364,33 @@
       }
     }
   }
+
+  .filter-box {
+    .form-control, .form-select {
+      padding: $spacing-2 $spacing-3;
+      border: 1px solid var(--theme-border-strong);
+      background: var(--theme-bg-secondary);
+      color: var(--theme-text-main);
+      border-radius: $border-radius-md;
+      font-size: $font-size-sm;
+      min-width: 150px;
+      height: 38px;
+      
+      &:focus {
+        outline: none;
+        border-color: $color-primary-base;
+      }
+    }
+  }
 }
 
 .pagination-footer {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  padding: $spacing-4;
+  gap: $spacing-4;
+  padding: $spacing-6;
   border-top: 1px solid var(--theme-border);
   background: var(--theme-bg-secondary);
 

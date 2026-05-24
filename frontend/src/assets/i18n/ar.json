@@ -521,7 +521,13 @@
     "STATUS_REJECTED": "رفض",
     "TOAST_REVIEW_ERR": "فشل في معالجة المراجعة.",
     "TOAST_BULK_SUCCESS": "تمت معالجة {count} التحاق(ات).",
-    "TOAST_BULK_ERR": "فشل في معالجة المراجعة الجماعية."
+    "TOAST_BULK_ERR": "فشل في معالجة المراجعة الجماعية.",
+    "PLACEHOLDER_SEARCH_COURSE": "البحث في الدورات...",
+    "FILTER_DATE_FROM": "تاريخ الطلب من",
+    "FILTER_DATE_TO": "تاريخ الطلب إلى",
+    "STATUS_ALL": "جميع الحالات",
+    "STATUS_PENDING": "قيد الانتظار",
+    "PAGINATION_REQUESTS": "طلبات"
   },
   "COURSE_EXAMS": {
     "TITLE": "الامتحانات",
@@ -605,7 +611,16 @@
     "SWAL_BTN_DEL": "نعم، احذفه",
     "TOAST_DEL_SUCCESS": "تم حذف الامتحان بنجاح",
     "TOAST_DEL_ERR": "فشل في حذف الامتحان",
-    "TOAST_LOAD_ATTEMPTS_ERR": "فشل في تحميل المحاولات"
+    "TOAST_LOAD_ATTEMPTS_ERR": "فشل في تحميل المحاولات",
+    "SWAL_REOPEN_TITLE": "طلب إعادة فتح الامتحان",
+    "SWAL_REOPEN_TEXT": "يرجى تقديم سبب تفويتك للموعد النهائي.",
+    "SWAL_REOPEN_PLACEHOLDER": "اكتب سببك هنا... (على الأقل 20 حرفاً)",
+    "SWAL_REOPEN_PROOF": "إرفاق إثبات (اختياري، بحد أقصى 10 ميجابايت)",
+    "SWAL_BTN_SUBMIT_REQ": "إرسال الطلب",
+    "SWAL_REOPEN_ERR_MIN": "يرجى تقديم سبب مفصل (على الأقل 20 حرفاً).",
+    "SWAL_REOPEN_ERR_SIZE": "يجب ألا يتجاوز حجم الملف 10 ميجابايت.",
+    "STATUS_REOPEN": "حالة إعادة الفتح",
+    "BTN_REQ_REOPEN": "طلب إعادة الفتح"
   },
   "COURSE_QUESTION_BANK": {
     "TITLE": "بنك أسئلة الدورة",
@@ -637,6 +652,7 @@
     "LOCKED_DESC": "لا يمكن تغيير نوع السؤال بعد إنشائه.",
     "LABEL_POINTS": "النقاط",
     "LABEL_QUESTION_TEXT": "نص السؤال",
+    "LABEL_IMAGE": "مرفق الصورة",
     "PLACEHOLDER_QUESTION_TEXT": "أدخل نص السؤال هنا...",
     "LABEL_ANSWER_OPTIONS": "خيارات الإجابة",
     "BTN_ADD_OPTION": "إضافة خيار",
@@ -801,7 +817,14 @@
     "SWAL_REJECT_DESC": "رفض طلب {student}. يمكنك تقديم سبب اختياري أدناه.",
     "SWAL_REJECT_PLACEHOLDER": "سبب الرفض (اختياري)...",
     "SWAL_BTN_REJECT": "رفض",
-    "TOAST_REJECT_ERR": "فشل في رفض الطلب"
+    "TOAST_REJECT_ERR": "فشل في رفض الطلب",
+    "BADGE_REOPEN": "إعادة الفتح",
+    "BTN_DOWNLOAD_PROOF": "تنزيل الإثبات",
+    "SWAL_APPROVE_REOPEN_TITLE": "الموافقة على طلب إعادة الفتح",
+    "SWAL_APPROVE_REOPEN_TEXT": "حدد فترة التمديد للطالب {student}:",
+    "SWAL_APPROVE_REOPEN_PLACEHOLDER": "اختر وقت التمديد",
+    "SWAL_APPROVE_REOPEN_ERR": "عليك اختيار فترة تمديد",
+    "TOAST_DOWNLOADING": "جاري تنزيل الإثبات..."
   },
   "TUTOR_RESULTS_PANEL": {
     "TITLE": "إدارة النتائج",
@@ -854,7 +877,9 @@
     "TOAST_RELEASE_SEL_ERR": "فشل في نشر النتائج المحددة",
     "TOAST_ERR_LOAD_DETAILS": "فشل في تحميل تفاصيل المحاولة",
     "TOAST_GRADE_SUCCESS": "تم حفظ الدرجات بنجاح",
-    "TOAST_GRADE_ERR": "فشل في حفظ الدرجات"
+    "TOAST_GRADE_ERR": "فشل في حفظ الدرجات",
+    "BTN_DOWNLOAD_CSV": "تنزيل CSV",
+    "TOAST_CSV_ERR": "فشل تنزيل ملف CSV"
   },
   "ANTI_CHEAT_OVERLAY": {
     "FINAL_WARNING": "تحذير أخير",
@@ -1095,7 +1120,7 @@
     "LIVE_INDICATOR": "مباشر",
     "QR_CONNECTING": "جاري إنشاء اتصال آمن...",
     "QR_GENERATING": "جاري إنشاء رمز QR",
-    "QR_HINT": "يتم التحديث كل 7 ثوانٍ للأمان.",
+    "QR_HINT": "يتم التحديث كل 15 ثانية للأمان.",
     "STAT_PRESENT": "حاضر",
     "ENROLLED_STUDENTS": "الطلاب المسجلين",
     "STUDENTS_HELPER": "انقر على الطالب لتبديل حالة حضوره يدوياً.",
