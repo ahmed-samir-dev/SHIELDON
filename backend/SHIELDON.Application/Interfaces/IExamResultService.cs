@@ -59,4 +59,13 @@ public interface IExamResultService
         Guid requestingUserId,
         string requestingUserRole,
         CancellationToken ct = default);
+
+    /// <summary>
+    /// Exports all attempts for a given exam to a CSV byte array.
+    /// </summary>
+    Task<byte[]> ExportResultsToCsvAsync(
+        Guid examId,
+        Guid requestingUserId,
+        string requestingUserRole,
+        CancellationToken ct = default);
 }

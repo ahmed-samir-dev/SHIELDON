@@ -8,7 +8,7 @@ using System.Security.Claims;
 namespace SHIELDON.API.Controllers;
 
 /// <summary>
-/// Manages the re-attempt request lifecycle.
+/// Manages the request lifecycle for exam re-attempts and exam re-opens.
 ///
 /// Access control:
 ///   - Admin: full access - can list all requests and review any
@@ -30,32 +30,78 @@ public class ReattemptController : ControllerBase
     private Guid GetUserId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
     private string GetUserRole() => User.FindFirstValue(ClaimTypes.Role)!;
 
-    // ── POST /api/reattempt-requests ──────────────────────────────────────
+    // ── POST /api/reattempt-requests ──────────────────────────────────────────
 
     /// <summary>
-    /// Student submits a re-attempt request for an exam they have exhausted all attempts on.
+    /// Student submits a re-attempt or re-open request for an exam.
+    /// Accepts multipart/form-data (Justification, IsReopenRequest, optional AttachmentFile).
+    /// Max attachment size: 10 MB. Allowed: .jpg, .jpeg, .png, .pdf, .docx
     /// </summary>
     [HttpPost]
     [Authorize(Roles = "Student")]
+    [Consumes("multipart/form-data")]
     [ProducesResponseType(typeof(ApiResponse<StudentReattemptStatusResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> SubmitRequest(
         [FromQuery] Guid examId,
-        [FromBody] SubmitReattemptRequest request,
+        [FromForm] string justification,
+        [FromForm] bool isReopenRequest = false,
+        IFormFile? attachmentFile = null,
         CancellationToken ct = default)
     {
-        var result = await _reattemptService.SubmitRequestAsync(examId, GetUserId(), request, ct);
-        return Created(
-            $"/api/reattempt-requests/{result.Id}",
-            ApiResponse<StudentReattemptStatusResponse>.Ok(result, "Re-attempt request submitted successfully. An admin will review it shortly."));
+        var request = new SubmitReattemptRequest(justification, isReopenRequest);
+
+        Stream? stream = null;
+        string? fileName = null;
+        long fileSize = 0;
+
+        if (attachmentFile is not null && attachmentFile.Length > 0)
+        {
+            stream = attachmentFile.OpenReadStream();
+            fileName = attachmentFile.FileName;
+            fileSize = attachmentFile.Length;
+        }
+
+        await using (stream)
+        {
+            var result = await _reattemptService.SubmitRequestAsync(
+                examId, GetUserId(), request, stream, fileName, fileSize, ct);
+
+            var submittedMessage = isReopenRequest
+                ? "Re-open request submitted successfully. A tutor will review it shortly."
+                : "Re-attempt request submitted successfully. A tutor will review it shortly.";
+
+            return Created(
+                $"/api/reattempt-requests/{result.Id}",
+                ApiResponse<StudentReattemptStatusResponse>.Ok(result, submittedMessage));
+        }
     }
 
-    // ── GET /api/reattempt-requests ───────────────────────────────────────
+    // ── GET /api/reattempt-requests/can-reopen ────────────────────────────────
 
     /// <summary>
-    /// Returns a paginated list of re-attempt requests.
-    /// Admin: all requests. Tutor: their courses. Student: their own only.
+    /// Student checks whether they are eligible to submit a Re-open Request for a specific exam.
+    /// Returns true if: exam is expired, student has 0 attempts, and no pending request exists.
+    /// </summary>
+    [HttpGet("can-reopen")]
+    [Authorize(Roles = "Student")]
+    [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> CanReopenRequest(
+        [FromQuery] Guid examId,
+        CancellationToken ct = default)
+    {
+        var result = await _reattemptService.CanStudentSubmitReopenRequestAsync(examId, GetUserId(), ct);
+        return Ok(ApiResponse<bool>.Ok(result, result
+            ? "You are eligible to request a re-open for this exam."
+            : "You are not eligible to request a re-open for this exam."));
+    }
+
+    // ── GET /api/reattempt-requests ───────────────────────────────────────────
+
+    /// <summary>
+    /// Returns a paginated list of requests.
+    /// Admin: all. Tutor: their courses. Student: their own only.
     /// </summary>
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<PagedResponse<ReattemptRequestResponse>>), StatusCodes.Status200OK)]
@@ -70,13 +116,13 @@ public class ReattemptController : ControllerBase
     {
         var query = new ReattemptQueryParams(page, pageSize, status, examId, courseId, searchTerm);
         var result = await _reattemptService.GetRequestsAsync(query, GetUserId(), GetUserRole(), ct);
-        return Ok(ApiResponse<PagedResponse<ReattemptRequestResponse>>.Ok(result, "Re-attempt requests retrieved successfully."));
+        return Ok(ApiResponse<PagedResponse<ReattemptRequestResponse>>.Ok(result, "Requests retrieved successfully."));
     }
 
-    // ── GET /api/reattempt-requests/mine ─────────────────────────────────
+    // ── GET /api/reattempt-requests/mine ─────────────────────────────────────
 
     /// <summary>
-    /// Student: Returns all re-attempt requests submitted by the currently authenticated student.
+    /// Student: Returns all requests submitted by the currently authenticated student.
     /// </summary>
     [HttpGet("mine")]
     [Authorize(Roles = "Student")]
@@ -84,13 +130,14 @@ public class ReattemptController : ControllerBase
     public async Task<IActionResult> GetMyRequests(CancellationToken ct = default)
     {
         var result = await _reattemptService.GetMyRequestsAsync(GetUserId(), ct);
-        return Ok(ApiResponse<IReadOnlyList<StudentReattemptStatusResponse>>.Ok(result, "Your re-attempt requests retrieved successfully."));
+        return Ok(ApiResponse<IReadOnlyList<StudentReattemptStatusResponse>>.Ok(result, "Your requests retrieved successfully."));
     }
 
-    // ── PATCH /api/reattempt-requests/{requestId}/review ─────────────────
+    // ── PATCH /api/reattempt-requests/{requestId}/review ─────────────────────
 
     /// <summary>
-    /// Admin/Tutor reviews a pending re-attempt request (approve or reject).
+    /// Admin/Tutor reviews a pending request (approve or reject).
+    /// If approving a Re-open Request, set ExtensionHours to 24 or 48.
     /// </summary>
     [HttpPatch("{requestId:guid}/review")]
     [Authorize(Roles = "Admin,Tutor")]
@@ -104,8 +151,8 @@ public class ReattemptController : ControllerBase
     {
         var result = await _reattemptService.ReviewRequestAsync(requestId, GetUserId(), GetUserRole(), request, ct);
         var message = result.Status == "Approved"
-            ? "Re-attempt request approved. The student has been notified."
-            : "Re-attempt request rejected. The student has been notified.";
+            ? "Request approved. The student has been notified."
+            : "Request rejected. The student has been notified.";
         return Ok(ApiResponse<ReattemptRequestResponse>.Ok(result, message));
     }
 }

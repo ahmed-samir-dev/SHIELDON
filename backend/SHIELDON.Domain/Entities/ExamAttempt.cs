@@ -12,6 +12,13 @@ public class ExamAttempt
     public decimal? Score { get; set; }
     public AttemptStatus Status { get; set; } = AttemptStatus.InProgress;
 
+    /// <summary>
+    /// System-generated notes for this attempt (e.g., fallback randomization warning
+    /// when the question bank didn't have enough unseen questions for a retake).
+    /// Visible to Tutors/Admins, never to students.
+    /// </summary>
+    public string? Notes { get; set; }
+
     public Exam? Exam { get; set; }
     public User? Student { get; set; }
     public ExamToken? Token { get; set; }

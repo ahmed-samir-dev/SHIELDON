@@ -78,7 +78,10 @@
             
             <td>
               <div class="exam-info">
-                <span class="exam-title">{{ req.examTitle }}</span>
+                <span class="exam-title" style="display: flex; align-items: center; gap: 8px;">
+                  {{ req.examTitle }}
+                  <span class="badge" style="background: var(--theme-bg-secondary); color: var(--theme-text-muted); padding: 2px 8px; border-radius: 12px; font-size: 11px;" *ngIf="req.isReopenRequest">{{ 'REATTEMPT_REQUESTS.BADGE_REOPEN' | translate }}</span>
+                </span>
                 <span class="course-title">{{ req.courseTitle }}</span>
               </div>
             </td>
@@ -105,10 +108,14 @@
                 <button class="btn-icon view" (click)="viewJustification(req)" [title]="'REATTEMPT_REQUESTS.BTN_VIEW_JUSTIFICATION' | translate">
                   <lucide-icon [img]="Eye" size="18"></lucide-icon>
                 </button>
+
+                <button *ngIf="req.attachmentUrl" (click)="downloadFile(req.attachmentUrl, req.studentName)" class="btn-icon view" style="color: var(--theme-primary); padding: 4px;" [title]="'REATTEMPT_REQUESTS.BTN_DOWNLOAD_PROOF' | translate">
+                  <lucide-icon [img]="Download" size="18"></lucide-icon>
+                </button>
                 
                 <!-- Approve / Reject (Only for Pending) -->
                 <ng-container *ngIf="req.status === 'Pending'">
-                  <button class="btn-icon approve" (click)="approveRequest(req.id, req.studentName)" [title]="'REATTEMPT_REQUESTS.BTN_APPROVE' | translate">
+                  <button class="btn-icon approve" (click)="approveRequest(req)" [title]="'REATTEMPT_REQUESTS.BTN_APPROVE' | translate">
                     <lucide-icon [img]="CheckCircle" size="18"></lucide-icon>
                   </button>
                   <button class="btn-icon reject" (click)="rejectRequest(req.id, req.studentName)" [title]="'REATTEMPT_REQUESTS.BTN_REJECT' | translate">

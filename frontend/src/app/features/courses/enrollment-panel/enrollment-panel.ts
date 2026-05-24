@@ -23,17 +23,34 @@ export class EnrollmentPanel implements OnInit {
 
   pendingRequests = signal<EnrollmentResponse[]>([]);
   approvedStudents = signal<EnrollmentResponse[]>([]);
-  studentRequests = signal<StudentEnrollmentStatusResponse[]>([]);
+  studentEnrollments = signal<StudentEnrollmentStatusResponse[]>([]);
   isLoading = signal(true);
   selectedIds = signal<Set<string>>(new Set<string>());
   activeTab = signal<'pending' | 'approved'>('pending');
+
+  // Pagination & Filtering for Pending tab
+  pendingPage = signal(1);
+  pendingPageSize = 10;
+  pendingTotalCount = signal(0);
+  pendingSearch = signal('');
 
   // Pagination & Filtering for Approved tab
   approvedPage = signal(1);
   approvedPageSize = 10;
   approvedTotalCount = signal(0);
   approvedSearch = signal('');
+  approvedDateFrom = signal('');
+  approvedDateTo = signal('');
   isApprovedLoading = signal(false);
+
+  // Pagination & Filtering for Student tab
+  studentPage = signal(1);
+  studentPageSize = 10;
+  studentTotalCount = signal(0);
+  studentSearch = signal('');
+  studentStatus = signal('');
+  studentDateFrom = signal('');
+  studentDateTo = signal('');
 
   ngOnInit() {
     this.loadData();
@@ -50,9 +67,17 @@ export class EnrollmentPanel implements OnInit {
 
   loadStudentData() {
     this.isLoading.set(true);
-    this.courseService.getMyEnrollments().subscribe({
+    this.courseService.getMyEnrollments({
+      page: this.studentPage(),
+      pageSize: this.studentPageSize,
+      searchTerm: this.studentSearch() || null,
+      requestedFrom: this.studentDateFrom() || null,
+      requestedTo: this.studentDateTo() || null,
+      status: this.studentStatus() || null
+    }).subscribe({
       next: (res) => {
-        this.studentRequests.set(res.data);
+        this.studentEnrollments.set(res.data.items);
+        this.studentTotalCount.set(res.data.totalCount);
         this.isLoading.set(false);
       },
       error: () => this.handleError()
@@ -61,9 +86,14 @@ export class EnrollmentPanel implements OnInit {
 
   loadPendingData() {
     this.isLoading.set(true);
-    this.courseService.getPendingEnrollments().subscribe({
+    this.courseService.getPendingEnrollments({
+      page: this.pendingPage(),
+      pageSize: this.pendingPageSize,
+      search: this.pendingSearch() || null
+    }).subscribe({
       next: (res) => {
-        this.pendingRequests.set(res.data);
+        this.pendingRequests.set(res.data.items);
+        this.pendingTotalCount.set(res.data.totalCount);
         this.selectedIds.set(new Set<string>());
         this.isLoading.set(false);
       },
@@ -76,7 +106,9 @@ export class EnrollmentPanel implements OnInit {
     this.courseService.getApprovedEnrollments({
       page: this.approvedPage(),
       pageSize: this.approvedPageSize,
-      search: this.approvedSearch()
+      search: this.approvedSearch() || null,
+      approvedFrom: this.approvedDateFrom() || null,
+      approvedTo: this.approvedDateTo() || null
     }).subscribe({
       next: (res) => {
         this.approvedStudents.set(res.data.items);
@@ -90,8 +122,7 @@ export class EnrollmentPanel implements OnInit {
     });
   }
 
-  onApprovedSearch(term: string) {
-    this.approvedSearch.set(term);
+  onApprovedSearch() {
     this.approvedPage.set(1);
     this.loadApprovedData();
   }
@@ -101,8 +132,31 @@ export class EnrollmentPanel implements OnInit {
     this.loadApprovedData();
   }
 
-  get totalPages(): number {
+  get approvedTotalPages(): number {
     return Math.ceil(this.approvedTotalCount() / this.approvedPageSize);
+  }
+
+  onPendingPageChange(page: number) {
+    this.pendingPage.set(page);
+    this.loadPendingData();
+  }
+
+  get pendingTotalPages(): number {
+    return Math.ceil(this.pendingTotalCount() / this.pendingPageSize);
+  }
+
+  onStudentSearch() {
+    this.studentPage.set(1);
+    this.loadStudentData();
+  }
+
+  onStudentPageChange(page: number) {
+    this.studentPage.set(page);
+    this.loadStudentData();
+  }
+
+  get studentTotalPages(): number {
+    return Math.ceil(this.studentTotalCount() / this.studentPageSize);
   }
 
   mathMin(a: number, b: number): number {

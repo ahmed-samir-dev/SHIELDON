@@ -521,7 +521,13 @@
     "STATUS_REJECTED": "rejected",
     "TOAST_REVIEW_ERR": "Failed to process review.",
     "TOAST_BULK_SUCCESS": "{count} enrollment(s) processed.",
-    "TOAST_BULK_ERR": "Failed to process bulk review."
+    "TOAST_BULK_ERR": "Failed to process bulk review.",
+    "PLACEHOLDER_SEARCH_COURSE": "Search course...",
+    "FILTER_DATE_FROM": "Requested From",
+    "FILTER_DATE_TO": "Requested To",
+    "STATUS_ALL": "All Statuses",
+    "STATUS_PENDING": "Pending",
+    "PAGINATION_REQUESTS": "requests"
   },
   "COURSE_EXAMS": {
     "TITLE": "Exams",
@@ -605,7 +611,16 @@
     "SWAL_BTN_DEL": "Yes, delete it",
     "TOAST_DEL_SUCCESS": "Exam deleted successfully",
     "TOAST_DEL_ERR": "Failed to delete exam",
-    "TOAST_LOAD_ATTEMPTS_ERR": "Failed to load attempts"
+    "TOAST_LOAD_ATTEMPTS_ERR": "Failed to load attempts",
+    "SWAL_REOPEN_TITLE": "Request Exam Re-open",
+    "SWAL_REOPEN_TEXT": "Please provide a reason why you missed the deadline.",
+    "SWAL_REOPEN_PLACEHOLDER": "Enter your reason here... (min 20 chars)",
+    "SWAL_REOPEN_PROOF": "Proof Attachment (Optional, max 10MB)",
+    "SWAL_BTN_SUBMIT_REQ": "Submit Request",
+    "SWAL_REOPEN_ERR_MIN": "Please provide a detailed reason (at least 20 characters).",
+    "SWAL_REOPEN_ERR_SIZE": "File size must not exceed 10MB.",
+    "STATUS_REOPEN": "Re-open Status",
+    "BTN_REQ_REOPEN": "Request Re-open"
   },
   "COURSE_QUESTION_BANK": {
     "TITLE": "Course Question Bank",
@@ -637,6 +652,7 @@
     "LOCKED_DESC": "Question type cannot be changed after creation.",
     "LABEL_POINTS": "Points",
     "LABEL_QUESTION_TEXT": "Question Text",
+    "LABEL_IMAGE": "Image Attachment",
     "PLACEHOLDER_QUESTION_TEXT": "Enter the question text here...",
     "LABEL_ANSWER_OPTIONS": "Answer Options",
     "BTN_ADD_OPTION": "Add Option",
@@ -801,7 +817,14 @@
     "SWAL_REJECT_DESC": "Rejecting {student}'s request. You may provide an optional reason below.",
     "SWAL_REJECT_PLACEHOLDER": "Reason for rejection (optional)...",
     "SWAL_BTN_REJECT": "Reject",
-    "TOAST_REJECT_ERR": "Failed to reject request"
+    "TOAST_REJECT_ERR": "Failed to reject request",
+    "BADGE_REOPEN": "Re-open",
+    "BTN_DOWNLOAD_PROOF": "Download Proof",
+    "SWAL_APPROVE_REOPEN_TITLE": "Approve Re-open Request",
+    "SWAL_APPROVE_REOPEN_TEXT": "Select extension period for {student}:",
+    "SWAL_APPROVE_REOPEN_PLACEHOLDER": "Select extension time",
+    "SWAL_APPROVE_REOPEN_ERR": "You need to select an extension period",
+    "TOAST_DOWNLOADING": "Downloading proof..."
   },
   "TUTOR_RESULTS_PANEL": {
     "TITLE": "Results Management",
@@ -848,13 +871,15 @@
     "TOAST_RELEASE_ONE_SUCCESS": "Student result released successfully",
     "TOAST_RELEASE_ONE_ERR": "Failed to release result",
     "SWAL_RELEASE_SEL_TITLE": "Release {count} Result(s)?",
-    "SWAL_RELEASE_SEL_DESC": "This will publish grades for the selected students and notify them.",
+    "SWAL_RELEASE_SEL_DESC": "This will publish the grades for the selected students and notify them.",
     "SWAL_BTN_RELEASE_SEL": "Yes, release them",
     "TOAST_RELEASE_SEL_SUCCESS": "Selected results released successfully",
     "TOAST_RELEASE_SEL_ERR": "Failed to release selected results",
     "TOAST_ERR_LOAD_DETAILS": "Failed to load attempt details",
     "TOAST_GRADE_SUCCESS": "Grades saved successfully",
-    "TOAST_GRADE_ERR": "Failed to save grades"
+    "TOAST_GRADE_ERR": "Failed to save grades",
+    "BTN_DOWNLOAD_CSV": "Download CSV",
+    "TOAST_CSV_ERR": "Failed to download CSV"
   },
   "ANTI_CHEAT_OVERLAY": {
     "FINAL_WARNING": "FINAL WARNING",
@@ -1095,7 +1120,7 @@
     "LIVE_INDICATOR": "Live",
     "QR_CONNECTING": "Establishing secure connection...",
     "QR_GENERATING": "Generating QR code",
-    "QR_HINT": "Refreshing every 7 seconds for security.",
+    "QR_HINT": "Refreshes every 15 seconds for security.",
     "STAT_PRESENT": "Present",
     "ENROLLED_STUDENTS": "Enrolled Students",
     "STUDENTS_HELPER": "Click a student to manually toggle their presence.",

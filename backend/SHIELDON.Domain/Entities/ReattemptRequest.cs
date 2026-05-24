@@ -9,6 +9,15 @@ public class ReattemptRequest
     public Guid ExamId { get; set; }
     public string Justification { get; set; } = string.Empty;
     
+    /// <summary>Optional file proof uploaded by the student (screenshot, document, etc.).</summary>
+    public string? AttachmentUrl { get; set; }
+    
+    /// <summary>
+    /// True = student never entered the exam and is requesting re-open access.
+    /// False = student had an attempt (failed/expired) and is requesting a re-attempt.
+    /// </summary>
+    public bool IsReopenRequest { get; set; } = false;
+    
     /// <summary>Status of the request (e.g. Pending, Approved, Rejected).</summary>
     public string Status { get; set; } = "Pending";
 

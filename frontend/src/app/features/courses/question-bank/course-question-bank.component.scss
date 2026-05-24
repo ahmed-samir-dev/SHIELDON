@@ -1040,3 +1040,116 @@
     }
   }
 }
+
+/* ── Image Upload Dropzone ──────────────────────────────────────────────── */
+.image-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--theme-border-strong);
+  border-radius: $border-radius-lg;
+  padding: $spacing-6;
+  background-color: var(--theme-bg-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: $spacing-2;
+
+  &:hover, &.drag-over {
+    background-color: var(--theme-bg-hover);
+    border-color: $color-primary-base;
+    .drop-icon {
+      color: $color-primary-base;
+      transform: translateY(-2px);
+    }
+  }
+
+  .dropzone-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: $spacing-2;
+
+    .drop-icon {
+      color: var(--theme-text-muted);
+      margin-bottom: $spacing-2;
+      transition: all 0.3s ease;
+    }
+
+    .drop-text {
+      margin: 0;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      color: var(--theme-text-main);
+    }
+
+    .drop-hint {
+      margin: 0;
+      font-size: 12px;
+      color: var(--theme-text-muted);
+    }
+  }
+}
+
+.image-preview-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-4;
+  border: 1px solid var(--theme-border);
+  border-radius: $border-radius-lg;
+  background-color: var(--theme-bg-secondary);
+  margin-top: $spacing-2;
+
+  .q-image-preview {
+    max-width: 100%;
+    max-height: 250px;
+    object-fit: contain;
+    border-radius: $border-radius-md;
+    border: 1px solid var(--theme-border);
+  }
+
+  .preview-actions {
+    display: flex;
+    justify-content: center;
+
+    .btn-remove-image {
+      display: inline-flex;
+      align-items: center;
+      gap: $spacing-2;
+      padding: $spacing-2 $spacing-4;
+      background: rgba($color-danger-base, 0.1);
+      color: $color-danger-base;
+      border: none;
+      border-radius: $border-radius-md;
+      font-size: $font-size-sm;
+      font-weight: $font-weight-medium;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: $color-danger-base;
+        color: white;
+      }
+    }
+  }
+}
+
+.details-image-box {
+  margin-bottom: $spacing-6;
+  display: flex;
+  justify-content: center;
+  background: var(--theme-bg-secondary);
+  border-radius: $border-radius-lg;
+  border: 1px solid var(--theme-border);
+  padding: $spacing-4;
+
+  .q-image-display {
+    max-width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+    border-radius: $border-radius-md;
+  }
+}

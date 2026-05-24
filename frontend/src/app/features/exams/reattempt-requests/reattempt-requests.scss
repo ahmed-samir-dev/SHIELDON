@@ -352,3 +352,100 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+// SweetAlert Modal Custom Styles
+::ng-deep .swal-custom-reopen {
+  text-align: left;
+
+  .info-banner {
+    background: rgba(33, 93, 174, 0.1);
+    border-left: 4px solid var(--theme-primary);
+    padding: $spacing-3;
+    margin-bottom: $spacing-5;
+    border-radius: $border-radius-sm;
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+
+    svg { flex-shrink: 0; }
+    span {
+      font-size: $font-size-sm;
+      color: var(--theme-text-main);
+    }
+  }
+
+  .extension-options {
+    display: flex;
+    gap: $spacing-2;
+    margin-bottom: $spacing-4;
+  }
+
+  .ext-btn {
+    flex: 1;
+    border: 1px solid var(--theme-border-color);
+    padding: $spacing-3 $spacing-2;
+    border-radius: $border-radius-md;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    background: transparent;
+
+    div {
+      font-weight: $font-weight-semibold;
+      font-size: $font-size-lg;
+      color: var(--theme-text-main);
+    }
+
+    &:hover {
+      background: rgba(33, 93, 174, 0.02);
+      border-color: var(--theme-primary);
+    }
+
+    &.selected {
+      border-color: var(--theme-primary);
+      background: rgba(33, 93, 174, 0.05);
+      box-shadow: 0 0 0 2px rgba(33, 93, 174, 0.2);
+
+      div {
+        color: var(--theme-primary);
+      }
+    }
+  }
+
+  .custom-option {
+    margin-bottom: $spacing-2;
+
+    .ext-btn {
+      display: block;
+      padding: $spacing-2;
+      
+      div {
+        font-weight: $font-weight-medium;
+        font-size: $font-size-base;
+      }
+    }
+
+    #customInputWrapper {
+      display: none;
+      margin-top: $spacing-2;
+      
+      input {
+        width: 100%;
+        padding: $spacing-3;
+        border: 1px solid var(--theme-border-color);
+        border-radius: $border-radius-md;
+        outline: none;
+        background: var(--theme-bg-surface);
+        color: var(--theme-text-main);
+        font-size: $font-size-sm;
+        box-sizing: border-box;
+        transition: all 0.2s;
+
+        &:focus {
+          border-color: var(--theme-primary);
+          box-shadow: 0 0 0 2px rgba(33, 93, 174, 0.2);
+        }
+      }
+    }
+  }
+}

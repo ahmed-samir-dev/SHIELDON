@@ -357,8 +357,8 @@ public class CourseService : ICourseService
         }
     }
 
-    public async Task<IReadOnlyList<EnrollmentResponse>> GetPendingEnrollmentsAsync(
-        Guid reviewerId, string reviewerRole, Guid? courseId, CancellationToken ct = default)
+    public async Task<PagedResponse<EnrollmentResponse>> GetPendingEnrollmentsAsync(
+        Guid reviewerId, string reviewerRole, EnrollmentQueryParams query, CancellationToken ct = default)
     {
         var q = _db.CourseEnrollments
             .Include(e => e.Student)
@@ -371,12 +371,34 @@ public class CourseService : ICourseService
         if (reviewerRole == "Tutor")
             q = q.Where(e => e.Course!.AssignedTutorId == reviewerId);
 
-        if (courseId.HasValue)
-            q = q.Where(e => e.CourseId == courseId.Value);
+        if (query.CourseId.HasValue)
+            q = q.Where(e => e.CourseId == query.CourseId.Value);
 
-        var enrollments = await q.OrderBy(e => e.RequestedAt).ToListAsync(ct);
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            var search = query.Search.Trim().ToLower();
+            q = q.Where(e =>
+                (e.Student!.FirstName + " " + e.Student!.LastName).ToLower().Contains(search) ||
+                e.Student!.Email.ToLower().Contains(search) ||
+                e.Student!.StudentId!.ToLower().Contains(search) ||
+                e.Course!.Title.ToLower().Contains(search) ||
+                e.Course!.CourseCode.ToLower().Contains(search));
+        }
 
-        return enrollments.Select(e => MapToEnrollmentResponse(e)).ToList();
+        var totalCount = await q.CountAsync(ct);
+        var enrollments = await q
+            .OrderBy(e => e.RequestedAt)
+            .Skip((query.Page - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .ToListAsync(ct);
+
+        return new PagedResponse<EnrollmentResponse>
+        {
+            Items = enrollments.Select(e => MapToEnrollmentResponse(e)).ToList(),
+            TotalCount = totalCount,
+            PageNumber = query.Page,
+            PageSize = query.PageSize
+        };
     }
 
     public async Task<PagedResponse<EnrollmentResponse>> GetApprovedEnrollmentsAsync(
@@ -413,6 +435,19 @@ public class CourseService : ICourseService
                     e.ReviewedAt.Value.Day.ToString().Contains(search)
                 ))
             );
+        }
+
+        if (query.ApprovedFrom.HasValue)
+        {
+            var from = query.ApprovedFrom.Value.ToUniversalTime();
+            q = q.Where(e => e.ReviewedAt >= from);
+        }
+
+        if (query.ApprovedTo.HasValue)
+        {
+            var to = query.ApprovedTo.Value.ToUniversalTime();
+            // Include entire day if just a date
+            q = q.Where(e => e.ReviewedAt <= to.AddDays(1));
         }
 
         // ── 2. Pagination ──────────────────────────────────────────────────────
@@ -581,17 +616,56 @@ public class CourseService : ICourseService
         return enrollments.Count;
     }
 
-    public async Task<IReadOnlyList<StudentEnrollmentStatusResponse>> GetMyEnrollmentsAsync(
-        Guid studentId, CancellationToken ct = default)
+    public async Task<PagedResponse<StudentEnrollmentStatusResponse>> GetMyEnrollmentsAsync(
+        Guid studentId, StudentEnrollmentQueryParams query, CancellationToken ct = default)
     {
-        var enrollments = await _db.CourseEnrollments
+        var q = _db.CourseEnrollments
             .Include(e => e.Course)
             .AsNoTracking()
-            .Where(e => e.StudentId == studentId)
+            .Where(e => e.StudentId == studentId);
+
+        // ── Filtering ─────────────────────────────────────────────────────────
+        if (!string.IsNullOrWhiteSpace(query.SearchTerm))
+        {
+            var term = query.SearchTerm.Trim().ToLower();
+            q = q.Where(e =>
+                e.Course!.Title.ToLower().Contains(term) ||
+                e.Course!.CourseCode.ToLower().Contains(term));
+        }
+
+        if (query.RequestedFrom.HasValue)
+            q = q.Where(e => e.RequestedAt >= query.RequestedFrom.Value);
+
+        if (query.RequestedTo.HasValue)
+            q = q.Where(e => e.RequestedAt <= query.RequestedTo.Value);
+
+        if (!string.IsNullOrWhiteSpace(query.Status))
+        {
+            var status = query.Status.Trim().ToLower();
+            q = query.Status.Trim().ToLower() switch
+            {
+                "pending"  => q.Where(e => e.Status == CourseEnrollmentStatus.Pending),
+                "approved" => q.Where(e => e.Status == CourseEnrollmentStatus.Approved),
+                "rejected" => q.Where(e => e.Status == CourseEnrollmentStatus.Rejected),
+                _          => q
+            };
+        }
+
+        // ── Pagination ────────────────────────────────────────────────────────
+        var totalCount = await q.CountAsync(ct);
+        var enrollments = await q
             .OrderByDescending(e => e.RequestedAt)
+            .Skip((query.Page - 1) * query.PageSize)
+            .Take(query.PageSize)
             .ToListAsync(ct);
 
-        return enrollments.Select(e => MapToStudentStatus(e, e.Course!.Title)).ToList();
+        return new PagedResponse<StudentEnrollmentStatusResponse>
+        {
+            Items = enrollments.Select(e => MapToStudentStatus(e, e.Course!.Title)).ToList(),
+            TotalCount = totalCount,
+            PageNumber = query.Page,
+            PageSize = query.PageSize
+        };
     }
 
     // ── Private Helpers ──────────────────────────────────────────────────

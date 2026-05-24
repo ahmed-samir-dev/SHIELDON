@@ -35,8 +35,8 @@ public class AttendanceService : IAttendanceService
                 : title.Trim(),
             CreatedAt = DateTime.UtcNow,
             IsActive = true,
-            CurrentSecret = GenerateSecret(),
-            SecretExpiresAt = DateTime.UtcNow.AddSeconds(7)
+            CurrentSecret = Guid.NewGuid().ToString("N"),
+            SecretExpiresAt = DateTime.UtcNow.AddSeconds(15)
         };
 
         _db.AttendanceChecks.Add(check);

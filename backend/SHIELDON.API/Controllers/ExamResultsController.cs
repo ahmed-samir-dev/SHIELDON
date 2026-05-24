@@ -130,4 +130,23 @@ public class ExamResultsController : ControllerBase
         var result = await _resultService.ReleaseResultsAsync(examId, request, userId, role, ct);
         return Ok(result);
     }
+
+    // ── GET: Tutor / Admin export results to CSV ────────────────────────────
+
+    /// <summary>
+    /// Exports all attempts for a given exam as a CSV file.
+    /// </summary>
+    [HttpGet("exams/{examId}/export")]
+    [Authorize(Policy = "RequireTutorOrAdmin")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExportResults(Guid examId, CancellationToken ct)
+    {
+        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var role = User.FindFirstValue(ClaimTypes.Role)!;
+
+        var csvBytes = await _resultService.ExportResultsToCsvAsync(examId, userId, role, ct);
+        return File(csvBytes, "text/csv", $"exam_{examId}_results.csv");
+    }
 }

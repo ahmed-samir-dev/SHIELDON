@@ -129,20 +129,20 @@ public class CoursesController : ControllerBase
     }
 
     /// <summary>
-    /// GET /api/courses/enrollments/pending?courseId=guid
-    /// Returns pending enrollment requests. Admin sees all; Tutor sees their courses only.
+    /// GET /api/courses/enrollments/pending?page=1&pageSize=10&search=...&courseId=guid
+    /// Returns pending enrollment requests (paginated). Admin sees all; Tutor sees their courses only.
     /// </summary>
     [HttpGet("enrollments/pending")]
     [Authorize(Roles = "Admin,Tutor")]
-    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<EnrollmentResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<PagedResponse<EnrollmentResponse>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetPendingEnrollments(
-        [FromQuery] Guid? courseId,
+        [FromQuery] EnrollmentQueryParams query,
         CancellationToken cancellationToken)
     {
         var result = await _courseService.GetPendingEnrollmentsAsync(
-            GetUserId(), GetUserRole(), courseId, cancellationToken);
+            GetUserId(), GetUserRole(), query, cancellationToken);
 
-        return Ok(ApiResponse<IReadOnlyList<EnrollmentResponse>>.Ok(result, "Pending enrollments retrieved successfully."));
+        return Ok(ApiResponse<PagedResponse<EnrollmentResponse>>.Ok(result, "Pending enrollments retrieved successfully."));
     }
 
     /// <summary>
@@ -201,15 +201,17 @@ public class CoursesController : ControllerBase
     }
 
     /// <summary>
-    /// GET /api/courses/enrollments/my
-    /// Returns all of the authenticated student's enrollment records.
+    /// GET /api/courses/enrollments/my?page=1&pageSize=10&searchTerm=cs&status=Pending&requestedFrom=2025-01-01&requestedTo=2025-12-31
+    /// Returns the authenticated student's enrollment records (paginated, with filters).
     /// </summary>
     [HttpGet("enrollments/my")]
     [Authorize(Roles = "Student")]
-    [ProducesResponseType(typeof(ApiResponse<IReadOnlyList<StudentEnrollmentStatusResponse>>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetMyEnrollments(CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(ApiResponse<PagedResponse<StudentEnrollmentStatusResponse>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetMyEnrollments(
+        [FromQuery] StudentEnrollmentQueryParams query,
+        CancellationToken cancellationToken)
     {
-        var result = await _courseService.GetMyEnrollmentsAsync(GetUserId(), cancellationToken);
-        return Ok(ApiResponse<IReadOnlyList<StudentEnrollmentStatusResponse>>.Ok(result, "Your enrollments retrieved successfully."));
+        var result = await _courseService.GetMyEnrollmentsAsync(GetUserId(), query, cancellationToken);
+        return Ok(ApiResponse<PagedResponse<StudentEnrollmentStatusResponse>>.Ok(result, "Your enrollments retrieved successfully."));
     }
 }

@@ -5,11 +5,13 @@ import { environment } from '../../../../environments/environment';
 
 export interface SubmitReattemptRequest {
   justification: string;
+  isReopenRequest?: boolean;
 }
 
 export interface ReviewReattemptRequest {
   approved: boolean;
   rejectionReason?: string;
+  extensionHours?: number;
 }
 
 export interface ReattemptRequestResponse {
@@ -23,6 +25,8 @@ export interface ReattemptRequestResponse {
   studentEmail: string;
   studentDisplayId?: string;
   justification: string;
+  attachmentUrl?: string | null;
+  isReopenRequest: boolean;
   status: string;
   attemptsMade: number;
   maxAttempts: number;
@@ -30,6 +34,7 @@ export interface ReattemptRequestResponse {
   reviewedAt?: string;
   reviewedByName?: string;
   rejectionReason?: string;
+  grantedExtensionUntil?: string | null;
 }
 
 export interface StudentReattemptStatusResponse {
@@ -37,12 +42,15 @@ export interface StudentReattemptStatusResponse {
   examId: string;
   examTitle: string;
   justification: string;
+  attachmentUrl?: string | null;
+  isReopenRequest: boolean;
   status: string;
   attemptsMade: number;
   maxAttempts: number;
   requestedAt: string;
   reviewedAt?: string;
   rejectionReason?: string;
+  grantedExtensionUntil?: string | null;
 }
 
 export interface ReattemptQueryParams {
@@ -81,8 +89,16 @@ export class ReattemptService {
   /**
    * Student submits a re-attempt request for an exam they failed.
    */
-  submitRequest(examId: string, request: SubmitReattemptRequest): Observable<ApiResponse<StudentReattemptStatusResponse>> {
-    return this.http.post<ApiResponse<StudentReattemptStatusResponse>>(`${this.apiUrl}/reattempt-requests?examId=${examId}`, request);
+  submitRequest(examId: string, request: SubmitReattemptRequest, file?: File): Observable<ApiResponse<StudentReattemptStatusResponse>> {
+    const formData = new FormData();
+    formData.append('justification', request.justification);
+    if (request.isReopenRequest !== undefined) {
+      formData.append('isReopenRequest', request.isReopenRequest.toString());
+    }
+    if (file) {
+      formData.append('attachmentFile', file);
+    }
+    return this.http.post<ApiResponse<StudentReattemptStatusResponse>>(`${this.apiUrl}/reattempt-requests?examId=${examId}`, formData);
   }
 
   /**

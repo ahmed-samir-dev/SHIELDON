@@ -80,8 +80,8 @@ export class CourseList implements OnInit, OnDestroy {
   }
 
   loadMyEnrollments() {
-    this.courseService.getMyEnrollments().subscribe({
-      next: (res) => this.myEnrollments.set(res.data),
+    this.courseService.getMyEnrollments({ pageSize: 1000 }).subscribe({
+      next: (res) => this.myEnrollments.set(res.data.items),
       error: () => console.error('Failed to load my enrollments.')
     });
   }

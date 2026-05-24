@@ -12,7 +12,8 @@ import { CourseDetailResponse } from '../../../core/models/courses.model';
 import { Router } from '@angular/router';
 import { ExamResultService, ExamAttemptSummaryDto } from '../../exams/services/exam-result';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin, Observable } from 'rxjs';
+import { ReattemptService, StudentReattemptStatusResponse } from '../../exams/services/reattempt.service';
 
 export function atLeastOneQuestionValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
@@ -59,6 +60,10 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
   studentAttemptsForPicker = signal<ExamAttemptSummaryDto[]>([]);
   pickerExamId = signal<string | null>(null);
   private examResultService = inject(ExamResultService);
+  private reattemptService = inject(ReattemptService);
+
+  // Student Requests State
+  myRequests = signal<StudentReattemptStatusResponse[]>([]);
 
   currentTime = signal<Date>(new Date());
   private timeInterval: any;
@@ -99,9 +104,22 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
 
   loadExams() {
     this.isLoading.set(true);
-    this.examService.getExams(this.course.id).subscribe({
-      next: (res) => {
-        this.exams.set(res.data?.items || []);
+    
+    const obs$: Observable<any>[] = [this.examService.getExams(this.course.id)];
+    if (!this.canManageExams()) {
+      obs$.push(this.reattemptService.getMyRequests());
+    }
+
+    forkJoin(obs$).subscribe({
+      next: (results) => {
+        const examsRes = results[0] as any;
+        this.exams.set(examsRes.data?.items || []);
+        
+        if (results.length > 1) {
+          const reqRes = results[1] as any;
+          this.myRequests.set(reqRes.data || []);
+        }
+        
         this.isLoading.set(false);
       },
       error: () => {
@@ -315,24 +333,47 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
   /**
    * Exam is "Active" when it is Published AND the window [scheduledAt, scheduledEndAt] is
    * currently open (or no window is configured at all).
+   * It also checks if the student has an approved Re-open Request that hasn't expired yet.
    */
   isExamActive(exam: ExamSummaryResponse): boolean {
     if (exam.status !== 'Published') return false;
     const now = this.currentTime();
+    
+    // Check for any approved request extension (Re-open or Re-attempt)
+    const req = this.myRequests().find(r => r.examId === exam.id && r.status === 'Approved');
+    if (req && req.grantedExtensionUntil) {
+      if (new Date(req.grantedExtensionUntil) > now) {
+        return true; // Still active for this student due to extension
+      }
+    }
+
     if (exam.scheduledAt && new Date(exam.scheduledAt) > now) return false; // not started yet
     if (exam.scheduledEndAt && new Date(exam.scheduledEndAt) < now) return false; // already over
     return true;
   }
 
   isExamExpired(exam: ExamSummaryResponse): boolean {
+    const now = this.currentTime();
+    
+    // Check for any approved request extension (Re-open or Re-attempt)
+    const req = this.myRequests().find(r => r.examId === exam.id && r.status === 'Approved');
+    if (req && req.grantedExtensionUntil) {
+      if (new Date(req.grantedExtensionUntil) > now) {
+        return false; // Not expired yet because they have an active extension
+      }
+    }
+
     if (!exam.scheduledEndAt) return false;
-    return new Date(exam.scheduledEndAt) < this.currentTime();
+    return new Date(exam.scheduledEndAt) < now;
   }
 
   /** True when editing an exam that is currently expired. */
   isEditingExpiredExam(): boolean {
     const exam = this.editingExam();
-    return !!exam && this.isExamExpired(exam);
+    if (!exam) return false;
+    // For editing, tutors only care about the global exam schedule, not student extensions
+    if (!exam.scheduledEndAt) return false;
+    return new Date(exam.scheduledEndAt) < this.currentTime();
   }
 
   takeExam(examId: string) {
@@ -376,5 +417,83 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
   getExamQuestionCount(exam: ExamSummaryResponse): number {
     if (!exam.selectionRules) return 0;
     return exam.selectionRules.reduce((sum, rule) => sum + rule.count, 0);
+  }
+
+  getReopenRequestStatus(examId: string): string | null {
+    const req = this.myRequests().find(r => r.examId === examId);
+    return req ? req.status : null;
+  }
+
+  requestReopen(examId: string) {
+    Swal.fire({
+      title: this.translate.instant('COURSE_EXAMS.SWAL_REOPEN_TITLE'),
+      html: `
+        <div style="text-align: left; padding-top: 10px;">
+          <div style="display: flex; gap: 12px; margin-bottom: 20px; padding: 12px 16px; background: rgba(33, 93, 174, 0.08); border-radius: 10px; border-left: 4px solid #215DAE;">
+             <svg style="flex-shrink: 0; margin-top: 2px;" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#215DAE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+             <p style="margin: 0; font-size: 14px; color: var(--theme-text-main); line-height: 1.5;">${this.translate.instant('COURSE_EXAMS.SWAL_REOPEN_TEXT')}</p>
+          </div>
+          
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; color: var(--theme-text-secondary); margin-bottom: 8px;">Justification / Reason *</label>
+            <textarea id="swal-input-justification" placeholder="${this.translate.instant('COURSE_EXAMS.SWAL_REOPEN_PLACEHOLDER')}" style="width: 100%; height: 110px; padding: 14px; border: 1px solid var(--theme-border); border-radius: 10px; background: var(--theme-bg-secondary); color: var(--theme-text-main); font-family: inherit; font-size: 14px; resize: none; outline: none; transition: all 0.2s ease;" onfocus="this.style.borderColor='#215DAE'; this.style.boxShadow='0 0 0 4px rgba(33, 93, 174, 0.1)'" onblur="this.style.borderColor='var(--theme-border)'; this.style.boxShadow='none'"></textarea>
+          </div>
+          
+          <div>
+             <label style="display: block; font-size: 13px; font-weight: 600; color: var(--theme-text-secondary); margin-bottom: 8px;">${this.translate.instant('COURSE_EXAMS.SWAL_REOPEN_PROOF')}</label>
+             <div style="position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed var(--theme-border); border-radius: 10px; padding: 20px; background: var(--theme-bg-secondary); transition: all 0.2s ease;" onmouseover="this.style.borderColor='#215DAE'; this.style.background='rgba(33, 93, 174, 0.02)'" onmouseout="this.style.borderColor='var(--theme-border)'; this.style.background='var(--theme-bg-secondary)'">
+               <svg style="margin-bottom: 10px; color: var(--theme-text-secondary);" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+               <input type="file" id="swal-input-file" style="width: 100%; font-size: 13px; color: var(--theme-text-secondary); cursor: pointer;" accept="image/*,.pdf,.doc,.docx" />
+             </div>
+          </div>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: this.translate.instant('COURSE_EXAMS.SWAL_BTN_SUBMIT_REQ'),
+      cancelButtonText: this.translate.instant('EXAM_RESULT_PAGE.SWAL_BTN_CANCEL'),
+      confirmButtonColor: '#215DAE',
+      cancelButtonColor: '#87949C',
+      background: 'var(--theme-bg-main)',
+      color: 'var(--theme-text-main)',
+      preConfirm: () => {
+        const justification = (document.getElementById('swal-input-justification') as HTMLTextAreaElement).value;
+        const fileInput = document.getElementById('swal-input-file') as HTMLInputElement;
+        
+        if (!justification || justification.trim().length < 20) {
+          Swal.showValidationMessage(this.translate.instant('COURSE_EXAMS.SWAL_REOPEN_ERR_MIN'));
+          return false;
+        }
+
+        let file: File | undefined;
+        if (fileInput.files && fileInput.files.length > 0) {
+          file = fileInput.files[0];
+          if (file.size > 10 * 1024 * 1024) { // 10MB
+            Swal.showValidationMessage(this.translate.instant('COURSE_EXAMS.SWAL_REOPEN_ERR_SIZE'));
+            return false;
+          }
+        }
+
+        return { justification: justification.trim(), file };
+      }
+    }).then((swalResult) => {
+      if (swalResult.isConfirmed && swalResult.value) {
+        const { justification, file } = swalResult.value;
+        // isReopenRequest = true is not explicitly strongly typed in our generated frontend client, 
+        // but our backend endpoint accepts it as a form field. Since our submitRequest doesn't 
+        // have an isReopenRequest param, we need to adapt our service call. Let's add it to the FormData.
+        
+        // Actually, we need to pass true for isReopenRequest. Let's temporarily call it manually or update the service.
+        // I will just update ReattemptService to accept it. 
+        this.reattemptService.submitRequest(examId, { justification, isReopenRequest: true } as any, file).subscribe({
+          next: (res) => {
+            this.toastr.success(res.message);
+            this.loadExams(); // reload to get updated requests
+          },
+          error: (err) => {
+            this.toastr.error(err.error?.message || this.translate.instant('EXAM_RESULT_PAGE.TOAST_REQ_ERR'));
+          }
+        });
+      }
+    });
   }
 }

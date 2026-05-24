@@ -33,6 +33,11 @@ export class CourseQuestionBankComponent implements OnInit {
   isModalOpen = signal(false);
   editingQuestionId = signal<string | null>(null);
 
+  // Image Upload State
+  selectedImage = signal<File | null>(null);
+  imagePreview = signal<string | null>(null);
+  deleteExistingImage = signal(false);
+
   questionForm: FormGroup;
 
   // Pagination
@@ -87,6 +92,9 @@ export class CourseQuestionBankComponent implements OnInit {
 
   openCreateModal() {
     this.editingQuestionId.set(null);
+    this.selectedImage.set(null);
+    this.imagePreview.set(null);
+    this.deleteExistingImage.set(false);
     this.questionForm.reset({
       type: 'MCQ',
       points: 1,
@@ -108,6 +116,9 @@ export class CourseQuestionBankComponent implements OnInit {
 
   openEditModal(question: ExamQuestion) {
     this.editingQuestionId.set(question.id);
+    this.selectedImage.set(null);
+    this.imagePreview.set(question.imageUrl || null);
+    this.deleteExistingImage.set(false);
     
     // Clear options
     this.optionsFormArray.clear();
@@ -141,6 +152,62 @@ export class CourseQuestionBankComponent implements OnInit {
   closeModal() {
     this.isModalOpen.set(false);
     this.editingQuestionId.set(null);
+    this.selectedImage.set(null);
+    this.imagePreview.set(null);
+    this.deleteExistingImage.set(false);
+  }
+
+  // --- Image Upload Handling ---
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    const files = event.dataTransfer?.files;
+    if (files && files.length > 0) {
+      this.handleFileSelection(files[0]);
+    }
+  }
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.handleFileSelection(input.files[0]);
+    }
+  }
+
+  private handleFileSelection(file: File) {
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      this.toastr.error(this.translate.instant('Only JPG, PNG, GIF, and WEBP images are allowed.'));
+      return;
+    }
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      this.toastr.error(this.translate.instant('Image must be less than 5MB.'));
+      return;
+    }
+
+    this.selectedImage.set(file);
+    this.deleteExistingImage.set(false);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.imagePreview.set(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeImage() {
+    this.selectedImage.set(null);
+    this.imagePreview.set(null);
+    this.deleteExistingImage.set(true); // Flag to delete on backend if editing
   }
 
   addOptionControl() {
@@ -214,8 +281,7 @@ export class CourseQuestionBankComponent implements OnInit {
 
       this.questionBankService.updateQuestion(this.courseId, this.editingQuestionId()!, updateReq).subscribe({
         next: () => {
-          this.toastr.success(this.translate.instant('COURSE_QUESTION_BANK.TOAST_UPDATE_SUCCESS'));
-          this.finishSubmit();
+          this.handleImageUploadAfterSave(this.editingQuestionId()!);
         },
         error: (err) => {
           this.toastr.error(err.error?.message || this.translate.instant('COURSE_QUESTION_BANK.TOAST_UPDATE_ERR'));
@@ -249,15 +315,46 @@ export class CourseQuestionBankComponent implements OnInit {
       }
 
       this.questionBankService.addQuestion(this.courseId, req).subscribe({
-        next: () => {
-          this.toastr.success(this.translate.instant('COURSE_QUESTION_BANK.TOAST_ADD_SUCCESS'));
-          this.finishSubmit();
+        next: (res) => {
+          this.handleImageUploadAfterSave(res.data!.id);
         },
         error: (err) => {
           this.toastr.error(err.error?.message || this.translate.instant('COURSE_QUESTION_BANK.TOAST_ADD_ERR'));
           this.isSubmitting.set(false);
         }
       });
+    }
+  }
+
+  private handleImageUploadAfterSave(questionId: string) {
+    if (this.selectedImage()) {
+      // Upload new image
+      this.questionBankService.uploadImage(this.courseId, questionId, this.selectedImage()!).subscribe({
+        next: () => {
+          this.toastr.success(this.editingQuestionId() ? this.translate.instant('COURSE_QUESTION_BANK.TOAST_UPDATE_SUCCESS') : this.translate.instant('COURSE_QUESTION_BANK.TOAST_ADD_SUCCESS'));
+          this.finishSubmit();
+        },
+        error: (err) => {
+          this.toastr.error('Question saved, but image upload failed: ' + (err.error?.message || 'Unknown error'));
+          this.finishSubmit();
+        }
+      });
+    } else if (this.deleteExistingImage() && this.editingQuestionId()) {
+      // Delete existing image
+      this.questionBankService.deleteImage(this.courseId, questionId).subscribe({
+        next: () => {
+          this.toastr.success(this.translate.instant('COURSE_QUESTION_BANK.TOAST_UPDATE_SUCCESS'));
+          this.finishSubmit();
+        },
+        error: (err) => {
+          this.toastr.error('Question updated, but failed to delete image.');
+          this.finishSubmit();
+        }
+      });
+    } else {
+      // No image changes
+      this.toastr.success(this.editingQuestionId() ? this.translate.instant('COURSE_QUESTION_BANK.TOAST_UPDATE_SUCCESS') : this.translate.instant('COURSE_QUESTION_BANK.TOAST_ADD_SUCCESS'));
+      this.finishSubmit();
     }
   }
 
