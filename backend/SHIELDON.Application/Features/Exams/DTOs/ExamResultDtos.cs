@@ -36,6 +36,8 @@ public record ExamResultResponse(
 public record QuestionReviewDto(
     Guid QuestionId,
     string QuestionText,
+    /// <summary>Optional image URL attached to this question, shown during result review.</summary>
+    string? ImageUrl,
     QuestionType Type,
     decimal Points,
     decimal? PointsAwarded,
@@ -59,12 +61,19 @@ public record ExamAttemptSummaryDto(
     Guid StudentId,
     string StudentName,
     string StudentDisplayId,
+    /// <summary>Which attempt number this is (1st, 2nd, 3rd …) for this student on this exam.</summary>
+    int AttemptNumber,
     AttemptStatus Status,
     DateTime StartedAt,
     DateTime? SubmittedAt,
     decimal? Score,
     bool? Passed,
-    bool IsGradePublished
+    bool IsGradePublished,
+    /// <summary>
+    /// System-generated note. Set when the question bank didn't have enough unseen questions
+    /// for a fully distinct retake — some previously-seen questions may have appeared.
+    /// </summary>
+    string? Notes
 );
 
 // ── Short Answer Grading ──────────────────────────────────────────────────────

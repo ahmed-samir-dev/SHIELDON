@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ExamResultService, ExamAttemptSummaryDto, ExamResultResponse } from '../services/exam-result';
 import { ToastrService } from 'ngx-toastr';
-import { LucideAngularModule, ArrowLeft, Search, CheckCircle, Clock, Eye, AlertCircle } from 'lucide-angular';
+import { LucideAngularModule, ArrowLeft, Search, CheckCircle, Clock, Eye, AlertCircle, Download } from 'lucide-angular';
 import Swal from 'sweetalert2';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -31,6 +31,7 @@ export class TutorResultsPanel implements OnInit {
   readonly Clock = Clock;
   readonly Eye = Eye;
   readonly AlertCircle = AlertCircle;
+  readonly Download = Download;
 
   examId = '';
   courseId = '';
@@ -127,6 +128,22 @@ export class TutorResultsPanel implements OnInit {
     } else {
       this.router.navigate(['/courses']);
     }
+  }
+
+  downloadCsv() {
+    this.examResultService.exportResultsCsv(this.examId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `exam_${this.examId}_results.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        this.toastr.error(this.translate.instant('TUTOR_RESULTS_PANEL.TOAST_CSV_ERR'));
+      }
+    });
   }
 
   releaseResults() {

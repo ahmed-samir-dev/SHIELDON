@@ -54,5 +54,17 @@ public record EnrollmentQueryParams(
     int Page = 1,
     int PageSize = 10,
     string? Search = null,
-    Guid? CourseId = null
+    Guid? CourseId = null,
+    DateTime? ApprovedFrom = null,
+    DateTime? ApprovedTo = null
+);
+
+/// <summary>Query parameters for a student's own paginated enrollment history, with filtering by course, date range, and status.</summary>
+public record StudentEnrollmentQueryParams(
+    int Page = 1,
+    int PageSize = 10,
+    string? SearchTerm = null,
+    DateTime? RequestedFrom = null,
+    DateTime? RequestedTo = null,
+    string? Status = null   // Pending | Approved | Rejected
 );

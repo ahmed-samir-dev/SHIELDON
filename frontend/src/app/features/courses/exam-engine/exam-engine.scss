@@ -501,6 +501,23 @@
         font-weight: $font-weight-medium;
       }
 
+      /* Image Display */
+      .q-image-container {
+        margin-bottom: $spacing-6;
+        text-align: center;
+        background: var(--theme-bg-secondary);
+        padding: $spacing-4;
+        border-radius: $border-radius-lg;
+        border: 1px solid var(--theme-border);
+      }
+
+      .q-image-display {
+        max-width: 100%;
+        max-height: 400px;
+        object-fit: contain;
+        border-radius: $border-radius-md;
+      }
+
       .options-list {
         display: flex;
         flex-direction: column;

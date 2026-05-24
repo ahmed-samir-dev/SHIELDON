@@ -37,6 +37,24 @@ export interface CourseQueryParams {
   enrollmentStatus?: string | null;
 }
 
+export interface EnrollmentQueryParams {
+  page?: number;
+  pageSize?: number;
+  search?: string | null;
+  courseId?: string | null;
+  approvedFrom?: string | null;
+  approvedTo?: string | null;
+}
+
+export interface StudentEnrollmentQueryParams {
+  page?: number;
+  pageSize?: number;
+  searchTerm?: string | null;
+  requestedFrom?: string | null;
+  requestedTo?: string | null;
+  status?: string | null;
+}
+
 export interface CourseResponse {
   id: string;
   title: string;

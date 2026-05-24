@@ -36,10 +36,10 @@ public interface ICourseService
     Task<StudentEnrollmentStatusResponse> RequestEnrollmentAsync(Guid studentId, EnrollmentRequest request, CancellationToken ct = default);
 
     /// <summary>
-    /// Returns pending enrollment requests.
+    /// Returns paginated pending enrollment requests.
     /// Admin: all courses. Tutor: only their assigned courses.
     /// </summary>
-    Task<IReadOnlyList<EnrollmentResponse>> GetPendingEnrollmentsAsync(Guid reviewerId, string reviewerRole, Guid? courseId, CancellationToken ct = default);
+    Task<PagedResponse<EnrollmentResponse>> GetPendingEnrollmentsAsync(Guid reviewerId, string reviewerRole, EnrollmentQueryParams query, CancellationToken ct = default);
 
     /// <summary>
     /// Returns approved enrollment records (enrolled students data).
@@ -57,6 +57,6 @@ public interface ICourseService
     /// <summary>Approve or reject multiple enrollment requests at once.</summary>
     Task<int> BulkReviewEnrollmentsAsync(BulkReviewEnrollmentRequest request, Guid reviewerId, CancellationToken ct = default);
 
-    /// <summary>Returns the requesting student's enrollment status for all courses they've interacted with.</summary>
-    Task<IReadOnlyList<StudentEnrollmentStatusResponse>> GetMyEnrollmentsAsync(Guid studentId, CancellationToken ct = default);
+    /// <summary>Returns the requesting student's enrollment status for all courses they've interacted with, with pagination and filtering.</summary>
+    Task<PagedResponse<StudentEnrollmentStatusResponse>> GetMyEnrollmentsAsync(Guid studentId, StudentEnrollmentQueryParams query, CancellationToken ct = default);
 }

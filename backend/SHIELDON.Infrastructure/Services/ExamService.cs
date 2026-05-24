@@ -334,6 +334,17 @@ public class ExamService : IExamService
             throw new BusinessRuleException(
                 "Only Draft exams or expired Published exams can be permanently deleted.");
 
+        // Manually delete entities that have Restrict foreign keys to Exam to prevent DbUpdateException
+        var violationLogs = await _db.ViolationLogs.Where(v => v.ExamId == examId).ToListAsync(ct);
+        if (violationLogs.Any()) _db.ViolationLogs.RemoveRange(violationLogs);
+
+        // Remove these safely just in case cascade delete fails on SQL Server side
+        var extensions = await _db.ExamExtensions.Where(e => e.ExamId == examId).ToListAsync(ct);
+        if (extensions.Any()) _db.ExamExtensions.RemoveRange(extensions);
+
+        var reattemptRequests = await _db.ReattemptRequests.Where(r => r.ExamId == examId).ToListAsync(ct);
+        if (reattemptRequests.Any()) _db.ReattemptRequests.RemoveRange(reattemptRequests);
+
         _db.Exams.Remove(exam);
         await _db.SaveChangesAsync(ct);
     }

@@ -37,7 +37,13 @@ public class ExamAttemptService : IExamAttemptService
             throw new BusinessRuleException($"This exam is scheduled to start on {scheduledFor}. Please wait.");
         }
 
-        if (exam.ScheduledEndAt.HasValue && exam.ScheduledEndAt.Value < DateTime.UtcNow)
+        // Check if student has an active granted extension
+        var activeExtension = await _db.ExamExtensions
+            .FirstOrDefaultAsync(e => e.ExamId == examId 
+                                   && e.StudentId == studentId 
+                                   && e.ExtendedEndTime > DateTime.UtcNow, ct);
+
+        if (activeExtension == null && exam.ScheduledEndAt.HasValue && exam.ScheduledEndAt.Value < DateTime.UtcNow)
         {
             throw new BusinessRuleException("The deadline for this exam has passed. You can no longer start it.");
         }
@@ -88,36 +94,66 @@ public class ExamAttemptService : IExamAttemptService
         if (attemptsMade >= totalAllowed)
             throw new BusinessRuleException($"You have exhausted all attempts for this exam. (Max: {totalAllowed})");
 
-        // ── Draw questions from the bank (random selection per type) ──────────
+        // ── Collect all question IDs the student has already seen in previous attempts ──
+        var previousAttemptQuestionIds = await _db.ExamAttemptQuestions
+            .Where(aq => aq.Attempt!.ExamId == examId
+                      && aq.Attempt.StudentId == studentId
+                      && aq.Attempt.Status != AttemptStatus.InProgress)
+            .Select(aq => aq.QuestionId)
+            .Distinct()
+            .ToListAsync(ct);
+
+        var seenSet = previousAttemptQuestionIds.ToHashSet();
+        bool isRetake = seenSet.Count > 0;
+
+        // ── Draw questions from the bank (prioritize unseen questions) ──────────
         var selectedQuestions = new List<ExamQuestion>();
+        bool usedFallbackRandomization = false;
 
         foreach (var rule in exam.SelectionRules)
         {
-            var bankQuestions = await _db.ExamQuestions
+            var allBankQuestions = await _db.ExamQuestions
                 .Include(q => q.Options)
                 .Where(q => q.CourseId == exam.CourseId && q.Type == rule.QuestionType)
                 .ToListAsync(ct);
 
-            if (bankQuestions.Count < rule.Count)
+            if (allBankQuestions.Count < rule.Count)
                 throw new BusinessRuleException(
-                    $"Not enough {rule.QuestionType} questions in the bank. Need {rule.Count}, found {bankQuestions.Count}.");
+                    $"Not enough {rule.QuestionType} questions in the bank. Need {rule.Count}, found {allBankQuestions.Count}.");
 
-            // Cryptographically random Fisher-Yates shuffle within each type bucket
-            for (int i = bankQuestions.Count - 1; i > 0; i--)
+            // Split into unseen vs previously-seen
+            var unseenQuestions = isRetake
+                ? allBankQuestions.Where(q => !seenSet.Contains(q.Id)).ToList()
+                : allBankQuestions;
+
+            List<ExamQuestion> chosen;
+
+            if (unseenQuestions.Count >= rule.Count)
             {
-                int j = RandomNumberGenerator.GetInt32(i + 1);
-                (bankQuestions[i], bankQuestions[j]) = (bankQuestions[j], bankQuestions[i]);
+                // Enough unseen questions — shuffle and pick from unseen pool only
+                ShuffleInPlace(unseenQuestions);
+                chosen = unseenQuestions.Take(rule.Count).ToList();
+            }
+            else
+            {
+                // Not enough unseen questions — fall back: shuffle the full bank and pick
+                // This ensures the student always gets a full-length exam even if the bank is small.
+                usedFallbackRandomization = true;
+                ShuffleInPlace(allBankQuestions);
+                chosen = allBankQuestions.Take(rule.Count).ToList();
             }
 
-            selectedQuestions.AddRange(bankQuestions.Take(rule.Count));
+            selectedQuestions.AddRange(chosen);
         }
 
-        // ── Final cross-type shuffle - ensures MCQ/TF/SA are interleaved randomly ──
-        for (int i = selectedQuestions.Count - 1; i > 0; i--)
-        {
-            int j = RandomNumberGenerator.GetInt32(i + 1);
-            (selectedQuestions[i], selectedQuestions[j]) = (selectedQuestions[j], selectedQuestions[i]);
-        }
+        // ── Final cross-type shuffle — ensures MCQ/TF/SA are interleaved randomly ──
+        ShuffleInPlace(selectedQuestions);
+
+        // Log a warning in the attempt notes if fallback was used (visible to tutors)
+        string? fallbackNote = usedFallbackRandomization
+            ? "[System] The question bank did not have enough unique questions for a fully distinct attempt. " +
+              "Some previously-seen questions may appear. Consider adding more questions to the bank."
+            : null;
 
         // Create new attempt
         var attempt = new ExamAttempt
@@ -125,7 +161,8 @@ public class ExamAttemptService : IExamAttemptService
             ExamId = examId,
             StudentId = studentId,
             Status = AttemptStatus.InProgress,
-            StartedAt = DateTime.UtcNow
+            StartedAt = DateTime.UtcNow,
+            Notes = fallbackNote  // stores the fallback warning if applicable
         };
 
         var token = new ExamToken
@@ -158,6 +195,16 @@ public class ExamAttemptService : IExamAttemptService
             .LoadAsync(ct);
 
         return ApiResponse<StartExamResponse>.Ok(CreateStartResponse(attempt, exam));
+    }
+
+    /// <summary>Cryptographically random Fisher-Yates in-place shuffle.</summary>
+    private static void ShuffleInPlace<T>(List<T> list)
+    {
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int j = RandomNumberGenerator.GetInt32(i + 1);
+            (list[i], list[j]) = (list[j], list[i]);
+        }
     }
 
     public async Task<ApiResponse<string>> SaveAnswerAsync(Guid attemptId, Guid token, SaveAnswerRequest request, CancellationToken ct = default)
@@ -385,7 +432,13 @@ public class ExamAttemptService : IExamAttemptService
                 maskedOptions = arr.ToList();
             }
 
-            finalOrder.Add(new StudentQuestionDto(q.Id, q.QuestionText, q.Type, q.Points, maskedOptions));
+            finalOrder.Add(new StudentQuestionDto(
+                q.Id,
+                q.QuestionText,
+                q.ImageUrl,
+                q.Type,
+                q.Points,
+                maskedOptions));
         }
 
         var savedAnswers = attempt.Answers?.Select(a => new SavedAnswerDto(

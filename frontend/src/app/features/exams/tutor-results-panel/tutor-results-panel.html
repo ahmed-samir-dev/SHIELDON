@@ -11,6 +11,9 @@
       <h1>{{ 'TUTOR_RESULTS_PANEL.TITLE' | translate }}</h1>
     </div>
     <div class="header-right" style="display: flex; gap: 8px;">
+      <button class="btn-csv" (click)="downloadCsv()" [disabled]="isLoading() || attempts().length === 0">
+        <lucide-icon [img]="Download" size="18"></lucide-icon> {{ 'TUTOR_RESULTS_PANEL.BTN_DOWNLOAD_CSV' | translate }}
+      </button>
       <button class="btn-release" *ngIf="selectedStudentIds().size > 0" (click)="releaseSelectedResults()">
         {{ ('TUTOR_RESULTS_PANEL.BTN_RELEASE_SELECTED' | translate).replace('{count}', selectedStudentIds().size.toString()) }}
       </button>
