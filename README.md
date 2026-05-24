@@ -48,31 +48,31 @@ Most traditional LMS platforms depend on external software (like Safe Exam Brows
 ### 🖥️ Frontend
 | Technology | Purpose |
 |---|---|
-| 🅰️ **Angular 21** | Framework (Standalone Components) |
-| 🔷 **TypeScript** | Language |
-| 🎨 **SCSS** | Styling with CSS Custom Properties |
-| 📊 **Apache ECharts** | Charts & analytics (via ngx-echarts) |
-| 🧩 **Lucide Icons** | Icon library |
-| 🍬 **SweetAlert2** | Beautiful modal dialogs |
-| 🔔 **ngx-toastr** | Toast notifications |
-| 🎉 **canvas-confetti** | Celebration effects |
-| 🧭 **Shepherd.js** | Guided onboarding tours |
+| **Angular 21** | Framework (Standalone Components) |
+| **TypeScript** | Language |
+| **SCSS** | Styling with CSS Custom Properties |
+| **Apache ECharts** | Charts & analytics (via ngx-echarts) |
+| **Lucide Icons** | Icon library |
+| **SweetAlert2** | Beautiful modal dialogs |
+| **ngx-toastr** | Toast notifications |
+| **canvas-confetti** | Celebration effects |
+| **Shepherd.js** | Guided onboarding tours |
 
 ### 🔧 Backend
 | Technology | Purpose |
 |---|---|
-| 🟣 **.NET 9 ASP.NET Core** | Web API framework |
-| #️⃣ **C#** | Language |
-| 🗄️ **Entity Framework Core 9** | ORM (Code-First migrations) |
-| ✉️ **MailKit / MimeKit** | Email delivery (tested via [Mailtrap](https://mailtrap.io), production via **Google Gmail SMTP**) |
-| ✅ **FluentValidation** | Request validation |
-| 💳 **Stripe.net** | Payment processing |
-| 🤖 **Google Gemini API** | AI assistant (backend proxy) |
+| **.NET 9 ASP.NET Core** | Web API framework |
+| **C#** | Language |
+| **Entity Framework Core 9** | ORM (Code-First migrations) |
+| **MailKit / MimeKit** | Email delivery (tested via [Mailtrap](https://mailtrap.io), production via **Google Gmail SMTP**) |
+| **FluentValidation** | Request validation |
+| **Stripe.net** | Payment processing |
+| **Google Gemini API** | AI assistant (backend proxy) |
 
 ### 💽 Database
 | Technology | Purpose |
 |---|---|
-| 🗃️ **Microsoft SQL Server 2022** | Primary relational database |
+| **Microsoft SQL Server 2022** | Primary relational database |
 
 ---
 
@@ -82,35 +82,35 @@ SHIELDON follows a **Clean Architecture + Vertical Slice Hybrid** approach:
 
 ```
 ┌─────────────────────────────────────────────────┐
-│                  SHIELDON.API                    │  ← Thin HTTP Controllers
+│                  SHIELDON.API                   │  ← Thin HTTP Controllers
 ├─────────────────────────────────────────────────┤
-│              SHIELDON.Application                │  ← Use Cases, DTOs, Validators
+│              SHIELDON.Application               │  ← Use Cases, DTOs, Validators
 ├─────────────────────────────────────────────────┤
-│             SHIELDON.Infrastructure              │  ← DB, Email, File Storage
+│             SHIELDON.Infrastructure             │  ← DB, Email, File Storage
 ├─────────────────────────────────────────────────┤
-│                SHIELDON.Domain                   │  ← Entities & Business Rules
+│                SHIELDON.Domain                  │  ← Entities & Business Rules
 ├─────────────────────────────────────────────────┤
-│                SHIELDON.Tests                    │  ← Unit & Integration Tests
+│                SHIELDON.Tests                   │  ← Unit & Integration Tests
 └─────────────────────────────────────────────────┘
 ```
 
 | Layer | Responsibility |
 |---|---|
-| 🌐 **SHIELDON.API** | Thin HTTP controllers handling requests and delegating to the application layer. |
-| 📦 **SHIELDON.Application** | Business logic organized by feature slices (Use Cases, DTOs, Validators). |
-| 🔌 **SHIELDON.Infrastructure** | External implementations (Database persistence, Email service, File storage, Payment gateway). |
-| 🧱 **SHIELDON.Domain** | Core business rules and entities (independent of any framework). |
-| 🧪 **SHIELDON.Tests** | Unit tests and integration tests to ensure correctness and prevent regressions. |
+| **SHIELDON.API** | Thin HTTP controllers handling requests and delegating to the application layer. |
+| **SHIELDON.Application** | Business logic organized by feature slices (Use Cases, DTOs, Validators). |
+| **SHIELDON.Infrastructure** | External implementations (Database persistence, Email service, File storage, Payment gateway). |
+| **SHIELDON.Domain** | Core business rules and entities (independent of any framework). |
+| **SHIELDON.Tests** | Unit tests and integration tests to ensure correctness and prevent regressions. |
 
 ---
 
 ## 👥 System Roles
 
-| Role | Emoji | Description |
+| Role | Description |
 |---|---|---|
-| **Admin** | 🔑 | Full system access. Manages courses, users, all exams, analytics, and violations system-wide. |
-| **Tutor** | 👨‍🏫 | Manages assigned courses. Creates exams, uploads materials, posts announcements, monitors exam violations, and tracks attendance. |
-| **Student** | 🎓 | Accesses enrolled courses, downloads materials, submits assignments, takes exams under anti-cheat monitoring, and makes payments. |
+| **Admin** | Full system access. Manages courses, users, all exams, analytics, and violations system-wide. |
+| **Tutor** | Manages assigned courses. Creates exams, uploads materials, posts announcements, monitors exam violations, and tracks attendance. |
+| **Student** | Accesses enrolled courses, downloads materials, submits assignments, takes exams under anti-cheat monitoring, and makes payments. |
 
 ---
 
@@ -118,36 +118,36 @@ SHIELDON follows a **Clean Architecture + Vertical Slice Hybrid** approach:
 
 | # | Feature | Details |
 |---|---|---|
-| F1 | 🔐 **Secure Login & Role-Based Redirect** | JWT authentication, refresh tokens, single-session enforcement |
-| F2 | 📧 **Email Verification** | SMTP integration (Mailtrap / Gmail), verification tokens |
-| F3 | 🔑 **Password Reset Via Email** | Forgot-password workflow with secure reset links |
-| F4 | 👤 **Profile Management** | WebP avatar upload, edit profile, change password, reset tour guide |
-| F5 | 📝 **Public Registration** | Student or Tutor role selection during sign-up |
-| F6 | 📚 **Course Management & Enrollment** | Full CRUD, paginated enrollment, bulk review, enroll/drop, search & filter |
-| F7 | 📁 **File Sharing (Course Materials)** | Upload, download, and manage course resources |
-| F8 | 📢 **Announcements** | Post, feed, priority pinning for courses |
-| F9 | 📋 **Assignment Management System** | Task lifecycle, file submissions, ZIP bulk export, review & grading |
-| F10 | 🔔 **Notifications** | In-app and email notifications for all key system events |
-| F11 | 🗓️ **Exam Management & Notifications** | CRUD, publish workflow, scheduling, deadline management, reminders |
-| F12 | 🔄 **Re-Attempt & Re-Open Requests** | Students request re-attempts/re-opens, tutors approve with configurable extensions (24h/48h/72h/custom) |
-| F13 | 🏦 **Question Bank Management** | Centralized course-level question bank (MCQ, True/False, Short Answer) with image support |
-| F14 | ⚡ **Exam Engine + Secure Token** | Countdown timer, question navigator, auto-submit on timeout, cryptographic question randomization |
-| F15 | 📊 **Exam Results & Auto-Grading** | Confetti animation, per-question review, manual grading for short answers |
-| F16 | 📈 **Grade Management Panel** | Bulk publish, CSV export, weighted grade calculation |
-| F17 | 🛡️ **Anti-Cheating Engine** | Browser-native exam integrity system (see details below) |
-| F18 | 📉 **Session Timeline View** | Per-attempt timeline of all student activity during an exam |
-| F19 | ⚠️ **Violation Timeline View** | Detailed violation log with types, timestamps, and severity |
-| F20 | 📡 **Tutor Monitoring Dashboard** | Live overview of ongoing exams and violations for assigned courses |
-| F21 | 🏢 **Admin Dashboard & Users Management** | System-wide admin panel, user lock/unlock, tutor listing, user search |
-| F22 | 🤖 **SHIELDON AI Assistant** | Gemini-powered chatbot with backend proxy, automatically blocked during exams |
-| F23 | 🧭 **Shepherd.js Onboarding Tours** | Role-based guided tours for first-time users |
-| F24 | 📊 **Tutor & Global Analytics Dashboard** | Course-level and system-wide analytics with ECharts visualizations |
-| F25 | 📱 **Dynamic QR Attendance Tracking** | QR code refreshes every 15 seconds, manual override, attendance history |
-| F26 | 📅 **Calendar & Schedule View** | Unified calendar with exams, assignments, and custom events |
-| F27 | 💳 **Online Payment Gateway (Stripe)** | Secure checkout, payment history, pending payments, webhook processing |
-| F28 | 🌓 **Dark / Light Mode** | Seamless theme toggle with CSS custom properties |
-| F29 | 🌍 **English / Arabic (i18n)** | Full RTL support with ngx-translate |
-| F30 | 📱 **Mobile Guard** | Detects and blocks mobile/tablet devices from accessing exam engine |
+| F1 | **Secure Login & Role-Based Redirect** | JWT authentication, refresh tokens, single-session enforcement |
+| F2 | **Email Verification** | SMTP integration (Mailtrap / Gmail), verification tokens |
+| F3 | **Password Reset Via Email** | Forgot-password workflow with secure reset links |
+| F4 | **Profile Management** | WebP avatar upload, edit profile, change password, reset tour guide |
+| F5 | **Public Registration** | Student or Tutor role selection during sign-up |
+| F6 | **Course Management & Enrollment** | Full CRUD, paginated enrollment, bulk review, enroll/drop, search & filter |
+| F7 | **File Sharing (Course Materials)** | Upload, download, and manage course resources |
+| F8 | **Announcements** | Post, feed, priority pinning for courses |
+| F9 | **Assignment Management System** | Task lifecycle, file submissions, ZIP bulk export, review & grading |
+| F10 | **Notifications** | In-app and email notifications for all key system events |
+| F11 | **Exam Management & Notifications** | CRUD, publish workflow, scheduling, deadline management, reminders |
+| F12 | **Re-Attempt & Re-Open Requests** | Students request re-attempts/re-opens, tutors approve with configurable extensions (24h/48h/72h/custom) |
+| F13 | **Question Bank Management** | Centralized course-level question bank (MCQ, True/False, Short Answer) with image support |
+| F14 | **Exam Engine + Secure Token** | Countdown timer, question navigator, auto-submit on timeout, cryptographic question randomization |
+| F15 | **Exam Results & Auto-Grading** | Confetti animation, per-question review, manual grading for short answers |
+| F16 | **Grade Management Panel** | Bulk publish, CSV export, weighted grade calculation |
+| F17 | **Anti-Cheating Engine** | Browser-native exam integrity system (see details below) |
+| F18 | **Session Timeline View** | Per-attempt timeline of all student activity during an exam |
+| F19 | **Violation Timeline View** | Detailed violation log with types, timestamps, and severity |
+| F20 | **Tutor Monitoring Dashboard** | Live overview of ongoing exams and violations for assigned courses |
+| F21 | **Admin Dashboard & Users Management** | System-wide admin panel, user lock/unlock, tutor listing, user search |
+| F22 | **SHIELDON AI Assistant** | Gemini-powered chatbot with backend proxy, automatically blocked during exams |
+| F23 | **Shepherd.js Onboarding Tours** | Role-based guided tours for first-time users |
+| F24 | **Tutor & Global Analytics Dashboard** | Course-level and system-wide analytics with ECharts visualizations |
+| F25 | **Dynamic QR Attendance Tracking** | QR code refreshes every 15 seconds, manual override, attendance history |
+| F26 | **Calendar & Schedule View** | Unified calendar with exams, assignments, and custom events |
+| F27 | **Online Payment Gateway (Stripe)** | Secure checkout, payment history, pending payments, webhook processing |
+| F28 | **Dark / Light Mode** | Seamless theme toggle with CSS custom properties |
+| F29 | **English / Arabic (i18n)** | Full RTL support with ngx-translate |
+| F30 | **Mobile Guard** | Detects and blocks mobile/tablet devices from accessing exam engine |
 
 ### 🛡️ Anti-Cheating Engine — Sub-Features (F17)
 
@@ -155,15 +155,15 @@ The Anti-Cheating Engine is built entirely with browser Web APIs — no plugins 
 
 | # | Sub-Feature | Description |
 |---|---|---|
-| 17-1 | 📜 **Pre-Exam Rules Acknowledgment Modal** | Students must read and accept exam integrity rules before starting |
-| 17-2 | ⌨️ **Keyboard Shortcut Blocking** | Blocks Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A, Ctrl+P, Ctrl+F, Ctrl+U, F12, Ctrl+Shift+I/J, Esc, Alt+Tab |
-| 17-3 | 📐 **Window Resize / Minimize / Split Detection** | Detects split-screen, window resizing, and minimize attempts |
-| 17-4 | 🖱️ **Mouse Monitoring (Pattern Analysis)** | Tracks mouse movement patterns for anomaly detection |
-| 17-5 | 🚫 **Selection by Mouse Blocking** | Prevents text selection via mouse during exams |
-| 17-6 | 🖱️ **Right-Click Context Menu Blocking** | Disables right-click to prevent copy/paste/inspect operations |
-| 17-7 | 🧠 **Violation Intelligence Layer** | Severity scoring per violation type + cooldown periods to prevent duplicate flooding |
-| 17-8 | ⚠️ **Warning System & Force-Submit** | 3-strike escalation — warnings → final warning → auto force-submit |
-| 17-9 | 🔄 **Monitoring Continuity on Reconnect** | Anti-cheat resumes seamlessly if the student reconnects or refreshes |
+| 1 | **Pre-Exam Rules Acknowledgment Modal** | Students must read and accept exam integrity rules before starting |
+| 2 | **Keyboard Shortcut Blocking** | Blocks Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A, Ctrl+P, Ctrl+F, Ctrl+U, F12, Ctrl+Shift+I/J, Esc, Alt+Tab |
+| 3 | **Window Resize / Minimize / Split Detection** | Detects split-screen, window resizing, and minimize attempts |
+| 4 | **Mouse Monitoring (Pattern Analysis)** | Tracks mouse movement patterns for anomaly detection |
+| 5 | **Selection by Mouse Blocking** | Prevents text selection via mouse during exams |
+| 6 | **Right-Click Context Menu Blocking** | Disables right-click to prevent copy/paste/inspect operations |
+| 7 | **Violation Intelligence Layer** | Severity scoring per violation type + cooldown periods to prevent duplicate flooding |
+| 8 | **Warning System & Force-Submit** | 3-strike escalation — warnings → final warning → auto force-submit |
+| 9 | **Monitoring Continuity on Reconnect** | Anti-cheat resumes seamlessly if the student reconnects or refreshes |
 
 ---
 
@@ -171,20 +171,20 @@ The Anti-Cheating Engine is built entirely with browser Web APIs — no plugins 
 
 If you are new to development and want to run this project on your own computer, you need to download and install the following tools first. They are all free! 🆓
 
-1. 🟢 **Node.js**: Required to run the frontend.
+1. **Node.js**: Required to run the frontend.
    - Download the **LTS** version from [nodejs.org](https://nodejs.org/).
    - Run the installer and follow the default steps.
-2. 🟣 **.NET 9 SDK**: The engine that runs the backend.
+2. **.NET 9 SDK**: The engine that runs the backend.
    - Download from [dotnet.microsoft.com](https://dotnet.microsoft.com/download/dotnet/9.0).
    - Look for the ".NET SDK" installer for your operating system.
-3. 🗄️ **SQL Server**: The database where all data will be stored.
+3. **SQL Server**: The database where all data will be stored.
    - Download **SQL Server Express** from [Microsoft](https://www.microsoft.com/sql-server/sql-server-downloads).
    - Choose the "Basic" installation type.
-4. 🔍 **SSMS (SQL Server Management Studio)**: A visual program to inspect your database.
+4. **SSMS (SQL Server Management Studio)**: A visual program to inspect your database.
    - Download from [Microsoft Docs](https://learn.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms).
-5. 🌿 **Git**: A tool to clone the project from GitHub.
+5. **Git**: A tool to clone the project from GitHub.
    - Download from [git-scm.com](https://git-scm.com/).
-6. 💳 **Stripe CLI** _(optional, for payment testing)_:
+6. **Stripe CLI** _(optional, for payment testing)_:
    - Download from [stripe.com/docs/stripe-cli](https://docs.stripe.com/stripe-cli).
 
 ---
@@ -209,7 +209,7 @@ This downloads the project files to your computer. 📥
 
 ### 2. Backend Database Configuration (CRUCIAL STEP)
 
-⚠️ Before running the backend, you must configure it to connect to your local SQL Server.
+Before running the backend, you must configure it to connect to your local SQL Server.
 
 1. Navigate to the backend directory:
    ```bash
@@ -227,23 +227,23 @@ This downloads the project files to your computer. 📥
    }
    ```
 
-4. 💾 Save the file(s).
+4. Save the file(s).
 
 ### 3. Initialize and Update the Database
 
-Now we tell Entity Framework to build the tables in your SQL Server. 🏗️
+Now we tell Entity Framework to build the tables in your SQL Server.
 
 1. Keep your terminal in the `backend` folder (NOT inside `SHIELDON.API`).
 2. Ensure the EF Core CLI tools are installed globally:
    ```bash
    dotnet tool install -g dotnet-ef
    ```
-   _(If it says already installed, that's perfect! ✅)_
+   (If it says already installed, that's perfect!)
 3. Apply all migrations:
    ```bash
    dotnet ef database update --project SHIELDON.Infrastructure --startup-project SHIELDON.API
    ```
-4. **Verification** ✅: Open SSMS, connect to your server, expand "Databases", and you should see `SHIELDON_DB` with all tables created!
+4. **Verification**: Open SSMS, connect to your server, expand "Databases", and you should see `SHIELDON_DB` with all tables created!
 
 ### 4. Run the Backend API
 
@@ -255,10 +255,10 @@ Now we tell Entity Framework to build the tables in your SQL Server. 🏗️
    ```bash
    dotnet run
    ```
-   _(Or use `dotnet watch run` for hot-reloading 🔥)_
+   (Or use `dotnet watch run` for hot-reloading)
 3. The backend is now running! Visit the live API docs at:
    👉 `http://localhost:5000/swagger`
-4. 🚨 Keep this terminal window open.
+4. Keep this terminal window open.
 
 ### 5. Run the Frontend Application
 
@@ -271,31 +271,31 @@ Now we tell Entity Framework to build the tables in your SQL Server. 🏗️
    ```bash
    npm install
    ```
-   _(This may take a couple of minutes ⏳)_
+   (This may take a couple of minutes)
 4. Start the Angular dev server:
    ```bash
    npm start
    ```
-5. Wait until compilation is successful ✅.
+5. Wait until compilation is successful.
 6. Open your browser and go to:
    👉 `http://localhost:4201`
 
-🎉 **Congratulations! You are now running SHIELDON on your local machine!**
+## Congratulations! You are now running SHIELDON on your local machine!
 
 ### 6. Stripe Payment Setup (Optional)
 
 To enable the online payment gateway, you need a Stripe account and the Stripe CLI.
 
-#### 📝 Step A: Create a Stripe Account & Get API Keys
+#### Step A: Create a Stripe Account & Get API Keys
 1. Go to [stripe.com](https://stripe.com) and create a **free** account.
 2. After logging in, make sure you are in **Test mode** (toggle in the top-right of the dashboard).
 3. Navigate to [Developers → API Keys](https://dashboard.stripe.com/test/apikeys).
 4. You will see two keys:
-   - 🔓 **Publishable key** — starts with `pk_test_...`
-   - 🔐 **Secret key** — starts with `sk_test_...` (click "Reveal test key" to see it)
+   - **Publishable key** — starts with `pk_test_...`
+   - **Secret key** — starts with `sk_test_...` (click "Reveal test key" to see it)
 5. Copy both keys — you'll need them in the next step.
 
-#### 📥 Step B: Install the Stripe CLI
+#### Step B: Install the Stripe CLI
 The Stripe CLI is a command-line tool that forwards payment events from Stripe's servers to your local machine.
 
 **Option 1 — Download manually (recommended for beginners):**
@@ -321,9 +321,9 @@ brew install stripe/stripe-cli/stripe
    ```bash
    stripe login
    ```
-   This will open your browser to authenticate. Follow the instructions and press Enter when done. ✅
+   This will open your browser to authenticate. Follow the instructions and press Enter when done.
 
-#### 🔧 Step C: Configure Backend
+#### Step C: Configure Backend
 1. Open `backend/SHIELDON.API/appsettings.json`.
 2. Locate the `"Stripe"` section and fill in your keys:
    ```json
@@ -333,9 +333,9 @@ brew install stripe/stripe-cli/stripe
      "WebhookSecret": "whsec_YOUR_WEBHOOK_SECRET"
    }
    ```
-   > ⚠️ You'll get the `WebhookSecret` in the next step — leave it blank for now.
+   > You'll get the `WebhookSecret` in the next step — leave it blank for now.
 
-#### 🔄 Step D: Run Stripe CLI for Webhooks
+#### Step D: Run Stripe CLI for Webhooks
 The Stripe CLI forwards webhook events (like `checkout.session.completed`) to your local backend so payments are processed correctly.
 
 1. Open a **new terminal** and navigate to your project root:
@@ -358,13 +358,13 @@ The Stripe CLI forwards webhook events (like `checkout.session.completed`) to yo
    ```
    > Ready! Your webhook signing secret is whsec_abc123...
    ```
-4. ⚠️ **Copy this `whsec_...` value** and paste it into `appsettings.json` → `Stripe.WebhookSecret`.
+4. **Copy this `whsec_...` value** and paste it into `appsettings.json` → `Stripe.WebhookSecret`.
 5. **Restart the backend** after updating the secret.
-6. 🚨 **Keep this terminal open** while testing payments — it must be running to receive Stripe events.
+6. **Keep this terminal open** while testing payments — it must be running to receive Stripe events.
 
-#### 💳 Step E: Test Payments
+#### Step E: Test Payments
 
-Use Stripe's official test card numbers to simulate different payment scenarios. No real money is charged. 💸
+Use Stripe's official test card numbers to simulate different payment scenarios. No real money is charged.
 
 ##### ✅ Success Cards
 
@@ -384,9 +384,9 @@ Use Stripe's official test card numbers to simulate different payment scenarios.
 | `4000 0000 0000 0119` | Processing error |
 
 **For all test cards, use:**
-- 📅 **Expiry:** Any future date (e.g., `12/30`)
-- 🔢 **CVC:** Any 3 digits (e.g., `123`)
-- 👤 **Name / ZIP:** Any values
+- **Expiry:** Any future date (e.g., `12/30`)
+- **CVC:** Any 3 digits (e.g., `123`)
+- **Name / ZIP:** Any values
 
 ---
 
@@ -394,20 +394,20 @@ Use Stripe's official test card numbers to simulate different payment scenarios.
 
 To test the different roles in the system:
 
-### 🔑 1. Test as Admin
+### 1. Test as Admin
 
 The system comes with a pre-seeded Admin account (you cannot register an Admin via the app for security reasons).
 
 | Field | Value |
 |---|---|
-| 📧 **Email** | `admin@shieldon.com` |
-| 🔒 **Password** | `Admin@Shieldon2025!` |
+| **Email** | `admin@shieldon.com` |
+| **Password** | `Admin@Shieldon2025!` |
 
-### 👨‍🏫 2. Test as Tutor or Student
+### 2. Test as Tutor or Student
 
 1. Go to the landing page and click **Register** (or go to `/register`).
 2. Fill in the details and select the role (**Tutor** or **Student**).
-3. Complete registration. You can now log in with your new account! ✅
+3. Complete registration. You can now log in with your new account!
 
 ---
 
@@ -418,7 +418,7 @@ The backend exposes a comprehensive RESTful API. For an interactive view, run th
 
 Below is the complete endpoint reference:
 
-### 🔐 Authentication (`/api/auth`)
+### Authentication (`/api/auth`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -431,7 +431,7 @@ Below is the complete endpoint reference:
 | `POST` | `/api/auth/forgot-password` | Request a password reset email |
 | `POST` | `/api/auth/reset-password` | Reset password using token |
 
-### 👤 Profile (`/api/profile`)
+### Profile (`/api/profile`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -442,7 +442,7 @@ Below is the complete endpoint reference:
 | `PATCH` | `/api/profile/onboarding-complete` | Mark onboarding tour as complete |
 | `PATCH` | `/api/profile/onboarding-reset` | Reset onboarding tour status |
 
-### 👥 Users Management (`/api/users`)
+### Users Management (`/api/users`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -451,7 +451,7 @@ Below is the complete endpoint reference:
 | `POST` | `/api/users/{id}/lock` | Lock a user account |
 | `POST` | `/api/users/{id}/unlock` | Unlock a user account |
 
-### 📚 Courses (`/api/courses`)
+### Courses (`/api/courses`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -467,7 +467,7 @@ Below is the complete endpoint reference:
 | `POST` | `/api/courses/enrollments/bulk-review` | Bulk approve/reject enrollments |
 | `GET` | `/api/courses/enrollments/my` | Get student's own enrollment statuses |
 
-### 📢 Announcements (`/api/courses/{courseId}/announcements`)
+### Announcements (`/api/courses/{courseId}/announcements`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -475,7 +475,7 @@ Below is the complete endpoint reference:
 | `POST` | `/api/courses/{courseId}/announcements` | Create an announcement |
 | `DELETE` | `/api/courses/{courseId}/announcements/{announcementId}` | Delete an announcement |
 
-### 📁 Course Materials (`/api/courses/{courseId}/materials`)
+### Course Materials (`/api/courses/{courseId}/materials`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -484,7 +484,7 @@ Below is the complete endpoint reference:
 | `GET` | `/api/courses/{courseId}/materials/{materialId}/download` | Download a material file |
 | `DELETE` | `/api/courses/{courseId}/materials/{materialId}` | Delete a material |
 
-### 📋 Assignments (`/api/courses/{courseId}/assignments`)
+### Assignments (`/api/courses/{courseId}/assignments`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -500,7 +500,7 @@ Below is the complete endpoint reference:
 | `GET` | `/api/courses/{courseId}/assignments/{assignmentId}/submissions/download-all` | Bulk download all submissions (ZIP) |
 | `POST` | `/api/courses/{courseId}/assignments/{assignmentId}/submissions/{submissionId}/review` | Grade/review a submission |
 
-### 🏦 Question Bank (`/api/courses/{courseId}/question-bank`)
+### Question Bank (`/api/courses/{courseId}/question-bank`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -516,7 +516,7 @@ Below is the complete endpoint reference:
 | `POST` | `/api/courses/{courseId}/question-bank/{questionId}/image` | Upload question image |
 | `DELETE` | `/api/courses/{courseId}/question-bank/{questionId}/image` | Delete question image |
 
-### 📝 Exams (`/api/courses/{courseId}/exams` & `/api/exams`)
+### Exams (`/api/courses/{courseId}/exams` & `/api/exams`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -527,7 +527,7 @@ Below is the complete endpoint reference:
 | `DELETE` | `/api/exams/{examId}` | Delete an exam |
 | `PATCH` | `/api/exams/{examId}/publish` | Publish an exam |
 
-### ⚡ Exam Attempts (`/api`)
+### Exam Attempts (`/api`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -536,7 +536,7 @@ Below is the complete endpoint reference:
 | `POST` | `/api/exam-attempts/{attemptId}/submit` | Submit the exam |
 | `POST` | `/api/exam-attempts/{attemptId}/force-submit` | Force-submit (timeout/violation) |
 
-### 📊 Exam Results (`/api`)
+### Exam Results (`/api`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -547,7 +547,7 @@ Below is the complete endpoint reference:
 | `POST` | `/api/exams/{examId}/release-results` | Release results to all students |
 | `GET` | `/api/exams/{examId}/export` | Export results as CSV |
 
-### 🔄 Re-Attempt Requests (`/api/reattempt-requests`)
+### Re-Attempt Requests (`/api/reattempt-requests`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -557,7 +557,7 @@ Below is the complete endpoint reference:
 | `GET` | `/api/reattempt-requests/mine` | Get student's own requests |
 | `PATCH` | `/api/reattempt-requests/{requestId}/review` | Approve/reject with optional extension |
 
-### 🛡️ Violations (`/api/violations`)
+### Violations (`/api/violations`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -565,7 +565,7 @@ Below is the complete endpoint reference:
 | `GET` | `/api/attempts/{attemptId}/violations` | Get violations for an attempt |
 | `GET` | `/api/exams/{examId}/violations` | Get all violations for an exam |
 
-### 📡 Monitoring (`/api/monitoring`)
+### Monitoring (`/api/monitoring`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -574,7 +574,7 @@ Below is the complete endpoint reference:
 | `GET` | `/api/monitoring/tutor/dashboard` | Tutor monitoring dashboard data |
 | `GET` | `/api/monitoring/admin/dashboard` | Admin monitoring dashboard data |
 
-### 📈 Grades (`/api`)
+### Grades (`/api`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -585,7 +585,7 @@ Below is the complete endpoint reference:
 | `POST` | `/api/courses/{courseId}/grades/publish` | Bulk publish grades |
 | `GET` | `/api/courses/{courseId}/grades/export` | Export grades as CSV |
 
-### 🔔 Notifications (`/api/notifications`)
+### Notifications (`/api/notifications`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -595,7 +595,7 @@ Below is the complete endpoint reference:
 | `PATCH` | `/api/notifications/mark-all-read` | Mark all notifications as read |
 | `DELETE` | `/api/notifications` | Clear all notifications |
 
-### 📱 Attendance (`/api/attendance`)
+### Attendance (`/api/attendance`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -609,7 +609,7 @@ Below is the complete endpoint reference:
 | `POST` | `/api/attendance/checks/{id}/scan` | Student scans QR code |
 | `GET` | `/api/attendance/my-history` | Student's own attendance history |
 
-### 💬 Chat (`/api/chat`)
+### Chat (`/api/chat`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -618,7 +618,7 @@ Below is the complete endpoint reference:
 | `GET` | `/api/chat/users` | Search users to start a chat |
 | `GET` | `/api/chat/conversation-id` | Get/create conversation with a user |
 
-### 📅 Calendar (`/api/calendar`)
+### Calendar (`/api/calendar`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -627,7 +627,7 @@ Below is the complete endpoint reference:
 | `PUT` | `/api/calendar/events/custom/{eventId}` | Update a custom event |
 | `DELETE` | `/api/calendar/events/custom/{eventId}` | Delete a custom event |
 
-### 💳 Payments (`/api/payment`)
+### Payments (`/api/payment`)
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -635,19 +635,19 @@ Below is the complete endpoint reference:
 | `GET` | `/api/payment/pending` | Get pending payments |
 | `POST` | `/api/payment/checkout` | Create Stripe checkout session |
 
-### 🔗 Stripe Webhook (`/api/webhooks/stripe`)
+### Stripe Webhook (`/api/webhooks/stripe`)
 
 | Method | Endpoint | Description |
 |---|---|---|
 | `POST` | `/api/webhooks/stripe` | Handles Stripe webhook events (anonymous) |
 
-### 🤖 AI Assistant (`/api/ai`)
+### AI Assistant (`/api/ai`)
 
 | Method | Endpoint | Description |
 |---|---|---|
 | `POST` | `/api/ai/chat` | Send a message to the AI assistant |
 
-### 🖼️ Static Files (`/uploads`)
+### Static Files (`/uploads`)
 
 | Method | Endpoint | Description |
 |---|---|---|
