@@ -20,13 +20,22 @@ public record AddQuestionRequest(
     bool? TrueFalseCorrectAnswer = null
 );
 
+/// <summary>
+/// Sent as multipart/form-data when a question image is uploaded.
+/// The image file itself is bound separately by the controller via IFormFile.
+/// Max size: 5 MB. Allowed extensions: .jpg, .jpeg, .png, .gif, .webp
+/// </summary>
+public record UploadQuestionImageRequest(Guid QuestionId);
+
 /// <summary>Updates a bank question. Only the fields provided are changed.</summary>
 public record UpdateQuestionRequest(
     string? QuestionText,
     decimal? Points,
     bool? IsRandomized,
     List<AddOptionRequest>? Options = null,
-    bool? TrueFalseCorrectAnswer = null
+    bool? TrueFalseCorrectAnswer = null,
+    /// <summary>Pass null to keep existing. Pass empty string to remove the image.</summary>
+    string? ImageUrl = null
 );
 
 /// <summary>Bulk reorder payload - send all questions with their new OrderIndex values.</summary>
@@ -65,8 +74,10 @@ public record ExamSelectionRuleResponse(
 /// </summary>
 public record QuestionResponse(
     Guid Id,
-    Guid CourseId,         // ← was ExamId; now course-scoped
+    Guid CourseId,
     string QuestionText,
+    /// <summary>Relative URL to the question image (if any). Null if no image uploaded.</summary>
+    string? ImageUrl,
     string Type,
     decimal Points,
     int OrderIndex,
@@ -89,6 +100,7 @@ public record QuestionSummaryResponse(
     Guid Id,
     Guid CourseId,
     string QuestionText,
+    string? ImageUrl,
     string Type,
     decimal Points,
     int OrderIndex

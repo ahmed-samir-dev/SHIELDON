@@ -13,6 +13,7 @@ import { ExamAttemptService, StartExamResponse, StudentQuestionDto, QuestionType
 import { AntiCheatService } from '../../anti-cheat/anti-cheat.service';
 import { AntiCheatOverlayComponent } from '../../anti-cheat/anti-cheat-overlay/anti-cheat-overlay';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { environment } from '../../../../environments/environment';
 
 type EngineState = 'loading' | 'rules' | 'active' | 'review' | 'submitting' | 'error';
 
@@ -397,5 +398,12 @@ export class ExamEngine implements OnInit, OnDestroy {
   getExamQuestionCount(exam: ExamDetailResponse | null): number {
     if (!exam || !exam.selectionRules) return 0;
     return exam.selectionRules.reduce((sum, rule) => sum + rule.count, 0);
+  }
+
+  getImageUrl(url: string | null | undefined): string {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    const apiUrl = environment.apiUrl.replace('/api', '');
+    return `${apiUrl}/${url}`;
   }
 }

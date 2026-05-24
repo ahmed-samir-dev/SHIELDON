@@ -138,6 +138,11 @@
 
             <div class="q-text">{{ q.text }}</div>
 
+            <!-- Question Image -->
+            @if (q.imageUrl) {
+              <img [src]="getImageUrl(q.imageUrl)" alt="Question Image" class="q-image-display">
+            }
+
             <!-- MCQ / TrueFalse Options -->
             <div class="options-list" *ngIf="q.type === 'MCQ' || q.type === 'TrueFalse'">
               <label *ngFor="let opt of q.options" 

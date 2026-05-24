@@ -1,100 +1,128 @@
-# SHIELDON - Frontend
+# 🛡️ SHIELDON - Frontend
 
 <div align="center">
-  <img src="https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white" alt="Angular" />
+  <img src="https://img.shields.io/badge/Angular_21-DD0031?style=for-the-badge&logo=angular&logoColor=white" alt="Angular 21" />
   <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Sass-CC6699?style=for-the-badge&logo=sass&logoColor=white" alt="Sass" />
 </div>
 
-> The user interface for the SHIELDON Learning Management System & Anti-Cheating Engine.
+> 🖥️ The user interface for the SHIELDON Learning Management System & Anti-Cheating Engine.
 > Built with Angular 21.
 
 ---
 
-## Project Overview
+## 📑 Table of Contents
 
-This directory contains the frontend application for the **SHIELDON** platform. It provides a modern, responsive, and secure user interface for students, tutors, and administrators. 
+- [🔭 Project Overview](#-project-overview)
+- [⚙️ Technology Stack](#️-technology-stack)
+- [📋 Prerequisites](#-prerequisites-for-beginners)
+- [🔧 Installation & Setup](#-installation--setup-step-by-step-guide)
+- [🏛️ Architecture & Folder Structure](#️-architecture--folder-structure)
+- [🚀 Feature List (F1 – F30)](#-comprehensive-feature-list-f1--f30)
+- [🛡️ Anti-Cheating Engine](#️-anti-cheating-engine--sub-features-f17)
+- [🌿 Git Workflow](#-git-workflow)
+
+---
+
+## 🔭 Project Overview
+
+This directory contains the frontend application for the **SHIELDON** platform. It provides a modern, responsive, and secure user interface for students, tutors, and administrators.
 
 The frontend is responsible for:
-- 📚 Delivering the Learning Management System experience (viewing courses, downloading materials, submitting assignments).
-- 🛡️ Enforcing the **Anti-Cheating Engine** rules natively in the browser during exams.
-- 📈 Displaying rich visual analytics and monitoring dashboards using Apache ECharts.
-- 🤖 Providing an interactive AI assistant for student support.
+- 📚 Delivering the Learning Management System experience (courses, materials, assignments, exams)
+- 🛡️ Enforcing the **Anti-Cheating Engine** rules natively in the browser during exams
+- 📈 Displaying rich visual analytics and monitoring dashboards using Apache ECharts
+- 🤖 Providing an interactive AI assistant for student support
+- 💬 Real-time chat system between users
+- 📱 Dynamic QR attendance scanning
+- 📅 Unified calendar with exams, assignments, and custom events
+- 💳 Online payment interface via Stripe Checkout
+- 🌓 Dark / Light mode with CSS custom properties
+- 🌍 Full English / Arabic (RTL) internationalization
 
 ---
 
-## Technology Stack
+## ⚙️ Technology Stack
 
-- 🅰️ **Framework**: Angular 21 (Standalone Components)
-- 🔷 **Language**: TypeScript (Strict mode enabled)
-- 🎨 **Styling**: Vanilla CSS / SCSS with CSS Custom Properties (Design Tokens)
-- 📊 **Charts**: Apache ECharts (via ngx-echarts)
-- 🧩 **UI / UX**: Lucide Icons, SweetAlert2, ngx-toastr, canvas-confetti, Shepherd.js
-- **Animations**: canvas-confetti (for results), CSS keyframes
-- **Guided Tours**: Shepherd.js
+| Technology | Purpose |
+|---|---|
+| 🅰️ **Angular 21** | Framework (Standalone Components) |
+| 🔷 **TypeScript** | Language (Strict mode enabled) |
+| 🎨 **SCSS** | Styling with CSS Custom Properties (Design Tokens) |
+| 📊 **Apache ECharts** | Charts & analytics (via ngx-echarts) |
+| 🧩 **Lucide Icons** | Icon library |
+| 🍬 **SweetAlert2** | Beautiful modal dialogs |
+| 🔔 **ngx-toastr** | Toast notifications |
+| 🎉 **canvas-confetti** | Celebration effects (exam results) |
+| 🧭 **Shepherd.js** | Guided onboarding tours |
+| 🌍 **ngx-translate** | Internationalization (EN / AR with RTL) |
+| 💳 **Stripe.js** | Client-side payment integration |
 
 ---
 
-## Prerequisites (For Beginners)
+## 📋 Prerequisites (For Beginners)
 
-If you have zero previous technical background and want to run the frontend part on your device, you need to install these tools first:
+If you have zero previous technical background and want to run the frontend part on your device, you need to install these tools first: 🆓
 
-1. **Node.js**: This is the environment that allows the frontend code to run.
+1. 🟢 **Node.js**: The environment that allows the frontend code to run.
    - Download the **LTS** version from [nodejs.org](https://nodejs.org/).
    - Follow the default installation steps.
-2. **Git**: Required to download the project files (if you haven't already).
+2. 🌿 **Git**: Required to download the project files (if you haven't already).
    - Download from [git-scm.com](https://git-scm.com/).
 
 ---
 
-## Installation & Setup (Step-by-Step Guide)
+## 🔧 Installation & Setup (Step-by-Step Guide)
 
-> ⚠️ **CRITICAL REQUIREMENT:** The SHIELDON Frontend **cannot function without the Backend API**. You MUST complete the backend database setup and have the backend API running before you can log in or use the frontend. See the root `README.md` for full database configuration steps.
+> ⚠️ **CRITICAL REQUIREMENT:** The SHIELDON Frontend **cannot function without the Backend API**. You MUST complete the backend database setup and have the backend API running before you can log in or use the frontend. See the root [README.md](../README.md) for full database configuration steps.
 
-Follow these comprehensive steps to get the frontend running:
+Follow these steps to get the frontend running: 🚀
 
 ### 1. Ensure Backend is Running
-1. Verify that your SQL Server is running.
-2. Verify that the `.NET 9` backend is actively running (usually on `http://localhost:5000`).
-3. **Keep the backend terminal open** in the background.
+
+1. ✅ Verify that your SQL Server is running.
+2. ✅ Verify that the `.NET 9` backend is actively running (usually on `http://localhost:5000`).
+3. 🚨 **Keep the backend terminal open** in the background.
 
 ### 2. Run the Frontend Application
+
 1. Open a **new, completely separate** terminal window (or Command Prompt / PowerShell).
 2. Navigate to the frontend directory of the project:
    ```bash
    cd path/to/SHIELDON/frontend
    ```
-3. Install all the required Node modules and dependencies:
+3. Install all required dependencies:
    ```bash
    npm install
    ```
-   *(This may take a couple of minutes depending on your internet connection as it downloads Angular and all required UI libraries).*
+   _(This may take a couple of minutes ⏳ as it downloads Angular and all required UI libraries)._
 4. Start the Angular development server:
    ```bash
    npm start
    ```
-5. Wait until the terminal says "Compiled successfully".
-6. Finally, open your web browser and go to:
+5. Wait until the terminal says "Compiled successfully" ✅.
+6. Open your web browser and go to:
    👉 `http://localhost:4201`
-   *(Note: The port is explicitly set to 4201 to avoid conflicts).*
+   _(Note: The port is explicitly set to 4201 to avoid conflicts)._
 
-**Congratulations! The frontend is now running and talking to your local backend.**
+🎉 **Congratulations! The frontend is now running and talking to your local backend.**
 
 ---
 
-## Architecture & Folder Structure
+## 🏛️ Architecture & Folder Structure
 
-The frontend follows a feature-based organization (Vertical Slice) to keep code maintainable:
+The frontend follows a **feature-based organization (Vertical Slice)** to keep code maintainable:
 
 ```
 src/app/
 ├── core/                    ← Singleton services, guards, and interceptors
 │   ├── guards/              ← Auth and Role guards
 │   ├── interceptors/        ← JWT and Error interceptors
-│   └── services/            ← AuthService, TokenService
+│   ├── models/              ← TypeScript interfaces and DTOs
+│   └── services/            ← AuthService, TokenService, LanguageService
 │
 ├── shared/                  ← Reusable UI components used across features
-│   ├── components/          ← Buttons, Inputs, Custom Cards
+│   ├── components/          ← Navbar, Sidebar, Shared UI elements
 │   ├── directives/          ← Password eye toggle, etc.
 │   └── pipes/               ← Date formatting, etc.
 │
@@ -104,62 +132,85 @@ src/app/
 │
 └── features/                ← One folder per feature slice
     ├── auth/                ← Login, Registration, Password Reset
-    ├── courses/             ← Course cards, Enrollment, Materials
-    ├── exams/               ← Exam taking interface and countdowns
+    ├── courses/             ← Course cards, Enrollment, Materials, Exams
+    ├── exams/               ← Exam results, Re-attempt requests
+    ├── anti-cheat/          ← Anti-Cheating Engine service & overlay
     ├── monitoring/          ← Violation timelines and session logs
-    └── dashboards/          ← Analytics screens for Tutors and Admins
+    ├── grades/              ← Grade management and student grades
+    ├── admin/               ← Admin dashboard, Users management
+    ├── chat/                ← Real-time messaging
+    ├── attendance/          ← QR attendance scanning & history
+    ├── calendar/            ← Calendar & schedule view
+    ├── payment/             ← Stripe checkout & payment history
+    ├── profile/             ← Profile management & avatar
+    └── public/              ← Landing page, mobile guard
 ```
 
 ---
 
-## 🚀 Comprehensive Feature List (F1 - F31)
+## 🚀 Comprehensive Feature List (F1 – F30)
 
-- **F1: Secure Login & Role-Based Redirect** (JWT, single-session enforcement)
-- **F2: Email Verification** (SMTP integration, verification tokens)
-- **F3: Password Reset Via Email** (forgot-password workflow)
-- **F4: Profile Management** (WebP avatar upload, edit profile, change password and reset tour guide)
-- **F5: Public Registration** (Student or Tutor role selection)
-- **F6: Course Management & Enrollment** (CRUD, bulk review, enroll/drop)
-- **F7: File Sharing** (Course Materials)
-- **F8: Announcements** (post, feed, priority pinning)
-- **F9: Assignment Management System** (task lifecycle, ZIP bulk export)
-- **F10: Notifications** (In-app and email) & Advanced Enrollment Polish
-- **F11: Exam Management & Notifications** (CRUD, publish workflow, reminders)
-- **F12: Re-Attempt Requests**
-- **F13: Question Bank Management** (Centralized course-level bank)
-- **F14/F15: Exam Engine + Secure Token** (countdown, navigator, auto-submit)
-- **F16: Exam Results & Auto-Grading** (confetti, per-question review)
-- **F17: Grade Management Panel** (bulk publish, CSV export)
-- **F18: Anti-Cheating Engine** contains:
-  - **18-1:** Pre-exam rules acknowledgment modal
-  - **18-2:** Keyboard shortcut blocking (CTRL+C, ... etc)
-  - **18-3:** Window resize / minimize / split detection
-  - **18-4:** Mouse monitoring (pattern analysis)
-  - **18-5:** Selection by mouse blocking
-  - **18-6:** Blocking Right click options to do operations
-  - **18-7:** Violation intelligence layer (severity + cooldown)
-  - **18-8:** Warning system and force-submit (3-strike escalation)
-  - **18-9:** Monitoring continuity on reconnect
-- **F19: Session timeline view**
-- **F20: Violation timeline view**
-- **F21: Tutor monitoring dashboard**
-- **F22: Admin dashboard and users management**
-- **F23: SHIELDON AI Assistant** (Gemini-powered chatbot, backend proxy, blocked during exams)
-- **F24: Shepherd.js onboarding tours** (Role-based guided tours)
-- **F25: SHIELDON AI Assistant** *(Integrated)*
-- **F26: Real-time Chat System**
-- **F27: Dynamic QR Attendance Tracking**
-- **F28: Calendar & Schedule View**
-- **F29: Online Payment Gateway**
-- **F30: Dark / Light mode**
-- **F31: English / Arabic**
+| # | Feature | Details |
+|---|---|---|
+| F1 | 🔐 **Secure Login & Role-Based Redirect** | JWT authentication, refresh tokens, single-session enforcement |
+| F2 | 📧 **Email Verification** | SMTP integration (Mailtrap / Gmail), verification tokens |
+| F3 | 🔑 **Password Reset Via Email** | Forgot-password workflow with secure reset links |
+| F4 | 👤 **Profile Management** | WebP avatar upload, edit profile, change password, reset tour guide |
+| F5 | 📝 **Public Registration** | Student or Tutor role selection during sign-up |
+| F6 | 📚 **Course Management & Enrollment** | Full CRUD, paginated enrollment, bulk review, enroll/drop, search & filter |
+| F7 | 📁 **File Sharing (Course Materials)** | Upload, download, and manage course resources |
+| F8 | 📢 **Announcements** | Post, feed, priority pinning for courses |
+| F9 | 📋 **Assignment Management System** | Task lifecycle, file submissions, ZIP bulk export, review & grading |
+| F10 | 🔔 **Notifications** | In-app and email notifications for all key system events |
+| F11 | 🗓️ **Exam Management & Notifications** | CRUD, publish workflow, scheduling, deadline management, reminders |
+| F12 | 🔄 **Re-Attempt & Re-Open Requests** | Students request re-attempts/re-opens, tutors approve with configurable extensions (24h/48h/72h/custom) |
+| F13 | 🏦 **Question Bank Management** | Centralized course-level question bank (MCQ, True/False, Short Answer) with image support |
+| F14 | ⚡ **Exam Engine + Secure Token** | Countdown timer, question navigator, auto-submit on timeout, cryptographic question randomization |
+| F15 | 📊 **Exam Results & Auto-Grading** | Confetti animation, per-question review, manual grading for short answers |
+| F16 | 📈 **Grade Management Panel** | Bulk publish, CSV export, weighted grade calculation |
+| F17 | 🛡️ **Anti-Cheating Engine** | Browser-native exam integrity system (see sub-features below) |
+| F18 | 📉 **Session Timeline View** | Per-attempt timeline of all student activity during an exam |
+| F19 | ⚠️ **Violation Timeline View** | Detailed violation log with types, timestamps, and severity |
+| F20 | 📡 **Tutor Monitoring Dashboard** | Live overview of ongoing exams and violations for assigned courses |
+| F21 | 🏢 **Admin Dashboard & Users Management** | System-wide admin panel, user lock/unlock, tutor listing, user search |
+| F22 | 🤖 **SHIELDON AI Assistant** | Gemini-powered chatbot with backend proxy, automatically blocked during exams |
+| F23 | 🧭 **Shepherd.js Onboarding Tours** | Role-based guided tours for first-time users |
+| F24 | 📊 **Tutor & Global Analytics Dashboard** | Course-level and system-wide analytics with ECharts visualizations |
+| F25 | 📱 **Dynamic QR Attendance Tracking** | QR code refreshes every 15 seconds, manual override, attendance history |
+| F26 | 📅 **Calendar & Schedule View** | Unified calendar with exams, assignments, and custom events |
+| F27 | 💳 **Online Payment Gateway (Stripe)** | Secure checkout, payment history, pending payments, webhook processing |
+| F28 | 🌓 **Dark / Light Mode** | Seamless theme toggle with CSS custom properties |
+| F29 | 🌍 **English / Arabic (i18n)** | Full RTL support with ngx-translate |
+| F30 | 📱 **Mobile Guard** | Detects and blocks mobile/tablet devices from accessing exam engine |
+
+### 🛡️ Anti-Cheating Engine — Sub-Features (F17)
+
+The Anti-Cheating Engine is built entirely with browser Web APIs — no plugins or extensions required:
+
+| # | Sub-Feature | Description |
+|---|---|---|
+| 17-1 | 📜 **Pre-Exam Rules Acknowledgment Modal** | Students must read and accept exam integrity rules before starting |
+| 17-2 | ⌨️ **Keyboard Shortcut Blocking** | Blocks Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A, Ctrl+P, Ctrl+F, Ctrl+U, F12, Ctrl+Shift+I/J, Esc, Alt+Tab |
+| 17-3 | 📐 **Window Resize / Minimize / Split Detection** | Detects split-screen, window resizing, and minimize attempts |
+| 17-4 | 🖱️ **Mouse Monitoring (Pattern Analysis)** | Tracks mouse movement patterns for anomaly detection |
+| 17-5 | 🚫 **Selection by Mouse Blocking** | Prevents text selection via mouse during exams |
+| 17-6 | 🖱️ **Right-Click Context Menu Blocking** | Disables right-click to prevent copy/paste/inspect operations |
+| 17-7 | 🧠 **Violation Intelligence Layer** | Severity scoring per violation type + cooldown periods to prevent duplicate flooding |
+| 17-8 | ⚠️ **Warning System & Force-Submit** | 3-strike escalation — warnings → final warning → auto force-submit |
+| 17-9 | 🔄 **Monitoring Continuity on Reconnect** | Anti-cheat resumes seamlessly if the student reconnects or refreshes |
 
 ---
 
-## Git Workflow
+## 🌿 Git Workflow
 
-- Create a new branch for every feature you build:
+- 🌿 **Feature Branches**: Never work directly on `main`. Create a new branch for every feature:
   ```bash
-  git checkout -b feature/your-feature
+  git checkout -b feature/your-feature-name
   ```
-- Push your branch to GitHub and open a Pull Request to merge into `develop` or `main`.
+- 🔀 **Pull Requests**: When a feature is complete, push it to GitHub and create a Pull Request for code review before merging.
+
+---
+
+<div align="center">
+  <strong>🛡️ SHIELDON Frontend — "Integrity You Can Trust" 🛡️</strong>
+</div>

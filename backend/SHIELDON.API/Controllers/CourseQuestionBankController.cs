@@ -170,4 +170,40 @@ public class CourseQuestionBankController : ControllerBase
         await _questionService.DeleteOptionAsync(optionId, GetUserId(), GetUserRole(), ct);
         return Ok(ApiResponse<object>.Ok("Option deleted successfully."));
     }
+
+    // ── Image endpoints ────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Upload or replace an image for a question.
+    /// Max size: 5 MB. Allowed: .jpg, .jpeg, .png, .gif, .webp
+    /// Returns the relative URL of the saved image.
+    /// </summary>
+    [HttpPost("{questionId:guid}/image")]
+    [Consumes("multipart/form-data")]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UploadQuestionImage(
+        Guid courseId,
+        Guid questionId,
+        IFormFile image,
+        CancellationToken ct = default)
+    {
+        await using var stream = image.OpenReadStream();
+        var imageUrl = await _questionService.UploadQuestionImageAsync(
+            questionId, stream, image.FileName, image.Length, GetUserId(), GetUserRole(), ct);
+        return Ok(ApiResponse<string>.Ok(imageUrl, "Question image uploaded successfully."));
+    }
+
+    /// <summary>Removes the image from a question.</summary>
+    [HttpDelete("{questionId:guid}/image")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteQuestionImage(
+        Guid courseId,
+        Guid questionId,
+        CancellationToken ct = default)
+    {
+        await _questionService.DeleteQuestionImageAsync(questionId, GetUserId(), GetUserRole(), ct);
+        return Ok(ApiResponse<object>.Ok("Question image removed successfully."));
+    }
 }

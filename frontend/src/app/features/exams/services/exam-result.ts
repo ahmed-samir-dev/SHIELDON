@@ -24,6 +24,7 @@ export interface ExamResultResponse {
 export interface QuestionReviewDto {
   questionId: string;
   questionText: string;
+  imageUrl?: string | null;
   type: 'MCQ' | 'TrueFalse' | 'ShortAnswer';
   points: number;
   pointsAwarded: number | null;
@@ -47,6 +48,8 @@ export interface ExamAttemptSummaryDto {
   score: number | null;
   passed: boolean | null;
   isGradePublished: boolean;
+  attemptNumber: number;
+  notes?: string | null;
 }
 
 export interface GradeShortAnswerRequest {
@@ -85,5 +88,9 @@ export class ExamResultService {
 
   releaseResults(examId: string, request: ReleaseResultsRequest = {}): Observable<{ data: string, message: string }> {
     return this.http.post<{ data: string, message: string }>(`${this.apiUrl}/exams/${examId}/release-results`, request);
+  }
+
+  exportResultsCsv(examId: string): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/exams/${examId}/export`, { responseType: 'blob' });
   }
 }

@@ -242,14 +242,14 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+// ── CORS: Must be before Auth and Static Files ────────────────────────
+app.UseCors("ShieldonCorsPolicy");
+
 // ── STATIC FILES: Serves wwwroot (but files are protected by controllers)
 app.UseStaticFiles();
 
 // ── HTTPS REDIRECTION ──────────────────────────────────────────────────
 app.UseHttpsRedirection();
-
-// ── CORS: Must be before Auth ──────────────────────────────────────────
-app.UseCors("ShieldonCorsPolicy");
 
 // ── RATE LIMITER ───────────────────────────────────────────────────────
 app.UseRateLimiter();

@@ -49,6 +49,10 @@ public class AppDbContext : DbContext
     public DbSet<GradeRecord> GradeRecords { get; set; } = null!;
     public DbSet<ReattemptRequest> ReattemptRequests { get; set; } = null!;
 
+    // ── v1.1: Exam Re-open Extensions ──────────────────────────────
+    /// <summary>Grants specific students access to an exam after its global EndTime has passed.</summary>
+    public DbSet<ExamExtension> ExamExtensions { get; set; } = null!;
+
     // ── Phase 4: Anti-Cheating Engine (used by monitoring dashboards) ──────────
     public DbSet<ViolationLog> ViolationLogs { get; set; } = null!;
 

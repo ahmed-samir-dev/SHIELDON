@@ -13,7 +13,9 @@ import {
   StudentEnrollmentStatusResponse,
   ReviewEnrollmentRequest,
   BulkReviewEnrollmentRequest,
-  UserBasicResponse
+  UserBasicResponse,
+  EnrollmentQueryParams,
+  StudentEnrollmentQueryParams
 } from '../../../core/models/courses.model';
 
 @Injectable({
@@ -71,20 +73,24 @@ export class CourseService {
     return this.http.post<ApiResponse<StudentEnrollmentStatusResponse>>(`${this.baseUrl}/${courseId}/enroll`, {});
   }
 
-  getPendingEnrollments(courseId?: string): Observable<ApiResponse<EnrollmentResponse[]>> {
+  getPendingEnrollments(query: EnrollmentQueryParams = {}): Observable<ApiResponse<PagedResponse<EnrollmentResponse>>> {
     let params = new HttpParams();
-    if (courseId) {
-      params = params.set('courseId', courseId);
-    }
-    return this.http.get<ApiResponse<EnrollmentResponse[]>>(`${this.baseUrl}/enrollments/pending`, { params });
+    if (query.page) params = params.set('page', query.page);
+    if (query.pageSize) params = params.set('pageSize', query.pageSize);
+    if (query.search) params = params.set('search', query.search);
+    if (query.courseId) params = params.set('courseId', query.courseId);
+
+    return this.http.get<ApiResponse<PagedResponse<EnrollmentResponse>>>(`${this.baseUrl}/enrollments/pending`, { params });
   }
 
-  getApprovedEnrollments(params: { page?: number, pageSize?: number, search?: string, courseId?: string } = {}): Observable<ApiResponse<PagedResponse<EnrollmentResponse>>> {
+  getApprovedEnrollments(query: EnrollmentQueryParams = {}): Observable<ApiResponse<PagedResponse<EnrollmentResponse>>> {
     let httpParams = new HttpParams();
-    if (params.page) httpParams = httpParams.set('page', params.page);
-    if (params.pageSize) httpParams = httpParams.set('pageSize', params.pageSize);
-    if (params.search) httpParams = httpParams.set('search', params.search);
-    if (params.courseId) httpParams = httpParams.set('courseId', params.courseId);
+    if (query.page) httpParams = httpParams.set('page', query.page);
+    if (query.pageSize) httpParams = httpParams.set('pageSize', query.pageSize);
+    if (query.search) httpParams = httpParams.set('search', query.search);
+    if (query.courseId) httpParams = httpParams.set('courseId', query.courseId);
+    if (query.approvedFrom) httpParams = httpParams.set('approvedFrom', query.approvedFrom);
+    if (query.approvedTo) httpParams = httpParams.set('approvedTo', query.approvedTo);
 
     return this.http.get<ApiResponse<PagedResponse<EnrollmentResponse>>>(`${this.baseUrl}/enrollments/approved`, { params: httpParams });
   }
@@ -97,7 +103,15 @@ export class CourseService {
     return this.http.post<ApiResponse<any>>(`${this.baseUrl}/enrollments/bulk-review`, request);
   }
 
-  getMyEnrollments(): Observable<ApiResponse<StudentEnrollmentStatusResponse[]>> {
-    return this.http.get<ApiResponse<StudentEnrollmentStatusResponse[]>>(`${this.baseUrl}/enrollments/my`);
+  getMyEnrollments(query: StudentEnrollmentQueryParams = {}): Observable<ApiResponse<PagedResponse<StudentEnrollmentStatusResponse>>> {
+    let params = new HttpParams();
+    if (query.page) params = params.set('page', query.page);
+    if (query.pageSize) params = params.set('pageSize', query.pageSize);
+    if (query.searchTerm) params = params.set('searchTerm', query.searchTerm);
+    if (query.requestedFrom) params = params.set('requestedFrom', query.requestedFrom);
+    if (query.requestedTo) params = params.set('requestedTo', query.requestedTo);
+    if (query.status) params = params.set('status', query.status);
+
+    return this.http.get<ApiResponse<PagedResponse<StudentEnrollmentStatusResponse>>>(`${this.baseUrl}/enrollments/my`, { params });
   }
 }

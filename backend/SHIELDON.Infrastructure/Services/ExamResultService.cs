@@ -123,18 +123,21 @@ public class ExamResultService : IExamResultService
         var gradeRecord = await _db.GradeRecords
             .FirstOrDefaultAsync(g => g.ExamId == examId && g.StudentId == requestingUserId, ct);
 
-        var summaries = attempts.Select(a => new ExamAttemptSummaryDto(
-            AttemptId: a.Id,
-            StudentId: a.StudentId,
-            StudentName: "", // Self view doesn't need name
-            StudentDisplayId: "",
-            Status: a.Status,
-            StartedAt: a.StartedAt,
-            SubmittedAt: a.SubmittedAt,
-            Score: a.Score,
-            Passed: a.Score.HasValue ? a.Score >= exam.PassScore : null,
-            IsGradePublished: gradeRecord?.IsPublished ?? false
-        )).ToList();
+        var summaries = attempts
+            .Select((a, index) => new ExamAttemptSummaryDto(
+                AttemptId: a.Id,
+                StudentId: a.StudentId,
+                StudentName: "", // Self view doesn't need name
+                StudentDisplayId: "",
+                AttemptNumber: attempts.Count - index, // descending by date => first entry is latest
+                Status: a.Status,
+                StartedAt: a.StartedAt,
+                SubmittedAt: a.SubmittedAt,
+                Score: a.Score,
+                Passed: a.Score.HasValue ? a.Score >= exam.PassScore : null,
+                IsGradePublished: gradeRecord?.IsPublished ?? false,
+                Notes: null // Notes not shown to students
+            )).ToList();
 
         return ApiResponse<IReadOnlyList<ExamAttemptSummaryDto>>.Ok(summaries);
     }
@@ -167,21 +170,32 @@ public class ExamResultService : IExamResultService
             .Where(g => g.ExamId == examId)
             .ToListAsync(ct);
 
+        // Group by student to compute attempt numbers
+        var studentAttemptGroups = attempts
+            .GroupBy(a => a.StudentId)
+            .ToDictionary(
+                g => g.Key,
+                g => g.OrderBy(a => a.StartedAt).ToList());
+
         var summaries = attempts.Select(a =>
         {
             var student = a.Student;
             var grade = gradeRecords.FirstOrDefault(g => g.StudentId == a.StudentId);
+            var studentAttempts = studentAttemptGroups[a.StudentId];
+            int attemptNumber = studentAttempts.IndexOf(a) + 1;
             return new ExamAttemptSummaryDto(
                 AttemptId: a.Id,
                 StudentId: a.StudentId,
                 StudentName: student != null ? $"{student.FirstName} {student.LastName}" : "Unknown",
                 StudentDisplayId: student?.StudentId ?? string.Empty,
+                AttemptNumber: attemptNumber,
                 Status: a.Status,
                 StartedAt: a.StartedAt,
                 SubmittedAt: a.SubmittedAt,
                 Score: a.Score,
                 Passed: a.Score.HasValue ? a.Score >= exam.PassScore : null,
-                IsGradePublished: grade?.IsPublished ?? false
+                IsGradePublished: grade?.IsPublished ?? false,
+                Notes: a.Notes
             );
         }).ToList();
 
@@ -397,6 +411,7 @@ public class ExamResultService : IExamResultService
                 return new QuestionReviewDto(
                     QuestionId: q.Id,
                     QuestionText: q.QuestionText,
+                    ImageUrl: q.ImageUrl,
                     Type: q.Type,
                     Points: q.Points,
                     PointsAwarded: answer?.PointsAwarded,
@@ -502,5 +517,34 @@ public class ExamResultService : IExamResultService
                 sendEmail: true,
                 ct);
         }
+    }
+
+    // ── Export Results to CSV ──────────────────────────────────────────────────
+
+    /// <inheritdoc/>
+    public async Task<byte[]> ExportResultsToCsvAsync(
+        Guid examId,
+        Guid requestingUserId,
+        string requestingUserRole,
+        CancellationToken ct = default)
+    {
+        var summariesResponse = await GetExamAttemptsAsync(examId, requestingUserId, requestingUserRole, ct);
+        var attempts = summariesResponse.Data;
+
+        var sb = new System.Text.StringBuilder();
+        // CSV Header
+        sb.AppendLine("StudentName,StudentId,AttemptNumber,Status,SubmittedAt,Score,Passed,IsGradePublished");
+
+        foreach (var a in attempts)
+        {
+            var submittedAt = a.SubmittedAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? "N/A";
+            var score = a.Score.HasValue ? a.Score.Value.ToString("F2") : "Pending";
+            var passed = a.Passed.HasValue ? (a.Passed.Value ? "Yes" : "No") : "N/A";
+            var published = a.IsGradePublished ? "Yes" : "No";
+
+            sb.AppendLine($"\"{a.StudentName}\",\"{a.StudentDisplayId}\",{a.AttemptNumber},\"{a.Status}\",\"{submittedAt}\",\"{score}\",\"{passed}\",\"{published}\"");
+        }
+
+        return System.Text.Encoding.UTF8.GetBytes(sb.ToString());
     }
 }

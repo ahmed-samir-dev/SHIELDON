@@ -138,6 +138,10 @@
             
             <p class="q-text">{{ q.questionText }}</p>
 
+            <div *ngIf="q.imageUrl" class="q-image-container">
+              <img [src]="getImageUrl(q.imageUrl)" alt="Question Image" class="q-image-display">
+            </div>
+
             <!-- MCQ / TrueFalse Display -->
             <div class="q-answers" *ngIf="!q.requiresManualGrading">
               

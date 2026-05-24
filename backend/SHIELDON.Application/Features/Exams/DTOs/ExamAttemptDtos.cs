@@ -20,6 +20,8 @@ public record StartExamResponse(
 public record StudentQuestionDto(
     Guid Id,
     string Text,
+    /// <summary>Optional image URL for this question. Null if no image was uploaded by the Tutor.</summary>
+    string? ImageUrl,
     QuestionType Type,
     decimal Points,
     IReadOnlyList<StudentOptionDto> Options

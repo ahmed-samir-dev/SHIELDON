@@ -17,6 +17,9 @@ public class ExamAttemptConfiguration : IEntityTypeConfiguration<ExamAttempt>
         builder.Property(e => e.Score)
             .HasPrecision(5, 2);
 
+        builder.Property(e => e.Notes)
+            .HasMaxLength(1000);
+
         builder.HasOne(e => e.Student)
             .WithMany()
             .HasForeignKey(e => e.StudentId)
