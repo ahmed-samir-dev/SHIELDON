@@ -19,7 +19,7 @@ export const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./features/public/landing/landing').then(m => m.Landing),
-        title: 'SHIELDON - Next-Gen LMS & Anti-Cheating Engine'
+        title: 'SHIELDON'
       },
       {
         path: 'login',
