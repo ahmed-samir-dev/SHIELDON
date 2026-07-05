@@ -2,7 +2,7 @@
 <div class="users-section-header">
   <div class="users-section-title-row">
     <h2 class="table-title">
-      <lucide-icon name="Users" [size]="20"></lucide-icon>
+      <lucide-icon [img]="Users" [size]="20"></lucide-icon>
       Users Management
     </h2>
     <span class="users-total-badge" [class.skeleton-text]="loading()">{{ totalCount() }} users</span>
@@ -12,7 +12,7 @@
   <div class="users-filters-bar">
     <!-- Search -->
     <div class="users-search-wrapper">
-      <lucide-icon name="Search" [size]="16" class="search-icon"></lucide-icon>
+      <lucide-icon [img]="Search" [size]="16" class="search-icon"></lucide-icon>
       <input
         id="user-search"
         type="text"
@@ -44,7 +44,7 @@
 <!-- Error State -->
 @if (usersError()) {
   <div class="users-error-state">
-    <lucide-icon name="AlertTriangle" [size]="18"></lucide-icon>
+    <lucide-icon [img]="AlertTriangle" [size]="18"></lucide-icon>
     <span>{{ usersError() }}</span>
     <button class="retry-btn" (click)="loadUsers()">Retry</button>
   </div>
@@ -127,10 +127,10 @@
             <td>
               <div class="status-badge" [class]="'status-' + user.accountStatus.toLowerCase()">
                 @switch (user.accountStatus) {
-                  @case ('Active') { <lucide-icon name="CheckCircle" [size]="13"></lucide-icon> }
-                  @case ('Locked') { <lucide-icon name="LockKeyhole" [size]="13"></lucide-icon> }
-                  @case ('Unverified') { <lucide-icon name="Clock" [size]="13"></lucide-icon> }
-                  @case ('Disabled') { <lucide-icon name="XCircle" [size]="13"></lucide-icon> }
+                  @case ('Active') { <lucide-icon [img]="CheckCircle" [size]="13"></lucide-icon> }
+                  @case ('Locked') { <lucide-icon [img]="LockKeyhole" [size]="13"></lucide-icon> }
+                  @case ('Unverified') { <lucide-icon [img]="Clock" [size]="13"></lucide-icon> }
+                  @case ('Disabled') { <lucide-icon [img]="XCircle" [size]="13"></lucide-icon> }
                 }
                 {{ user.accountStatus }}
               </div>
@@ -140,12 +140,12 @@
             <td>
               @if (user.emailVerifiedAt) {
                 <span class="date-text" title="{{ user.emailVerifiedAt | date:'medium' }}">
-                  <lucide-icon name="CheckCircle" [size]="13"></lucide-icon>
+                  <lucide-icon [img]="CheckCircle" [size]="13"></lucide-icon>
                   {{ user.emailVerifiedAt | date:'d MMM y' }}
                 </span>
               } @else {
                 <span class="date-text text-muted">
-                  <lucide-icon name="XCircle" [size]="13"></lucide-icon>
+                  <lucide-icon [img]="XCircle" [size]="13"></lucide-icon>
                   Not verified
                 </span>
               }
@@ -175,7 +175,7 @@
                     (click)="unlockUser(user)"
                     title="Unlock account"
                   >
-                    <lucide-icon name="LockKeyholeOpen" [size]="14"></lucide-icon>
+                    <lucide-icon [img]="LockKeyholeOpen" [size]="14"></lucide-icon>
                     Unlock
                   </button>
                 } @else if (user.accountStatus === 'Active' || user.accountStatus === 'Unverified') {
@@ -185,7 +185,7 @@
                     (click)="lockUser(user)"
                     title="Lock account"
                   >
-                    <lucide-icon name="LockKeyhole" [size]="14"></lucide-icon>
+                    <lucide-icon [img]="LockKeyhole" [size]="14"></lucide-icon>
                     Lock
                   </button>
                 }
@@ -199,7 +199,7 @@
         @if (usersList().length === 0) {
           <tr>
             <td colspan="9" class="empty-row">
-              <lucide-icon name="Users" [size]="40"></lucide-icon>
+              <lucide-icon [img]="Users" [size]="40"></lucide-icon>
               <p>No users found matching your filters.</p>
               <button class="retry-btn" (click)="searchQuery=''; roleFilter=''; statusFilter=''; onFilterChange()">Clear Filters</button>
             </td>
@@ -218,13 +218,13 @@
     </span>
     <div class="pagination-controls">
       <button class="page-btn" [disabled]="usersCurrentPage() === 1" (click)="changeUsersPage(usersCurrentPage() - 1)">
-        <lucide-icon name="ChevronLeft" [size]="16"></lucide-icon>
+        <lucide-icon [img]="ChevronLeft" [size]="16"></lucide-icon>
       </button>
       @for (page of getUsersPagesArray(); track page) {
         <button class="page-btn" [class.active]="page === usersCurrentPage()" (click)="changeUsersPage(page)">{{ page }}</button>
       }
       <button class="page-btn" [disabled]="usersCurrentPage() === usersTotalPages()" (click)="changeUsersPage(usersCurrentPage() + 1)">
-        <lucide-icon name="ChevronRight" [size]="16"></lucide-icon>
+        <lucide-icon [img]="ChevronRight" [size]="16"></lucide-icon>
       </button>
     </div>
   </div>

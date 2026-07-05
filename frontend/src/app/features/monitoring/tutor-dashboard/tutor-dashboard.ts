@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { LucideAngularModule, Monitor, Search, Filter, AlertTriangle, ShieldAlert, Users, Clock, ArrowRight, Eye, ChevronLeft, ChevronRight, Activity, FileText } from 'lucide-angular';
+import { LucideAngularModule, Monitor, Search, Filter, AlertTriangle, ShieldAlert, Users, Clock, ArrowRight, Eye, ChevronLeft, ChevronRight, Activity, FileText, ChevronDown, CheckCircle, Info } from 'lucide-angular';
 import { NgxEchartsModule } from 'ngx-echarts';
 import type { EChartsOption } from 'echarts';
 import { Subject, Subscription } from 'rxjs';
@@ -39,6 +39,9 @@ export class TutorDashboardComponent implements OnInit, OnDestroy {
   ChevronRight = ChevronRight;
   Activity = Activity;
   FileText = FileText;
+  ChevronDown = ChevronDown;
+  CheckCircle = CheckCircle;
+  Info = Info;
 
   Math = Math;
 
@@ -332,10 +335,10 @@ export class TutorDashboardComponent implements OnInit, OnDestroy {
 
   getStatusDisplay(status: string) {
     switch (status) {
-      case 'Submitted': return { label: this.translate.instant('TUTOR_DASHBOARD.STATUS_SUBMITTED'), icon: 'check-circle', classes: 'bg-green-100 text-green-700' };
-      case 'Graded': return { label: this.translate.instant('TUTOR_DASHBOARD.STATUS_GRADED'), icon: 'check-circle', classes: 'bg-emerald-100 text-emerald-700' };
-      case 'ForceSubmitted': return { label: this.translate.instant('TUTOR_DASHBOARD.STATUS_TERMINATED'), icon: 'shield-alert', classes: 'bg-red-100 text-red-700' };
-      default: return { label: this.translate.instant('EXAM_ENGINE.STATUS_' + status.toUpperCase()), icon: 'info', classes: 'bg-slate-100 text-slate-700' };
+      case 'Submitted': return { label: this.translate.instant('TUTOR_DASHBOARD.STATUS_SUBMITTED'), icon: this.CheckCircle, classes: 'bg-green-100 text-green-700' };
+      case 'Graded': return { label: this.translate.instant('TUTOR_DASHBOARD.STATUS_GRADED'), icon: this.CheckCircle, classes: 'bg-emerald-100 text-emerald-700' };
+      case 'ForceSubmitted': return { label: this.translate.instant('TUTOR_DASHBOARD.STATUS_TERMINATED'), icon: this.ShieldAlert, classes: 'bg-red-100 text-red-700' };
+      default: return { label: this.translate.instant('EXAM_ENGINE.STATUS_' + status.toUpperCase()), icon: this.Info, classes: 'bg-slate-100 text-slate-700' };
     }
   }
 
