@@ -691,6 +691,10 @@
     "TOAST_MCQ_EXACTLY_ONE": "MCQ must have exactly 1 correct option."
   },
   "EXAM_ENGINE": {
+    "STATUS_GRADED": "Graded",
+    "STATUS_SUBMITTED": "Submitted",
+    "STATUS_INPROGRESS": "In Progress",
+    "STATUS_FORCESUBMITTED": "Terminated",
     "LOADING": "Loading Exam Engine...",
     "ERR_LOAD_TITLE": "Unable to load exam",
     "ERR_LOAD_DESC": "There was a problem loading this exam. It may have been unpublished or deleted.",

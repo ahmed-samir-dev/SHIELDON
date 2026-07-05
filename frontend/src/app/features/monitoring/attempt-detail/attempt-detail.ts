@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
-import { LucideAngularModule, AlertTriangle, CheckCircle, Clock, ShieldAlert, Monitor, User, ArrowLeft, Calendar, FileText, Activity, AlertCircle } from 'lucide-angular';
+import { LucideAngularModule, AlertTriangle, CheckCircle, Clock, ShieldAlert, Monitor, User, ArrowLeft, Calendar, FileText, Activity, AlertCircle, Play } from 'lucide-angular';
 import { NgxEchartsModule } from 'ngx-echarts';
 import type { EChartsOption } from 'echarts';
 import { MonitoringService, AttemptTimelineResponse, ViolationSummaryResponse } from '../../../core/services/monitoring.service';
@@ -36,6 +36,7 @@ export class AttemptDetailComponent implements OnInit {
   FileText = FileText;
   Activity = Activity;
   AlertCircle = AlertCircle;
+  Play = Play;
 
   loading = signal<boolean>(true);
   error = signal<string>('');
@@ -212,11 +213,11 @@ export class AttemptDetailComponent implements OnInit {
 
   getTimelineIcon(type: string) {
     switch (type) {
-      case 'ExamStarted': return 'Play';
-      case 'ExamSubmitted': return 'CheckCircle';
-      case 'ExamTerminated': return 'ShieldAlert';
-      case 'Violation': return 'AlertTriangle';
-      default: return 'Activity';
+      case 'ExamStarted': return this.Play;
+      case 'ExamSubmitted': return this.CheckCircle;
+      case 'ExamTerminated': return this.ShieldAlert;
+      case 'Violation': return this.AlertTriangle;
+      default: return this.Activity;
     }
   }
 

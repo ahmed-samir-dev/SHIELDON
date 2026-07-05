@@ -691,6 +691,10 @@
     "TOAST_MCQ_EXACTLY_ONE": "يجب أن يحتوي سؤال الاختيار من متعدد على خيار صحيح واحد فقط."
   },
   "EXAM_ENGINE": {
+    "STATUS_GRADED": "تم التقييم",
+    "STATUS_SUBMITTED": "تم التسليم",
+    "STATUS_INPROGRESS": "جاري الآن",
+    "STATUS_FORCESUBMITTED": "تم الإنهاء",
     "LOADING": "جاري تحميل محرك الامتحان...",
     "ERR_LOAD_TITLE": "غير قادر على تحميل الامتحان",
     "ERR_LOAD_DESC": "حدثت مشكلة أثناء تحميل هذا الامتحان. قد يكون غير منشور أو محذوفًا.",

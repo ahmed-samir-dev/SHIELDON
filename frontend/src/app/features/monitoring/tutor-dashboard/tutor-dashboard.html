@@ -3,7 +3,7 @@
   <header class="dashboard-header">
     <div class="header-content">
       <div class="header-badge">
-        <lucide-icon name="Activity" [size]="16"></lucide-icon>
+        <lucide-icon [img]="Activity" [size]="16"></lucide-icon>
         {{ 'TUTOR_DASHBOARD.BADGE_ANALYTICS' | translate }}
       </div>
       <h1 class="header-title">{{ 'TUTOR_DASHBOARD.TITLE' | translate }}</h1>
@@ -13,7 +13,7 @@
 
   <!-- Error State -->
   <div *ngIf="!loading() && error()" class="error-state">
-    <lucide-icon name="AlertTriangle" [size]="20"></lucide-icon>
+    <lucide-icon [img]="AlertTriangle" [size]="20"></lucide-icon>
     <span>{{ error() }}</span>
   </div>
 
@@ -23,7 +23,7 @@
       <div class="course-filters-modern">
         <h2 class="section-title">{{ 'TUTOR_DASHBOARD.SECTION_SUMMARIES' | translate }}</h2>
         <div class="search-box-modern">
-          <lucide-icon name="Search" [size]="18" class="search-icon"></lucide-icon>
+          <lucide-icon [img]="Search" [size]="18" class="search-icon"></lucide-icon>
           <input type="text" [value]="courseSearchQuery()" (input)="courseSearchQuery.set($any($event.target).value)"
                  [placeholder]="'TUTOR_DASHBOARD.SEARCH_PLACEHOLDER' | translate" class="search-input">
         </div>
@@ -33,13 +33,13 @@
         <!-- Pagination controls -->
         <div class="pagination-controls" *ngIf="totalPages() > 1">
           <button class="btn-page" [disabled]="coursePage() === 1" (click)="changePage(-1)">
-            <lucide-icon name="ChevronLeft" [size]="16"></lucide-icon>
+            <lucide-icon [img]="ChevronLeft" [size]="16"></lucide-icon>
             {{ 'TUTOR_DASHBOARD.PAGINATION_PREV' | translate }}
           </button>
           <span class="page-info">{{ ('TUTOR_DASHBOARD.PAGINATION_PAGE_INFO' | translate).replace('{page}', coursePage().toString()).replace('{total}', totalPages().toString()) }}</span>
           <button class="btn-page" [disabled]="coursePage() === totalPages()" (click)="changePage(1)">
             {{ 'TUTOR_DASHBOARD.PAGINATION_NEXT' | translate }}
-            <lucide-icon name="ChevronRight" [size]="16"></lucide-icon>
+            <lucide-icon [img]="ChevronRight" [size]="16"></lucide-icon>
           </button>
         </div>
 
@@ -48,13 +48,13 @@
           
           <button class="course-header" (click)="toggleCourse(group.courseTitle)">
             <div class="course-info">
-              <lucide-icon name="FileText" [size]="20" class="course-icon"></lucide-icon>
+              <lucide-icon [img]="FileText" [size]="20" class="course-icon"></lucide-icon>
               <h3 class="course-title">{{ group.courseTitle }}</h3>
               <span class="course-badge">{{ ('TUTOR_DASHBOARD.BADGE_EXAMS' | translate).replace('{count}', group.exams.length.toString()) }}</span>
             </div>
             <div class="header-actions">
               <span>{{ 'TUTOR_DASHBOARD.BTN_VIEW_DETAILS' | translate }}</span>
-              <lucide-icon name="ChevronDown" [size]="18" class="chevron"></lucide-icon>
+              <lucide-icon [img]="ChevronDown" [size]="18" class="chevron"></lucide-icon>
             </div>
           </button>
 
@@ -150,14 +150,14 @@
         <div class="live-grid-card">
           <div class="grid-header">
             <h2 class="grid-title">
-              <lucide-icon name="Users" [size]="20"></lucide-icon>
+              <lucide-icon [img]="Users" [size]="20"></lucide-icon>
               {{ 'TUTOR_DASHBOARD.SECTION_RECENT_SUBMISSIONS' | translate }}
             </h2>
 
             <!-- Filters -->
             <div class="filters">
               <div class="search-box">
-                <lucide-icon name="Search" [size]="16" class="search-icon"></lucide-icon>
+                <lucide-icon [img]="Search" [size]="16" class="search-icon"></lucide-icon>
                 <input type="text" [value]="searchQuery()" (input)="onSearchInput($event)"
                   name="search" [placeholder]="'TUTOR_DASHBOARD.SEARCH_STUDENT_PLACEHOLDER' | translate" class="form-control">
               </div>
@@ -194,7 +194,7 @@
                   </td>
                   <td>
                     <span class="status-badge" [ngClass]="getStatusDisplay(session.status).classes">
-                      <lucide-icon [name]="getStatusDisplay(session.status).icon" [size]="14"></lucide-icon>
+                      <lucide-icon [img]="getStatusDisplay(session.status).icon" [size]="14"></lucide-icon>
                       {{ getStatusDisplay(session.status).label }}
                     </span>
                     <p class="exam-score" *ngIf="session.score !== null">{{ ('TUTOR_DASHBOARD.EXAM_SCORE' | translate).replace('{score}', session.score.toString()) }}</p>
@@ -206,7 +206,7 @@
                   </td>
                   <td class="align-right">
                     <button (click)="goToTimeline(session.attemptId)" class="btn-review">
-                      <lucide-icon name="Activity" [size]="14"></lucide-icon>
+                      <lucide-icon [img]="Activity" [size]="14"></lucide-icon>
                       {{ 'TUTOR_DASHBOARD.BTN_TIMELINE' | translate }}
                     </button>
                   </td>
@@ -237,7 +237,7 @@
             
             <div class="pagination-actions">
               <button class="btn-page" [disabled]="submissionsPage() === 1" (click)="changeLivePage(-1)">
-                <lucide-icon name="ChevronLeft" [size]="16"></lucide-icon>
+                <lucide-icon [img]="ChevronLeft" [size]="16"></lucide-icon>
                 {{ 'TUTOR_DASHBOARD.PAGINATION_PREV' | translate }}
               </button>
               
@@ -250,7 +250,7 @@
                 [disabled]="submissionsPage() * submissionsPageSize >= dashboardData().totalSubmissions" 
                 (click)="changeLivePage(1)">
                 {{ 'TUTOR_DASHBOARD.PAGINATION_NEXT' | translate }}
-                <lucide-icon name="ChevronRight" [size]="16"></lucide-icon>
+                <lucide-icon [img]="ChevronRight" [size]="16"></lucide-icon>
               </button>
             </div>
           </div>
