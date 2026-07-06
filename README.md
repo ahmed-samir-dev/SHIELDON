@@ -162,8 +162,9 @@ The Anti-Cheating Engine is built entirely with browser Web APIs — no plugins 
 | 5 | **Selection by Mouse Blocking** | Prevents text selection via mouse during exams |
 | 6 | **Right-Click Context Menu Blocking** | Disables right-click to prevent copy/paste/inspect operations |
 | 7 | **Violation Intelligence Layer** | Severity scoring per violation type + cooldown periods to prevent duplicate flooding |
-| 8 | **Warning System & Force-Submit** | 3-strike escalation — warnings → final warning → auto force-submit |
-| 9 | **Monitoring Continuity on Reconnect** | Anti-cheat resumes seamlessly if the student reconnects or refreshes |
+| 8 | **Action Debouncer & Score Normalization** | 500ms aggregation window preventing cascading violations (e.g. `ALT+TAB`) and unified decimal scoring |
+| 9 | **Warning System & Force-Submit** | 3-strike escalation — warnings → final warning → auto force-submit |
+| 10 | **Monitoring Continuity on Reconnect** | Anti-cheat resumes seamlessly if the student reconnects or refreshes |
 
 ---
 

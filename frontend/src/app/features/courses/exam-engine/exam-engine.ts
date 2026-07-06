@@ -55,8 +55,10 @@ export class ExamEngine implements OnInit, OnDestroy {
   savingState = signal<Record<string, boolean>>({});
 
   // Anti-Cheat Rules Acknowledgment
-  rulesChecked = signal<boolean[]>([false, false, false]);
+  rulesChecked = signal<boolean[]>([false, false, false, false]);
   allRulesAcknowledged = computed(() => this.rulesChecked().every(Boolean));
+
+  strikeCount = computed(() => this.antiCheat.getFormattedStrikeCount());
 
   // Timer & Heartbeat
   timeRemainingSeconds = signal<number>(0);
@@ -114,7 +116,7 @@ export class ExamEngine implements OnInit, OnDestroy {
             Swal.fire({
               icon: 'warning',
               title: this.translate.instant('EXAM_ENGINE.SWAL_STRIKE_TITLE'),
-              html: this.translate.instant('EXAM_ENGINE.SWAL_STRIKE_DESC'),
+              html: this.translate.instant('EXAM_ENGINE.SWAL_STRIKE_DESC', { strikes: this.strikeCount() }),
               confirmButtonText: this.translate.instant('EXAM_ENGINE.SWAL_STRIKE_BTN'),
               confirmButtonColor: '#f59e0b',
               allowOutsideClick: false,
@@ -148,6 +150,17 @@ export class ExamEngine implements OnInit, OnDestroy {
     ).subscribe(({question, value}) => {
       this.executeSaveAnswer(question, value);
     });
+
+    // Listen for real-time violations to show visual toast feedback
+    this.antiCheat.violationOccurred$.pipe(takeUntil(this.destroy$)).subscribe(event => {
+      // Only show toast for minor violations since Medium/Critical trigger SweetAlerts
+      if (event.severity === 'Minor') {
+        this.toastr.warning(`[${this.strikeCount()}/3] ${event.description}`, 'Anti-Cheat Notice', {
+          timeOut: 3000,
+          positionClass: 'toast-top-right'
+        });
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -155,6 +168,9 @@ export class ExamEngine implements OnInit, OnDestroy {
     this.destroy$.complete();
     this.timerSub?.unsubscribe();
     this.antiCheat.stopMonitoring();
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
   }
 
   toggleRule(index: number): void {
@@ -186,8 +202,31 @@ export class ExamEngine implements OnInit, OnDestroy {
         this.initializeAnswers(res.data);
         this.startTimer(res.data.expiresAt);
         this.state.set('active');
-        this.antiCheat.startMonitoring(res.data.attemptId);
-        this.toastr.success(this.translate.instant('EXAM_ENGINE.TOAST_EXAM_STARTED'));
+        
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(err => {
+            console.warn(`Error attempting to enable fullscreen mode: ${err.message}`);
+          });
+        }
+
+        const initialStrikesNum = res.data.initialStrikeScore || 0;
+        const initialStrikes = initialStrikesNum.toFixed(1).replace('.0', '');
+        this.antiCheat.startMonitoring(res.data.attemptId, initialStrikesNum);
+        
+        if (initialStrikesNum > 0) {
+          Swal.fire({
+            icon: 'info',
+            title: this.translate.instant('EXAM_ENGINE.SWAL_RESUME_TITLE') || 'Exam Resumed',
+            html: this.translate.instant('EXAM_ENGINE.SWAL_RESUME_DESC', { strikes: initialStrikes }) || 
+                  `You currently have <strong>${initialStrikes} out of 3</strong> allowed violations.<br><br><span style="color: #dc3545; font-weight: bold;">Warning:</span> Reaching 3 violations will immediately terminate your exam.`,
+            confirmButtonText: this.translate.instant('EXAM_ENGINE.BTN_UNDERSTOOD') || 'I Understand',
+            confirmButtonColor: '#0ea5e9',
+            allowOutsideClick: false,
+            allowEscapeKey: false
+          });
+        } else {
+          this.toastr.success(this.translate.instant('EXAM_ENGINE.TOAST_EXAM_STARTED'));
+        }
       },
       error: (err) => {
         this.toastr.error(err.error?.message || this.translate.instant('EXAM_ENGINE.TOAST_ERR_START'));
@@ -322,6 +361,10 @@ export class ExamEngine implements OnInit, OnDestroy {
     this.timerSub?.unsubscribe();
     this.antiCheat.stopMonitoring();
 
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
+
     this.attemptService.submitExam(attemptId).subscribe({
       next: (res) => {
         this.toastr.success(this.translate.instant('EXAM_ENGINE.TOAST_SUBMIT_SUCCESS'));
@@ -349,6 +392,10 @@ export class ExamEngine implements OnInit, OnDestroy {
     if (!attemptId) return;
 
     this.timerSub?.unsubscribe();
+
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
 
     // Toast notification at default position (bottom-right)
     this.toastr.error(
@@ -379,6 +426,10 @@ export class ExamEngine implements OnInit, OnDestroy {
     if (!attemptId) return;
 
     this.state.set('submitting');
+
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    }
 
     this.attemptService.forceSubmitExam(attemptId).subscribe({
       next: () => {
