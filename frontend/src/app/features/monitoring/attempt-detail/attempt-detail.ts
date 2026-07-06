@@ -53,9 +53,9 @@ export class AttemptDetailComponent implements OnInit {
     }
 
     const minutes = summary.chartData.map(d => `Min ${d.minuteOffset}`);
-    const critical = summary.chartData.map(d => d.criticalCount);
-    const medium = summary.chartData.map(d => d.mediumCount);
-    const minor = summary.chartData.map(d => d.minorCount);
+    const criticalData = summary.chartData.map((d, i) => d.criticalCount > 0 ? [i, 2, d.criticalCount] : null).filter(x => x !== null);
+    const mediumData = summary.chartData.map((d, i) => d.mediumCount > 0 ? [i, 1, d.mediumCount] : null).filter(x => x !== null);
+    const minorData = summary.chartData.map((d, i) => d.minorCount > 0 ? [i, 0, d.minorCount] : null).filter(x => x !== null);
 
     const isDark = activeTheme === 'dark';
     const textColor = isDark ? '#94a3b8' : '#64748b';
@@ -64,8 +64,12 @@ export class AttemptDetailComponent implements OnInit {
 
     return {
       tooltip: {
-        trigger: 'axis',
-        axisPointer: { type: 'shadow' }
+        trigger: 'item',
+        formatter: (params: any) => {
+          const min = minutes[params.value[0]];
+          const type = params.value[1] === 2 ? 'Critical' : params.value[1] === 1 ? 'Medium' : 'Minor';
+          return `${min}<br/>${type}: <b>${params.value[2]}</b>`;
+        }
       },
       legend: {
         data: [
@@ -77,8 +81,8 @@ export class AttemptDetailComponent implements OnInit {
         textStyle: { color: textColor }
       },
       grid: {
-        left: '3%',
-        right: '4%',
+        left: '5%',
+        right: '5%',
         bottom: '15%',
         top: '10%',
         containLabel: true
@@ -87,36 +91,41 @@ export class AttemptDetailComponent implements OnInit {
         type: 'category',
         data: minutes,
         axisLine: { lineStyle: { color: lineColor } },
-        axisLabel: { color: textColor }
+        axisLabel: { color: textColor },
+        splitLine: { show: true, lineStyle: { color: splitLineColor, type: 'dashed' } }
       },
       yAxis: {
-        type: 'value',
-        minInterval: 1,
+        type: 'category',
+        data: [
+          this.translate.instant('ATTEMPT_DETAIL.CHART_LEGEND_MINOR'),
+          this.translate.instant('ATTEMPT_DETAIL.CHART_LEGEND_MEDIUM'),
+          this.translate.instant('ATTEMPT_DETAIL.CHART_LEGEND_CRITICAL')
+        ],
         axisLine: { show: false },
-        axisLabel: { color: textColor },
-        splitLine: { lineStyle: { color: splitLineColor, type: 'dashed' } }
+        axisLabel: { color: textColor, fontWeight: 'bold' },
+        splitLine: { show: true, lineStyle: { color: splitLineColor, type: 'dashed' } }
       },
       series: [
         {
           name: this.translate.instant('ATTEMPT_DETAIL.CHART_LEGEND_CRITICAL'),
-          type: 'bar',
-          stack: 'total',
-          data: critical,
-          itemStyle: { color: '#ef4444' }
+          type: 'scatter',
+          data: criticalData,
+          symbolSize: (val: any) => Math.min(Math.max(val[2] * 12, 16), 40),
+          itemStyle: { color: '#ef4444', opacity: 0.8 }
         },
         {
           name: this.translate.instant('ATTEMPT_DETAIL.CHART_LEGEND_MEDIUM'),
-          type: 'bar',
-          stack: 'total',
-          data: medium,
-          itemStyle: { color: '#f97316' }
+          type: 'scatter',
+          data: mediumData,
+          symbolSize: (val: any) => Math.min(Math.max(val[2] * 12, 16), 40),
+          itemStyle: { color: '#f97316', opacity: 0.8 }
         },
         {
           name: this.translate.instant('ATTEMPT_DETAIL.CHART_LEGEND_MINOR'),
-          type: 'bar',
-          stack: 'total',
-          data: minor,
-          itemStyle: { color: '#3b82f6' }
+          type: 'scatter',
+          data: minorData,
+          symbolSize: (val: any) => Math.min(Math.max(val[2] * 12, 16), 40),
+          itemStyle: { color: '#3b82f6', opacity: 0.8 }
         }
       ]
     };
@@ -195,15 +204,23 @@ export class AttemptDetailComponent implements OnInit {
     }
   }
 
-  getCircleClass(type: string, severity?: string) {
-    if (type === 'Violation') {
+  getCircleClass(category: string, eventType: string, severity: string) {
+    if (category === 'Violation') {
       switch (severity) {
         case 'Critical': return 'circle-critical';
         case 'Medium': return 'circle-medium';
         default: return 'circle-minor';
       }
     }
-    switch (type) {
+    if (category === 'Presence') {
+      switch (eventType) {
+        case 'Disconnected': return 'circle-critical';
+        case 'Reconnected': return 'circle-done';
+        case 'PageRefreshed': return 'circle-minor';
+        default: return 'circle-system';
+      }
+    }
+    switch (eventType) {
       case 'ExamStarted': return 'circle-system';
       case 'ExamSubmitted': return 'circle-done';
       case 'ExamTerminated': return 'circle-critical';
@@ -211,18 +228,26 @@ export class AttemptDetailComponent implements OnInit {
     }
   }
 
-  getTimelineIcon(type: string) {
-    switch (type) {
+  getTimelineIcon(category: string, eventType: string) {
+    if (category === 'Violation') return this.AlertTriangle;
+    if (category === 'Presence') {
+      switch (eventType) {
+        case 'Disconnected': return this.AlertCircle;
+        case 'Reconnected': return this.Activity;
+        case 'PageRefreshed': return this.Activity;
+        default: return this.Activity;
+      }
+    }
+    switch (eventType) {
       case 'ExamStarted': return this.Play;
       case 'ExamSubmitted': return this.CheckCircle;
       case 'ExamTerminated': return this.ShieldAlert;
-      case 'Violation': return this.AlertTriangle;
       default: return this.Activity;
     }
   }
 
-  getTimelineIconColor(type: string, severity?: string) {
-    if (type === 'Violation') {
+  getTimelineIconColor(category: string, eventType: string, severity: string) {
+    if (category === 'Violation') {
       switch (severity) {
         case 'Critical': return 'text-red-600 bg-red-100';
         case 'Medium': return 'text-amber-600 bg-amber-100';
@@ -230,8 +255,15 @@ export class AttemptDetailComponent implements OnInit {
         default: return 'text-slate-600 bg-slate-100';
       }
     }
-    
-    switch (type) {
+    if (category === 'Presence') {
+      switch (eventType) {
+        case 'Disconnected': return 'text-red-600 bg-red-100';
+        case 'Reconnected': return 'text-emerald-600 bg-emerald-100';
+        case 'PageRefreshed': return 'text-blue-600 bg-blue-100';
+        default: return 'text-slate-600 bg-slate-100';
+      }
+    }
+    switch (eventType) {
       case 'ExamStarted': return 'text-indigo-600 bg-indigo-100';
       case 'ExamSubmitted': return 'text-emerald-600 bg-emerald-100';
       case 'ExamTerminated': return 'text-red-600 bg-red-100';

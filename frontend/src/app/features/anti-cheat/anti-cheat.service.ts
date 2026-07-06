@@ -1,4 +1,5 @@
 import { Injectable, inject, signal, computed, NgZone, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Subject, Subscription, interval } from 'rxjs';
 import { ViolationService, ViolationLogRequest, ViolationType, ViolationSeverity } from '../../core/services/violation.service';
 import { environment } from '../../../environments/environment';
@@ -16,6 +17,7 @@ export interface ViolationEvent {
 export class AntiCheatService implements OnDestroy {
   private ngZone = inject(NgZone);
   private violationService = inject(ViolationService);
+  private http = inject(HttpClient);
 
   // State
   private attemptId: string | null = null;
@@ -78,6 +80,7 @@ export class AntiCheatService implements OnDestroy {
   // Unsynced Violations
   private violationBuffer: ViolationLogRequest[] = [];
   private syncSub?: Subscription;
+  private heartbeatSub?: Subscription;
 
   // Track original dimensions for resize comparison
   private originalWidth = 0;
@@ -98,6 +101,8 @@ export class AntiCheatService implements OnDestroy {
   private boundHandleFullscreenChange = this.handleFullscreenChange.bind(this);
   private boundHandleVisibilityChange = this.handleVisibilityChange.bind(this);
   private boundHandleBlur = this.handleBlur.bind(this);
+  private boundHandleOnline = this.handleOnline.bind(this);
+  private boundHandleOffline = this.handleOffline.bind(this);
 
   constructor() {
     this.violations$.subscribe(v => {
@@ -116,6 +121,7 @@ export class AntiCheatService implements OnDestroy {
     if (this.isMonitoring) {
       this.removeAllListeners();
       this.syncSub?.unsubscribe();
+      this.heartbeatSub?.unsubscribe();
     }
     
     this.attemptId = attemptId;
@@ -145,6 +151,8 @@ export class AntiCheatService implements OnDestroy {
     document.addEventListener('fullscreenchange', this.boundHandleFullscreenChange);
     document.addEventListener('visibilitychange', this.boundHandleVisibilityChange);
     window.addEventListener('blur', this.boundHandleBlur);
+    window.addEventListener('online', this.boundHandleOnline);
+    window.addEventListener('offline', this.boundHandleOffline);
 
     this.ngZone.runOutsideAngular(() => {
       window.addEventListener('resize', this.boundHandleResize);
@@ -154,6 +162,15 @@ export class AntiCheatService implements OnDestroy {
 
     // Start periodic sync (every 5 seconds)
     this.syncSub = interval(5000).subscribe(() => this.syncViolations());
+
+    // Start heartbeat (every 30 seconds)
+    this.sendHeartbeat(true); // Initial heartbeat as "page refresh" or "start"
+    this.heartbeatSub = interval(30000).subscribe(() => {
+      // Don't send heartbeat if offline
+      if (navigator.onLine) {
+        this.sendHeartbeat(false);
+      }
+    });
   }
 
   public resumeMonitoring(attemptId: string): void {
@@ -180,6 +197,7 @@ export class AntiCheatService implements OnDestroy {
 
     this.removeAllListeners();
     this.syncSub?.unsubscribe();
+    this.heartbeatSub?.unsubscribe();
 
     // Mark last violation as auto-submit trigger if applicable
     // (This is mostly handled automatically in processViolation now)
@@ -203,6 +221,8 @@ export class AntiCheatService implements OnDestroy {
     document.removeEventListener('fullscreenchange', this.boundHandleFullscreenChange);
     document.removeEventListener('visibilitychange', this.boundHandleVisibilityChange);
     window.removeEventListener('blur', this.boundHandleBlur);
+    window.removeEventListener('online', this.boundHandleOnline);
+    window.removeEventListener('offline', this.boundHandleOffline);
   }
 
   private handleFullscreenChange(event: Event): void {
@@ -470,6 +490,25 @@ export class AntiCheatService implements OnDestroy {
       description: 'Lost focus on the exam window.',
       timestamp: new Date()
     });
+  }
+
+  private handleOnline(): void {
+    if (!this.isMonitoring) return;
+    // Immediately send heartbeat to log "Reconnected" event faster
+    this.sendHeartbeat(false);
+  }
+
+  private handleOffline(): void {
+    if (!this.isMonitoring) return;
+    // Could optionally trigger a local warning here
+  }
+
+  private sendHeartbeat(isPageRefresh: boolean): void {
+    if (!this.attemptId) return;
+    this.http.post(`${environment.apiUrl}/exam-attempts/${this.attemptId}/heartbeat`, { isPageRefresh })
+      .subscribe({
+        error: () => console.warn('Failed to send heartbeat')
+      });
   }
 
   private resizeTimeout: any;

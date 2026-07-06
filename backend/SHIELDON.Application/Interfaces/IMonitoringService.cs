@@ -9,8 +9,15 @@ namespace SHIELDON.Application.Interfaces;
 public interface IMonitoringService
 {
     /// <summary>
+    /// Processes a heartbeat from the student's exam browser tab.
+    /// Updates LastHeartbeatAt, logs a Reconnected event if the student was disconnected,
+    /// and optionally logs a PageRefreshed event.
+    /// </summary>
+    Task ProcessHeartbeatAsync(Guid attemptId, Guid studentId, bool isPageRefresh);
+
+    /// <summary>
     /// Returns the full attempt timeline for one finished exam attempt.
-    /// Contains the attempt's info and chronological list of all violations.
+    /// Contains the attempt's info and chronological list of all violations + presence events.
     /// Access: Tutor (own course) or Admin only.
     /// </summary>
     Task<AttemptTimelineResponse> GetTimelineAsync(Guid attemptId, Guid requesterId, string requesterRole);

@@ -1,6 +1,6 @@
 <div class="dashboard-shell">
   <!-- Sidebar -->
-  <aside class="sidebar" [class.open]="isMobileMenuOpen">
+  <aside class="sidebar" [class.open]="isMobileMenuOpen" [class.collapsed]="isSidebarCollapsed()">
     <div class="sidebar-header">
       <div class="shield-logo">
         <img src="assets/images/logo.png" alt="SHIELDON Logo">
@@ -9,6 +9,11 @@
         <h2>SHIELDON</h2>
         <p class="slogan">{{ 'SIDEBAR.SLOGAN' | translate }}</p>
       </div>
+      <button class="sidebar-collapse-btn" (click)="toggleSidebar()" title="Toggle Sidebar">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
       <button class="close-mobile" (click)="toggleMobileMenu()">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
@@ -79,12 +84,10 @@
       <!-- Messages -->
       <a class="nav-item" id="nav-chat" routerLink="/chat" routerLinkActive="active">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-          <span>{{ 'SIDEBAR.MESSAGES' | translate }}</span>
-          @if (chatService.unreadTotalCount() > 0) {
-            <span class="unread-badge">{{ chatService.unreadTotalCount() }}</span>
-          }
-        </div>
+        <span style="flex-grow: 1;">{{ 'SIDEBAR.MESSAGES' | translate }}</span>
+        @if (chatService.unreadTotalCount() > 0) {
+          <span class="unread-badge">{{ chatService.unreadTotalCount() }}</span>
+        }
       </a>
 
       <!-- AI Assistant -->

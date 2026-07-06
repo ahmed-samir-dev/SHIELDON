@@ -30,6 +30,25 @@ public class MonitoringController : ControllerBase
     private Guid   GetUserId()   => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
     private string GetUserRole() => User.FindFirstValue(ClaimTypes.Role)!;
 
+    // ── Student: Heartbeat ─────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// POST /api/exam-attempts/{attemptId}/heartbeat
+    ///
+    /// Called by the exam engine every 30 seconds to signal the student is still online.
+    /// If IsPageRefresh = true, logs a PageRefreshed presence event.
+    /// Student role only — scoped to their own active attempt.
+    /// </summary>
+    [HttpPost("api/exam-attempts/{attemptId:guid}/heartbeat")]
+    [Authorize(Roles = "Student")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> SendHeartbeat(Guid attemptId, [FromBody] HeartbeatRequest request)
+    {
+        await _monitoring.ProcessHeartbeatAsync(attemptId, GetUserId(), request.IsPageRefresh);
+        return Ok();
+    }
+
     // ── Tutor/Admin: Session Timeline ─────────────────────────────────────────────
 
     /// <summary>
