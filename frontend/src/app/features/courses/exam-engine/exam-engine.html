@@ -85,10 +85,17 @@
           </div>
           <span class="rule-text" [innerHTML]="'EXAM_ENGINE.RULE_3' | translate"></span>
         </div>
+
+        <div class="rule-checkbox" (click)="toggleRule(3)">
+          <div class="checkbox-box" [class.checked]="rulesChecked()[3]">
+            <lucide-icon *ngIf="rulesChecked()[3]" [img]="CheckCircle" size="16"></lucide-icon>
+          </div>
+          <span class="rule-text" [innerHTML]="'EXAM_ENGINE.RULE_4' | translate"></span>
+        </div>
       </div>
 
       <div class="actions">
-        <button class="btn-cancel" (click)="router.navigate(['/courses', examDetails()?.courseId])">{{ 'EXAM_ENGINE.BTN_CANCEL' | translate }}</button>
+        <button class="btn-cancel" (click)="router.navigate(['/courses', examDetails()?.courseId], { queryParams: { tab: 'exams' } })">{{ 'EXAM_ENGINE.BTN_CANCEL' | translate }}</button>
         <button class="btn-start" [disabled]="!allRulesAcknowledged()" (click)="startExam()">{{ 'EXAM_ENGINE.BTN_BEGIN' | translate }}</button>
       </div>
     </div>
@@ -102,9 +109,16 @@
         SHIELDON <span class="separator">|</span> <span class="exam-title">{{ examDetails()?.title }}</span>
       </div>
       
-      <div class="timer-container" [ngClass]="'status-' + timerStatus()">
-        <lucide-icon [img]="Clock" size="20"></lucide-icon>
-        {{ formattedTime() }}
+      <div class="header-metrics">
+        <div class="violations-container" [title]="'EXAM_ENGINE.VIOLATIONS_TOOLTIP' | translate:{ strikes: strikeCount() }">
+          <lucide-icon [img]="AlertTriangle" size="20"></lucide-icon>
+          <span class="count">{{ strikeCount() }}/3</span>
+        </div>
+
+        <div class="timer-container" [ngClass]="'status-' + timerStatus()">
+          <lucide-icon [img]="Clock" size="20"></lucide-icon>
+          {{ formattedTime() }}
+        </div>
       </div>
 
       <button class="submit-btn" (click)="goToReview()">

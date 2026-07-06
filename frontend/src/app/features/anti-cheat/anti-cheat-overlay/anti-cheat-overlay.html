@@ -5,7 +5,7 @@
     <div class="overlay-content">
       <lucide-angular [img]="Eye" class="icon pulse-icon" size="64"></lucide-angular>
       <h1>{{ 'ANTI_CHEAT_OVERLAY.FINAL_WARNING' | translate }}</h1>
-      <p class="subtitle">{{ ('ANTI_CHEAT_OVERLAY.VIOLATION_POINTS' | translate).replace('{score}', (antiCheat.strikeScore() | number:'1.2-2') || '0') }}</p>
+      <p class="subtitle">{{ ('ANTI_CHEAT_OVERLAY.VIOLATION_POINTS' | translate).replace('{score}', antiCheat.getFormattedStrikeCount()) }}</p>
       <div class="rules-reminder">
         <p>{{ 'ANTI_CHEAT_OVERLAY.LAST_WARNING' | translate }}</p>
         <ul>
@@ -23,7 +23,7 @@
     <div class="overlay-content">
       <lucide-angular [img]="ShieldAlert" class="icon shake-icon" size="64"></lucide-angular>
       <h1>{{ 'ANTI_CHEAT_OVERLAY.EXAM_TERMINATED' | translate }}</h1>
-      <p class="subtitle">{{ ('ANTI_CHEAT_OVERLAY.MAX_VIOLATIONS' | translate).replace('{score}', (antiCheat.strikeScore() | number:'1.2-2') || '0') }}</p>
+      <p class="subtitle">{{ ('ANTI_CHEAT_OVERLAY.MAX_VIOLATIONS' | translate).replace('{score}', antiCheat.getFormattedStrikeCount()) }}</p>
       <div class="rules-reminder">
         <p [innerHTML]="'ANTI_CHEAT_OVERLAY.AUTO_SUBMITTING' | translate"></p>
         <p style="margin-top: 8px; font-size: 0.9rem; opacity: 0.8;">{{ 'ANTI_CHEAT_OVERLAY.SAVING_ANSWERS' | translate }}</p>

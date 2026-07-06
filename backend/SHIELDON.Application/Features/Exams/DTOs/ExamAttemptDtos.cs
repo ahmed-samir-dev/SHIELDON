@@ -14,7 +14,9 @@ public record StartExamResponse(
     /// <summary>Course ID - used by frontend for post-submit redirect back to Exams tab.</summary>
     Guid CourseId,
     /// <summary>Result visibility setting - used by frontend to decide redirect destination after submit.</summary>
-    string ResultVisibility
+    string ResultVisibility,
+    /// <summary>The student's accumulated strike score from previous sessions if resuming.</summary>
+    decimal InitialStrikeScore
 );
 
 public record StudentQuestionDto(

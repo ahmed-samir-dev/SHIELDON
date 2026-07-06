@@ -80,8 +80,15 @@ public class ExamAttemptService : IExamAttemptService
             {
             if (activeAttempt.Token != null && activeAttempt.Token.ExpiresAt > DateTime.UtcNow)
                 {
+                var activeViolations = await _db.ViolationLogs.Where(v => v.AttemptId == activeAttempt.Id).ToListAsync(ct);
+                decimal initialStrikeScore = activeViolations.Sum(v => v.Severity switch {
+                    ViolationSeverity.Minor => 0.5m,
+                    ViolationSeverity.Medium => 1.0m,
+                    ViolationSeverity.Critical => 1.0m,
+                    _ => 1.0m
+                });
                 // Resume existing
-                return ApiResponse<StartExamResponse>.Ok(CreateStartResponse(activeAttempt, exam));
+                return ApiResponse<StartExamResponse>.Ok(CreateStartResponse(activeAttempt, exam, initialStrikeScore));
             }
             else
             {
@@ -194,7 +201,7 @@ public class ExamAttemptService : IExamAttemptService
                 .ThenInclude(q => q!.Options)
             .LoadAsync(ct);
 
-        return ApiResponse<StartExamResponse>.Ok(CreateStartResponse(attempt, exam));
+        return ApiResponse<StartExamResponse>.Ok(CreateStartResponse(attempt, exam, 0m));
     }
 
     /// <summary>Cryptographically random Fisher-Yates in-place shuffle.</summary>
@@ -403,7 +410,7 @@ public class ExamAttemptService : IExamAttemptService
         return attempt;
     }
 
-    private StartExamResponse CreateStartResponse(ExamAttempt attempt, Exam exam)
+    private StartExamResponse CreateStartResponse(ExamAttempt attempt, Exam exam, decimal initialStrikeScore)
     {
         // Read questions from the snapshot, ordered by the attempt's OrderIndex
         var snapshotQuestions = attempt.AttemptQuestions
@@ -456,7 +463,8 @@ public class ExamAttemptService : IExamAttemptService
             finalOrder,
             savedAnswers,
             exam.CourseId,
-            exam.ResultVisibility.ToString()
+            exam.ResultVisibility.ToString(),
+            initialStrikeScore
         );
     }
 }

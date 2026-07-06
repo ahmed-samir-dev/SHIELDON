@@ -708,9 +708,10 @@
     "LABEL_QUESTIONS": "Questions",
     "RULES_TITLE": "Integrity & Anti-Cheating Rules",
     "RULES_SUBTITLE": "You must acknowledge all rules before beginning the exam.",
-    "RULE_1": "I will not use <strong>keyboard shortcuts</strong> (e.g. Copy, Paste, Print).",
+    "RULE_1": "I will not use <strong>keyboard shortcuts</strong> (e.g. Copy, Paste).",
     "RULE_2": "I will not <strong>resize or split</strong> my screen.",
-    "RULE_3": "I understand that violations are recorded and may result in <strong>automatic exam termination</strong>.",
+    "RULE_3": "I understand that this exam enforces <strong>Full Screen mode</strong>.",
+    "RULE_4": "I understand that violations are recorded and may result in <strong>automatic exam termination</strong>.",
     "BTN_CANCEL": "Cancel",
     "BTN_BEGIN": "Begin Exam",
     "BTN_REVIEW_ANSWERS": "Review Answers",
@@ -744,8 +745,12 @@
     "TOAST_VIOLATION_TITLE": "Exam Terminated",
     "TOAST_AUTO_SUBMIT_EXPIRY": "Exam was auto-submitted due to time expiry.",
     "SWAL_STRIKE_TITLE": "Warning: Integrity Violation Detected",
-    "SWAL_STRIKE_DESC": "Suspicious activity has been logged.<br><br>Please do not use keyboard shortcuts or resize your screen.<br><br><strong>Further violations will result in automatic exam termination.</strong>",
-    "SWAL_STRIKE_BTN": "I Understand - Return to Exam"
+    "SWAL_STRIKE_DESC": "Suspicious activity has been logged.<br><br>Please do not use keyboard shortcuts or resize your screen.<br><br><strong>You currently have {{strikes}} out of 3 allowed violations.</strong>",
+    "SWAL_STRIKE_BTN": "I Understand & Will Comply",
+    "SWAL_RESUME_TITLE": "Exam Resumed",
+    "SWAL_RESUME_DESC": "You currently have <strong>{{strikes}} out of 3</strong> allowed violations.<br><br><span style='color: #dc3545; font-weight: bold;'>Warning:</span> Reaching 3 violations will immediately terminate your exam.",
+    "BTN_UNDERSTOOD": "I Understand",
+    "VIOLATIONS_TOOLTIP": "3 violations will terminate the exam. You have {{strikes}} out of 3."
   },
   "EXAM_RESULT_PAGE": {
     "LOADING": "Loading your results...",
