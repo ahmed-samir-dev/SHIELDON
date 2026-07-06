@@ -20,6 +20,14 @@ public class ExamAttemptConfiguration : IEntityTypeConfiguration<ExamAttempt>
         builder.Property(e => e.Notes)
             .HasMaxLength(1000);
 
+        // ── Phase 7: Presence Tracking ────────────────────────────────────────
+        builder.Property(e => e.LastHeartbeatAt)
+            .HasColumnType("DATETIME2");
+
+        builder.Property(e => e.IsDisconnected)
+            .IsRequired()
+            .HasDefaultValue(false);
+
         builder.HasOne(e => e.Student)
             .WithMany()
             .HasForeignKey(e => e.StudentId)

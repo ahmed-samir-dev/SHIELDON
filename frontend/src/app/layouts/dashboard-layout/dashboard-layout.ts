@@ -10,6 +10,7 @@ import { AiChatPanelComponent } from '../../shared/components/ai-chat-panel/ai-c
 import { ChatService } from '../../core/services/chat.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { LanguageService } from '../../core/services/language.service';
+import { LayoutService } from '../../core/services/layout.service';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
@@ -26,14 +27,19 @@ export class DashboardLayout implements AfterViewInit {
   chatService = inject(ChatService);
   themeService = inject(ThemeService);
   languageService = inject(LanguageService);
+  layoutService = inject(LayoutService);
   router = inject(Router);
 
-
   isMobileMenuOpen = false;
+  isSidebarCollapsed = this.layoutService.isSidebarCollapsed;
   apiUrl = environment.apiUrl.replace('/api', '');
 
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
+
+  toggleSidebar(): void {
+    this.layoutService.toggleSidebar();
   }
 
   logout(): void {

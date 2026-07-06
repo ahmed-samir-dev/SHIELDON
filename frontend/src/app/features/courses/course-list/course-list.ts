@@ -1,8 +1,9 @@
-import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { CourseService } from '../services/course.service';
+import { LayoutService } from '../../../core/services/layout.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { LanguageService } from '../../../core/services/language.service';
 import { CourseResponse, CourseQueryParams, UserBasicResponse, StudentEnrollmentStatusResponse } from '../../../core/models/courses.model';
@@ -21,6 +22,7 @@ import { Subscription } from 'rxjs';
 export class CourseList implements OnInit, OnDestroy {
   private translate = inject(TranslateService);
   private courseService = inject(CourseService);
+  private layoutService = inject(LayoutService);
   public authService = inject(AuthService);
   private languageService = inject(LanguageService);
   private toastr = inject(ToastrService);
@@ -31,6 +33,7 @@ export class CourseList implements OnInit, OnDestroy {
   tutors = signal<UserBasicResponse[]>([]);
   myEnrollments = signal<StudentEnrollmentStatusResponse[]>([]);
   isLoading = signal(true);
+  isInitialized = false;
   
   query: CourseQueryParams = {
     page: 1,
@@ -56,11 +59,23 @@ export class CourseList implements OnInit, OnDestroy {
     courseFee: [0, [Validators.min(0)]]
   });
 
+  constructor() {
+    effect(() => {
+      const collapsed = this.layoutService.isSidebarCollapsed();
+      this.query.pageSize = collapsed ? 8 : 6;
+      if (this.isInitialized) {
+        this.query.page = 1; // Reset to first page
+        this.loadCourses();
+      }
+    }, { allowSignalWrites: true });
+  }
+
   ngOnInit() {
     if (this.authService.isStudent()) {
       this.query.enrollmentStatus = 'enrolled';
     }
 
+    this.isInitialized = true;
     this.loadCourses();
     if (this.authService.isAdmin()) {
       this.loadTutors();

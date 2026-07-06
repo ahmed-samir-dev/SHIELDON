@@ -133,15 +133,15 @@
         <div class="panel-header">
           <lucide-icon [img]="Activity" [size]="18"></lucide-icon>
           <h2>{{ 'ATTEMPT_DETAIL.TL_HEADER' | translate }}</h2>
-          <span class="panel-count">{{ ('ATTEMPT_DETAIL.TL_COUNT' | translate).replace('{count}', timelineData()!.violations.length.toString()) }}</span>
+          <span class="panel-count">{{ ('ATTEMPT_DETAIL.TL_COUNT' | translate).replace('{count}', timelineData()!.events.length.toString()) }}</span>
         </div>
 
-        <div class="timeline-empty" *ngIf="timelineData()!.violations.length === 0">
+        <div class="timeline-empty" *ngIf="timelineData()!.events.length === 0">
           <lucide-icon [img]="CheckCircle" [size]="40" class="text-green-400"></lucide-icon>
           <p>{{ 'ATTEMPT_DETAIL.TL_EMPTY' | translate }}</p>
         </div>
 
-        <div class="timeline-feed" *ngIf="timelineData()!.violations.length > 0">
+        <div class="timeline-feed" *ngIf="timelineData()!.events.length > 0">
           <!-- Start node -->
           <div class="tl-node tl-start">
             <div class="tl-circle start-circle">
@@ -154,21 +154,21 @@
             </div>
           </div>
 
-          <!-- Violation nodes -->
-          <div class="tl-node" *ngFor="let v of timelineData()!.violations" [ngClass]="{
-            'tl-critical': v.type === 'Violation' && v.severity === 'Critical',
-            'tl-medium':   v.type === 'Violation' && v.severity === 'Medium',
-            'tl-minor':    v.type === 'Violation' && v.severity === 'Minor',
-            'tl-system':   v.type !== 'Violation'
+          <!-- Violation/Presence nodes -->
+          <div class="tl-node" *ngFor="let v of timelineData()!.events" [ngClass]="{
+            'tl-critical': (v.category === 'Violation' && v.severity === 'Critical') || (v.category === 'Presence' && v.eventType === 'Disconnected'),
+            'tl-medium':   v.category === 'Violation' && v.severity === 'Medium',
+            'tl-minor':    (v.category === 'Violation' && v.severity === 'Minor') || (v.category === 'Presence' && v.eventType === 'PageRefreshed'),
+            'tl-system':   v.category !== 'Violation' && v.eventType !== 'Disconnected' && v.eventType !== 'PageRefreshed'
           }">
-            <div class="tl-circle" [ngClass]="getCircleClass(v.type, v.severity)">
-              <lucide-icon [img]="getTimelineIcon(v.type)" [size]="14"></lucide-icon>
+            <div class="tl-circle" [ngClass]="getCircleClass(v.category, v.eventType, v.severity)">
+              <lucide-icon [img]="getTimelineIcon(v.category, v.eventType)" [size]="14"></lucide-icon>
             </div>
             <div class="tl-connector"></div>
             <div class="tl-content">
               <div class="tl-meta">
                 <span class="tl-time">{{ v.occurredAt | date:'HH:mm:ss' }}</span>
-                <span *ngIf="v.type === 'Violation'" class="tl-severity-badge" [ngClass]="getSeverityBadgeClass(v.severity)">
+                <span *ngIf="v.category === 'Violation'" class="tl-severity-badge" [ngClass]="getSeverityBadgeClass(v.severity)">
                   {{ 'ATTEMPT_DETAIL.CHART_LEGEND_' + v.severity.toUpperCase() | translate }}
                 </span>
                 <span *ngIf="v.wasAutoSubmit" class="tl-auto-tag">

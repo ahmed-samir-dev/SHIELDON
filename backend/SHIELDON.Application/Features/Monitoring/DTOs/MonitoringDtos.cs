@@ -1,11 +1,26 @@
 namespace SHIELDON.Application.Features.Monitoring.DTOs;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ATTEMPT TIMELINE (replaces the old merged presence+violation timeline)
+// HEARTBEAT / PRESENCE
+// ─────────────────────────────────────────────────────────────────────────────
+
+/// <summary>Request body for the heartbeat endpoint (kept minimal on purpose).</summary>
+public class HeartbeatRequest
+{
+    /// <summary>
+    /// Optional — if true, the frontend is telling us this is a page refresh / session resume.
+    /// This will be logged as a PageRefreshed presence event.
+    /// </summary>
+    public bool IsPageRefresh { get; set; } = false;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ATTEMPT TIMELINE (violations + presence events merged chronologically)
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// <summary>
-/// Complete info for one finished exam attempt, including all violations.
+/// Complete info for one finished exam attempt, including all violations
+/// and presence/connectivity events.
 /// Returned by GET /api/attempts/{id}/timeline.
 /// </summary>
 public class AttemptTimelineResponse
@@ -24,18 +39,38 @@ public class AttemptTimelineResponse
     public int CriticalCount { get; set; }
     public int MediumCount { get; set; }
     public int MinorCount { get; set; }
-    public List<ViolationTimelineEntry> Violations { get; set; } = [];
+    /// <summary>
+    /// Chronologically merged list of both violation events and presence events.
+    /// Each entry has a Category field: "Violation" or "Presence".
+    /// </summary>
+    public List<TimelineEntry> Events { get; set; } = [];
 }
 
-/// <summary>One violation event in the attempt timeline.</summary>
-public class ViolationTimelineEntry
+/// <summary>
+/// A single entry in the merged attempt timeline. Can represent either a
+/// violation event or a connectivity/presence event.
+/// </summary>
+public class TimelineEntry
 {
-    public DateTime OccurredAt { get; set; }
-    public string Type { get; set; } = string.Empty;
+    /// <summary>"Violation" or "Presence"</summary>
+    public string Category { get; set; } = string.Empty;
+
+    /// <summary>
+    /// For violations: the ViolationType enum name (e.g. "TabSwitch", "FocusLoss").
+    /// For presence events: the PresenceEventType name (e.g. "Disconnected", "Reconnected", "PageRefreshed").
+    /// </summary>
+    public string EventType { get; set; } = string.Empty;
+
+    /// <summary>For violations: "Critical", "Medium", or "Minor". Empty for presence events.</summary>
     public string Severity { get; set; } = string.Empty;
+
     public string Description { get; set; } = string.Empty;
+    public DateTime OccurredAt { get; set; }
+
+    /// <summary>True if this violation caused an automatic exam force-submit.</summary>
     public bool WasAutoSubmit { get; set; }
 }
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // VIOLATION SUMMARY (unchanged - used for the chart endpoint)

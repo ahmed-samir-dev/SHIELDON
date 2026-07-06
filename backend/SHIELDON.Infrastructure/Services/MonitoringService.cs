@@ -9,9 +9,10 @@ using SHIELDON.Infrastructure.Persistence;
 namespace SHIELDON.Infrastructure.Services;
 
 /// <summary>
-/// Implements all Phase 6 monitoring operations:
-/// session timeline, violation summaries, and tutor/admin dashboards.
-/// Note: All real-time/heartbeat logic was removed in Phase 6. Data is loaded on demand.
+/// Implements all monitoring operations:
+/// - ProcessHeartbeatAsync: updates heartbeat timestamp, logs presence events
+/// - GetTimelineAsync: merges violations + presence logs into one chronological feed
+/// - GetViolationSummaryAsync, GetTutorDashboardAsync, GetAdminDashboardAsync (historical dashboards)
 /// </summary>
 public class MonitoringService : IMonitoringService
 {
@@ -20,6 +21,51 @@ public class MonitoringService : IMonitoringService
     public MonitoringService(AppDbContext db)
     {
         _db = db;
+    }
+
+    // ── Heartbeat / Presence ──────────────────────────────────────────────────
+
+    /// <inheritdoc/>
+    public async Task ProcessHeartbeatAsync(Guid attemptId, Guid studentId, bool isPageRefresh)
+    {
+        var attempt = await _db.ExamAttempts
+            .FirstOrDefaultAsync(a => a.Id == attemptId && a.StudentId == studentId && a.Status == AttemptStatus.InProgress)
+            ?? throw new NotFoundException("Exam attempt", attemptId);
+
+        var now = DateTime.UtcNow;
+        var wasDisconnected = attempt.IsDisconnected;
+
+        // Always update the heartbeat timestamp
+        attempt.LastHeartbeatAt = now;
+
+        // If the student was previously flagged as disconnected, log a Reconnected event
+        if (wasDisconnected)
+        {
+            attempt.IsDisconnected = false;
+            _db.PresenceLogs.Add(new PresenceLog
+            {
+                AttemptId  = attemptId,
+                StudentId  = studentId,
+                ExamId     = attempt.ExamId,
+                EventType  = PresenceEventType.Reconnected,
+                OccurredAt = now
+            });
+        }
+
+        // If frontend signals a page refresh, always log it (even if not previously disconnected)
+        if (isPageRefresh)
+        {
+            _db.PresenceLogs.Add(new PresenceLog
+            {
+                AttemptId  = attemptId,
+                StudentId  = studentId,
+                ExamId     = attempt.ExamId,
+                EventType  = PresenceEventType.PageRefreshed,
+                OccurredAt = now
+            });
+        }
+
+        await _db.SaveChangesAsync();
     }
 
     // ── Session Timeline ─────────────────────────────────────────────────────────
@@ -44,36 +90,70 @@ public class MonitoringService : IMonitoringService
             .AsNoTracking()
             .ToListAsync();
 
+        // Load presence logs
+        var presenceLogs = await _db.PresenceLogs
+            .Where(p => p.AttemptId == attemptId)
+            .OrderBy(p => p.OccurredAt)
+            .AsNoTracking()
+            .ToListAsync();
+
         var critical = violationLogs.Count(v => v.Severity == ViolationSeverity.Critical);
         var medium   = violationLogs.Count(v => v.Severity == ViolationSeverity.Medium);
         var minor    = violationLogs.Count(v => v.Severity == ViolationSeverity.Minor);
 
+        // Merge violations and presence events into a single chronological list
+        var violationEntries = violationLogs.Select(v => new TimelineEntry
+        {
+            Category     = "Violation",
+            EventType    = v.Type.ToString(),
+            Severity     = v.Severity.ToString(),
+            Description  = v.Description,
+            OccurredAt   = v.OccurredAt,
+            WasAutoSubmit = v.WasAutoSubmit
+        });
+
+        var presenceEntries = presenceLogs.Select(p => new TimelineEntry
+        {
+            Category     = "Presence",
+            EventType    = p.EventType.ToString(),
+            Severity     = string.Empty,
+            Description  = GetPresenceDescription(p.EventType),
+            OccurredAt   = p.OccurredAt,
+            WasAutoSubmit = false
+        });
+
+        var mergedEvents = violationEntries
+            .Concat(presenceEntries)
+            .OrderBy(e => e.OccurredAt)
+            .ToList();
+
         return new AttemptTimelineResponse
         {
-            AttemptId       = attempt.Id,
-            StudentName     = attempt.Student != null ? $"{attempt.Student.FirstName} {attempt.Student.LastName}" : "Unknown",
-            StudentCode     = attempt.Student?.StudentId ?? "-",
+            AttemptId        = attempt.Id,
+            StudentName      = attempt.Student != null ? $"{attempt.Student.FirstName} {attempt.Student.LastName}" : "Unknown",
+            StudentCode      = attempt.Student?.StudentId ?? "-",
             StudentProfilePictureUrl = attempt.Student?.ProfilePictureUrl,
-            ExamTitle       = attempt.Exam.Title,
-            CourseTitle     = attempt.Exam.Course!.Title,
-            StartedAt       = attempt.StartedAt,
-            SubmittedAt     = attempt.SubmittedAt,
-            Status          = attempt.Status.ToString(),
-            Score           = attempt.Score,
-            TotalViolations = violationLogs.Count,
-            CriticalCount   = critical,
-            MediumCount     = medium,
-            MinorCount      = minor,
-            Violations      = violationLogs.Select(v => new ViolationTimelineEntry
-            {
-                OccurredAt   = v.OccurredAt,
-                Type         = v.Type.ToString(),
-                Severity     = v.Severity.ToString(),
-                Description  = v.Description,
-                WasAutoSubmit = v.WasAutoSubmit
-            }).ToList()
+            ExamTitle        = attempt.Exam.Title,
+            CourseTitle      = attempt.Exam.Course!.Title,
+            StartedAt        = attempt.StartedAt,
+            SubmittedAt      = attempt.SubmittedAt,
+            Status           = attempt.Status.ToString(),
+            Score            = attempt.Score,
+            TotalViolations  = violationLogs.Count,
+            CriticalCount    = critical,
+            MediumCount      = medium,
+            MinorCount       = minor,
+            Events           = mergedEvents
         };
     }
+
+    private static string GetPresenceDescription(PresenceEventType eventType) => eventType switch
+    {
+        PresenceEventType.Disconnected   => "Student went offline and heartbeat stopped.",
+        PresenceEventType.Reconnected    => "Student came back online and reconnected.",
+        PresenceEventType.PageRefreshed  => "Student refreshed or reloaded the exam page.",
+        _                                => eventType.ToString()
+    };
 
     // ── Violation Summary ────────────────────────────────────────────────────────
 

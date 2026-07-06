@@ -23,11 +23,12 @@ export interface DailyActivityPoint {
 // ATTEMPT TIMELINE
 // ─────────────────────────────────────────────────────────────────────────────
 
-export interface ViolationTimelineEntry {
-  occurredAt: string;
-  type: string;
+export interface TimelineEntry {
+  category: string;
+  eventType: string;
   severity: string;
   description: string;
+  occurredAt: string;
   wasAutoSubmit: boolean;
 }
 
@@ -46,7 +47,7 @@ export interface AttemptTimelineResponse {
   criticalCount: number;
   mediumCount: number;
   minorCount: number;
-  violations: ViolationTimelineEntry[];
+  events: TimelineEntry[];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

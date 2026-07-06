@@ -135,10 +135,10 @@ SHIELDON follows a **Clean Architecture + Vertical Slice Hybrid** approach:
 | F15 | **Exam Results & Auto-Grading** | Confetti animation, per-question review, manual grading for short answers |
 | F16 | **Grade Management Panel** | Bulk publish, CSV export, weighted grade calculation |
 | F17 | **Anti-Cheating Engine** | Browser-native exam integrity system (see details below) |
-| F18 | **Session Timeline View** | Per-attempt timeline of all student activity during an exam |
-| F19 | **Violation Timeline View** | Detailed violation log with types, timestamps, and severity |
+| F18 | **Session Timeline View** | Per-attempt vertical timeline with live Presence Tracking (connection status) |
+| F19 | **Violation Density Analytics** | Advanced sticky Bubble/Scatter Chart mapping violation frequency against severity over time |
 | F20 | **Tutor Monitoring Dashboard** | Live overview of ongoing exams and violations for assigned courses |
-| F21 | **Admin Dashboard & Users Management** | System-wide admin panel, user lock/unlock, tutor listing, user search |
+| F21 | **Admin Dashboard & Global Layout** | System-wide admin panel with responsive Collapsible Sidebar and dynamic data grids |
 | F22 | **SHIELDON AI Assistant** | Gemini-powered chatbot with backend proxy, automatically blocked during exams |
 | F23 | **Shepherd.js Onboarding Tours** | Role-based guided tours for first-time users |
 | F24 | **Tutor & Global Analytics Dashboard** | Course-level and system-wide analytics with ECharts visualizations |
