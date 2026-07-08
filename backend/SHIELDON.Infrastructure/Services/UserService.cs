@@ -57,12 +57,26 @@ public class UserService : IUserService
                 (u.TutorId != null && u.TutorId.ToLower().Contains(term)));
         }
 
-        // Sort newest-first
-        query = query.OrderByDescending(u => u.CreatedAt);
+        // Dynamic sort
+        var sortCol  = (filters.SortColumn ?? "Name").ToLower();
+        var desc     = (filters.SortDirection ?? "asc").ToLower() == "desc";
+
+        query = sortCol switch
+        {
+            "email"               => desc ? query.OrderByDescending(u => u.Email)               : query.OrderBy(u => u.Email),
+            "role"                => desc ? query.OrderByDescending(u => u.Role)                : query.OrderBy(u => u.Role),
+            "accountstatus"       => desc ? query.OrderByDescending(u => u.AccountStatus)       : query.OrderBy(u => u.AccountStatus),
+            "emailverifiedat"     => desc ? query.OrderByDescending(u => u.EmailVerifiedAt)     : query.OrderBy(u => u.EmailVerifiedAt),
+            "lastloginat"         => desc ? query.OrderByDescending(u => u.LastLoginAt)         : query.OrderBy(u => u.LastLoginAt),
+            "failedloginattempts" => desc ? query.OrderByDescending(u => u.FailedLoginAttempts) : query.OrderBy(u => u.FailedLoginAttempts),
+            _                     => desc // default: Name
+                ? query.OrderByDescending(u => u.FirstName).ThenByDescending(u => u.LastName)
+                : query.OrderBy(u => u.FirstName).ThenBy(u => u.LastName)
+        };
 
         var totalCount = await query.CountAsync(ct);
 
-        var page = Math.Max(1, filters.Page);
+        var page     = Math.Max(1, filters.Page);
         var pageSize = Math.Clamp(filters.PageSize, 1, 100);
 
         var items = await query
@@ -70,31 +84,31 @@ public class UserService : IUserService
             .Take(pageSize)
             .Select(u => new UserDetailDto
             {
-                Id = u.Id,
-                FirstName = u.FirstName,
-                LastName = u.LastName,
-                Email = u.Email,
-                ProfilePictureUrl = u.ProfilePictureUrl,
-                Role = u.Role,
-                StudentId = u.StudentId,
-                TutorId = u.TutorId,
-                AccountStatus = u.AccountStatus,
-                FailedLoginAttempts = u.FailedLoginAttempts,
-                LockedAt = u.LockedAt,
-                EmailVerifiedAt = u.EmailVerifiedAt,
-                LastLoginAt = u.LastLoginAt,
+                Id                     = u.Id,
+                FirstName              = u.FirstName,
+                LastName               = u.LastName,
+                Email                  = u.Email,
+                ProfilePictureUrl      = u.ProfilePictureUrl,
+                Role                   = u.Role,
+                StudentId              = u.StudentId,
+                TutorId                = u.TutorId,
+                AccountStatus          = u.AccountStatus,
+                FailedLoginAttempts    = u.FailedLoginAttempts,
+                LockedAt               = u.LockedAt,
+                EmailVerifiedAt        = u.EmailVerifiedAt,
+                LastLoginAt            = u.LastLoginAt,
                 HasCompletedOnboarding = u.HasCompletedOnboarding,
-                CreatedAt = u.CreatedAt,
-                UpdatedAt = u.UpdatedAt
+                CreatedAt              = u.CreatedAt,
+                UpdatedAt              = u.UpdatedAt
             })
             .ToListAsync(ct);
 
         return new PagedResponse<UserDetailDto>
         {
-            Items = items,
+            Items      = items,
             TotalCount = totalCount,
             PageNumber = page,
-            PageSize = pageSize
+            PageSize   = pageSize
         };
     }
 

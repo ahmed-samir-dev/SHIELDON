@@ -25,13 +25,15 @@ public class UsersController : ControllerBase
     /// <summary>
     /// GET /api/users
     ///
-    /// Returns a paginated, searchable, and filterable list of all Tutors and Students.
+    /// Returns a paginated, searchable, filterable, and sortable list of all Tutors and Students.
     /// Admins are never returned. Supports:
-    ///   - ?search=   (name or email)
-    ///   - ?role=     Tutor | Student
-    ///   - ?status=   Active | Locked | Unverified
-    ///   - ?page=     (default 1)
-    ///   - ?pageSize= (default 10)
+    ///   - ?search=        (name, email, StudentId, TutorId)
+    ///   - ?role=          Tutor | Student
+    ///   - ?status=        Active | Locked | Unverified
+    ///   - ?sortColumn=    Name | Email | Role | AccountStatus | EmailVerifiedAt | LastLoginAt | FailedLoginAttempts
+    ///   - ?sortDirection= asc | desc
+    ///   - ?page=          (default 1)
+    ///   - ?pageSize=      (default 10)
     /// Admin role only.
     /// </summary>
     [HttpGet]
@@ -43,15 +45,19 @@ public class UsersController : ControllerBase
         [FromQuery] string? search = null,
         [FromQuery] string? role = null,
         [FromQuery] string? status = null,
+        [FromQuery] string? sortColumn = "Name",
+        [FromQuery] string? sortDirection = "asc",
         CancellationToken cancellationToken = default)
     {
         var filters = new UserFilterParams
         {
-            Page = page,
-            PageSize = pageSize,
-            Search = search,
-            Role = role,
-            Status = status
+            Page          = page,
+            PageSize      = pageSize,
+            Search        = search,
+            Role          = role,
+            Status        = status,
+            SortColumn    = sortColumn,
+            SortDirection = sortDirection
         };
 
         var result = await _userService.GetUsersPaginatedAsync(filters, cancellationToken);

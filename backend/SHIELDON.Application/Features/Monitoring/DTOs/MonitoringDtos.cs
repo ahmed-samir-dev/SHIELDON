@@ -71,9 +71,8 @@ public class TimelineEntry
     public bool WasAutoSubmit { get; set; }
 }
 
-
 // ─────────────────────────────────────────────────────────────────────────────
-// VIOLATION SUMMARY (unchanged - used for the chart endpoint)
+// VIOLATION SUMMARY (used for the chart endpoint)
 // ─────────────────────────────────────────────────────────────────────────────
 
 /// <summary>Aggregate statistics for all violations in one attempt - used for the summary cards row.</summary>
@@ -168,37 +167,113 @@ public class SubmissionRow
 // ADMIN DASHBOARD
 // ─────────────────────────────────────────────────────────────────────────────
 
+/// <summary>
+/// Query parameters for the paginated, searchable, sortable Exam Statistics table
+/// on the admin dashboard.
+/// </summary>
+public class ExamStatisticsQueryParams
+{
+    public int Page { get; set; } = 1;
+    public int PageSize { get; set; } = 10;
+
+    /// <summary>Free-text search applied to Exam Title, Course Title, and Tutor Name.</summary>
+    public string? Search { get; set; }
+
+    /// <summary>Filter by specific Tutor ID</summary>
+    public Guid? TutorId { get; set; }
+
+    public string? SortColumn { get; set; } = "ScheduledAt";
+    public string? SortDirection { get; set; } = "desc";
+}
+
 /// <summary>Full admin dashboard payload with platform-wide historical stats and analytics.</summary>
 public class AdminDashboardResponse
 {
-    // KPI cards
+    // ── KPI Cards — Row 1 ────────────────────────────────────────────────────
+    /// <summary>Total number of currently active (non-archived) courses on the platform.</summary>
     public int TotalActiveCourses { get; set; }
+
+    /// <summary>Total number of distinct exams that have at least one finished attempt.</summary>
     public int TotalCompletedExams { get; set; }
+
+    /// <summary>Total number of exam submissions (all non-InProgress attempts).</summary>
     public int TotalSubmissions { get; set; }
+
+    /// <summary>Total number of all violation events ever logged on the platform.</summary>
     public int TotalViolations { get; set; }
+
+    // ── KPI Cards — Row 2 ────────────────────────────────────────────────────
+    /// <summary>Total number of registered Student accounts.</summary>
+    public int TotalStudents { get; set; }
+
+    /// <summary>Total number of registered Tutor accounts.</summary>
+    public int TotalTutors { get; set; }
+
+    /// <summary>Number of exam attempts currently in progress right now.</summary>
+    public int ActiveExamsInProgress { get; set; }
+
+    /// <summary>Rate of force-submitted exams vs total submissions (0–100%).</summary>
     public decimal ForceSubmissionRate { get; set; }
 
-    /// <summary>All exams with their aggregate stats (paginated on frontend).</summary>
-    public List<ExamStatisticsRow> ExamStatistics { get; set; } = [];
+    /// <summary>Total revenue collected from paid courses.</summary>
+    public decimal TotalRevenueUSD { get; set; }
+
+    // ── Charts ────────────────────────────────────────────────────────────────
+    /// <summary>Violation counts grouped by course — for the "Violations by Course" chart.</summary>
+    public List<CourseViolationStat> ViolationsByCourse { get; set; } = [];
+
+    /// <summary>Submission outcome breakdown — for the "Global Submission Outcomes" chart.</summary>
+    public List<SubmissionOutcomeStat> GlobalSubmissionOutcomes { get; set; } = [];
+
+    /// <summary>Recent successful payments — for the "Recent Payments" bar chart.</summary>
+    public List<RecentPaymentStat> RecentPayments { get; set; } = [];
 
     /// <summary>Top violation types for the ECharts horizontal bar chart.</summary>
     public List<ViolationTypeStat> TopViolationTypes { get; set; } = [];
 
     /// <summary>30-day activity trend for the ECharts line chart.</summary>
     public List<DailyActivityPoint> ActivityTrend { get; set; } = [];
+
+    // ── Exam Statistics Table (server-side paginated + sorted) ─────────────────────────────────────────────────
+    public List<ExamStatisticsRow> ExamStatistics { get; set; } = [];
+    public int ExamStatisticsTotalCount { get; set; }
+    public int ExamStatisticsPage { get; set; }
+    public int ExamStatisticsPageSize { get; set; }
+    public int ExamStatisticsTotalPages => ExamStatisticsPageSize > 0
+        ? (int)Math.Ceiling((double)ExamStatisticsTotalCount / ExamStatisticsPageSize) : 0;
 }
 
-/// <summary>One row in the admin's exam statistics table.</summary>
+/// <summary>One row in the admin's expanded exam statistics table.</summary>
 public class ExamStatisticsRow
 {
     public Guid ExamId { get; set; }
     public string ExamTitle { get; set; } = string.Empty;
     public string CourseTitle { get; set; } = string.Empty;
     public string TutorName { get; set; } = string.Empty;
+
+    [System.Text.Json.Serialization.JsonIgnore]
+    public DateTime? ScheduledAt { get; set; }
+
+    /// <summary>Total number of attempts started (all statuses).</summary>
+    public int TotalAttempts { get; set; }
+
+    /// <summary>Attempts with status Submitted or Graded.</summary>
     public int SubmittedCount { get; set; }
+
+    /// <summary>Attempts force-submitted by the anti-cheat engine.</summary>
     public int ForceSubmittedCount { get; set; }
+
+    /// <summary>Attempts still in progress.</summary>
     public int InProgressCount { get; set; }
+
+    /// <summary>Total violations logged across all attempts for this exam.</summary>
     public int TotalViolations { get; set; }
+
+    /// <summary>Average score across all scored attempts. Null if no scores yet.</summary>
+    public decimal? AverageScore { get; set; }
+
+    /// <summary>Percentage of submitted+graded attempts that passed. Null if no passing threshold set.</summary>
+    public decimal? PassRate { get; set; }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -217,4 +292,35 @@ public class DailyActivityPoint
     public DateOnly Date { get; set; }
     public int ExamCount { get; set; }
     public int ViolationCount { get; set; }
+}
+
+/// <summary>Violation count per course — for the "Violations by Course" chart.</summary>
+public class CourseViolationStat
+{
+    public string CourseTitle { get; set; } = string.Empty;
+    public int ViolationCount { get; set; }
+    public int CriticalCount { get; set; }
+    public int MediumCount { get; set; }
+    public int MinorCount { get; set; }
+}
+
+/// <summary>
+/// Breakdown of submission outcomes across the entire platform.
+/// Groups: Submitted (manual), ForceSubmitted, AutoExpired, InProgress.
+/// </summary>
+public class SubmissionOutcomeStat
+{
+    /// <summary>Outcome label: "Submitted", "ForceSubmitted", "AutoExpired", "InProgress".</summary>
+    public string Outcome { get; set; } = string.Empty;
+    public int Count { get; set; }
+    public decimal Percentage { get; set; }
+}
+
+
+public class RecentPaymentStat
+{
+    public Guid PaymentId { get; set; }
+    public decimal AmountUSD { get; set; }
+    public DateTime PaidAt { get; set; }
+    public string StudentName { get; set; } = string.Empty;
 }

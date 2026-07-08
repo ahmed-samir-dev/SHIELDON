@@ -115,15 +115,16 @@ public class MonitoringController : ControllerBase
         return Ok(ApiResponse<TutorDashboardResponse>.Ok(result));
     }
 
-    // ── Admin: Dashboard ──────────────────────────────────────────────────────────
-
     /// <summary>
     /// GET /api/monitoring/admin/dashboard
     ///
     /// Returns the full admin dashboard payload:
-    /// - System KPIs (courses, active exams, enrolled students, violations today)
-    /// - Global exam monitor table (historical stats across all courses)
-    /// - ECharts analytics (top violation types, 30-day trend, suspicious rate gauge)
+    /// - System KPIs row 1: active courses, completed exams, total submissions, total violations
+    /// - System KPIs row 2: total students, total tutors, active-in-progress, force-submission rate
+    /// - Violations by Course chart data
+    /// - Global Submission Outcomes chart data
+    /// - Top violation types, 30-day activity trend
+    /// - Paginated, searchable, sortable exam statistics table
     /// Admin role only.
     /// </summary>
     [HttpGet("api/monitoring/admin/dashboard")]
@@ -131,9 +132,24 @@ public class MonitoringController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<AdminDashboardResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> GetAdminDashboard()
+    public async Task<IActionResult> GetAdminDashboard(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] string? search = null,
+        [FromQuery] Guid? tutorId = null,
+        [FromQuery] string? sortColumn = "ScheduledAt",
+        [FromQuery] string? sortDirection = "desc")
     {
-        var result = await _monitoring.GetAdminDashboardAsync();
+        var queryParams = new ExamStatisticsQueryParams
+        {
+            Page          = page,
+            PageSize      = pageSize,
+            Search        = search,
+            TutorId       = tutorId,
+            SortColumn    = sortColumn,
+            SortDirection = sortDirection
+        };
+        var result = await _monitoring.GetAdminDashboardAsync(queryParams);
         return Ok(ApiResponse<AdminDashboardResponse>.Ok(result));
     }
 }

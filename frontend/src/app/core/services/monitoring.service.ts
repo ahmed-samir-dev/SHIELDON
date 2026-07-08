@@ -23,6 +23,15 @@ export interface DailyActivityPoint {
 // ATTEMPT TIMELINE
 // ─────────────────────────────────────────────────────────────────────────────
 
+export interface AdminDashboardQuery {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  tutorId?: string;
+  sortColumn?: string;
+  sortDirection?: 'asc' | 'desc';
+}
+
 export interface TimelineEntry {
   category: string;
   eventType: string;
@@ -122,15 +131,40 @@ export interface TutorDashboardResponse {
 // ADMIN DASHBOARD
 // ─────────────────────────────────────────────────────────────────────────────
 
+export interface CourseViolationStat {
+  courseTitle: string;
+  violationCount: number;
+  criticalCount: number;
+  mediumCount: number;
+  minorCount: number;
+}
+
+export interface SubmissionOutcomeStat {
+  outcome: string;
+  count: number;
+  percentage: number;
+}
+
+export interface RecentPaymentStat {
+  paymentId: string;
+  amountUSD: number;
+  paidAt: string;
+  studentName: string;
+}
+
 export interface ExamStatisticsRow {
   examId: string;
   examTitle: string;
   courseTitle: string;
   tutorName: string;
+  scheduledAt: string | null;
+  totalAttempts: number;
   submittedCount: number;
   forceSubmittedCount: number;
   inProgressCount: number;
   totalViolations: number;
+  averageScore: number | null;
+  passRate: number | null;
 }
 
 export interface AdminDashboardResponse {
@@ -138,10 +172,23 @@ export interface AdminDashboardResponse {
   totalCompletedExams: number;
   totalSubmissions: number;
   totalViolations: number;
+  totalStudents: number;
+  totalTutors: number;
+  activeExamsInProgress: number;
   forceSubmissionRate: number;
-  examStatistics: ExamStatisticsRow[];
+  totalRevenueUSD: number;
+  violationsByCourse: CourseViolationStat[];
+  globalSubmissionOutcomes: SubmissionOutcomeStat[];
+  recentPayments: RecentPaymentStat[];
   topViolationTypes: ViolationTypeStat[];
   activityTrend: DailyActivityPoint[];
+
+  // Exam Statistics Table
+  examStatistics: ExamStatisticsRow[];
+  examStatisticsTotalCount: number;
+  examStatisticsPage: number;
+  examStatisticsPageSize: number;
+  examStatisticsTotalPages: number;
 }
 
 @Injectable({
@@ -173,7 +220,16 @@ export class MonitoringService {
     return this.http.get<ApiResponse<TutorDashboardResponse>>(`${this.baseUrl}/monitoring/tutor/dashboard`, { params });
   }
 
-  getAdminDashboard(): Observable<ApiResponse<AdminDashboardResponse>> {
-    return this.http.get<ApiResponse<AdminDashboardResponse>>(`${this.baseUrl}/monitoring/admin/dashboard`);
+  getAdminDashboard(page = 1, pageSize = 10, search?: string, tutorId?: string, sortColumn = 'ScheduledAt', sortDirection = 'desc'): Observable<ApiResponse<AdminDashboardResponse>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString())
+      .set('sortColumn', sortColumn)
+      .set('sortDirection', sortDirection);
+
+    if (search) params = params.set('search', search);
+    if (tutorId) params = params.set('tutorId', tutorId);
+
+    return this.http.get<ApiResponse<AdminDashboardResponse>>(`${this.baseUrl}/monitoring/admin/dashboard`, { params });
   }
 }

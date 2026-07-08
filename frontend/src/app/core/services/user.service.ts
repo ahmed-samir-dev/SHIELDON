@@ -26,6 +26,10 @@ export class UserService {
       .pipe(map(r => r.data!));
   }
 
+  getTutors(): Observable<any[]> {
+    return this.http.get<ApiResponse<any[]>>(`${this.apiUrl}/tutors`).pipe(map(r => r.data!));
+  }
+
   lockUser(userId: string): Observable<void> {
     return this.http.post<ApiResponse<object>>(`${this.apiUrl}/${userId}/lock`, {})
       .pipe(map(() => void 0));
