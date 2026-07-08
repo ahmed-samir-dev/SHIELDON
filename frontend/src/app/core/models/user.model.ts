@@ -27,4 +27,6 @@ export interface UserFilterParams {
   search?: string;
   role?: string;
   status?: string;
+  sortColumn?: string;
+  sortDirection?: string;
 }

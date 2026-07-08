@@ -41,8 +41,8 @@ public interface IMonitoringService
         Guid? examId = null);
 
     /// <summary>
-    /// Returns the admin dashboard: platform-wide KPIs, exam statistics table,
-    /// and ECharts analytics data (violation types, 30-day trend).
+    /// Returns the admin dashboard: platform-wide KPIs, paginated+sortable exam statistics table,
+    /// new chart data (violations by course, submission outcomes), and activity trend.
     /// </summary>
-    Task<AdminDashboardResponse> GetAdminDashboardAsync();
+    Task<AdminDashboardResponse> GetAdminDashboardAsync(ExamStatisticsQueryParams queryParams);
 }

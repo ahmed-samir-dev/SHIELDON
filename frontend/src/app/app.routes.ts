@@ -157,6 +157,12 @@ export const routes: Routes = [
         title: 'Admin Dashboard - SHIELDON'
       },
       {
+        path: 'admin/users',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/admin/users-management/users-management').then(m => m.UsersManagementComponent),
+        title: 'Users Management - SHIELDON'
+      },
+      {
         path: 'payment-hub',
         loadComponent: () => import('./features/payment/payment-hub/payment-hub').then(m => m.PaymentHubComponent),
         title: 'Payment Hub - SHIELDON'

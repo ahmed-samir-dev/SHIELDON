@@ -28,4 +28,14 @@ public class UserFilterParams
     /// If null or empty, all statuses are returned.
     /// </summary>
     public string? Status { get; set; }
+
+    /// <summary>
+    /// Column to sort by. Accepted values (case-insensitive):
+    /// Name, Email, Role, AccountStatus, EmailVerifiedAt, LastLoginAt, FailedLoginAttempts.
+    /// Defaults to "Name".
+    /// </summary>
+    public string? SortColumn { get; set; } = "Name";
+
+    /// <summary>"asc" or "desc". Defaults to "asc".</summary>
+    public string? SortDirection { get; set; } = "asc";
 }
