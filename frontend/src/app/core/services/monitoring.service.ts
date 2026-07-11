@@ -100,22 +100,32 @@ export interface ExamMonitoringSummary {
   inProgressCount: number;
   submittedCount: number;
   forceSubmittedCount: number;
+  timeoutCount: number;
+  violationLimitCount: number;
   notStartedCount: number;
   totalViolations: number;
   criticalViolations: number;
   averageScore: number | null;
+  passedCount: number;
+  failedCount: number;
 }
 
 export interface SubmissionRow {
   attemptId: string;
+  examId: string;
   studentName: string;
   studentCode: string;
   examTitle: string;
+  courseTitle: string;
   status: string;
   submittedAt: string | null;
+  durationMinutes: number | null;
   score: number | null;
+  passed: boolean;
+  failed: boolean;
   violationCount: number;
   highestSeverity: string;
+  history?: SubmissionRow[];
 }
 
 export interface TutorDashboardResponse {
@@ -125,6 +135,21 @@ export interface TutorDashboardResponse {
   page: number;
   pageSize: number;
   violationTypeDistribution: ViolationTypeStat[];
+  totalActiveCourses: number;
+  totalStudents: number;
+  activeExams: number;
+  averagePassRate: number;
+  completionRate: number;
+  totalPassedStudents: number;
+  averageTimeMinutes: number;
+  courseViolationDetails: CourseViolationDetail[];
+}
+
+export interface CourseViolationDetail {
+  courseTitle: string;
+  violationType: string;
+  severity: string;
+  count: number;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -143,6 +168,12 @@ export interface SubmissionOutcomeStat {
   outcome: string;
   count: number;
   percentage: number;
+}
+
+export interface CourseSubmissionOutcome {
+  courseTitle: string;
+  outcome: string;
+  count: number;
 }
 
 export interface RecentPaymentStat {
@@ -169,12 +200,14 @@ export interface ExamStatisticsRow {
 
 export interface AdminDashboardResponse {
   totalActiveCourses: number;
+  totalExams: number;
   totalCompletedExams: number;
   totalSubmissions: number;
   totalViolations: number;
   totalStudents: number;
   totalTutors: number;
   activeExamsInProgress: number;
+  averagePassRate: number;
   forceSubmissionRate: number;
   totalRevenueUSD: number;
   violationsByCourse: CourseViolationStat[];
@@ -183,12 +216,29 @@ export interface AdminDashboardResponse {
   topViolationTypes: ViolationTypeStat[];
   activityTrend: DailyActivityPoint[];
 
+  activeCourseTitles: string[];
+  courseViolationDetails: CourseViolationDetail[];
+  courseSubmissionOutcomes: CourseSubmissionOutcome[];
+
   // Exam Statistics Table
   examStatistics: ExamStatisticsRow[];
   examStatisticsTotalCount: number;
   examStatisticsPage: number;
   examStatisticsPageSize: number;
   examStatisticsTotalPages: number;
+}
+
+export interface PaymentTrendPoint {
+  date: string;
+  amountUSD: number;
+}
+
+export interface PlatformActivityResponse {
+  activityTrend: DailyActivityPoint[];
+}
+
+export interface PaymentsTrendResponse {
+  paymentsTrend: PaymentTrendPoint[];
 }
 
 @Injectable({
@@ -231,5 +281,17 @@ export class MonitoringService {
     if (tutorId) params = params.set('tutorId', tutorId);
 
     return this.http.get<ApiResponse<AdminDashboardResponse>>(`${this.baseUrl}/monitoring/admin/dashboard`, { params });
+  }
+
+  getPlatformActivity(days?: number | null): Observable<ApiResponse<PlatformActivityResponse>> {
+    let params = new HttpParams();
+    if (days) params = params.set('days', days.toString());
+    return this.http.get<ApiResponse<PlatformActivityResponse>>(`${this.baseUrl}/monitoring/admin/platform-activity`, { params });
+  }
+
+  getPaymentsTrend(days?: number | null): Observable<ApiResponse<PaymentsTrendResponse>> {
+    let params = new HttpParams();
+    if (days) params = params.set('days', days.toString());
+    return this.http.get<ApiResponse<PaymentsTrendResponse>>(`${this.baseUrl}/monitoring/admin/payments-trend`, { params });
   }
 }

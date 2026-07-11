@@ -107,7 +107,7 @@ SHIELDON follows a **Clean Architecture + Vertical Slice Hybrid** approach:
 ## 👥 System Roles
 
 | Role | Description |
-|---|---|---|
+|---|---|
 | **Admin** | Full system access. Manages courses, users, all exams, analytics, and violations system-wide. |
 | **Tutor** | Manages assigned courses. Creates exams, uploads materials, posts announcements, monitors exam violations, and tracks attendance. |
 | **Student** | Accesses enrolled courses, downloads materials, submits assignments, takes exams under anti-cheat monitoring, and makes payments. |
@@ -137,7 +137,7 @@ SHIELDON follows a **Clean Architecture + Vertical Slice Hybrid** approach:
 | F17 | **Anti-Cheating Engine** | Browser-native exam integrity system (see details below) |
 | F18 | **Session Timeline View** | Per-attempt vertical timeline with live Presence Tracking (connection status) |
 | F19 | **Violation Density Analytics** | Advanced sticky Bubble/Scatter Chart mapping violation frequency against severity over time |
-| F20 | **Tutor Monitoring Dashboard** | Live overview of ongoing exams and violations for assigned courses |
+| F20 | **Tutor Monitoring Dashboard** | Live overview of ongoing exams and violations with CSV data export |
 | F21 | **Admin Dashboard & Global Layout** | System-wide admin panel with responsive Collapsible Sidebar and dynamic data grids |
 | F22 | **SHIELDON AI Assistant** | Gemini-powered chatbot with backend proxy, automatically blocked during exams |
 | F23 | **Shepherd.js Onboarding Tours** | Role-based guided tours for first-time users |
@@ -156,15 +156,17 @@ The Anti-Cheating Engine is built entirely with browser Web APIs — no plugins 
 | # | Sub-Feature | Description |
 |---|---|---|
 | 1 | **Pre-Exam Rules Acknowledgment Modal** | Students must read and accept exam integrity rules before starting |
-| 2 | **Keyboard Shortcut Blocking** | Blocks Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A, Ctrl+P, Ctrl+F, Ctrl+U, F12, Ctrl+Shift+I/J, Esc, Alt+Tab |
-| 3 | **Window Resize / Minimize / Split Detection** | Detects split-screen, window resizing, and minimize attempts |
-| 4 | **Mouse Monitoring (Pattern Analysis)** | Tracks mouse movement patterns for anomaly detection |
-| 5 | **Selection by Mouse Blocking** | Prevents text selection via mouse during exams |
-| 6 | **Right-Click Context Menu Blocking** | Disables right-click to prevent copy/paste/inspect operations |
-| 7 | **Violation Intelligence Layer** | Severity scoring per violation type + cooldown periods to prevent duplicate flooding |
-| 8 | **Action Debouncer & Score Normalization** | 500ms aggregation window preventing cascading violations (e.g. `ALT+TAB`) and unified decimal scoring |
-| 9 | **Warning System & Force-Submit** | 3-strike escalation — warnings → final warning → auto force-submit |
-| 10 | **Monitoring Continuity on Reconnect** | Anti-cheat resumes seamlessly if the student reconnects or refreshes |
+| 2 | **Fullscreen Exit Enforcement** | Logs a critical violation if the student attempts to exit fullscreen mode |
+| 3 | **Tab Switching & Focus Loss** | Triggers violations if the student switches tabs or clicks outside the exam window |
+| 4 | **Keyboard Shortcut Blocking** | Blocks Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A, Ctrl+P, Ctrl+F, Ctrl+U, F12, Ctrl+Shift+I/J, Esc, Alt+Tab |
+| 5 | **Window Resize / Minimize / Split Detection** | Detects split-screen, window resizing, and minimize attempts |
+| 6 | **Mouse Monitoring (Pattern Analysis)** | Tracks mouse movement patterns for anomaly detection |
+| 7 | **Selection by Mouse Blocking** | Prevents text selection via mouse during exams |
+| 8 | **Right-Click Context Menu Blocking** | Disables right-click to prevent copy/paste/inspect operations |
+| 9 | **Violation Intelligence Layer** | Severity scoring per violation type + cooldown periods to prevent duplicate flooding |
+| 10 | **Action Debouncer & Score Normalization** | 500ms aggregation window preventing cascading violations (e.g. `ALT+TAB`) and unified decimal scoring (Minor=0.5, Medium=1.0, Critical=1.0) |
+| 11 | **Warning System & Force-Submit** | 3-strike escalation (displayed on an elegant horizontal progress bar) — warnings → final warning → auto force-submit |
+| 12 | **Monitoring Continuity on Reconnect** | Anti-cheat resumes seamlessly if the student reconnects or refreshes |
 
 ---
 

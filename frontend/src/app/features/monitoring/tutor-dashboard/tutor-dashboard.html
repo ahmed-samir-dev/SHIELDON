@@ -1,15 +1,171 @@
 <div class="tutor-dashboard">
   <!-- Header -->
-  <header class="dashboard-header">
+  <header class="dashboard-header" style="display: flex; justify-content: space-between; align-items: flex-start;">
     <div class="header-content">
+      <h1 class="header-title">{{ 'TUTOR_DASHBOARD.TITLE' | translate }}</h1>
+      <p class="header-subtitle">{{ 'TUTOR_DASHBOARD.SUBTITLE' | translate }}</p>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <button class="btn btn-primary" (click)="exportToCsv()" style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; background: var(--color-primary-base); color: white; border: none; cursor: pointer; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+        <lucide-icon [img]="FileText" [size]="16"></lucide-icon>
+        Export CSV Report
+      </button>
       <div class="header-badge">
         <lucide-icon [img]="Activity" [size]="16"></lucide-icon>
         {{ 'TUTOR_DASHBOARD.BADGE_ANALYTICS' | translate }}
       </div>
-      <h1 class="header-title">{{ 'TUTOR_DASHBOARD.TITLE' | translate }}</h1>
-      <p class="header-subtitle">{{ 'TUTOR_DASHBOARD.SUBTITLE' | translate }}</p>
     </div>
   </header>
+
+  <!-- KPI Grid (Matches Admin Dashboard Style) -->
+  <div class="kpi-grid" *ngIf="!error()">
+    <!-- Row 1: Scale & Activity -->
+    
+    <!-- Total Courses -->
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">{{ 'TUTOR_DASHBOARD.KPI_COURSES' | translate }}</span>
+        <div class="kpi-icon-wrapper blue">
+          <lucide-icon [img]="BookOpen" [size]="20"></lucide-icon>
+        </div>
+      </div>
+      <div class="kpi-value">
+        <ng-container *ngIf="loading()">-</ng-container>
+        <ng-container *ngIf="!loading()">{{ totalCourses() | number }}</ng-container>
+      </div>
+    </div>
+
+    <!-- Total Students -->
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">{{ 'TUTOR_DASHBOARD.KPI_ENROLLMENTS' | translate }}</span>
+        <div class="kpi-icon-wrapper indigo">
+          <lucide-icon [img]="Users" [size]="20"></lucide-icon>
+        </div>
+      </div>
+      <div class="kpi-value">
+        <ng-container *ngIf="loading()">-</ng-container>
+        <ng-container *ngIf="!loading()">{{ totalStudents() | number }}</ng-container>
+      </div>
+    </div>
+
+    <!-- Total Exams -->
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">{{ 'TUTOR_DASHBOARD.KPI_EXAMS' | translate }}</span>
+        <div class="kpi-icon-wrapper green">
+          <lucide-icon [img]="FileStack" [size]="20"></lucide-icon>
+        </div>
+      </div>
+      <div class="kpi-value">
+        <ng-container *ngIf="loading()">-</ng-container>
+        <ng-container *ngIf="!loading()">{{ totalExams() | number }}</ng-container>
+      </div>
+    </div>
+
+    <!-- Active Exams -->
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">{{ 'TUTOR_DASHBOARD.KPI_ACTIVE_EXAMS' | translate }}</span>
+        <div class="kpi-icon-wrapper cyan">
+          <lucide-icon [img]="Activity" [size]="20"></lucide-icon>
+        </div>
+      </div>
+      <div class="kpi-value">
+        <ng-container *ngIf="loading()">-</ng-container>
+        <ng-container *ngIf="!loading()">{{ activeExams() | number }}</ng-container>
+      </div>
+    </div>
+
+    <!-- Total Submissions -->
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">{{ 'TUTOR_DASHBOARD.KPI_SUBMISSIONS' | translate }}</span>
+        <div class="kpi-icon-wrapper orange">
+          <lucide-icon [img]="CheckCircle" [size]="20"></lucide-icon>
+        </div>
+      </div>
+      <div class="kpi-value">
+        <ng-container *ngIf="loading()">-</ng-container>
+        <ng-container *ngIf="!loading()">{{ totalSubmissionsKPI() | number }}</ng-container>
+      </div>
+    </div>
+
+    <!-- Row 2: Performance & Integrity -->
+
+    <!-- Completion Rate -->
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">{{ 'TUTOR_DASHBOARD.KPI_COMPLETION_RATE' | translate }}</span>
+        <div class="kpi-icon-wrapper purple">
+          <lucide-icon [img]="CheckSquare" [size]="20"></lucide-icon>
+        </div>
+      </div>
+      <div class="kpi-value">
+        <ng-container *ngIf="loading()">-</ng-container>
+        <ng-container *ngIf="!loading()">{{ completionRate() }}%</ng-container>
+      </div>
+    </div>
+
+    <!-- Total Passed Students -->
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">{{ 'TUTOR_DASHBOARD.KPI_TOTAL_PASSED' | translate }}</span>
+        <div class="kpi-icon-wrapper emerald">
+          <lucide-icon [img]="Award" [size]="20"></lucide-icon>
+        </div>
+      </div>
+      <div class="kpi-value">
+        <ng-container *ngIf="loading()">-</ng-container>
+        <ng-container *ngIf="!loading()">{{ totalPassedStudents() | number }}</ng-container>
+      </div>
+    </div>
+
+    <!-- Average Pass Rate -->
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">{{ 'TUTOR_DASHBOARD.KPI_PASS_RATE' | translate }}</span>
+        <div class="kpi-icon-wrapper teal">
+          <lucide-icon [img]="Target" [size]="20"></lucide-icon>
+        </div>
+      </div>
+      <div class="kpi-value">
+        <ng-container *ngIf="loading()">-</ng-container>
+        <ng-container *ngIf="!loading()">{{ averagePassRate() }}%</ng-container>
+      </div>
+    </div>
+
+    <!-- Average Time to Complete -->
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <span class="kpi-label">{{ 'TUTOR_DASHBOARD.KPI_AVG_TIME' | translate }}</span>
+        <div class="kpi-icon-wrapper yellow">
+          <lucide-icon [img]="Clock" [size]="20"></lucide-icon>
+        </div>
+      </div>
+      <div class="kpi-value">
+        <ng-container *ngIf="loading()">-</ng-container>
+        <ng-container *ngIf="!loading()">
+          {{ averageTimeMinutes() }}
+          <span class="unit-text">{{ 'TUTOR_DASHBOARD.MINUTES' | translate }}</span>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- Total Violations -->
+    <div class="kpi-card danger">
+      <div class="kpi-header">
+        <span class="kpi-label">{{ 'TUTOR_DASHBOARD.KPI_VIOLATIONS' | translate }}</span>
+        <div class="kpi-icon-wrapper red">
+          <lucide-icon [img]="ShieldAlert" [size]="20"></lucide-icon>
+        </div>
+      </div>
+      <div class="kpi-value">
+        <ng-container *ngIf="loading()">-</ng-container>
+        <ng-container *ngIf="!loading()">{{ totalViolationsKPI() | number }}</ng-container>
+      </div>
+    </div>
+  </div>
 
   <!-- Error State -->
   <div *ngIf="!loading() && error()" class="error-state">
@@ -29,7 +185,7 @@
         </div>
       </div>
 
-      <div class="grouped-exams-container">
+      <div class="grouped-exams-container" style="margin-bottom: 24px;">
         <!-- Pagination controls -->
         <div class="pagination-controls" *ngIf="totalPages() > 1">
           <button class="btn-page" [disabled]="coursePage() === 1" (click)="changePage(-1)">
@@ -66,11 +222,11 @@
               
               <div class="exam-stats">
                 <div class="stat-item">
-                  <span class="stat-label">{{ 'TUTOR_DASHBOARD.STAT_DONE' | translate }}</span>
+                  <span class="stat-label">{{ 'TUTOR_DASHBOARD.STAT_SUBMITTED' | translate }}</span>
                   <span class="stat-value text-green">{{ exam.submittedCount }}</span>
                 </div>
                 <div class="stat-item">
-                  <span class="stat-label">{{ 'TUTOR_DASHBOARD.STAT_TERMINATED' | translate }}</span>
+                  <span class="stat-label">{{ 'TUTOR_DASHBOARD.STAT_FORCED' | translate }}</span>
                   <span class="stat-value text-red">{{ exam.forceSubmittedCount }}</span>
                 </div>
                 <div class="stat-item">
@@ -96,51 +252,101 @@
         </div>
       </div>
 
-      <div class="analytics-row">
-        <!-- Violation Types Chart (1/2 width) -->
-        <div class="violation-chart-card">
-          <h3 class="card-title">{{ 'TUTOR_DASHBOARD.CHART_VIOLATION_DIST' | translate }}</h3>
-          <div class="chart-area" *ngIf="dashboardData().violationTypeDistribution.length > 0">
-            <div echarts [options]="violationChartOptions()" class="echarts-full"></div>
+      <div class="charts-grid">
+        <!-- 1. Enrollments Chart -->
+        <div class="chart-card">
+          <h3 class="chart-title-absolute">
+            <span style="display: flex; align-items: center; gap: 8px;">
+              <lucide-icon [img]="Users" [size]="18"></lucide-icon>
+              {{ 'TUTOR_DASHBOARD.CHART_ENROLLMENTS' | translate }}
+            </span>
+          </h3>
+          <div class="chart-area" *ngIf="dashboardData().examSummaries.length > 0">
+            <div echarts [options]="enrollmentsChartOption()" class="echarts-full"></div>
           </div>
-          <div *ngIf="dashboardData().violationTypeDistribution.length === 0" class="empty-chart">
-            <ng-container *ngIf="loading()">
-              <div class="subtle-loader"></div>
-              {{ 'TUTOR_DASHBOARD.LOADING_ANALYTICS' | translate }}
-            </ng-container>
-            <ng-container *ngIf="!loading()">{{ 'TUTOR_DASHBOARD.NO_VIOLATIONS' | translate }}</ng-container>
+          <div *ngIf="dashboardData().examSummaries.length === 0" class="empty-chart">
+            <ng-container *ngIf="loading()"><div class="subtle-loader"></div></ng-container>
+            <ng-container *ngIf="!loading()">{{ 'TUTOR_DASHBOARD.NO_DATA' | translate }}</ng-container>
           </div>
         </div>
 
-        <!-- Submission Status (1/2 width) -->
-        <div class="violation-chart-card">
-          <h3 class="card-title">{{ 'TUTOR_DASHBOARD.CHART_SUBMISSION_OUTCOMES' | translate }}</h3>
-          <div class="chart-area" *ngIf="dashboardData().examSummaries.length > 0">
-            <div echarts [options]="submissionStatusChartOptions()" class="echarts-full"></div>
+        <!-- 2. Submission Status Chart -->
+        <div class="chart-card">
+          <div class="chart-header-row" style="display: flex; justify-content: space-between; align-items: center; position: absolute; top: 20px; left: 24px; right: 24px; z-index: 10;">
+            <h3 class="chart-title-absolute" style="position: relative; top: 0; left: 0; margin: 0;">
+              <span style="display: flex; align-items: center; gap: 8px;">
+                <lucide-icon [img]="Activity" [size]="18"></lucide-icon>
+                {{ 'TUTOR_DASHBOARD.CHART_SUBMISSION_STATUS' | translate }}
+              </span>
+            </h3>
+            <select class="elegant-dropdown" [value]="statusChartCourseFilter()" (change)="statusChartCourseFilter.set($any($event.target).value)"
+                    style="padding: 6px 30px 6px 12px; border-radius: 8px; border: 1px solid var(--theme-border); background: var(--theme-bg-body); color: var(--theme-text-primary); font-size: 0.85rem; outline: none; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill=\'%2364748b\' height=\'24\' viewBox=\'0 0 24 24\' width=\'24\' xmlns=\'http://www.w3.org/2000/svg\'><path d=\'M7 10l5 5 5-5z\'/></svg>'); background-repeat: no-repeat; background-position: right 8px center;">
+              <option value="All">All Courses</option>
+              <option *ngFor="let course of uniqueCourses()" [value]="course">{{ course }}</option>
+            </select>
+          </div>
+          <div class="chart-area" *ngIf="dashboardData().examSummaries.length > 0" style="padding-top: 20px;">
+            <div echarts [options]="submissionStatusChartOption()" class="echarts-full"></div>
           </div>
           <div *ngIf="dashboardData().examSummaries.length === 0" class="empty-chart">
-            <ng-container *ngIf="loading()">
-              <div class="subtle-loader"></div>
-              {{ 'TUTOR_DASHBOARD.LOADING_ANALYTICS' | translate }}
-            </ng-container>
-            <ng-container *ngIf="!loading()">{{ 'TUTOR_DASHBOARD.NO_EXAMS_ANALYZE' | translate }}</ng-container>
+            <ng-container *ngIf="loading()"><div class="subtle-loader"></div></ng-container>
+            <ng-container *ngIf="!loading()">{{ 'TUTOR_DASHBOARD.NO_DATA' | translate }}</ng-container>
+          </div>
+        </div>
+
+
+
+      </div>
+
+
+      <div class="analytics-row full-width">
+        <!-- Detailed Violations Stacked Bar Chart (Full width) -->
+        <div class="violation-chart-card full-width" style="margin-top: 24px; padding: 24px; background: var(--theme-bg-surface); border-radius: 12px; border: 1px solid var(--theme-border);">
+          <div class="chart-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 class="card-title" style="margin: 0; font-weight: 600; font-size: 1rem;">
+              <span style="display: flex; align-items: center; gap: 8px;">
+                <lucide-icon [img]="ShieldAlert" [size]="18"></lucide-icon>
+                Detailed Violations
+              </span>
+            </h3>
+            <select class="elegant-dropdown" [value]="violationDetailsCourseFilter()" (change)="violationDetailsCourseFilter.set($any($event.target).value)"
+                    style="padding: 6px 30px 6px 12px; border-radius: 8px; border: 1px solid var(--theme-border); background: var(--theme-bg-body); color: var(--theme-text-primary); font-size: 0.85rem; outline: none; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill=\'%2364748b\' height=\'24\' viewBox=\'0 0 24 24\' width=\'24\' xmlns=\'http://www.w3.org/2000/svg\'><path d=\'M7 10l5 5 5-5z\'/></svg>'); background-repeat: no-repeat; background-position: right 8px center;">
+              <option value="All">All Courses</option>
+              <option *ngFor="let course of uniqueCourses()" [value]="course">{{ course }}</option>
+            </select>
+          </div>
+          <div class="chart-area" style="height: 400px; width: 100%;" *ngIf="dashboardData().courseViolationDetails && dashboardData().courseViolationDetails.length > 0">
+            <div echarts [options]="violationDetailsChartOption()" class="echarts-full" style="height: 100%; width: 100%;"></div>
+          </div>
+          <div *ngIf="!dashboardData().courseViolationDetails || dashboardData().courseViolationDetails.length === 0" class="empty-chart" style="height: 300px; display: flex; align-items: center; justify-content: center; border: 1px dashed var(--theme-border); border-radius: 8px;">
+            <ng-container *ngIf="loading()"><div class="subtle-loader"></div></ng-container>
+            <ng-container *ngIf="!loading()">{{ 'TUTOR_DASHBOARD.NO_DATA' | translate }}</ng-container>
           </div>
         </div>
       </div>
 
       <div class="analytics-row full-width">
         <!-- Score vs Violations (Full width) -->
-        <div class="violation-chart-card full-width">
-          <h3 class="card-title">{{ 'TUTOR_DASHBOARD.CHART_SCORE_VS_VIOLATIONS' | translate }}</h3>
-          <div class="chart-area" *ngIf="dashboardData().examSummaries.length > 0">
-            <div echarts [options]="scoreVsViolationsChartOptions()" class="echarts-full"></div>
+        <div class="violation-chart-card full-width" style="margin-top: 24px; margin-bottom: 24px; padding: 24px; background: var(--theme-bg-surface); border-radius: 12px; border: 1px solid var(--theme-border);">
+          <div class="chart-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 class="card-title" style="margin: 0; font-weight: 600; font-size: 1rem;">
+              <span style="display: flex; align-items: center; gap: 8px;">
+                <lucide-icon [img]="TrendingUp" [size]="18"></lucide-icon>
+                {{ 'TUTOR_DASHBOARD.CHART_SCORE_VS_VIOLATIONS' | translate }}
+              </span>
+            </h3>
+            <select class="elegant-dropdown" [value]="scoreViolationsCourseFilter()" (change)="scoreViolationsCourseFilter.set($any($event.target).value)"
+                    style="padding: 6px 30px 6px 12px; border-radius: 8px; border: 1px solid var(--theme-border); background: var(--theme-bg-body); color: var(--theme-text-primary); font-size: 0.85rem; outline: none; cursor: pointer; appearance: none; background-image: url('data:image/svg+xml;utf8,<svg fill=\'%2364748b\' height=\'24\' viewBox=\'0 0 24 24\' width=\'24\' xmlns=\'http://www.w3.org/2000/svg\'><path d=\'M7 10l5 5 5-5z\'/></svg>'); background-repeat: no-repeat; background-position: right 8px center;">
+              <option value="All">All Courses</option>
+              <option *ngFor="let course of uniqueCourses()" [value]="course">{{ course }}</option>
+            </select>
           </div>
-          <div *ngIf="dashboardData().examSummaries.length === 0" class="empty-chart">
-            <ng-container *ngIf="loading()">
-              <div class="subtle-loader"></div>
-              {{ 'TUTOR_DASHBOARD.LOADING_ANALYTICS' | translate }}
-            </ng-container>
-            <ng-container *ngIf="!loading()">{{ 'TUTOR_DASHBOARD.NO_DATA_AVAILABLE' | translate }}</ng-container>
+          <div class="chart-area" style="height: 400px; width: 100%;" *ngIf="dashboardData().examSummaries.length > 0">
+            <div echarts [options]="scoreVsViolationsChartOptions()" class="echarts-full" style="height: 100%; width: 100%;"></div>
+          </div>
+          <div *ngIf="dashboardData().examSummaries.length === 0" class="empty-chart" style="height: 300px; display: flex; align-items: center; justify-content: center; border: 1px dashed var(--theme-border); border-radius: 8px;">
+            <ng-container *ngIf="loading()"><div class="subtle-loader"></div></ng-container>
+            <ng-container *ngIf="!loading()">{{ 'TUTOR_DASHBOARD.NO_DATA' | translate }}</ng-container>
           </div>
         </div>
       </div>
@@ -148,26 +354,34 @@
       <!-- Recent Submissions (Full Width) -->
       <div class="main-layout full-width">
         <div class="live-grid-card">
-          <div class="grid-header">
-            <h2 class="grid-title">
+          <div class="grid-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h2 class="grid-title" style="margin: 0;">
               <lucide-icon [img]="Users" [size]="20"></lucide-icon>
               {{ 'TUTOR_DASHBOARD.SECTION_RECENT_SUBMISSIONS' | translate }}
             </h2>
 
             <!-- Filters -->
-            <div class="filters">
-              <div class="search-box">
-                <lucide-icon [img]="Search" [size]="16" class="search-icon"></lucide-icon>
-                <input type="text" [value]="searchQuery()" (input)="onSearchInput($event)"
-                  name="search" [placeholder]="'TUTOR_DASHBOARD.SEARCH_STUDENT_PLACEHOLDER' | translate" class="form-control">
+            <div class="table-actions">
+              <div class="filter-wrapper">
+                <lucide-icon [img]="Filter" [size]="16" class="input-icon"></lucide-icon>
+                <select class="enhanced-input enhanced-select" [value]="statusFilter()" (change)="onStatusChange($event)" name="status">
+                  <option value="All">{{ 'TUTOR_DASHBOARD.FILTER_ALL_STATUSES' | translate }}</option>
+                  <option value="InProgress">{{ 'TUTOR_DASHBOARD.FILTER_ACTIVE' | translate }}</option>
+                  <option value="Submitted">{{ 'TUTOR_DASHBOARD.FILTER_SUBMITTED' | translate }}</option>
+                  <option value="Graded">{{ 'TUTOR_DASHBOARD.FILTER_GRADED' | translate }}</option>
+                  <option value="ForceSubmitted">{{ 'TUTOR_DASHBOARD.FILTER_TERMINATED' | translate }}</option>
+                </select>
               </div>
-              <select [value]="statusFilter()" (change)="onStatusChange($event)" name="status"
-                class="form-control status-select">
-                <option value="All">{{ 'TUTOR_DASHBOARD.FILTER_ALL_STATUSES' | translate }}</option>
-                <option value="Submitted">{{ 'TUTOR_DASHBOARD.FILTER_SUBMITTED' | translate }}</option>
-                <option value="Graded">{{ 'TUTOR_DASHBOARD.FILTER_GRADED' | translate }}</option>
-                <option value="ForceSubmitted">{{ 'TUTOR_DASHBOARD.FILTER_TERMINATED' | translate }}</option>
-              </select>
+              <div class="search-wrapper">
+                <lucide-icon [img]="Search" [size]="16" class="input-icon"></lucide-icon>
+                <input type="text" 
+                       class="enhanced-input" 
+                       [value]="searchQuery()" 
+                       (input)="onSearchInput($event)"
+                       name="search" 
+                       [placeholder]="'TUTOR_DASHBOARD.SEARCH_STUDENT_PLACEHOLDER' | translate">
+                <button class="enhanced-btn" (click)="loadDashboard()">{{ 'ADMIN_DASHBOARD.SEARCH' | translate }}</button>
+              </div>
             </div>
           </div>
 
@@ -177,43 +391,116 @@
                 <tr>
                   <th>{{ 'TUTOR_DASHBOARD.COL_STUDENT' | translate }}</th>
                   <th>{{ 'TUTOR_DASHBOARD.COL_EXAM' | translate }}</th>
+                  <th>{{ 'TUTOR_DASHBOARD.COL_SUBMITTED_AT' | translate }}</th>
                   <th>{{ 'TUTOR_DASHBOARD.COL_STATUS' | translate }}</th>
+                  <th>{{ 'TUTOR_DASHBOARD.TBL_DURATION' | translate }}</th>
                   <th class="align-center">{{ 'TUTOR_DASHBOARD.COL_VIOLATIONS' | translate }}</th>
                   <th class="align-right">{{ 'TUTOR_DASHBOARD.COL_ACTIONS' | translate }}</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let session of dashboardData().recentSubmissions; trackBy: trackBySessionId">
-                  <td>
-                    <p class="student-name">{{ session.studentName }}</p>
-                    <p class="student-code">{{ session.studentCode }}</p>
-                  </td>
-                  <td>
-                    <p class="exam-name" [title]="session.examTitle">{{ session.examTitle }}</p>
-                    <p class="exam-time">{{ ('TUTOR_DASHBOARD.EXAM_SUBMITTED_TIME' | translate).replace('{time}', (session.submittedAt | date:'shortTime') || '') }}</p>
-                  </td>
-                  <td>
-                    <span class="status-badge" [ngClass]="getStatusDisplay(session.status).classes">
-                      <lucide-icon [img]="getStatusDisplay(session.status).icon" [size]="14"></lucide-icon>
-                      {{ getStatusDisplay(session.status).label }}
-                    </span>
-                    <p class="exam-score" *ngIf="session.score !== null">{{ ('TUTOR_DASHBOARD.EXAM_SCORE' | translate).replace('{score}', session.score.toString()) }}</p>
-                  </td>
-                  <td class="align-center">
-                    <span class="violation-severity-badge" [ngClass]="getSeverityBadge(session.highestSeverity)">
-                      {{ session.violationCount }} ({{ session.highestSeverity }})
-                    </span>
-                  </td>
-                  <td class="align-right">
-                    <button (click)="goToTimeline(session.attemptId)" class="btn-review">
-                      <lucide-icon [img]="Activity" [size]="14"></lucide-icon>
-                      {{ 'TUTOR_DASHBOARD.BTN_TIMELINE' | translate }}
-                    </button>
-                  </td>
-                </tr>
+                <ng-container *ngFor="let session of dashboardData().recentSubmissions; trackBy: trackBySessionId">
+                  <tr class="primary-row" [class.expanded-row-active]="expandedSubmissions().has(session.attemptId)" (click)="toggleSubmissionDetails(session.attemptId)" style="cursor: pointer;">
+                    <td>
+                      <div class="student-info-flex" style="display: flex; align-items: center; gap: 8px;">
+                        <div>
+                          <p class="student-name">{{ session.studentName }}</p>
+                          <p class="student-code">{{ session.studentCode }}</p>
+                        </div>
+                        <span class="attempts-badge" *ngIf="session.history && session.history.length > 1" style="background: rgba(33, 93, 174, 0.1); color: #215DAE; border: 1px solid rgba(33, 93, 174, 0.2); border-radius: 12px; padding: 2px 8px; font-size: 0.7rem; font-weight: 600;">
+                          {{ session.history.length }} Attempts
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <p class="exam-name" [title]="session.courseTitle">{{ session.courseTitle }}</p>
+                      <p class="text-muted" style="font-size: 0.75rem; margin-top: 4px;" [title]="session.examTitle">{{ session.examTitle }}</p>
+                    </td>
+                    <td>
+                      <div class="date-time-cell" *ngIf="session.submittedAt">
+                        <span class="date-text" style="display: block;">{{ session.submittedAt | date:'dd-MM-yyyy' }}</span>
+                        <span class="time-text text-muted" style="font-size: 0.8em; display: block;">{{ session.submittedAt | date:'HH:mm:ss' }}</span>
+                      </div>
+                      <span class="cell-text text-muted" *ngIf="!session.submittedAt">-</span>
+                    </td>
+                    <td>
+                      <span class="status-badge" [ngClass]="getStatusDisplay(session.status).classes">
+                        <lucide-icon [img]="getStatusDisplay(session.status).icon" [size]="14"></lucide-icon>
+                        {{ getStatusDisplay(session.status).label }}
+                      </span>
+                      <p class="exam-score" *ngIf="session.score !== null">{{ ('TUTOR_DASHBOARD.EXAM_SCORE' | translate).replace('{score}', session.score.toString()) }}</p>
+                    </td>
+                    <td class="table-cell">
+                      <span class="cell-text text-muted" *ngIf="session.durationMinutes != null">
+                        {{ session.durationMinutes }} {{ 'TUTOR_DASHBOARD.MINUTES' | translate }}
+                      </span>
+                      <span class="cell-text text-muted" *ngIf="session.durationMinutes == null">-</span>
+                    </td>
+                    <td class="align-center">
+                      <span class="cell-text font-medium text-muted">
+                        {{ session.violationCount }}
+                      </span>
+                    </td>
+                    <td class="align-right">
+                      <div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center;">
+                        <button (click)="goToTimeline(session.attemptId); $event.stopPropagation()" class="btn-review">
+                          <lucide-icon [img]="Activity" [size]="14"></lucide-icon>
+                          {{ 'TUTOR_DASHBOARD.BTN_TIMELINE' | translate }}
+                        </button>
+                        <lucide-icon [img]="expandedSubmissions().has(session.attemptId) ? ChevronDown : ChevronRight" [size]="16" class="text-muted" *ngIf="session.history && session.history.length > 1"></lucide-icon>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Nested Sub-Table Row -->
+                  <tr *ngIf="expandedSubmissions().has(session.attemptId) && session.history && session.history.length > 1" class="expanded-sub-row">
+                    <td colspan="7" style="padding: 0; background: var(--theme-bg-secondary);">
+                      <div class="nested-table-container" style="padding: 16px 24px; border-top: 1px dashed var(--theme-border);">
+                        <h4 style="margin: 0 0 12px 0; font-size: 0.85rem; font-weight: 600; color: var(--theme-text-muted);">Attempt History</h4>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+                          <thead>
+                            <tr style="border-bottom: 1px solid var(--theme-border-strong); color: var(--theme-text-muted);">
+                              <th style="padding: 8px; text-align: left;">Attempt</th>
+                              <th style="padding: 8px; text-align: left;">Submitted At</th>
+                              <th style="padding: 8px; text-align: left;">Status</th>
+                              <th style="padding: 8px; text-align: left;">Duration</th>
+                              <th style="padding: 8px; text-align: center;">Violations</th>
+                              <th style="padding: 8px; text-align: right;">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let hist of session.history; let i = index" style="border-bottom: 1px solid var(--theme-border-strong);">
+                              <td style="padding: 8px;">Attempt {{ session.history.length - i }} <span *ngIf="i === 0" style="font-size: 0.7em; background: #22c55e; color: white; padding: 2px 6px; border-radius: 4px; margin-left: 4px;">Latest</span></td>
+                              <td style="padding: 8px;">
+                                <div *ngIf="hist.submittedAt">
+                                  <span>{{ hist.submittedAt | date:'dd-MM-yyyy' }}</span>
+                                  <span style="font-size: 0.8em; margin-left: 4px;" class="text-muted">{{ hist.submittedAt | date:'HH:mm:ss' }}</span>
+                                </div>
+                                <span *ngIf="!hist.submittedAt">-</span>
+                              </td>
+                              <td style="padding: 8px;">
+                                <span class="status-badge" [ngClass]="getStatusDisplay(hist.status).classes" style="font-size: 0.7rem; padding: 2px 6px;">
+                                  {{ getStatusDisplay(hist.status).label }}
+                                </span>
+                                <span style="margin-left: 6px; font-weight: 600;" *ngIf="hist.score !== null">{{ hist.score }}%</span>
+                              </td>
+                              <td style="padding: 8px; color: var(--theme-text-muted);">{{ hist.durationMinutes != null ? hist.durationMinutes + ' min' : '-' }}</td>
+                              <td style="padding: 8px; text-align: center; color: var(--theme-text-muted);">{{ hist.violationCount }}</td>
+                              <td style="padding: 8px; text-align: right;">
+                                <button (click)="goToTimeline(hist.attemptId); $event.stopPropagation()" style="background: transparent; border: none; color: #4f46e5; cursor: pointer; font-size: 0.8rem; font-weight: 500;">
+                                  View Timeline
+                                </button>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-container>
 
                 <tr *ngIf="dashboardData().recentSubmissions.length === 0">
-                  <td colspan="5" class="empty-row">
+                  <td colspan="7" class="empty-row">
                     <ng-container *ngIf="loading()">
                       <div class="subtle-loader"></div>
                       {{ 'TUTOR_DASHBOARD.LOADING_SUBMISSIONS' | translate }}

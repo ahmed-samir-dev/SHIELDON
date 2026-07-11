@@ -115,7 +115,45 @@ button {
   }
 }
 
+// ── ELEGANT DROPDOWN ──────────────────────────────────────────────────────────
+.elegant-dropdown {
+  padding: 6px 32px 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--theme-border-strong);
+  background-color: var(--theme-bg-surface);
+  color: var(--theme-text-main);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 14px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 
+  &:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
+  &:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+
+  option {
+    background-color: var(--theme-bg-surface);
+    color: var(--theme-text-main);
+  }
+}
+
+[dir="rtl"] .elegant-dropdown {
+  padding: 6px 12px 6px 32px;
+  background-position: left 8px center;
+}
 
 .rtl-flip {
   transform: scaleX(var(--rtl-scale, 1));

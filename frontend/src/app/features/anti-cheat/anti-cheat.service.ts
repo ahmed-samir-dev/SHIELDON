@@ -475,7 +475,7 @@ export class AntiCheatService implements OnDestroy {
     if (document.visibilityState === 'hidden') {
       this.violations$.next({
         type: 'TabSwitch',
-        severity: 'Medium',
+        severity: 'Critical',
         description: 'Switched to another browser tab or minimized the window.',
         timestamp: new Date()
       });
@@ -486,7 +486,7 @@ export class AntiCheatService implements OnDestroy {
     if (!this.isMonitoring) return;
     this.violations$.next({
       type: 'FocusLoss',
-      severity: 'Minor',
+      severity: 'Medium',
       description: 'Lost focus on the exam window.',
       timestamp: new Date()
     });

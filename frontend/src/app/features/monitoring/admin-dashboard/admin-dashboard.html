@@ -5,9 +5,15 @@
       <h1 class="header-title">{{ 'ADMIN_DASHBOARD.TITLE' | translate }}</h1>
       <p class="header-subtitle">{{ 'ADMIN_DASHBOARD.SUBTITLE' | translate }}</p>
     </div>
-    <div class="header-badge">
-      <lucide-icon [img]="Activity" [size]="16"></lucide-icon>
-      {{ 'ADMIN_DASHBOARD.BADGE_SYSTEM_ADMIN' | translate }}
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <button class="btn btn-primary" (click)="exportToCsv()" style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; background: var(--color-primary-base); color: white; border: none; cursor: pointer; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+        <lucide-icon [img]="FileText" [size]="16"></lucide-icon>
+        Export CSV Report
+      </button>
+      <div class="header-badge">
+        <lucide-icon [img]="Activity" [size]="16"></lucide-icon>
+        {{ 'ADMIN_DASHBOARD.BADGE_SYSTEM_ADMIN' | translate }}
+      </div>
     </div>
   </header>
 
@@ -25,7 +31,7 @@
           <div class="kpi-header">
             <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_ACTIVE_COURSES' | translate }}</span>
             <div class="kpi-icon-wrapper blue">
-              <lucide-icon [img]="FileText" [size]="16"></lucide-icon>
+              <lucide-icon [img]="BookOpen" [size]="24"></lucide-icon>
             </div>
           </div>
           <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().totalActiveCourses }}</p>
@@ -33,9 +39,19 @@
 
         <div class="kpi-card">
           <div class="kpi-header">
-            <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_COMPLETED_EXAMS' | translate }}</span>
+            <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_TOTAL_EXAMS' | translate }}</span>
             <div class="kpi-icon-wrapper green">
-              <lucide-icon [img]="Monitor" [size]="16"></lucide-icon>
+              <lucide-icon [img]="FileStack" [size]="24"></lucide-icon>
+            </div>
+          </div>
+          <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().totalExams }}</p>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_ATTEMPTED_EXAMS' | translate }}</span>
+            <div class="kpi-icon-wrapper purple">
+              <lucide-icon [img]="FileEdit" [size]="24"></lucide-icon>
             </div>
           </div>
           <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().totalCompletedExams }}</p>
@@ -44,8 +60,8 @@
         <div class="kpi-card">
           <div class="kpi-header">
             <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_SUBMISSIONS' | translate }}</span>
-            <div class="kpi-icon-wrapper indigo">
-              <lucide-icon [img]="CheckCircle" [size]="16"></lucide-icon>
+            <div class="kpi-icon-wrapper orange">
+              <lucide-icon [img]="CheckCircle" [size]="24"></lucide-icon>
             </div>
           </div>
           <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().totalSubmissions }}</p>
@@ -55,7 +71,7 @@
           <div class="kpi-header">
             <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_VIOLATIONS' | translate }}</span>
             <div class="kpi-icon-wrapper red">
-              <lucide-icon [img]="ShieldAlert" [size]="16"></lucide-icon>
+              <lucide-icon [img]="ShieldAlert" [size]="24"></lucide-icon>
             </div>
           </div>
           <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().totalViolations }}</p>
@@ -67,8 +83,8 @@
         <div class="kpi-card">
           <div class="kpi-header">
             <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_TOTAL_STUDENTS' | translate }}</span>
-            <div class="kpi-icon-wrapper blue">
-              <lucide-icon [img]="Users" [size]="16"></lucide-icon>
+            <div class="kpi-icon-wrapper indigo">
+              <lucide-icon [img]="Users" [size]="24"></lucide-icon>
             </div>
           </div>
           <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().totalStudents }}</p>
@@ -78,7 +94,7 @@
           <div class="kpi-header">
             <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_TOTAL_TUTORS' | translate }}</span>
             <div class="kpi-icon-wrapper indigo">
-              <lucide-icon [img]="Users" [size]="16"></lucide-icon>
+              <lucide-icon [img]="UserCheck" [size]="24"></lucide-icon>
             </div>
           </div>
           <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().totalTutors }}</p>
@@ -87,18 +103,28 @@
         <div class="kpi-card">
           <div class="kpi-header">
             <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_ACTIVE_EXAMS' | translate }}</span>
-            <div class="kpi-icon-wrapper green">
-              <lucide-icon [img]="Activity" [size]="16"></lucide-icon>
+            <div class="kpi-icon-wrapper cyan">
+              <lucide-icon [img]="Activity" [size]="24"></lucide-icon>
             </div>
           </div>
           <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().activeExamsInProgress }}</p>
+        </div>
+        
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_AVERAGE_PASS_RATE' | translate }}</span>
+            <div class="kpi-icon-wrapper teal">
+              <lucide-icon [img]="Target" [size]="24"></lucide-icon>
+            </div>
+          </div>
+          <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().averagePassRate }}%</p>
         </div>
 
         <div class="kpi-card warning">
           <div class="kpi-header">
             <h3 class="kpi-title">{{ 'ADMIN_DASHBOARD.KPI_TOTAL_REVENUE' | translate }}</h3>
             <div class="kpi-icon-wrapper green" style="background-color: rgba(16, 185, 129, 0.1); color: #10b981; padding: 8px; border-radius: 8px; display: flex;">
-              <lucide-icon [img]="DollarSign" [size]="16"></lucide-icon>
+              <lucide-icon [img]="DollarSign" [size]="24"></lucide-icon>
             </div>
           </div>
           <p class="kpi-value" [class.skeleton-text]="loading()">${{ dashboardData().totalRevenueUSD | number:'1.2-2' }}</p>
@@ -109,14 +135,25 @@
       <div class="charts-grid">
         <!-- 30 Day Trend -->
         <div class="chart-card main-chart">
-          <h3 class="chart-title">
-            <lucide-icon [img]="TrendingUp" [size]="18"></lucide-icon>
-            {{ 'ADMIN_DASHBOARD.CHART_ACTIVITY' | translate }}
+          <h3 class="chart-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span style="display: flex; align-items: center; gap: 8px;">
+              <lucide-icon [img]="TrendingUp" [size]="18"></lucide-icon>
+              {{ 'ADMIN_DASHBOARD.CHART_ACTIVITY' | translate }}
+            </span>
+            <select class="chart-filter-select" (change)="onActivityDaysChange($event)" [value]="activityDays()?.toString() || ''">
+              <option value="7">7 Days</option>
+              <option value="30">30 Days</option>
+              <option value="60">2 Months</option>
+              <option value="90">3 Months</option>
+              <option value="180">6 Months</option>
+              <option value="365">1 Year</option>
+              <option value="">All</option>
+            </select>
           </h3>
-          <div class="chart-body" *ngIf="dashboardData()!.activityTrend.length > 0">
+          <div class="chart-body" *ngIf="platformActivityData().length > 0" [class.loading]="activityLoading()">
             <div echarts [options]="trendChartOptions()" class="echarts-container"></div>
           </div>
-          <div *ngIf="dashboardData()!.activityTrend.length === 0" class="empty-chart">
+          <div *ngIf="platformActivityData().length === 0" class="empty-chart" [class.loading]="activityLoading()">
             {{ 'ADMIN_DASHBOARD.NO_ACTIVITY_DATA' | translate }}
           </div>
         </div>
@@ -132,7 +169,13 @@
 
           <!-- Severity Breakdown (New) -->
           <div class="chart-card list-chart">
-            <h3 class="chart-title">Violations by Severity</h3>
+            <h3 class="chart-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <span>Violations by Severity</span>
+              <select class="elegant-dropdown" [value]="violationsSeverityCourseFilter()" (change)="violationsSeverityCourseFilter.set($any($event.target).value)">
+                <option value="All">All Courses</option>
+                <option *ngFor="let course of coursesWithViolations()" [value]="course">{{ course }}</option>
+              </select>
+            </h3>
             <div class="chart-body" *ngIf="dashboardData()!.violationsByCourse.length > 0">
               <div echarts [options]="violationsSeverityChartOptions()" class="echarts-container"></div>
             </div>
@@ -147,7 +190,13 @@
       <div class="charts-grid" style="grid-template-columns: 1fr 1fr; margin-top: 24px;">
         <!-- Top Violations Bar -->
         <div class="chart-card">
-          <h3 class="chart-title">{{ 'ADMIN_DASHBOARD.TOP_VIOLATIONS' | translate }}</h3>
+          <h3 class="chart-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span>{{ 'ADMIN_DASHBOARD.TOP_VIOLATIONS' | translate }}</span>
+            <select class="elegant-dropdown" [value]="topViolationsCourseFilter()" (change)="topViolationsCourseFilter.set($any($event.target).value)">
+              <option value="All">All Courses</option>
+              <option *ngFor="let course of coursesWithViolations()" [value]="course">{{ course }}</option>
+            </select>
+          </h3>
           <div class="chart-body" *ngIf="dashboardData()!.topViolationTypes.length > 0">
             <div echarts [options]="topViolationsChartOptions()" class="echarts-container"></div>
           </div>
@@ -159,10 +208,10 @@
         <!-- Violations by Course -->
         <div class="chart-card">
           <h3 class="chart-title">{{ 'ADMIN_DASHBOARD.CHART_VIOLATIONS_COURSE' | translate }}</h3>
-          <div class="chart-body" *ngIf="dashboardData()!.examStatistics.length > 0">
+          <div class="chart-body" *ngIf="dashboardData()!.violationsByCourse.length > 0">
             <div echarts [options]="courseViolationsChartOptions()" class="echarts-container"></div>
           </div>
-          <div *ngIf="dashboardData()!.examStatistics.length === 0" class="empty-chart">
+          <div *ngIf="dashboardData()!.violationsByCourse.length === 0" class="empty-chart">
             {{ 'ADMIN_DASHBOARD.NO_COURSE_DATA' | translate }}
           </div>
         </div>
@@ -172,18 +221,35 @@
       <div class="charts-grid" style="grid-template-columns: 65fr 35fr; margin-top: 24px;">
         <!-- Recent Payments Chart -->
         <div class="chart-card">
-          <h3 class="chart-title">{{ 'ADMIN_DASHBOARD.CHART_RECENT_PAYMENTS' | translate }}</h3>
-          <div class="chart-body" *ngIf="dashboardData()!.recentPayments.length > 0">
+          <h3 class="chart-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span>Payments</span>
+            <select class="chart-filter-select" (change)="onPaymentsDaysChange($event)" [value]="paymentsDays()?.toString() || ''">
+              <option value="7">7 Days</option>
+              <option value="30">30 Days</option>
+              <option value="60">2 Months</option>
+              <option value="90">3 Months</option>
+              <option value="180">6 Months</option>
+              <option value="365">1 Year</option>
+              <option value="">All</option>
+            </select>
+          </h3>
+          <div class="chart-body" *ngIf="paymentsTrendData().length > 0" [class.loading]="paymentsLoading()">
             <div echarts [options]="recentPaymentsChartOptions()" class="echarts-container"></div>
           </div>
-          <div *ngIf="dashboardData()!.recentPayments.length === 0" class="empty-chart">
+          <div *ngIf="paymentsTrendData().length === 0" class="empty-chart" [class.loading]="paymentsLoading()">
             {{ 'ADMIN_DASHBOARD.NO_RECENT_PAYMENTS' | translate }}
           </div>
         </div>
 
         <!-- Global Submission Outcomes -->
         <div class="chart-card">
-          <h3 class="chart-title">{{ 'ADMIN_DASHBOARD.CHART_OUTCOMES' | translate }}</h3>
+          <h3 class="chart-title" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; width: 100%;">
+            <span>{{ 'ADMIN_DASHBOARD.CHART_OUTCOMES' | translate }}</span>
+            <select class="elegant-dropdown" style="max-width: 100%; margin-inline-start: auto; text-overflow: ellipsis;" [value]="submissionOutcomesCourseFilter()" (change)="submissionOutcomesCourseFilter.set($any($event.target).value)">
+              <option value="All">All Courses</option>
+              <option *ngFor="let course of coursesWithOutcomes()" [value]="course">{{ course }}</option>
+            </select>
+          </h3>
           <div class="chart-body" *ngIf="dashboardData()!.globalSubmissionOutcomes.length > 0">
             <div echarts [options]="submissionOutcomesChartOptions()" class="echarts-container"></div>
           </div>

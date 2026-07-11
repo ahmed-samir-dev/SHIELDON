@@ -38,11 +38,19 @@ export class AttemptDetailComponent implements OnInit {
   AlertCircle = AlertCircle;
   Play = Play;
 
+  Math = Math;
+
   loading = signal<boolean>(true);
   error = signal<string>('');
   
   timelineData = signal<AttemptTimelineResponse | null>(null);
   summaryData = signal<ViolationSummaryResponse | null>(null);
+
+  violationScore = computed(() => {
+    const data = this.timelineData();
+    if (!data) return 0;
+    return (data.criticalCount * 1.0) + (data.mediumCount * 1.0) + (data.minorCount * 0.5);
+  });
 
   chartOptions = computed<EChartsOption>(() => {
     const summary = this.summaryData();

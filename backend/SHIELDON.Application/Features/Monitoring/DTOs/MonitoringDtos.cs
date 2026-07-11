@@ -131,6 +131,25 @@ public class TutorDashboardResponse
 
     /// <summary>Violation type distribution for the ECharts doughnut chart.</summary>
     public List<ViolationTypeStat> ViolationTypeDistribution { get; set; } = [];
+
+    public int TotalActiveCourses { get; set; }
+    public int TotalStudents { get; set; }
+    public int ActiveExams { get; set; }
+    public decimal AveragePassRate { get; set; }
+    public decimal CompletionRate { get; set; }
+    public int TotalPassedStudents { get; set; }
+    public int AverageTimeMinutes { get; set; }
+
+    /// <summary>Detailed violation counts grouped by Course, Type, and Severity</summary>
+    public List<CourseViolationDetail> CourseViolationDetails { get; set; } = [];
+}
+
+public class CourseViolationDetail
+{
+    public string CourseTitle { get; set; } = string.Empty;
+    public string ViolationType { get; set; } = string.Empty;
+    public string Severity { get; set; } = string.Empty;
+    public int Count { get; set; }
 }
 
 /// <summary>Per-exam aggregate stats shown as a summary card on the tutor dashboard.</summary>
@@ -143,24 +162,34 @@ public class ExamMonitoringSummary
     public int InProgressCount { get; set; }
     public int SubmittedCount { get; set; }
     public int ForceSubmittedCount { get; set; }
+    public int TimeoutCount { get; set; }
+    public int ViolationLimitCount { get; set; }
     public int NotStartedCount { get; set; }
     public int TotalViolations { get; set; }
     public int CriticalViolations { get; set; }
     public decimal? AverageScore { get; set; }
+    public int PassedCount { get; set; }
+    public int FailedCount { get; set; }
 }
 
 /// <summary>One row in the tutor's recent submissions table.</summary>
 public class SubmissionRow
 {
     public Guid AttemptId { get; set; }
+    public Guid ExamId { get; set; }
     public string StudentName { get; set; } = string.Empty;
     public string StudentCode { get; set; } = string.Empty;
     public string ExamTitle { get; set; } = string.Empty;
+    public string CourseTitle { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
     public DateTime? SubmittedAt { get; set; }
+    public int? DurationMinutes { get; set; }
     public decimal? Score { get; set; }
+    public bool Passed { get; set; }
+    public bool Failed { get; set; }
     public int ViolationCount { get; set; }
     public string HighestSeverity { get; set; } = string.Empty;
+    public List<SubmissionRow> History { get; set; } = [];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -193,6 +222,9 @@ public class AdminDashboardResponse
     /// <summary>Total number of currently active (non-archived) courses on the platform.</summary>
     public int TotalActiveCourses { get; set; }
 
+    /// <summary>Total number of exams created across the platform.</summary>
+    public int TotalExams { get; set; }
+
     /// <summary>Total number of distinct exams that have at least one finished attempt.</summary>
     public int TotalCompletedExams { get; set; }
 
@@ -211,6 +243,9 @@ public class AdminDashboardResponse
 
     /// <summary>Number of exam attempts currently in progress right now.</summary>
     public int ActiveExamsInProgress { get; set; }
+
+    /// <summary>Overall average pass rate across all completed exams (0-100%).</summary>
+    public decimal AveragePassRate { get; set; }
 
     /// <summary>Rate of force-submitted exams vs total submissions (0–100%).</summary>
     public decimal ForceSubmissionRate { get; set; }
@@ -233,6 +268,11 @@ public class AdminDashboardResponse
 
     /// <summary>30-day activity trend for the ECharts line chart.</summary>
     public List<DailyActivityPoint> ActivityTrend { get; set; } = [];
+
+    // ── Detailed Data for Frontend Filtering ─────────────────────────────────────
+    public List<string> ActiveCourseTitles { get; set; } = [];
+    public List<CourseViolationDetail> CourseViolationDetails { get; set; } = [];
+    public List<CourseSubmissionOutcome> CourseSubmissionOutcomes { get; set; } = [];
 
     // ── Exam Statistics Table (server-side paginated + sorted) ─────────────────────────────────────────────────
     public List<ExamStatisticsRow> ExamStatistics { get; set; } = [];
@@ -316,6 +356,13 @@ public class SubmissionOutcomeStat
     public decimal Percentage { get; set; }
 }
 
+public class CourseSubmissionOutcome
+{
+    public string CourseTitle { get; set; } = string.Empty;
+    public string Outcome { get; set; } = string.Empty;
+    public int Count { get; set; }
+}
+
 
 public class RecentPaymentStat
 {
@@ -323,4 +370,20 @@ public class RecentPaymentStat
     public decimal AmountUSD { get; set; }
     public DateTime PaidAt { get; set; }
     public string StudentName { get; set; } = string.Empty;
+}
+
+public class PaymentTrendPoint
+{
+    public DateOnly Date { get; set; }
+    public decimal AmountUSD { get; set; }
+}
+
+public class PlatformActivityResponse
+{
+    public List<DailyActivityPoint> ActivityTrend { get; set; } = [];
+}
+
+public class PaymentsTrendResponse
+{
+    public List<PaymentTrendPoint> PaymentsTrend { get; set; } = [];
 }
