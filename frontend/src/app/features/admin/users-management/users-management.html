@@ -2,22 +2,22 @@
 <div class="users-section-header">
   <div class="users-section-title-row">
     <h2 class="table-title">
-      <lucide-icon name="Users" [size]="20"></lucide-icon>
-      Users Management
+      <lucide-icon [img]="Users" [size]="20"></lucide-icon>
+      {{ 'USERS_MANAGEMENT.TITLE' | translate }}
     </h2>
-    <span class="users-total-badge" [class.skeleton-text]="loading()">{{ totalCount() }} users</span>
+    <span class="users-total-badge" [class.skeleton-text]="loading()">{{ 'USERS_MANAGEMENT.USERS_COUNT' | translate:{count: totalCount()} }}</span>
   </div>
 
   <!-- Filters Bar -->
   <div class="users-filters-bar">
     <!-- Search -->
     <div class="users-search-wrapper">
-      <lucide-icon name="Search" [size]="16" class="search-icon"></lucide-icon>
+      <lucide-icon [img]="Search" [size]="16" class="search-icon"></lucide-icon>
       <input
         id="user-search"
         type="text"
         class="search-input"
-        placeholder="Search by name, email, ID..."
+        [placeholder]="'USERS_MANAGEMENT.SEARCH_PLACEHOLDER' | translate"
         [(ngModel)]="searchQuery"
         (ngModelChange)="onSearchChange()"
       />
@@ -25,17 +25,17 @@
 
     <!-- Role Filter -->
     <select id="role-filter" class="filter-select" [(ngModel)]="roleFilter" (ngModelChange)="onFilterChange()">
-      <option value="">All Roles</option>
-      <option value="Tutor">Tutors Only</option>
-      <option value="Student">Students Only</option>
+      <option value="">{{ 'USERS_MANAGEMENT.FILTER_ROLES' | translate }}</option>
+      <option value="Tutor">{{ 'USERS_MANAGEMENT.FILTER_TUTORS' | translate }}</option>
+      <option value="Student">{{ 'USERS_MANAGEMENT.FILTER_STUDENTS' | translate }}</option>
     </select>
 
     <!-- Status Filter -->
     <select id="status-filter" class="filter-select" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
-      <option value="">All Statuses</option>
-      <option value="Active">Active</option>
-      <option value="Locked">Locked</option>
-      <option value="Unverified">Unverified</option>
+      <option value="">{{ 'USERS_MANAGEMENT.FILTER_STATUSES' | translate }}</option>
+      <option value="Active">{{ 'USERS_MANAGEMENT.FILTER_ACTIVE' | translate }}</option>
+      <option value="Locked">{{ 'USERS_MANAGEMENT.FILTER_LOCKED' | translate }}</option>
+      <option value="Unverified">{{ 'USERS_MANAGEMENT.FILTER_UNVERIFIED' | translate }}</option>
     </select>
 
   </div>
@@ -44,9 +44,9 @@
 <!-- Error State -->
 @if (usersError()) {
   <div class="users-error-state">
-    <lucide-icon name="AlertTriangle" [size]="18"></lucide-icon>
+    <lucide-icon [img]="AlertTriangle" [size]="18"></lucide-icon>
     <span>{{ usersError() }}</span>
-    <button class="retry-btn" (click)="loadUsers()">Retry</button>
+    <button class="retry-btn" (click)="loadUsers()">{{ 'USERS_MANAGEMENT.RETRY' | translate }}</button>
   </div>
 }
 
@@ -55,15 +55,14 @@
   <table class="data-table users-table">
     <thead>
       <tr>
-        <th class="align-center" style="width: 50px;">No.</th>
-        <th>User</th>
-        <th>Role</th>
-        <th>ID</th>
-        <th>Status</th>
-        <th>Email Verified</th>
-        <th>Joined</th>
-        <th>Last Login</th>
-        <th class="align-center">Actions</th>
+        <th class="align-center" style="width: 50px;">{{ 'USERS_MANAGEMENT.COL_NO' | translate }}</th>
+        <th>{{ 'USERS_MANAGEMENT.COL_USER' | translate }}</th>
+        <th>{{ 'USERS_MANAGEMENT.COL_ROLE' | translate }}</th>
+        <th>{{ 'USERS_MANAGEMENT.COL_ID' | translate }}</th>
+        <th>{{ 'USERS_MANAGEMENT.COL_STATUS' | translate }}</th>
+        <th>{{ 'USERS_MANAGEMENT.COL_EMAIL_VERIFIED' | translate }}</th>
+        <th>{{ 'USERS_MANAGEMENT.COL_LAST_LOGIN' | translate }}</th>
+        <th class="align-center">{{ 'USERS_MANAGEMENT.COL_ACTIONS' | translate }}</th>
       </tr>
     </thead>
     <tbody>
@@ -75,7 +74,6 @@
             <td><div class="skeleton-user"><div class="skeleton-avatar"></div><div class="skeleton-lines"><div class="skeleton-line wide"></div><div class="skeleton-line narrow"></div></div></div></td>
             <td><div class="skeleton-line narrow"></div></td>
             <td><div class="skeleton-line narrow"></div></td>
-            <td><div class="skeleton-line medium"></div></td>
             <td><div class="skeleton-line medium"></div></td>
             <td><div class="skeleton-line medium"></div></td>
             <td><div class="skeleton-line narrow" style="margin: 0 auto;"></div></td>
@@ -127,10 +125,10 @@
             <td>
               <div class="status-badge" [class]="'status-' + user.accountStatus.toLowerCase()">
                 @switch (user.accountStatus) {
-                  @case ('Active') { <lucide-icon name="CheckCircle" [size]="13"></lucide-icon> }
-                  @case ('Locked') { <lucide-icon name="LockKeyhole" [size]="13"></lucide-icon> }
-                  @case ('Unverified') { <lucide-icon name="Clock" [size]="13"></lucide-icon> }
-                  @case ('Disabled') { <lucide-icon name="XCircle" [size]="13"></lucide-icon> }
+                  @case ('Active') { <lucide-icon [img]="CheckCircle" [size]="13"></lucide-icon> }
+                  @case ('Locked') { <lucide-icon [img]="LockKeyhole" [size]="13"></lucide-icon> }
+                  @case ('Unverified') { <lucide-icon [img]="Clock" [size]="13"></lucide-icon> }
+                  @case ('Disabled') { <lucide-icon [img]="XCircle" [size]="13"></lucide-icon> }
                 }
                 {{ user.accountStatus }}
               </div>
@@ -140,28 +138,22 @@
             <td>
               @if (user.emailVerifiedAt) {
                 <span class="date-text" title="{{ user.emailVerifiedAt | date:'medium' }}">
-                  <lucide-icon name="CheckCircle" [size]="13"></lucide-icon>
-                  {{ user.emailVerifiedAt | date:'d MMM y' }}
+                  {{ user.emailVerifiedAt | date:'medium' }}
                 </span>
               } @else {
                 <span class="date-text text-muted">
-                  <lucide-icon name="XCircle" [size]="13"></lucide-icon>
-                  Not verified
+                  <lucide-icon [img]="XCircle" [size]="13"></lucide-icon>
+                  {{ 'USERS_MANAGEMENT.NOT_VERIFIED' | translate }}
                 </span>
               }
-            </td>
-
-            <!-- Joined -->
-            <td>
-              <span class="date-text">{{ user.createdAt | date:'d MMM y' }}</span>
             </td>
 
             <!-- Last Login -->
             <td>
               @if (user.lastLoginAt) {
-                <span class="date-text" title="{{ user.lastLoginAt | date:'medium' }}">{{ user.lastLoginAt | date:'d MMM y, HH:mm' }}</span>
+                <span class="date-text" title="{{ user.lastLoginAt | date:'medium' }}">{{ user.lastLoginAt | date:'medium' }}</span>
               } @else {
-                <span class="text-muted">Never</span>
+                <span class="text-muted">{{ 'USERS_MANAGEMENT.NEVER' | translate }}</span>
               }
             </td>
 
@@ -173,20 +165,20 @@
                     id="unlock-btn-{{ user.id }}"
                     class="action-btn unlock-btn"
                     (click)="unlockUser(user)"
-                    title="Unlock account"
+                    [title]="'USERS_MANAGEMENT.ACTION_UNLOCK' | translate"
                   >
-                    <lucide-icon name="LockKeyholeOpen" [size]="14"></lucide-icon>
-                    Unlock
+                    <lucide-icon [img]="LockKeyholeOpen" [size]="14"></lucide-icon>
+                    {{ 'USERS_MANAGEMENT.ACTION_UNLOCK' | translate }}
                   </button>
                 } @else if (user.accountStatus === 'Active' || user.accountStatus === 'Unverified') {
                   <button
                     id="lock-btn-{{ user.id }}"
                     class="action-btn lock-btn"
                     (click)="lockUser(user)"
-                    title="Lock account"
+                    [title]="'USERS_MANAGEMENT.ACTION_LOCK' | translate"
                   >
-                    <lucide-icon name="LockKeyhole" [size]="14"></lucide-icon>
-                    Lock
+                    <lucide-icon [img]="LockKeyhole" [size]="14"></lucide-icon>
+                    {{ 'USERS_MANAGEMENT.ACTION_LOCK' | translate }}
                   </button>
                 }
               </div>
@@ -198,10 +190,10 @@
         <!-- Empty State -->
         @if (usersList().length === 0) {
           <tr>
-            <td colspan="9" class="empty-row">
-              <lucide-icon name="Users" [size]="40"></lucide-icon>
-              <p>No users found matching your filters.</p>
-              <button class="retry-btn" (click)="searchQuery=''; roleFilter=''; statusFilter=''; onFilterChange()">Clear Filters</button>
+            <td colspan="8" class="empty-row">
+              <lucide-icon [img]="Search" [size]="32" style="margin-bottom: 12px; opacity: 0.5;"></lucide-icon>
+              <p>{{ 'USERS_MANAGEMENT.NO_USERS_FOUND' | translate }}</p>
+              <button class="retry-btn" (click)="searchQuery=''; roleFilter=''; statusFilter=''; onFilterChange()">{{ 'USERS_MANAGEMENT.CLEAR_FILTERS' | translate }}</button>
             </td>
           </tr>
         }
@@ -218,13 +210,13 @@
     </span>
     <div class="pagination-controls">
       <button class="page-btn" [disabled]="usersCurrentPage() === 1" (click)="changeUsersPage(usersCurrentPage() - 1)">
-        <lucide-icon name="ChevronLeft" [size]="16"></lucide-icon>
+        <lucide-icon [img]="ChevronLeft" [size]="16"></lucide-icon>
       </button>
       @for (page of getUsersPagesArray(); track page) {
         <button class="page-btn" [class.active]="page === usersCurrentPage()" (click)="changeUsersPage(page)">{{ page }}</button>
       }
       <button class="page-btn" [disabled]="usersCurrentPage() === usersTotalPages()" (click)="changeUsersPage(usersCurrentPage() + 1)">
-        <lucide-icon name="ChevronRight" [size]="16"></lucide-icon>
+        <lucide-icon [img]="ChevronRight" [size]="16"></lucide-icon>
       </button>
     </div>
   </div>

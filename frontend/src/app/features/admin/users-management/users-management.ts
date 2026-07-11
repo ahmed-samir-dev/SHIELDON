@@ -9,11 +9,12 @@ import { UserService } from '../../../core/services/user.service';
 import { UserDetailDto, UserFilterParams, AccountStatus } from '../../../core/models/user.model';
 import { PagedResponse } from '../../../core/models/api-response.model';
 import { environment } from '../../../../environments/environment';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-users-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, TranslateModule],
   templateUrl: './users-management.html',
   styleUrl: './users-management.scss'
 })
@@ -109,7 +110,7 @@ export class UsersManagementComponent implements OnInit, OnDestroy {
       pageSize: this.usersPageSize,
       search: this.searchQuery || undefined,
       role: this.roleFilter || undefined,
-      status: this.statusFilter || undefined,
+      status: this.statusFilter || undefined
     };
 
     this.userService.getUsers(filters).subscribe({

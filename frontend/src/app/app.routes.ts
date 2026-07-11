@@ -19,7 +19,7 @@ export const routes: Routes = [
       {
         path: '',
         loadComponent: () => import('./features/public/landing/landing').then(m => m.Landing),
-        title: 'SHIELDON - Next-Gen LMS & Anti-Cheating Engine'
+        title: 'SHIELDON'
       },
       {
         path: 'login',
@@ -155,6 +155,12 @@ export const routes: Routes = [
         canActivate: [adminGuard],
         loadComponent: () => import('./features/monitoring/admin-dashboard/admin-dashboard').then(m => m.AdminDashboardComponent),
         title: 'Admin Dashboard - SHIELDON'
+      },
+      {
+        path: 'admin/users',
+        canActivate: [adminGuard],
+        loadComponent: () => import('./features/admin/users-management/users-management').then(m => m.UsersManagementComponent),
+        title: 'Users Management - SHIELDON'
       },
       {
         path: 'payment-hub',

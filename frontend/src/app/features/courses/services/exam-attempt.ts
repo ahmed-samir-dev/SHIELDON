@@ -40,6 +40,7 @@ export interface StartExamResponse {
   savedAnswers: SavedAnswerDto[];
   courseId: string;
   resultVisibility: string;
+  initialStrikeScore: number;
 }
 
 export interface SaveAnswerRequest {

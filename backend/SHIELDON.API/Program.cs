@@ -40,8 +40,9 @@ var builder = WebApplication.CreateBuilder(args);
     // ── STRIPE: Initialize global configuration ───────────────────────────
     Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
-    // ── API-layer Background Services ─────────────────────────────────────
+    // ── API-layer Background Services & Hub Services ──────────────────────
     builder.Services.AddHostedService<AttendanceRotationService>();
+    builder.Services.AddScoped<SHIELDON.Application.Interfaces.IDashboardNotificationService, SHIELDON.API.Services.DashboardNotificationService>();
 
     // ── CONTROLLERS & UTILITIES ──────────────────────────────────────────
     builder.Services.AddControllers(options =>
@@ -122,7 +123,7 @@ var builder = WebApplication.CreateBuilder(args);
                 var accessToken = context.Request.Query["access_token"];
                 var path = context.HttpContext.Request.Path;
                 if (!string.IsNullOrEmpty(accessToken) &&
-                    path.StartsWithSegments("/hubs/chat"))
+                    (path.StartsWithSegments("/hubs/chat") || path.StartsWithSegments("/hubs/dashboard")))
                 {
                     context.Token = accessToken;
                 }
@@ -267,6 +268,7 @@ app.MapControllers();
 // ── SIGNALR HUBS ──────────────────────────────────────────────────────
 app.MapHub<ChatHub>("/hubs/chat");
 app.MapHub<AttendanceHub>("/hubs/attendance");
+app.MapHub<DashboardHub>("/hubs/dashboard");
 
 // ── BACKGROUND SERVICES (API-layer) ──────────────────────────────────────────
 // AttendanceRotationService is registered above via builder.Services

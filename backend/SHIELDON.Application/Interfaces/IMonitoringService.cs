@@ -9,8 +9,15 @@ namespace SHIELDON.Application.Interfaces;
 public interface IMonitoringService
 {
     /// <summary>
+    /// Processes a heartbeat from the student's exam browser tab.
+    /// Updates LastHeartbeatAt, logs a Reconnected event if the student was disconnected,
+    /// and optionally logs a PageRefreshed event.
+    /// </summary>
+    Task ProcessHeartbeatAsync(Guid attemptId, Guid studentId, bool isPageRefresh);
+
+    /// <summary>
     /// Returns the full attempt timeline for one finished exam attempt.
-    /// Contains the attempt's info and chronological list of all violations.
+    /// Contains the attempt's info and chronological list of all violations + presence events.
     /// Access: Tutor (own course) or Admin only.
     /// </summary>
     Task<AttemptTimelineResponse> GetTimelineAsync(Guid attemptId, Guid requesterId, string requesterRole);
@@ -34,8 +41,18 @@ public interface IMonitoringService
         Guid? examId = null);
 
     /// <summary>
-    /// Returns the admin dashboard: platform-wide KPIs, exam statistics table,
-    /// and ECharts analytics data (violation types, 30-day trend).
+    /// Returns the admin dashboard: platform-wide KPIs, paginated+sortable exam statistics table,
+    /// new chart data (violations by course, submission outcomes), and activity trend.
     /// </summary>
-    Task<AdminDashboardResponse> GetAdminDashboardAsync();
+    Task<AdminDashboardResponse> GetAdminDashboardAsync(ExamStatisticsQueryParams queryParams);
+
+    /// <summary>
+    /// Returns aggregated daily/monthly platform activity (exams + violations) for a given time range.
+    /// </summary>
+    Task<PlatformActivityResponse> GetPlatformActivityAsync(int? days);
+
+    /// <summary>
+    /// Returns aggregated daily/monthly payments revenue for a given time range.
+    /// </summary>
+    Task<PaymentsTrendResponse> GetPaymentsTrendAsync(int? days);
 }

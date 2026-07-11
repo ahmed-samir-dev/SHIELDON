@@ -1,4 +1,5 @@
 import { Injectable, inject, signal, computed, NgZone, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Subject, Subscription, interval } from 'rxjs';
 import { ViolationService, ViolationLogRequest, ViolationType, ViolationSeverity } from '../../core/services/violation.service';
 import { environment } from '../../../environments/environment';
@@ -16,6 +17,7 @@ export interface ViolationEvent {
 export class AntiCheatService implements OnDestroy {
   private ngZone = inject(NgZone);
   private violationService = inject(ViolationService);
+  private http = inject(HttpClient);
 
   // State
   private attemptId: string | null = null;
@@ -25,6 +27,10 @@ export class AntiCheatService implements OnDestroy {
   // Strike System
   private _strikeScore = signal<number>(0);
   public strikeScore = this._strikeScore.asReadonly();
+  
+  public getFormattedStrikeCount(): string {
+    return this._strikeScore().toFixed(1).replace('.0', '');
+  }
   
   private _strikeTwoAcknowledged = signal<boolean>(false);
   private _strikeOneAcknowledged = signal<boolean>(false);
@@ -52,20 +58,29 @@ export class AntiCheatService implements OnDestroy {
     this._strikeTwoAcknowledged.set(false);
     this._strikeOneAcknowledged.set(false);
     this.forceSubmitInProgress = false;
-    this.cooldowns.clear();
     this.mousePosBuffer = [];
+    this.pendingViolations = [];
+    clearTimeout(this.aggregatorTimeout);
+    this.aggregatorTimeout = null;
+    this.lastGlobalViolationTime = 0;
     // Do NOT stop listeners here - startMonitoring handles that
   }
 
   // Violation Stream
   private violations$ = new Subject<ViolationEvent>();
+  public violationOccurred$ = new Subject<ViolationEvent>();
   
-  // Cooldown Tracking (type -> last trigger time ms)
-  private cooldowns = new Map<ViolationType, number>();
+  // Global Cooldown Tracking
+  private lastGlobalViolationTime = 0;
+  
+  // Aggregation window
+  private pendingViolations: ViolationEvent[] = [];
+  private aggregatorTimeout: any;
 
   // Unsynced Violations
   private violationBuffer: ViolationLogRequest[] = [];
   private syncSub?: Subscription;
+  private heartbeatSub?: Subscription;
 
   // Track original dimensions for resize comparison
   private originalWidth = 0;
@@ -73,14 +88,21 @@ export class AntiCheatService implements OnDestroy {
 
   // Mouse activity tracking
   private mousePosBuffer: {x: number, y: number, time: number}[] = [];
+  private monitoringStartTime = 0;
 
   // Bindings for event listeners
   private boundHandleKeyDown = this.handleKeyDown.bind(this);
+  private boundHandleKeyUp = this.handleKeyUp.bind(this);
   private boundHandleContextMenu = this.handleContextMenu.bind(this);
   private boundHandleResize = this.handleResize.bind(this);
   private boundHandleMouseLeave = this.handleMouseLeave.bind(this);
   private boundHandleMouseMove = this.handleMouseMove.bind(this);
   private boundHandleBeforeUnload = this.handleBeforeUnload.bind(this);
+  private boundHandleFullscreenChange = this.handleFullscreenChange.bind(this);
+  private boundHandleVisibilityChange = this.handleVisibilityChange.bind(this);
+  private boundHandleBlur = this.handleBlur.bind(this);
+  private boundHandleOnline = this.handleOnline.bind(this);
+  private boundHandleOffline = this.handleOffline.bind(this);
 
   constructor() {
     this.violations$.subscribe(v => {
@@ -94,11 +116,12 @@ export class AntiCheatService implements OnDestroy {
 
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
-  public startMonitoring(attemptId: string): void {
+  public startMonitoring(attemptId: string, initialStrikeScore: number = 0): void {
     // Always reset state when starting a new session, even if already monitoring
     if (this.isMonitoring) {
       this.removeAllListeners();
       this.syncSub?.unsubscribe();
+      this.heartbeatSub?.unsubscribe();
     }
     
     this.attemptId = attemptId;
@@ -106,20 +129,30 @@ export class AntiCheatService implements OnDestroy {
     this.forceSubmitInProgress = false;
     
     // Full state reset for new session
-    this._strikeScore.set(0);
-    this._strikeTwoAcknowledged.set(false);
-    this._strikeOneAcknowledged.set(false);
-    this.cooldowns.clear();
+    this._strikeScore.set(initialStrikeScore);
+    this._strikeTwoAcknowledged.set(initialStrikeScore >= 2.0);
+    this._strikeOneAcknowledged.set(initialStrikeScore >= 1.0);
     this.violationBuffer = [];
     this.mousePosBuffer = [];
+    this.pendingViolations = [];
+    clearTimeout(this.aggregatorTimeout);
+    this.aggregatorTimeout = null;
+    this.lastGlobalViolationTime = 0;
+    this.monitoringStartTime = Date.now();
     this.originalWidth = window.innerWidth;
     this.originalHeight = window.innerHeight;
 
     // Attach all listeners inside Angular zone so Angular tracks them
     // BUT use ngZone.runOutsideAngular only for high-frequency events (mouse/resize)
     document.addEventListener('keydown', this.boundHandleKeyDown, { capture: true });
+    document.addEventListener('keyup', this.boundHandleKeyUp, { capture: true });
     document.addEventListener('contextmenu', this.boundHandleContextMenu, { capture: true });
     window.addEventListener('beforeunload', this.boundHandleBeforeUnload);
+    document.addEventListener('fullscreenchange', this.boundHandleFullscreenChange);
+    document.addEventListener('visibilitychange', this.boundHandleVisibilityChange);
+    window.addEventListener('blur', this.boundHandleBlur);
+    window.addEventListener('online', this.boundHandleOnline);
+    window.addEventListener('offline', this.boundHandleOffline);
 
     this.ngZone.runOutsideAngular(() => {
       window.addEventListener('resize', this.boundHandleResize);
@@ -129,6 +162,15 @@ export class AntiCheatService implements OnDestroy {
 
     // Start periodic sync (every 5 seconds)
     this.syncSub = interval(5000).subscribe(() => this.syncViolations());
+
+    // Start heartbeat (every 30 seconds)
+    this.sendHeartbeat(true); // Initial heartbeat as "page refresh" or "start"
+    this.heartbeatSub = interval(30000).subscribe(() => {
+      // Don't send heartbeat if offline
+      if (navigator.onLine) {
+        this.sendHeartbeat(false);
+      }
+    });
   }
 
   public resumeMonitoring(attemptId: string): void {
@@ -148,13 +190,17 @@ export class AntiCheatService implements OnDestroy {
     this._strikeTwoAcknowledged.set(false);
     this._strikeOneAcknowledged.set(false);
     this.forceSubmitInProgress = false;
-    this.cooldowns.clear();
     this.mousePosBuffer = [];
+    this.pendingViolations = [];
+    clearTimeout(this.aggregatorTimeout);
+    this.aggregatorTimeout = null;
 
     this.removeAllListeners();
     this.syncSub?.unsubscribe();
+    this.heartbeatSub?.unsubscribe();
 
     // Mark last violation as auto-submit trigger if applicable
+    // (This is mostly handled automatically in processViolation now)
     if (wasAutoSubmit && this.violationBuffer.length > 0) {
       this.violationBuffer[this.violationBuffer.length - 1].wasAutoSubmit = true;
     }
@@ -166,13 +212,29 @@ export class AntiCheatService implements OnDestroy {
 
   private removeAllListeners(): void {
     document.removeEventListener('keydown', this.boundHandleKeyDown, { capture: true });
+    document.removeEventListener('keyup', this.boundHandleKeyUp, { capture: true });
     document.removeEventListener('contextmenu', this.boundHandleContextMenu, { capture: true });
     window.removeEventListener('resize', this.boundHandleResize);
     document.removeEventListener('mouseleave', this.boundHandleMouseLeave);
     document.removeEventListener('mousemove', this.boundHandleMouseMove);
     window.removeEventListener('beforeunload', this.boundHandleBeforeUnload);
+    document.removeEventListener('fullscreenchange', this.boundHandleFullscreenChange);
+    document.removeEventListener('visibilitychange', this.boundHandleVisibilityChange);
+    window.removeEventListener('blur', this.boundHandleBlur);
+    window.removeEventListener('online', this.boundHandleOnline);
+    window.removeEventListener('offline', this.boundHandleOffline);
   }
 
+  private handleFullscreenChange(event: Event): void {
+    if (!document.fullscreenElement && this.isMonitoring && !this.forceSubmitInProgress) {
+      this.violations$.next({
+        type: 'FullScreenExit',
+        severity: 'Critical',
+        description: 'Student exited Full Screen mode.',
+        timestamp: new Date()
+      });
+    }
+  }
 
 
   public markForceSubmitInProgress(): void {
@@ -186,33 +248,64 @@ export class AntiCheatService implements OnDestroy {
   // ── Processing ────────────────────────────────────────────────────────────
 
   private processViolation(event: ViolationEvent): void {
-    // Cooldown check
-    const now = Date.now();
-    const last = this.cooldowns.get(event.type) || 0;
-    const cooldownMs = this.getCooldown(event.type);
+    // If we're inside the 3-second global cooldown, simply ignore
+    if (Date.now() - this.lastGlobalViolationTime < 3000) return;
 
-    if (now - last < cooldownMs) return; // Ignore if in cooldown
-    this.cooldowns.set(event.type, now);
+    this.pendingViolations.push(event);
+
+    if (!this.aggregatorTimeout) {
+      this.aggregatorTimeout = setTimeout(() => {
+        this.flushPendingViolations();
+      }, 500); // 500ms aggregation window
+    }
+  }
+
+  private flushPendingViolations(): void {
+    this.aggregatorTimeout = null;
+    if (this.pendingViolations.length === 0) return;
+
+    // Pick the most severe violation in the batch
+    let maxEvent = this.pendingViolations[0];
+    let maxWeight = this.getSeverityWeight(maxEvent.severity);
+
+    for (const ev of this.pendingViolations) {
+      const w = this.getSeverityWeight(ev.severity);
+      if (w > maxWeight) {
+        maxWeight = w;
+        maxEvent = ev;
+      }
+    }
+
+    this.pendingViolations = [];
+    
+    // Now start the strict 3-second cooldown
+    this.lastGlobalViolationTime = Date.now();
 
     // Accumulate Score inside Angular zone so signals/computed update
-    const weight = this.getSeverityWeight(event.severity);
+    let isTerminating = false;
     this.ngZone.run(() => {
-      this._strikeScore.update(s => s + weight);
+      this._strikeScore.update(s => {
+        if (s + maxWeight >= 3.0) isTerminating = true;
+        return s + maxWeight;
+      });
     });
+
+    // Broadcast valid violation for UI after score is updated
+    this.violationOccurred$.next(maxEvent);
 
     // Buffer for API
     if (this.attemptId) {
       this.violationBuffer.push({
         attemptId: this.attemptId,
-        type: event.type,
-        severity: event.severity,
-        description: event.description,
-        occurredAt: event.timestamp.toISOString(),
-        wasAutoSubmit: false
+        type: maxEvent.type,
+        severity: maxEvent.severity,
+        description: maxEvent.description,
+        occurredAt: maxEvent.timestamp.toISOString(),
+        wasAutoSubmit: isTerminating
       });
       
-      // For Critical violations: immediately fire via raw fetch (bypass Angular HTTP zone issues)
-      if (event.severity === 'Critical') {
+      // For Critical/Medium violations: immediately fire via raw fetch
+      if (maxEvent.severity === 'Critical' || maxEvent.severity === 'Medium') {
         this.syncViolationsImmediate();
       }
     }
@@ -220,23 +313,10 @@ export class AntiCheatService implements OnDestroy {
 
   private getSeverityWeight(severity: ViolationSeverity): number {
     switch (severity) {
-      case 'Minor': return 0.25;
+      case 'Minor': return 0.5;
       case 'Medium': return 1.0;
       case 'Critical': return 1.0;
       default: return 1.0;
-    }
-  }
-
-  private getCooldown(type: ViolationType): number {
-    switch (type) {
-      case 'FocusLoss': return 3000;
-      case 'TabSwitch': return 5000;
-      case 'FullScreenExit': return 8000;
-      case 'RestrictedShortcut': return 1000;
-      case 'AbnormalMouseActivity': return 30000;
-      case 'WindowResize': return 2000;
-      case 'SplitScreen': return 5000;
-      default: return 2000;
     }
   }
 
@@ -263,7 +343,7 @@ export class AntiCheatService implements OnDestroy {
     this.violationBuffer = [];
 
     const url = `${environment.apiUrl}/violations/batch`;
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('shieldon_access_token');
     if (!token) return;
 
     fetch(url, {
@@ -283,7 +363,7 @@ export class AntiCheatService implements OnDestroy {
   private syncViolationsBeacon(): void {
     if (this.violationBuffer.length === 0) return;
     const url = `${environment.apiUrl}/violations/batch`;
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem('shieldon_access_token');
     if (!token) return;
 
     const payload = { violations: [...this.violationBuffer] };
@@ -301,12 +381,20 @@ export class AntiCheatService implements OnDestroy {
   }
 
   private handleBeforeUnload(e: BeforeUnloadEvent): void {
-    this.syncViolationsBeacon();
-    
     if (this.isMonitoring) {
+      // Attempting to close/refresh tab is a critical violation
+      this.violations$.next({
+        type: 'TabSwitch',
+        severity: 'Critical',
+        description: 'Attempted to refresh or close the exam tab.',
+        timestamp: new Date()
+      });
+
       e.preventDefault();
       e.returnValue = ''; // Required for Chrome - shows native "Leave site?" dialog
     }
+
+    this.syncViolationsBeacon();
   }
 
   // ── Event Handlers ────────────────────────────────────────────────────────
@@ -332,14 +420,39 @@ export class AntiCheatService implements OnDestroy {
     if (e.ctrlKey && (e.key === 'g' || e.key === 'G')) { blocked = true; desc = 'Attempted to Find Next'; }
     if (e.key === 'Escape') { blocked = true; desc = 'Attempted to exit fullscreen via Esc'; }
     if (e.altKey && e.key === 'Tab') { blocked = true; desc = 'Attempted Alt+Tab'; }
+    if (e.key === 'PrintScreen') { blocked = true; desc = 'Attempted to take a Screenshot (PrintScreen)'; }
+    if (e.metaKey && e.shiftKey && (e.key === 's' || e.key === 'S')) { blocked = true; desc = 'Attempted to take a Screenshot (Win+Shift+S)'; }
+    if (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5')) { blocked = true; desc = 'Attempted to take a Screenshot (Mac shortcut)'; }
 
     if (blocked) {
       e.preventDefault();
       e.stopPropagation();
+      
+      if (desc.includes('Screenshot')) {
+        navigator.clipboard?.writeText('').catch(() => {});
+      }
+
       this.violations$.next({
         type: 'RestrictedShortcut',
         severity: 'Medium',
         description: desc,
+        timestamp: new Date()
+      });
+    }
+  }
+
+  private handleKeyUp(e: KeyboardEvent): void {
+    if (!this.isMonitoring) return;
+    
+    // Windows often fires keyup for PrintScreen instead of keydown
+    if (e.key === 'PrintScreen') {
+      e.preventDefault();
+      e.stopPropagation();
+      navigator.clipboard?.writeText('').catch(() => {});
+      this.violations$.next({
+        type: 'RestrictedShortcut',
+        severity: 'Medium',
+        description: 'Attempted to take a Screenshot (PrintScreen)',
         timestamp: new Date()
       });
     }
@@ -354,6 +467,48 @@ export class AntiCheatService implements OnDestroy {
       description: 'Right-click context menu blocked.',
       timestamp: new Date()
     });
+  }
+
+
+  private handleVisibilityChange(): void {
+    if (!this.isMonitoring) return;
+    if (document.visibilityState === 'hidden') {
+      this.violations$.next({
+        type: 'TabSwitch',
+        severity: 'Critical',
+        description: 'Switched to another browser tab or minimized the window.',
+        timestamp: new Date()
+      });
+    }
+  }
+
+  private handleBlur(): void {
+    if (!this.isMonitoring) return;
+    this.violations$.next({
+      type: 'FocusLoss',
+      severity: 'Medium',
+      description: 'Lost focus on the exam window.',
+      timestamp: new Date()
+    });
+  }
+
+  private handleOnline(): void {
+    if (!this.isMonitoring) return;
+    // Immediately send heartbeat to log "Reconnected" event faster
+    this.sendHeartbeat(false);
+  }
+
+  private handleOffline(): void {
+    if (!this.isMonitoring) return;
+    // Could optionally trigger a local warning here
+  }
+
+  private sendHeartbeat(isPageRefresh: boolean): void {
+    if (!this.attemptId) return;
+    this.http.post(`${environment.apiUrl}/exam-attempts/${this.attemptId}/heartbeat`, { isPageRefresh })
+      .subscribe({
+        error: () => console.warn('Failed to send heartbeat')
+      });
   }
 
   private resizeTimeout: any;
@@ -382,6 +537,8 @@ export class AntiCheatService implements OnDestroy {
 
   private handleMouseLeave(e: MouseEvent): void {
     if (!this.isMonitoring) return;
+    if (Date.now() - this.monitoringStartTime < 2000) return; // 2s grace period at start
+    
     if (e.clientY <= 0 || e.clientX <= 0 || e.clientX >= window.innerWidth || e.clientY >= window.innerHeight) {
       this.violations$.next({
         type: 'AbnormalMouseActivity',
@@ -394,6 +551,8 @@ export class AntiCheatService implements OnDestroy {
 
   private handleMouseMove(e: MouseEvent): void {
     if (!this.isMonitoring) return;
+    if (Date.now() - this.monitoringStartTime < 2000) return; // 2s grace period at start
+    
     const now = Date.now();
     if (this.mousePosBuffer.length > 0) {
       const last = this.mousePosBuffer[this.mousePosBuffer.length - 1];

@@ -22,20 +22,22 @@ namespace SHIELDON.Infrastructure.Services;
 public class ViolationService : IViolationService
 {
     private readonly AppDbContext _db;
+    private readonly IDashboardNotificationService _notificationService;
 
-    public ViolationService(AppDbContext db)
+    public ViolationService(AppDbContext db, IDashboardNotificationService notificationService)
     {
         _db = db;
+        _notificationService = notificationService;
     }
 
     // ── Constants ───────────────────────────────────────────────────────────────
 
     private static decimal GetSeverityWeight(ViolationSeverity severity) => severity switch
     {
-        ViolationSeverity.Minor    => 0.25m,
-        ViolationSeverity.Medium   => 0.5m,
+        ViolationSeverity.Minor    => 0.5m,
+        ViolationSeverity.Medium   => 1.0m,
         ViolationSeverity.Critical => 1.0m,
-        _                          => 0.25m
+        _                          => 0.5m
     };
 
     // ── Student: Log Violation Batch ────────────────────────────────────────────
@@ -87,6 +89,7 @@ public class ViolationService : IViolationService
         {
             _db.ViolationLogs.AddRange(logsToInsert);
             await _db.SaveChangesAsync(ct);
+            await _notificationService.NotifyDashboardUpdatedAsync();
         }
 
         return ApiResponse<string>.Ok($"{logsToInsert.Count} violation(s) logged successfully.");

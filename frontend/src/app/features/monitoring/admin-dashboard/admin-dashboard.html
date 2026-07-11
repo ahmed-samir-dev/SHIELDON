@@ -2,30 +2,36 @@
   <!-- Header -->
   <header class="dashboard-header">
     <div class="header-content">
-      <div class="header-badge">
-        <lucide-icon name="Activity" [size]="16"></lucide-icon>
-        {{ 'ADMIN_DASHBOARD.BADGE_SYSTEM_ADMIN' | translate }}
-      </div>
       <h1 class="header-title">{{ 'ADMIN_DASHBOARD.TITLE' | translate }}</h1>
       <p class="header-subtitle">{{ 'ADMIN_DASHBOARD.SUBTITLE' | translate }}</p>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <button class="btn btn-primary" (click)="exportToCsv()" style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 8px; background: var(--color-primary-base); color: white; border: none; cursor: pointer; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);">
+        <lucide-icon [img]="FileText" [size]="16"></lucide-icon>
+        Export CSV Report
+      </button>
+      <div class="header-badge">
+        <lucide-icon [img]="Activity" [size]="16"></lucide-icon>
+        {{ 'ADMIN_DASHBOARD.BADGE_SYSTEM_ADMIN' | translate }}
+      </div>
     </div>
   </header>
 
   <!-- Error State -->
   <div *ngIf="!loading() && error()" class="error-state">
-    <lucide-icon name="AlertTriangle" [size]="20"></lucide-icon>
+    <lucide-icon [img]="AlertTriangle" [size]="20"></lucide-icon>
     <span>{{ error() }}</span>
   </div>
 
   <ng-container *ngIf="!error()">
     <div class="dashboard-content">
-      <!-- KPI Cards Row -->
+      <!-- KPI Cards Row 1 -->
       <div class="kpi-grid">
         <div class="kpi-card">
           <div class="kpi-header">
             <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_ACTIVE_COURSES' | translate }}</span>
             <div class="kpi-icon-wrapper blue">
-              <lucide-icon name="FileText" [size]="16"></lucide-icon>
+              <lucide-icon [img]="BookOpen" [size]="24"></lucide-icon>
             </div>
           </div>
           <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().totalActiveCourses }}</p>
@@ -33,9 +39,19 @@
 
         <div class="kpi-card">
           <div class="kpi-header">
-            <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_COMPLETED_EXAMS' | translate }}</span>
+            <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_TOTAL_EXAMS' | translate }}</span>
             <div class="kpi-icon-wrapper green">
-              <lucide-icon name="Monitor" [size]="16"></lucide-icon>
+              <lucide-icon [img]="FileStack" [size]="24"></lucide-icon>
+            </div>
+          </div>
+          <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().totalExams }}</p>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_ATTEMPTED_EXAMS' | translate }}</span>
+            <div class="kpi-icon-wrapper purple">
+              <lucide-icon [img]="FileEdit" [size]="24"></lucide-icon>
             </div>
           </div>
           <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().totalCompletedExams }}</p>
@@ -44,8 +60,8 @@
         <div class="kpi-card">
           <div class="kpi-header">
             <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_SUBMISSIONS' | translate }}</span>
-            <div class="kpi-icon-wrapper indigo">
-              <lucide-icon name="Users" [size]="16"></lucide-icon>
+            <div class="kpi-icon-wrapper orange">
+              <lucide-icon [img]="CheckCircle" [size]="24"></lucide-icon>
             </div>
           </div>
           <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().totalSubmissions }}</p>
@@ -55,10 +71,63 @@
           <div class="kpi-header">
             <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_VIOLATIONS' | translate }}</span>
             <div class="kpi-icon-wrapper red">
-              <lucide-icon name="ShieldAlert" [size]="16"></lucide-icon>
+              <lucide-icon [img]="ShieldAlert" [size]="24"></lucide-icon>
             </div>
           </div>
           <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().totalViolations }}</p>
+        </div>
+      </div>
+
+      <!-- KPI Cards Row 2 -->
+      <div class="kpi-grid" style="margin-top: 16px;">
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_TOTAL_STUDENTS' | translate }}</span>
+            <div class="kpi-icon-wrapper indigo">
+              <lucide-icon [img]="Users" [size]="24"></lucide-icon>
+            </div>
+          </div>
+          <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().totalStudents }}</p>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_TOTAL_TUTORS' | translate }}</span>
+            <div class="kpi-icon-wrapper indigo">
+              <lucide-icon [img]="UserCheck" [size]="24"></lucide-icon>
+            </div>
+          </div>
+          <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().totalTutors }}</p>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_ACTIVE_EXAMS' | translate }}</span>
+            <div class="kpi-icon-wrapper cyan">
+              <lucide-icon [img]="Activity" [size]="24"></lucide-icon>
+            </div>
+          </div>
+          <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().activeExamsInProgress }}</p>
+        </div>
+        
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-label">{{ 'ADMIN_DASHBOARD.KPI_AVERAGE_PASS_RATE' | translate }}</span>
+            <div class="kpi-icon-wrapper teal">
+              <lucide-icon [img]="Target" [size]="24"></lucide-icon>
+            </div>
+          </div>
+          <p class="kpi-value" [class.skeleton-text]="loading()">{{ dashboardData().averagePassRate }}%</p>
+        </div>
+
+        <div class="kpi-card warning">
+          <div class="kpi-header">
+            <h3 class="kpi-title">{{ 'ADMIN_DASHBOARD.KPI_TOTAL_REVENUE' | translate }}</h3>
+            <div class="kpi-icon-wrapper green" style="background-color: rgba(16, 185, 129, 0.1); color: #10b981; padding: 8px; border-radius: 8px; display: flex;">
+              <lucide-icon [img]="DollarSign" [size]="24"></lucide-icon>
+            </div>
+          </div>
+          <p class="kpi-value" [class.skeleton-text]="loading()">${{ dashboardData().totalRevenueUSD | number:'1.2-2' }}</p>
         </div>
       </div>
 
@@ -66,19 +135,30 @@
       <div class="charts-grid">
         <!-- 30 Day Trend -->
         <div class="chart-card main-chart">
-          <h3 class="chart-title">
-            <lucide-icon name="TrendingUp" [size]="18"></lucide-icon>
-            {{ 'ADMIN_DASHBOARD.CHART_ACTIVITY' | translate }}
+          <h3 class="chart-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span style="display: flex; align-items: center; gap: 8px;">
+              <lucide-icon [img]="TrendingUp" [size]="18"></lucide-icon>
+              {{ 'ADMIN_DASHBOARD.CHART_ACTIVITY' | translate }}
+            </span>
+            <select class="chart-filter-select" (change)="onActivityDaysChange($event)" [value]="activityDays()?.toString() || ''">
+              <option value="7">7 Days</option>
+              <option value="30">30 Days</option>
+              <option value="60">2 Months</option>
+              <option value="90">3 Months</option>
+              <option value="180">6 Months</option>
+              <option value="365">1 Year</option>
+              <option value="">All</option>
+            </select>
           </h3>
-          <div class="chart-body" *ngIf="dashboardData()!.activityTrend.length > 0">
+          <div class="chart-body" *ngIf="platformActivityData().length > 0" [class.loading]="activityLoading()">
             <div echarts [options]="trendChartOptions()" class="echarts-container"></div>
           </div>
-          <div *ngIf="dashboardData()!.activityTrend.length === 0" class="empty-chart">
+          <div *ngIf="platformActivityData().length === 0" class="empty-chart" [class.loading]="activityLoading()">
             {{ 'ADMIN_DASHBOARD.NO_ACTIVITY_DATA' | translate }}
           </div>
         </div>
 
-        <!-- Top Violations & Gauge -->
+        <!-- Side Charts -->
         <div class="side-charts">
           <!-- Gauge -->
           <div class="chart-card gauge-card">
@@ -87,63 +167,154 @@
             <p class="gauge-subtitle">{{ 'ADMIN_DASHBOARD.GAUGE_SUBTITLE' | translate }}</p>
           </div>
 
-          <!-- Top Violations Bar -->
+          <!-- Severity Breakdown (New) -->
           <div class="chart-card list-chart">
-            <h3 class="chart-title">{{ 'ADMIN_DASHBOARD.TOP_VIOLATIONS' | translate }}</h3>
-            <div class="chart-body" *ngIf="dashboardData()!.topViolationTypes.length > 0">
-              <div echarts [options]="topViolationsChartOptions()" class="echarts-container"></div>
+            <h3 class="chart-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <span>Violations by Severity</span>
+              <select class="elegant-dropdown" [value]="violationsSeverityCourseFilter()" (change)="violationsSeverityCourseFilter.set($any($event.target).value)">
+                <option value="All">All Courses</option>
+                <option *ngFor="let course of coursesWithViolations()" [value]="course">{{ course }}</option>
+              </select>
+            </h3>
+            <div class="chart-body" *ngIf="dashboardData()!.violationsByCourse.length > 0">
+              <div echarts [options]="violationsSeverityChartOptions()" class="echarts-container"></div>
             </div>
-            <div *ngIf="dashboardData()!.topViolationTypes.length === 0" class="empty-chart text-small">
+            <div *ngIf="dashboardData()!.violationsByCourse.length === 0" class="empty-chart text-small">
               {{ 'ADMIN_DASHBOARD.NO_VIOLATIONS_DATA' | translate }}
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Additional Rich Charts -->
+      <!-- Charts Row 2: Top Violations & Violations by Course (50% / 50%) -->
       <div class="charts-grid" style="grid-template-columns: 1fr 1fr; margin-top: 24px;">
+        <!-- Top Violations Bar -->
+        <div class="chart-card">
+          <h3 class="chart-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span>{{ 'ADMIN_DASHBOARD.TOP_VIOLATIONS' | translate }}</span>
+            <select class="elegant-dropdown" [value]="topViolationsCourseFilter()" (change)="topViolationsCourseFilter.set($any($event.target).value)">
+              <option value="All">All Courses</option>
+              <option *ngFor="let course of coursesWithViolations()" [value]="course">{{ course }}</option>
+            </select>
+          </h3>
+          <div class="chart-body" *ngIf="dashboardData()!.topViolationTypes.length > 0">
+            <div echarts [options]="topViolationsChartOptions()" class="echarts-container"></div>
+          </div>
+          <div *ngIf="dashboardData()!.topViolationTypes.length === 0" class="empty-chart">
+            {{ 'ADMIN_DASHBOARD.NO_VIOLATIONS_DATA' | translate }}
+          </div>
+        </div>
+
         <!-- Violations by Course -->
         <div class="chart-card">
           <h3 class="chart-title">{{ 'ADMIN_DASHBOARD.CHART_VIOLATIONS_COURSE' | translate }}</h3>
-          <div class="chart-body" *ngIf="dashboardData()!.examStatistics.length > 0">
+          <div class="chart-body" *ngIf="dashboardData()!.violationsByCourse.length > 0">
             <div echarts [options]="courseViolationsChartOptions()" class="echarts-container"></div>
           </div>
-          <div *ngIf="dashboardData()!.examStatistics.length === 0" class="empty-chart">
+          <div *ngIf="dashboardData()!.violationsByCourse.length === 0" class="empty-chart">
             {{ 'ADMIN_DASHBOARD.NO_COURSE_DATA' | translate }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row 3: Recent Payments & Global Outcomes (65% / 35%) -->
+      <div class="charts-grid" style="grid-template-columns: 65fr 35fr; margin-top: 24px;">
+        <!-- Recent Payments Chart -->
+        <div class="chart-card">
+          <h3 class="chart-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span>Payments</span>
+            <select class="chart-filter-select" (change)="onPaymentsDaysChange($event)" [value]="paymentsDays()?.toString() || ''">
+              <option value="7">7 Days</option>
+              <option value="30">30 Days</option>
+              <option value="60">2 Months</option>
+              <option value="90">3 Months</option>
+              <option value="180">6 Months</option>
+              <option value="365">1 Year</option>
+              <option value="">All</option>
+            </select>
+          </h3>
+          <div class="chart-body" *ngIf="paymentsTrendData().length > 0" [class.loading]="paymentsLoading()">
+            <div echarts [options]="recentPaymentsChartOptions()" class="echarts-container"></div>
+          </div>
+          <div *ngIf="paymentsTrendData().length === 0" class="empty-chart" [class.loading]="paymentsLoading()">
+            {{ 'ADMIN_DASHBOARD.NO_RECENT_PAYMENTS' | translate }}
           </div>
         </div>
 
         <!-- Global Submission Outcomes -->
         <div class="chart-card">
-          <h3 class="chart-title">{{ 'ADMIN_DASHBOARD.CHART_OUTCOMES' | translate }}</h3>
-          <div class="chart-body" *ngIf="dashboardData()!.examStatistics.length > 0">
+          <h3 class="chart-title" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; width: 100%;">
+            <span>{{ 'ADMIN_DASHBOARD.CHART_OUTCOMES' | translate }}</span>
+            <select class="elegant-dropdown" style="max-width: 100%; margin-inline-start: auto; text-overflow: ellipsis;" [value]="submissionOutcomesCourseFilter()" (change)="submissionOutcomesCourseFilter.set($any($event.target).value)">
+              <option value="All">All Courses</option>
+              <option *ngFor="let course of coursesWithOutcomes()" [value]="course">{{ course }}</option>
+            </select>
+          </h3>
+          <div class="chart-body" *ngIf="dashboardData()!.globalSubmissionOutcomes.length > 0">
             <div echarts [options]="submissionOutcomesChartOptions()" class="echarts-container"></div>
           </div>
-          <div *ngIf="dashboardData()!.examStatistics.length === 0" class="empty-chart">
+          <div *ngIf="dashboardData()!.globalSubmissionOutcomes.length === 0" class="empty-chart text-small">
             {{ 'ADMIN_DASHBOARD.NO_OUTCOMES_DATA' | translate }}
           </div>
         </div>
       </div>
 
       <!-- Global Exam Monitor -->
-      <div class="table-card">
-        <div class="table-header">
-          <h2 class="table-title">
-            <lucide-icon name="Monitor" [size]="20"></lucide-icon>
+      <div class="table-card" style="margin-top: 24px;">
+        <div class="table-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h2 class="table-title" style="margin: 0;">
+            <lucide-icon [img]="Monitor" [size]="20"></lucide-icon>
             {{ 'ADMIN_DASHBOARD.TABLE_TITLE' | translate }}
           </h2>
+          <div class="table-actions">
+            <div class="filter-wrapper">
+              <lucide-icon [img]="Users" [size]="16" class="input-icon"></lucide-icon>
+              <select class="enhanced-input enhanced-select" (change)="onTutorChange($any($event.target).value)">
+                <option value="">{{ 'ADMIN_DASHBOARD.FILTER_ALL_TUTORS' | translate }}</option>
+                <option *ngFor="let tutor of tutors()" [value]="tutor.id">{{ tutor.fullName }}</option>
+              </select>
+            </div>
+            <div class="search-wrapper">
+              <lucide-icon [img]="Search" [size]="16" class="input-icon"></lucide-icon>
+              <input type="text" 
+                     class="enhanced-input" 
+                     [placeholder]="'ADMIN_DASHBOARD.SEARCH_PLACEHOLDER' | translate" 
+                     [value]="searchQuery()"
+                     (keyup.enter)="onSearch($any($event.target).value)">
+              <button class="enhanced-btn" (click)="loadDashboard()">{{ 'ADMIN_DASHBOARD.SEARCH' | translate }}</button>
+            </div>
+          </div>
         </div>
 
         <div class="table-responsive">
           <table class="data-table">
             <thead>
               <tr>
-                <th>{{ 'ADMIN_DASHBOARD.COL_EXAM_TITLE' | translate }}</th>
-                <th>{{ 'ADMIN_DASHBOARD.COL_COURSE' | translate }}</th>
-                <th>{{ 'ADMIN_DASHBOARD.COL_TUTOR' | translate }}</th>
-                <th class="align-center">{{ 'ADMIN_DASHBOARD.COL_ACTIVE_STUDENTS' | translate }}</th>
-                <th class="align-center">{{ 'ADMIN_DASHBOARD.COL_TOTAL_VIOLATIONS' | translate }}</th>
-                <th class="align-center">{{ 'ADMIN_DASHBOARD.COL_SUBMITTED' | translate }}</th>
+                <th>
+                  {{ 'ADMIN_DASHBOARD.COL_EXAM_TITLE' | translate }}
+                </th>
+                <th>
+                  {{ 'ADMIN_DASHBOARD.COL_COURSE' | translate }}
+                </th>
+                <th>
+                  {{ 'ADMIN_DASHBOARD.COL_TUTOR' | translate }}
+                </th>
+                <th (click)="onSort('TotalAttempts')" style="cursor: pointer;" class="align-center sortable-header">
+                  {{ 'ADMIN_DASHBOARD.COL_ATTEMPTS' | translate }}
+                  <span class="sort-icon">{{ sortColumn() === 'TotalAttempts' ? (sortDirection() === 'asc' ? '↑' : '↓') : '↕' }}</span>
+                </th>
+                <th (click)="onSort('TotalViolations')" style="cursor: pointer;" class="align-center sortable-header">
+                  {{ 'ADMIN_DASHBOARD.COL_TOTAL_VIOLATIONS' | translate }}
+                  <span class="sort-icon">{{ sortColumn() === 'TotalViolations' ? (sortDirection() === 'asc' ? '↑' : '↓') : '↕' }}</span>
+                </th>
+                <th (click)="onSort('AverageScore')" style="cursor: pointer;" class="align-center sortable-header">
+                  {{ 'ADMIN_DASHBOARD.COL_AVG_SCORE' | translate }}
+                  <span class="sort-icon">{{ sortColumn() === 'AverageScore' ? (sortDirection() === 'asc' ? '↑' : '↓') : '↕' }}</span>
+                </th>
+                <th (click)="onSort('PassRate')" style="cursor: pointer;" class="align-center sortable-header">
+                  {{ 'ADMIN_DASHBOARD.COL_PASS_RATE' | translate }}
+                  <span class="sort-icon">{{ sortColumn() === 'PassRate' ? (sortDirection() === 'asc' ? '↑' : '↓') : '↕' }}</span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -151,25 +322,19 @@
                 <td class="font-medium text-dark">{{ row.examTitle }}</td>
                 <td class="text-muted">{{ row.courseTitle }}</td>
                 <td class="text-muted">{{ row.tutorName }}</td>
+                <td class="align-center font-medium">{{ row.totalAttempts }}</td>
+                <td class="align-center font-medium">{{ row.totalViolations }}</td>
+                <td class="align-center font-medium">{{ row.averageScore !== null ? row.averageScore + '%' : '-' }}</td>
                 <td class="align-center">
-                  <span class="badge blue">
-                    {{ row.inProgressCount }}
+                  <span class="badge" [class.green]="row.passRate !== null && row.passRate >= 50" [class.red]="row.passRate !== null && row.passRate < 50" *ngIf="row.passRate !== null">
+                    {{ row.passRate }}%
                   </span>
-                </td>
-                <td class="align-center">
-                  <span class="stat-value" [class.danger]="row.totalViolations > 0">
-                    {{ row.totalViolations }}
-                  </span>
-                </td>
-                <td class="align-center">
-                  <span class="badge green">
-                    {{ row.submittedCount + row.forceSubmittedCount }}
-                  </span>
+                  <span class="text-muted" *ngIf="row.passRate === null">-</span>
                 </td>
               </tr>
 
               <tr *ngIf="dashboardData().examStatistics.length === 0">
-                <td colspan="6" class="empty-row" [class.skeleton-text]="loading()">
+                <td colspan="7" class="empty-row" [class.skeleton-text]="loading()">
                   <ng-container *ngIf="loading()">{{ 'ADMIN_DASHBOARD.LOADING_STATS' | translate }}</ng-container>
                   <ng-container *ngIf="!loading()">{{ 'ADMIN_DASHBOARD.NO_EXAMS_FOUND' | translate }}</ng-container>
                 </td>
@@ -177,11 +342,17 @@
             </tbody>
           </table>
         </div>
-      </div>
 
-      <!-- Users Management (loads sequentially — no click needed) -->
-      <div class="table-card">
-        <app-users-management></app-users-management>
+        <!-- Pagination -->
+        <div class="pagination-controls table-footer-distinct" *ngIf="dashboardData().examStatisticsTotalPages > 1" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border-top: 1px solid var(--border-color);">
+          <div class="pagination-info text-muted">
+            {{ 'ADMIN_DASHBOARD.PAGINATION_SHOWING' | translate:{start: (currentPage() - 1) * pageSize() + 1, end: mathMin(currentPage() * pageSize(), dashboardData().examStatisticsTotalCount), total: dashboardData().examStatisticsTotalCount} }}
+          </div>
+          <div class="pagination-buttons" style="display: flex; gap: 8px;">
+            <button class="btn btn-outline" [disabled]="currentPage() === 1" (click)="onPageChange(currentPage() - 1)">{{ 'ADMIN_DASHBOARD.PAGINATION_PREV' | translate }}</button>
+            <button class="btn btn-outline" [disabled]="currentPage() * pageSize() >= dashboardData().examStatisticsTotalCount" (click)="onPageChange(currentPage() + 1)">{{ 'ADMIN_DASHBOARD.PAGINATION_NEXT' | translate }}</button>
+          </div>
+        </div>
       </div>
     </div>
   </ng-container>

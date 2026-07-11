@@ -14,11 +14,13 @@ public class ExamAttemptService : IExamAttemptService
 {
     private readonly AppDbContext _db;
     private readonly INotificationService _notifications;
+    private readonly IDashboardNotificationService _dashboardNotifications;
 
-    public ExamAttemptService(AppDbContext db, INotificationService notifications)
+    public ExamAttemptService(AppDbContext db, INotificationService notifications, IDashboardNotificationService dashboardNotifications)
     {
         _db = db;
         _notifications = notifications;
+        _dashboardNotifications = dashboardNotifications;
     }
 
     public async Task<ApiResponse<StartExamResponse>> StartExamAsync(Guid examId, Guid studentId, CancellationToken ct = default)
@@ -80,8 +82,15 @@ public class ExamAttemptService : IExamAttemptService
             {
             if (activeAttempt.Token != null && activeAttempt.Token.ExpiresAt > DateTime.UtcNow)
                 {
+                var activeViolations = await _db.ViolationLogs.Where(v => v.AttemptId == activeAttempt.Id).ToListAsync(ct);
+                decimal initialStrikeScore = activeViolations.Sum(v => v.Severity switch {
+                    ViolationSeverity.Minor => 0.5m,
+                    ViolationSeverity.Medium => 1.0m,
+                    ViolationSeverity.Critical => 1.0m,
+                    _ => 1.0m
+                });
                 // Resume existing
-                return ApiResponse<StartExamResponse>.Ok(CreateStartResponse(activeAttempt, exam));
+                return ApiResponse<StartExamResponse>.Ok(CreateStartResponse(activeAttempt, exam, initialStrikeScore));
             }
             else
             {
@@ -187,6 +196,7 @@ public class ExamAttemptService : IExamAttemptService
         }
 
         await _db.SaveChangesAsync(ct);
+        await _dashboardNotifications.NotifyDashboardUpdatedAsync();
 
         // Reload with options for the response
         await _db.Entry(attempt).Collection(a => a.AttemptQuestions).Query()
@@ -194,7 +204,7 @@ public class ExamAttemptService : IExamAttemptService
                 .ThenInclude(q => q!.Options)
             .LoadAsync(ct);
 
-        return ApiResponse<StartExamResponse>.Ok(CreateStartResponse(attempt, exam));
+        return ApiResponse<StartExamResponse>.Ok(CreateStartResponse(attempt, exam, 0m));
     }
 
     /// <summary>Cryptographically random Fisher-Yates in-place shuffle.</summary>
@@ -305,6 +315,7 @@ public class ExamAttemptService : IExamAttemptService
         attempt.Token.IsRevoked = true;
 
         await _db.SaveChangesAsync(ct);
+        await _dashboardNotifications.NotifyDashboardUpdatedAsync();
 
         // ── Create / update GradeRecord & handle result visibility ────────────
         // Only create GradeRecord when the attempt is fully graded (not awaiting manual review)
@@ -403,7 +414,7 @@ public class ExamAttemptService : IExamAttemptService
         return attempt;
     }
 
-    private StartExamResponse CreateStartResponse(ExamAttempt attempt, Exam exam)
+    private StartExamResponse CreateStartResponse(ExamAttempt attempt, Exam exam, decimal initialStrikeScore)
     {
         // Read questions from the snapshot, ordered by the attempt's OrderIndex
         var snapshotQuestions = attempt.AttemptQuestions
@@ -456,7 +467,8 @@ public class ExamAttemptService : IExamAttemptService
             finalOrder,
             savedAnswers,
             exam.CourseId,
-            exam.ResultVisibility.ToString()
+            exam.ResultVisibility.ToString(),
+            initialStrikeScore
         );
     }
 }

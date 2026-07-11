@@ -23,11 +23,21 @@ export interface DailyActivityPoint {
 // ATTEMPT TIMELINE
 // ─────────────────────────────────────────────────────────────────────────────
 
-export interface ViolationTimelineEntry {
-  occurredAt: string;
-  type: string;
+export interface AdminDashboardQuery {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  tutorId?: string;
+  sortColumn?: string;
+  sortDirection?: 'asc' | 'desc';
+}
+
+export interface TimelineEntry {
+  category: string;
+  eventType: string;
   severity: string;
   description: string;
+  occurredAt: string;
   wasAutoSubmit: boolean;
 }
 
@@ -46,7 +56,7 @@ export interface AttemptTimelineResponse {
   criticalCount: number;
   mediumCount: number;
   minorCount: number;
-  violations: ViolationTimelineEntry[];
+  events: TimelineEntry[];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -90,22 +100,32 @@ export interface ExamMonitoringSummary {
   inProgressCount: number;
   submittedCount: number;
   forceSubmittedCount: number;
+  timeoutCount: number;
+  violationLimitCount: number;
   notStartedCount: number;
   totalViolations: number;
   criticalViolations: number;
   averageScore: number | null;
+  passedCount: number;
+  failedCount: number;
 }
 
 export interface SubmissionRow {
   attemptId: string;
+  examId: string;
   studentName: string;
   studentCode: string;
   examTitle: string;
+  courseTitle: string;
   status: string;
   submittedAt: string | null;
+  durationMinutes: number | null;
   score: number | null;
+  passed: boolean;
+  failed: boolean;
   violationCount: number;
   highestSeverity: string;
+  history?: SubmissionRow[];
 }
 
 export interface TutorDashboardResponse {
@@ -115,32 +135,110 @@ export interface TutorDashboardResponse {
   page: number;
   pageSize: number;
   violationTypeDistribution: ViolationTypeStat[];
+  totalActiveCourses: number;
+  totalStudents: number;
+  activeExams: number;
+  averagePassRate: number;
+  completionRate: number;
+  totalPassedStudents: number;
+  averageTimeMinutes: number;
+  courseViolationDetails: CourseViolationDetail[];
+}
+
+export interface CourseViolationDetail {
+  courseTitle: string;
+  violationType: string;
+  severity: string;
+  count: number;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ADMIN DASHBOARD
 // ─────────────────────────────────────────────────────────────────────────────
 
+export interface CourseViolationStat {
+  courseTitle: string;
+  violationCount: number;
+  criticalCount: number;
+  mediumCount: number;
+  minorCount: number;
+}
+
+export interface SubmissionOutcomeStat {
+  outcome: string;
+  count: number;
+  percentage: number;
+}
+
+export interface CourseSubmissionOutcome {
+  courseTitle: string;
+  outcome: string;
+  count: number;
+}
+
+export interface RecentPaymentStat {
+  paymentId: string;
+  amountUSD: number;
+  paidAt: string;
+  studentName: string;
+}
+
 export interface ExamStatisticsRow {
   examId: string;
   examTitle: string;
   courseTitle: string;
   tutorName: string;
+  scheduledAt: string | null;
+  totalAttempts: number;
   submittedCount: number;
   forceSubmittedCount: number;
   inProgressCount: number;
   totalViolations: number;
+  averageScore: number | null;
+  passRate: number | null;
 }
 
 export interface AdminDashboardResponse {
   totalActiveCourses: number;
+  totalExams: number;
   totalCompletedExams: number;
   totalSubmissions: number;
   totalViolations: number;
+  totalStudents: number;
+  totalTutors: number;
+  activeExamsInProgress: number;
+  averagePassRate: number;
   forceSubmissionRate: number;
-  examStatistics: ExamStatisticsRow[];
+  totalRevenueUSD: number;
+  violationsByCourse: CourseViolationStat[];
+  globalSubmissionOutcomes: SubmissionOutcomeStat[];
+  recentPayments: RecentPaymentStat[];
   topViolationTypes: ViolationTypeStat[];
   activityTrend: DailyActivityPoint[];
+
+  activeCourseTitles: string[];
+  courseViolationDetails: CourseViolationDetail[];
+  courseSubmissionOutcomes: CourseSubmissionOutcome[];
+
+  // Exam Statistics Table
+  examStatistics: ExamStatisticsRow[];
+  examStatisticsTotalCount: number;
+  examStatisticsPage: number;
+  examStatisticsPageSize: number;
+  examStatisticsTotalPages: number;
+}
+
+export interface PaymentTrendPoint {
+  date: string;
+  amountUSD: number;
+}
+
+export interface PlatformActivityResponse {
+  activityTrend: DailyActivityPoint[];
+}
+
+export interface PaymentsTrendResponse {
+  paymentsTrend: PaymentTrendPoint[];
 }
 
 @Injectable({
@@ -172,7 +270,28 @@ export class MonitoringService {
     return this.http.get<ApiResponse<TutorDashboardResponse>>(`${this.baseUrl}/monitoring/tutor/dashboard`, { params });
   }
 
-  getAdminDashboard(): Observable<ApiResponse<AdminDashboardResponse>> {
-    return this.http.get<ApiResponse<AdminDashboardResponse>>(`${this.baseUrl}/monitoring/admin/dashboard`);
+  getAdminDashboard(page = 1, pageSize = 10, search?: string, tutorId?: string, sortColumn = 'ScheduledAt', sortDirection = 'desc'): Observable<ApiResponse<AdminDashboardResponse>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('pageSize', pageSize.toString())
+      .set('sortColumn', sortColumn)
+      .set('sortDirection', sortDirection);
+
+    if (search) params = params.set('search', search);
+    if (tutorId) params = params.set('tutorId', tutorId);
+
+    return this.http.get<ApiResponse<AdminDashboardResponse>>(`${this.baseUrl}/monitoring/admin/dashboard`, { params });
+  }
+
+  getPlatformActivity(days?: number | null): Observable<ApiResponse<PlatformActivityResponse>> {
+    let params = new HttpParams();
+    if (days) params = params.set('days', days.toString());
+    return this.http.get<ApiResponse<PlatformActivityResponse>>(`${this.baseUrl}/monitoring/admin/platform-activity`, { params });
+  }
+
+  getPaymentsTrend(days?: number | null): Observable<ApiResponse<PaymentsTrendResponse>> {
+    let params = new HttpParams();
+    if (days) params = params.set('days', days.toString());
+    return this.http.get<ApiResponse<PaymentsTrendResponse>>(`${this.baseUrl}/monitoring/admin/payments-trend`, { params });
   }
 }
