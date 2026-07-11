@@ -14,11 +14,13 @@ public class ExamAttemptService : IExamAttemptService
 {
     private readonly AppDbContext _db;
     private readonly INotificationService _notifications;
+    private readonly IDashboardNotificationService _dashboardNotifications;
 
-    public ExamAttemptService(AppDbContext db, INotificationService notifications)
+    public ExamAttemptService(AppDbContext db, INotificationService notifications, IDashboardNotificationService dashboardNotifications)
     {
         _db = db;
         _notifications = notifications;
+        _dashboardNotifications = dashboardNotifications;
     }
 
     public async Task<ApiResponse<StartExamResponse>> StartExamAsync(Guid examId, Guid studentId, CancellationToken ct = default)
@@ -194,6 +196,7 @@ public class ExamAttemptService : IExamAttemptService
         }
 
         await _db.SaveChangesAsync(ct);
+        await _dashboardNotifications.NotifyDashboardUpdatedAsync();
 
         // Reload with options for the response
         await _db.Entry(attempt).Collection(a => a.AttemptQuestions).Query()
@@ -312,6 +315,7 @@ public class ExamAttemptService : IExamAttemptService
         attempt.Token.IsRevoked = true;
 
         await _db.SaveChangesAsync(ct);
+        await _dashboardNotifications.NotifyDashboardUpdatedAsync();
 
         // ── Create / update GradeRecord & handle result visibility ────────────
         // Only create GradeRecord when the attempt is fully graded (not awaiting manual review)

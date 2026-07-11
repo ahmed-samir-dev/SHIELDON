@@ -45,4 +45,14 @@ public interface IMonitoringService
     /// new chart data (violations by course, submission outcomes), and activity trend.
     /// </summary>
     Task<AdminDashboardResponse> GetAdminDashboardAsync(ExamStatisticsQueryParams queryParams);
+
+    /// <summary>
+    /// Returns aggregated daily/monthly platform activity (exams + violations) for a given time range.
+    /// </summary>
+    Task<PlatformActivityResponse> GetPlatformActivityAsync(int? days);
+
+    /// <summary>
+    /// Returns aggregated daily/monthly payments revenue for a given time range.
+    /// </summary>
+    Task<PaymentsTrendResponse> GetPaymentsTrendAsync(int? days);
 }

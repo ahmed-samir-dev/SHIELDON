@@ -152,4 +152,22 @@ public class MonitoringController : ControllerBase
         var result = await _monitoring.GetAdminDashboardAsync(queryParams);
         return Ok(ApiResponse<AdminDashboardResponse>.Ok(result));
     }
+
+    [HttpGet("api/monitoring/admin/platform-activity")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResponse<PlatformActivityResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPlatformActivity([FromQuery] int? days = null)
+    {
+        var result = await _monitoring.GetPlatformActivityAsync(days);
+        return Ok(ApiResponse<PlatformActivityResponse>.Ok(result));
+    }
+
+    [HttpGet("api/monitoring/admin/payments-trend")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(typeof(ApiResponse<PaymentsTrendResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetPaymentsTrend([FromQuery] int? days = null)
+    {
+        var result = await _monitoring.GetPaymentsTrendAsync(days);
+        return Ok(ApiResponse<PaymentsTrendResponse>.Ok(result));
+    }
 }

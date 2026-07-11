@@ -31,10 +31,10 @@
     transition: all 0.2s ease;
 
     &:hover {
-      color: #4f46e5;
-      border-color: #c7d2fe;
+      color: $color-primary-base;
+      border-color: rgba($color-primary-base, 0.3);
       background: var(--theme-bg-hover);
-      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.12);
+      box-shadow: 0 2px 8px rgba($color-primary-base, 0.12);
       transform: translateX(-2px);
     }
   }
@@ -111,9 +111,9 @@
   justify-content: space-between;
   gap: 24px;
   padding: 28px 32px;
-  background: linear-gradient(135deg, #1e293b 0%, #312e81 60%, #4c1d95 100%);
+  background: linear-gradient(135deg, darken($color-primary-dark, 15%) 0%, $color-primary-dark 60%, darken($color-primary-base, 10%) 100%);
   border-radius: 20px;
-  box-shadow: 0 10px 30px -8px rgba(49, 46, 129, 0.4);
+  box-shadow: 0 10px 30px -8px rgba(darken($color-primary-dark, 20%), 0.6);
   position: relative;
   overflow: hidden;
 
@@ -121,7 +121,7 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at 80% 50%, rgba(167, 139, 250, 0.15) 0%, transparent 60%);
+    background: radial-gradient(ellipse at 80% 50%, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
   }
 
   .hero-left {
@@ -133,7 +133,7 @@
       width: 60px;
       height: 60px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      background: linear-gradient(135deg, $color-secondary-base, $color-primary-light);
       border: 3px solid rgba(255, 255, 255, 0.2);
       display: flex;
       align-items: center;
