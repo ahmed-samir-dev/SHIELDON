@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SHIELDON.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using SHIELDON.Infrastructure.Persistence;
 namespace SHIELDON.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260712154051_AllowEmptyMessageContent")]
+    partial class AllowEmptyMessageContent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -391,15 +394,6 @@ namespace SHIELDON.Infrastructure.Migrations
                     b.Property<Guid>("ConversationId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsForwarded")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("RepliedToMessageId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("SenderId")
                         .HasColumnType("uniqueidentifier");
 
@@ -415,8 +409,6 @@ namespace SHIELDON.Infrastructure.Migrations
 
                     b.HasIndex("ConversationId")
                         .HasDatabaseName("IX_ChatMessages_ConversationId");
-
-                    b.HasIndex("RepliedToMessageId");
 
                     b.HasIndex("SenderId");
 
@@ -1042,37 +1034,6 @@ namespace SHIELDON.Infrastructure.Migrations
                     b.ToTable("LoginActivityLogs", (string)null);
                 });
 
-            modelBuilder.Entity("SHIELDON.Domain.Entities.MessageReaction", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Emoji")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<Guid>("MessageId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("ReactedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("MessageId", "UserId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_MessageReactions_MessageId_UserId");
-
-                    b.ToTable("MessageReactions", (string)null);
-                });
-
             modelBuilder.Entity("SHIELDON.Domain.Entities.Notification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1369,9 +1330,6 @@ namespace SHIELDON.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTime?>("LastSeenAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime?>("LockedAt")
                         .HasColumnType("datetime2");
 
@@ -1666,11 +1624,6 @@ namespace SHIELDON.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("SHIELDON.Domain.Entities.ChatMessage", "RepliedToMessage")
-                        .WithMany("Replies")
-                        .HasForeignKey("RepliedToMessageId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("SHIELDON.Domain.Entities.User", "Sender")
                         .WithMany()
                         .HasForeignKey("SenderId")
@@ -1678,8 +1631,6 @@ namespace SHIELDON.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Conversation");
-
-                    b.Navigation("RepliedToMessage");
 
                     b.Navigation("Sender");
                 });
@@ -1945,25 +1896,6 @@ namespace SHIELDON.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("SHIELDON.Domain.Entities.MessageReaction", b =>
-                {
-                    b.HasOne("SHIELDON.Domain.Entities.ChatMessage", "Message")
-                        .WithMany("Reactions")
-                        .HasForeignKey("MessageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SHIELDON.Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Message");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("SHIELDON.Domain.Entities.Notification", b =>
                 {
                     b.HasOne("SHIELDON.Domain.Entities.User", "User")
@@ -2140,13 +2072,6 @@ namespace SHIELDON.Infrastructure.Migrations
                     b.Navigation("Messages");
 
                     b.Navigation("Participants");
-                });
-
-            modelBuilder.Entity("SHIELDON.Domain.Entities.ChatMessage", b =>
-                {
-                    b.Navigation("Reactions");
-
-                    b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("SHIELDON.Domain.Entities.Course", b =>

@@ -1060,7 +1060,7 @@
     "CHART_SCORE_VS_VIOLATIONS": "متوسط الدرجة مقابل إجمالي الانتهاكات",
     "NO_DATA_AVAILABLE": "لا توجد بيانات متاحة.",
     "SECTION_RECENT_SUBMISSIONS": "التسليمات الأخيرة",
-    "SEARCH_STUDENT_PLACEHOLDER": "ابحث عن طالب...",
+    "SEARCH_STUDENT_PLACEHOLDER": "ابحث عن طالب أو امتحان...",
     "FILTER_ALL_STATUSES": "كل الحالات",
     "FILTER_ACTIVE": "نشط",
     "FILTER_SUBMITTED": "تم التسليم",

@@ -1,11 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SHIELDON.Domain.Entities;
+using SHIELDON.Domain.Enums;
 
 namespace SHIELDON.Infrastructure.Persistence.Configurations;
 
 /// <summary>
 /// EF Core configuration for ChatMessage.
+/// Adds delivery status, attachment support, and updates the read-state index.
 /// </summary>
 public class ChatMessageConfiguration : IEntityTypeConfiguration<ChatMessage>
 {
@@ -16,8 +18,27 @@ public class ChatMessageConfiguration : IEntityTypeConfiguration<ChatMessage>
 
         // ── Column Constraints ────────────────────────────────
         builder.Property(m => m.Content)
-            .IsRequired()
-            .HasMaxLength(2000);
+            .HasMaxLength(2000)
+            .HasDefaultValue(string.Empty);
+
+
+        // Status stored as int; default Sent (0)
+        builder.Property(m => m.Status)
+            .HasConversion<int>()
+            .HasDefaultValue(MessageStatus.Sent);
+
+        // AttachmentType stored as int; default None (0)
+        builder.Property(m => m.AttachmentType)
+            .HasConversion<int>()
+            .HasDefaultValue(AttachmentType.None);
+
+        builder.Property(m => m.AttachmentUrl)
+            .HasMaxLength(500);
+
+        builder.HasOne(m => m.RepliedToMessage)
+            .WithMany(m => m.Replies)
+            .HasForeignKey(m => m.RepliedToMessageId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // ── Relationships ──────────────────────────────────────
         // Conversation → Messages is configured in ChatConversationConfiguration
@@ -33,7 +54,8 @@ public class ChatMessageConfiguration : IEntityTypeConfiguration<ChatMessage>
         builder.HasIndex(m => m.SentAt)
             .HasDatabaseName("IX_ChatMessages_SentAt");
 
-        builder.HasIndex(m => new { m.ConversationId, m.IsRead })
-            .HasDatabaseName("IX_ChatMessages_ConversationId_IsRead");
+        // Updated index: filter by Status instead of the old IsRead bool
+        builder.HasIndex(m => new { m.ConversationId, m.Status })
+            .HasDatabaseName("IX_ChatMessages_ConversationId_Status");
     }
 }
