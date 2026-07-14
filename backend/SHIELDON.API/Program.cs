@@ -40,9 +40,10 @@ var builder = WebApplication.CreateBuilder(args);
     // ── STRIPE: Initialize global configuration ───────────────────────────
     Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
-    // ── API-layer Background Services & Hub Services ──────────────────────
+    // ── API-layer Background Services & Hub Services ──────────────────────────
     builder.Services.AddHostedService<AttendanceRotationService>();
     builder.Services.AddScoped<SHIELDON.Application.Interfaces.IDashboardNotificationService, SHIELDON.API.Services.DashboardNotificationService>();
+    builder.Services.AddScoped<SHIELDON.Application.Interfaces.IFileStorageService, SHIELDON.API.Services.FileStorageService>();
 
     // ── CONTROLLERS & UTILITIES ──────────────────────────────────────────
     builder.Services.AddControllers(options =>
@@ -212,7 +213,12 @@ var builder = WebApplication.CreateBuilder(args);
     });
 
     // ── SIGNALR: Real-time chat ──────────────────────────────────────────────
-    builder.Services.AddSignalR();
+    builder.Services.AddSignalR()
+        .AddJsonProtocol(options =>
+        {
+            options.PayloadSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+            options.PayloadSerializerOptions.Converters.Add(new UtcDateTimeConverter());
+        });
 
 // ──────────────────────────────────────────────────────────────────────
 var app = builder.Build();

@@ -59,9 +59,11 @@ public class AppDbContext : DbContext
     // ── Phase 7: Exam Presence Tracking ───────────────────────────────────────
     public DbSet<PresenceLog> PresenceLogs { get; set; } = null!;
 
-    // ── Phase 6: Real-time Chat ────────────────────────────────────────────────
+    // ── Phase 6 / Stage 7.5: Real-time Chat ───────────────────────────────────
     public DbSet<ChatConversation> ChatConversations { get; set; } = null!;
     public DbSet<ChatMessage> ChatMessages { get; set; } = null!;
+    public DbSet<ConversationParticipant> ConversationParticipants { get; set; } = null!;
+    public DbSet<MessageReaction> MessageReactions { get; set; } = null!;
 
     // ── Phase 6: Attendance Tracking ──────────────────────────────────────────
     public DbSet<AttendanceCheck> AttendanceChecks { get; set; } = null!;

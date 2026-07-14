@@ -1060,7 +1060,7 @@
     "CHART_SCORE_VS_VIOLATIONS": "Average Score vs Total Violations",
     "NO_DATA_AVAILABLE": "No data available.",
     "SECTION_RECENT_SUBMISSIONS": "Recent Submissions",
-    "SEARCH_STUDENT_PLACEHOLDER": "Search student...",
+    "SEARCH_STUDENT_PLACEHOLDER": "Search student, exam ...",
     "FILTER_ALL_STATUSES": "All Statuses",
     "FILTER_ACTIVE": "Active",
     "FILTER_SUBMITTED": "Submitted",

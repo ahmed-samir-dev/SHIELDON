@@ -9,41 +9,67 @@
       </button>
     </div>
 
+    <div class="inbox-filters-container">
+      <div class="inbox-filters-pills">
+        <button class="filter-pill" [class.active]="inboxFilter() === 'All'" (click)="inboxFilter.set('All')">All</button>
+        <button class="filter-pill" [class.active]="inboxFilter() === 'Online'" (click)="inboxFilter.set('Online')">Online</button>
+        <button class="filter-pill" [class.active]="inboxFilter() === 'Offline'" (click)="inboxFilter.set('Offline')">Offline</button>
+      </div>
+      <select class="role-filter-dropdown" [ngModel]="inboxRoleFilter()" (ngModelChange)="inboxRoleFilter.set($event)">
+        <option value="All">All</option>
+        <option value="Admin">Admin</option>
+        <option value="Tutor">Tutor</option>
+        <option value="Student">Student</option>
+        <option value="Group">Group</option>
+      </select>
+    </div>
+
     <div class="inbox-list">
-      @if (chatService.inbox().length === 0) {
+      @if (filteredInbox().length === 0) {
         <div class="empty-inbox">
           <p>{{ 'CHAT.NO_CONV' | translate }}</p>
         </div>
       } @else {
-        @for (conv of chatService.inbox(); track conv.conversationId) {
+        @for (conv of filteredInbox(); track conv.conversationId) {
           <div class="inbox-item" 
                [class.active]="activeConversation()?.conversationId === conv.conversationId"
                (click)="openConversation(conv)">
             <div class="sidebar-avatar-column">
               <div class="avatar-wrapper">
-                @if (conv.otherUserAvatarUrl) {
-                  <img [src]="getAvatarUrl(conv.otherUserAvatarUrl)" alt="Avatar">
+                @if (conv.isGroup) {
+                  <div class="group-icon-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                  </div>
                 } @else {
-                  <div class="avatar-initial">{{ conv.otherUserName.charAt(0) }}</div>
+                  @if (conv.otherUserAvatarUrl) {
+                    <img [src]="getAvatarUrl(conv.otherUserAvatarUrl)" alt="Avatar">
+                  } @else {
+                    <div class="avatar-initial">{{ (conv.otherUserName || '').charAt(0) }}</div>
+                  }
                 }
                 @if (conv.unreadCount > 0) {
                   <span class="unread-badge">{{ conv.unreadCount }}</span>
                 }
               </div>
-              <div class="status-indicator">
-                @if (chatService.onlineUsers().includes(conv.otherUserId)) {
-                  <span class="status-text online">Online</span>
-                } @else {
-                  <span class="status-text offline">Offline</span>
-                }
-              </div>
             </div>
             <div class="item-details">
               <div class="item-header">
-                <span class="name">{{ conv.otherUserName }}</span>
-                <span class="role-badge">{{ conv.otherUserRole }}</span>
+                <span class="name">{{ conv.isGroup ? conv.groupName : conv.otherUserName }}</span>
+                @if (!conv.isGroup) {
+                  <span class="role-badge">{{ conv.otherUserRole }}</span>
+                } @else {
+                  <span class="role-badge group-badge">Group</span>
+                }
               </div>
-              <p class="preview">{{ conv.lastMessagePreview }}</p>
+              @if (!conv.isGroup) {
+                <div class="status-indicator">
+                  @if (conv.otherUserId && chatService.onlineUsers().includes(conv.otherUserId)) {
+                    <span class="status-text online">Online</span>
+                  } @else {
+                    <span class="status-text offline">Offline</span>
+                  }
+                </div>
+              }
             </div>
           </div>
         }
@@ -53,54 +79,127 @@
 
   <!-- Main Chat Area -->
   <main class="chat-main">
-    @if (!activeConversation()) {
-      <div class="no-active-chat">
-        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        <h3>{{ 'CHAT.SELECT_CONV' | translate }}</h3>
-        <p>{{ 'CHAT.START_NEW' | translate }}</p>
-      </div>
-    } @else {
+    @if (activeConversation(); as active) {
       <!-- Active Chat Header -->
       <header class="chat-header">
         <div class="chat-header-info">
           <div class="header-avatar-wrapper">
-            @if (activeConversation()?.otherUserAvatarUrl) {
-              <img class="header-avatar" [src]="getAvatarUrl(activeConversation()?.otherUserAvatarUrl)" alt="Avatar">
+            @if (active.isGroup) {
+              <div class="header-group-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              </div>
             } @else {
-              <div class="header-avatar-initial">{{ activeConversation()?.otherUserName?.charAt(0) }}</div>
+              @if (active.otherUserAvatarUrl) {
+                <img class="header-avatar" [src]="getAvatarUrl(active.otherUserAvatarUrl)" alt="Avatar">
+              } @else {
+                <div class="header-avatar-initial">{{ (active.otherUserName || '').charAt(0) }}</div>
+              }
             }
           </div>
           <div class="header-text">
-            <h3>{{ activeConversation()?.otherUserName }}</h3>
-            <div class="header-badges">
-              <span class="role-badge">{{ activeConversation()?.otherUserRole }}</span>
+            <div class="title-row">
+              <h3>{{ active.isGroup ? active.groupName : active.otherUserName }}</h3>
+              @if (!active.isGroup) {
+                <span class="role-badge">{{ active.otherUserRole }}</span>
+              } @else {
+                <span class="role-badge group-badge">Group Chat</span>
+              }
+            </div>
+            <div class="status-indicator">
+              @if (!active.isGroup) {
+                @if (active.otherUserId && chatService.onlineUsers().includes(active.otherUserId)) {
+                  <span class="status-text online">Online</span>
+                } @else {
+                  <span class="status-text offline">Offline</span>
+                }
+              }
             </div>
           </div>
         </div>
         <div class="chat-header-actions">
-          @if (activeConversation() && chatService.onlineUsers().includes(activeConversation()!.otherUserId)) {
-            <span class="status-text online">Online</span>
-          } @else {
-            <span class="status-text offline">Offline</span>
+          @if (!active.isGroup) {
+            <button class="call-btn" (click)="initiateCall()" [title]="'CHAT.VIDEO_CALL' | translate">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            </button>
+          } @else if (authService.currentUser()?.role === 'Admin' || authService.currentUser()?.role === 'Tutor') {
+            <button class="icon-btn" (click)="openManageGroupModal()" title="Manage Group">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            </button>
           }
         </div>
       </header>
 
       <!-- Messages Area -->
-      <div class="messages-area">
+      <div class="messages-area" #messagesArea>
         @for (msg of chatService.activeConversationMessages(); track msg.id) {
           <div class="message-row" [class.own-message]="msg.isOwnMessage">
-            <div class="message-bubble">
-              @if (msg.content.length > 300 && !expandedMessages().has(msg.id)) {
-                <p>{{ msg.content.substring(0, 300) }}...</p>
-                <button class="show-more-btn" (click)="toggleMessageSize(msg.id)">Show More</button>
-              } @else {
-                <p>{{ msg.content }}</p>
-                @if (msg.content.length > 300) {
-                  <button class="show-more-btn" (click)="toggleMessageSize(msg.id)">Show Less</button>
-                }
+            <div class="message-bubble-wrapper">
+              @if (active.isGroup && !msg.isOwnMessage) {
+                <div class="msg-sender-info">
+                  <img class="msg-sender-avatar" [src]="getAvatarUrl(msg.senderAvatarUrl) || 'assets/images/default-avatar.png'" alt="Sender Avatar" />
+                  <div class="msg-sender-name">{{ msg.senderName }}</div>
+                </div>
               }
-              <span class="time">{{ msg.sentAt | date:'shortTime' }}</span>
+              <div class="message-bubble"
+                   [class.voice-bubble]="msg.attachmentType === 1"
+                   [class.image-bubble]="msg.attachmentType === 2"
+                   [class.doc-bubble]="msg.attachmentType === 3">
+                @if (msg.attachmentUrl) {
+                  @if (msg.attachmentType === 1) {
+                    <!-- Audio -->
+                    <audio controls [src]="getAvatarUrl(msg.attachmentUrl)"></audio>
+                  } @else if (msg.attachmentType === 2) {
+                    <!-- Image -->
+                    <a [href]="getAvatarUrl(msg.attachmentUrl)" target="_blank" download class="msg-image-link">
+                      <img class="msg-image" [src]="getAvatarUrl(msg.attachmentUrl)" alt="Attached Image" />
+                      <div class="image-overlay">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        <span>Download</span>
+                      </div>
+                    </a>
+                  } @else {
+                    <!-- Document -->
+                    <a class="msg-doc" [href]="getAvatarUrl(msg.attachmentUrl)" target="_blank" download>
+                      <!-- Generic File Icon -->
+                      <svg class="doc-icon" [class]="getAttachmentType(msg.attachmentUrl)" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                      </svg>
+                      <span>{{ getAttachmentName(msg.attachmentUrl) }}</span>
+                    </a>
+                  }
+                }
+                
+                @if (msg.content) {
+                  @if (msg.content.length > 300 && !expandedMessages().has(msg.id)) {
+                    <p>{{ msg.content.substring(0, 300) }}...</p>
+                    <button class="show-more-btn" (click)="toggleMessageSize(msg.id)">Show More</button>
+                  } @else {
+                    <p>{{ msg.content }}</p>
+                    @if (msg.content.length > 300) {
+                      <button class="show-more-btn" (click)="toggleMessageSize(msg.id)">Show Less</button>
+                    }
+                  }
+                }
+              </div>
+              
+              <div class="message-meta">
+                <span class="time">{{ msg.sentAt | date:'shortTime' }}</span>
+                @if (msg.isOwnMessage && !active.isGroup) {
+                  <span class="delivery-status">
+                    @if (msg.status === 0) {
+                      <svg class="icon-sent" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    } @else if (msg.status === 1) {
+                      <svg class="icon-delivered" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/><polyline points="24 6 13 17 8 12"/></svg>
+                    } @else if (msg.status === 2) {
+                      <svg class="icon-read" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/><polyline points="24 6 13 17 8 12"/></svg>
+                    }
+                  </span>
+                }
+              </div>
             </div>
           </div>
         }
@@ -109,30 +208,61 @@
             <p>{{ 'CHAT.SEND_MSG' | translate }}</p>
           </div>
         }
-        @if (activeConversation() && chatService.typingUsers().includes(activeConversation()!.otherUserId)) {
+        @if (active.otherUserId && chatService.typingUsers().includes(active.otherUserId)) {
           <div class="typing-indicator-row">
             <div class="typing-bubble">
               <span class="dot"></span><span class="dot"></span><span class="dot"></span>
             </div>
-            <span class="typing-text">{{ activeConversation()?.otherUserName }} is typing...</span>
+            <span class="typing-text">{{ active.otherUserName }} is typing...</span>
           </div>
         }
       </div>
 
       <!-- Input Area -->
       <footer class="chat-input-area">
-        <textarea 
-          [(ngModel)]="newMessageContent" 
-          (keydown)="handleKeyPress($event)"
-          (input)="onTyping()"
-          [placeholder]="'CHAT.TYPE_PLACEHOLDER' | translate" 
-          rows="1"
-          maxlength="2000"
-        ></textarea>
-        <button class="send-btn" (click)="sendMessage()" [disabled]="!newMessageContent().trim()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-        </button>
+        @if (isRecording()) {
+          <div class="recording-bar">
+            <span class="recording-indicator"></span>
+            <span class="recording-time">{{ formatRecordingTime }}</span>
+            <button class="cancel-record-btn" (click)="stopRecording(true)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            </button>
+            <button class="send-record-btn" (click)="stopRecording()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        } @else {
+          <button class="attach-btn" (click)="triggerAttachmentUpload(fileInput)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+          </button>
+          <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;" accept=".pdf,.docx,.pptx,.jpg,.jpeg,.png,.mp3,.wav,.webm,.ogg,.m4a" />
+          
+          <textarea 
+            [(ngModel)]="newMessageContent" 
+            (keydown)="handleKeyPress($event)"
+            (input)="onTyping()"
+            [placeholder]="'CHAT.TYPE_PLACEHOLDER' | translate" 
+            rows="1"
+            maxlength="2000"
+          ></textarea>
+          
+          @if (newMessageContent().trim()) {
+            <button class="send-btn" (click)="sendMessage()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          } @else {
+            <button class="mic-btn" (click)="startRecording()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+            </button>
+          }
+        }
       </footer>
+    } @else {
+      <div class="no-active-chat">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <h3>{{ 'CHAT.SELECT_CONV' | translate }}</h3>
+        <p>{{ 'CHAT.START_NEW' | translate }}</p>
+      </div>
     }
   </main>
 </div>
@@ -148,23 +278,56 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="search-controls">
-          <input type="text" 
-                 class="search-input" 
-                 [placeholder]="'CHAT.SEARCH_PLACEHOLDER' | translate" 
-                 [(ngModel)]="userSearchQuery" />
+        <div class="search-controls modern-search-controls">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" 
+                   class="search-input modern-input" 
+                   [placeholder]="'CHAT.SEARCH_PLACEHOLDER' | translate" 
+                   [(ngModel)]="userSearchQuery" />
+          </div>
                  
-          <select class="role-filter" [(ngModel)]="selectedRoleFilter">
-            <option value="All">{{ 'CHAT.ALL_ROLES' | translate }}</option>
-            <option value="Admin">{{ 'CHAT.ADMIN' | translate }}</option>
-            <option value="Tutor">{{ 'CHAT.TUTOR' | translate }}</option>
-            <option value="Student">{{ 'CHAT.STUDENT' | translate }}</option>
-          </select>
+          <div class="filter-dropdowns">
+            <select class="modern-select" [(ngModel)]="selectedRoleFilter">
+              <option value="All">All Roles</option>
+              <option value="Admin">Admin</option>
+              <option value="Tutor">Tutor</option>
+              <option value="Student">Student</option>
+            </select>
+            
+            <select class="modern-select" [(ngModel)]="selectedStatusFilter">
+              <option value="All">All Status</option>
+              <option value="Online">Online</option>
+              <option value="Offline">Offline</option>
+            </select>
+          </div>
         </div>
+
+        @if (authService.currentUser()?.role === 'Admin' || authService.currentUser()?.role === 'Tutor') {
+          <div class="modern-group-toggle">
+            <label class="toggle-switch-label">
+              <div class="toggle-switch-text">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                <span>Create Group Chat</span>
+              </div>
+              <div class="toggle-switch">
+                <input type="checkbox" [checked]="isGroupCreation()" (change)="toggleGroupCreation()" />
+                <span class="slider"></span>
+              </div>
+            </label>
+          </div>
+          @if (isGroupCreation()) {
+            <div class="modern-group-name-input">
+              <input type="text" class="modern-input" placeholder="Enter a group name..." [(ngModel)]="newGroupName" />
+            </div>
+          }
+        }
         
         <div class="user-list">
           @for (user of filteredUsers(); track user.id) {
-            <div class="user-list-item" (click)="startChatWithUser(user)">
+            <div class="user-list-item modern-user-item" 
+                 [class.selected]="isGroupCreation() && selectedMemberIds().has(user.id)"
+                 (click)="isGroupCreation() ? toggleMemberSelection(user.id) : startChatWithUser(user)">
               <div class="avatar-wrapper-small">
                 @if (user.avatarUrl) {
                   <img [src]="getAvatarUrl(user.avatarUrl)" alt="Avatar">
@@ -175,19 +338,130 @@
               <div class="user-info">
                 <span class="name">{{ user.fullName }}</span>
                 <div class="user-badges">
-                  <span class="role">{{ user.role }}</span>
-                  @if (chatService.onlineUsers().includes(user.id)) {
-                    <span class="status-text online">Online</span>
-                  } @else {
-                    <span class="status-text offline">Offline</span>
-                  }
+                  <div class="status-indicator">
+                    @if (chatService.onlineUsers().includes(user.id)) {
+                      <span class="status-text online">Online</span>
+                    } @else {
+                      <span class="status-text offline">Offline</span>
+                    }
+                  </div>
                 </div>
+              </div>
+              <div class="user-item-actions">
+                <span class="role-badge">{{ user.role }}</span>
+                @if (isGroupCreation()) {
+                  <div class="checkbox-wrapper">
+                    <input type="checkbox" [checked]="selectedMemberIds().has(user.id)" />
+                  </div>
+                }
               </div>
             </div>
           }
         </div>
       </div>
+      @if (isGroupCreation()) {
+        <div class="modal-footer">
+          <button class="btn btn-primary" [disabled]="selectedMemberIds().size === 0 || !newGroupName().trim()" (click)="createGroup()">
+            Create Group
+          </button>
+        </div>
+      }
     </div>
   </div>
 }
 
+@if (isManagingGroup()) {
+  <div class="modal-overlay" (click)="closeManageGroupModal()">
+    <div class="manage-group-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Manage Group</h2>
+        <button class="close-btn" (click)="closeManageGroupModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="modal-body modern-scroll">
+        
+        <div class="rename-section">
+          <label>Group Name</label>
+          <div class="rename-input-group">
+            <input type="text" [(ngModel)]="manageGroupName" placeholder="Group Name" class="search-input modern-input" />
+            <button class="btn btn-primary" (click)="renameGroup()" [disabled]="manageGroupName().trim() === (activeConversation()?.groupName || '')">Rename</button>
+          </div>
+        </div>
+
+        <div class="participants-section">
+          <h3>Current Members</h3>
+          <div class="members-list modern-scroll">
+            @for (p of manageGroupParticipants(); track p.userId) {
+              <div class="user-list-item modern-user-item">
+                <div class="avatar-wrapper-small">
+                  @if (p.avatarUrl) {
+                    <img [src]="getAvatarUrl(p.avatarUrl)" alt="Avatar">
+                  } @else {
+                    <div class="avatar-initial-small">{{ p.fullName.charAt(0) }}</div>
+                  }
+                </div>
+                <div class="user-info">
+                  <span class="name">{{ p.fullName }}</span>
+                  <span class="role-badge" style="margin-top: 4px;">{{ p.isAdmin ? 'Group Admin' : 'Member' }}</span>
+                </div>
+                @if (!p.isAdmin && isCurrentUserGroupAdmin()) {
+                  <button class="icon-btn delete-btn" (click)="removeGroupMember(p.userId)" title="Remove">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+      @if (isCurrentUserGroupAdmin()) {
+        <!-- Add Members Section -->
+        <div class="add-members-section">
+          <h3>Add Members</h3>
+          <div class="search-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" [(ngModel)]="manageUserSearchQuery" placeholder="Search by name or role..." class="search-input modern-input" />
+          </div>
+          <div class="users-list modern-scroll">
+            @for (user of filteredUsersForGroupManage(); track user.id) {
+              <div class="user-list-item modern-user-item" 
+                   [class.selected]="manageSelectedMemberIds().has(user.id)"
+                   (click)="toggleManageMemberSelection(user.id)">
+                <div class="avatar-wrapper-small">
+                  @if (user.avatarUrl) {
+                    <img [src]="getAvatarUrl(user.avatarUrl)" alt="Avatar">
+                  } @else {
+                    <div class="avatar-initial-small">{{ user.fullName.charAt(0) }}</div>
+                  }
+                </div>
+                <div class="user-info">
+                  <span class="name">{{ user.fullName }}</span>
+                </div>
+                <div class="user-item-actions">
+                  <span class="role-badge">{{ user.role }}</span>
+                  <div class="checkbox-wrapper">
+                    <input type="checkbox" [checked]="manageSelectedMemberIds().has(user.id)" />
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+      </div>
+      <div class="modal-footer">
+        @if (isCurrentUserGroupAdmin()) {
+          <button class="btn btn-danger" style="margin-right: auto; padding: 0.5rem 1rem; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;" (click)="deleteGroup()">
+            Delete Group
+          </button>
+        }
+        @if (isCurrentUserGroupAdmin()) {
+          <button class="btn btn-primary" [disabled]="manageSelectedMemberIds().size === 0" (click)="addGroupMembers()">
+            Add Selected Members
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+}

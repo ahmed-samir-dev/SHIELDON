@@ -6,7 +6,7 @@ namespace SHIELDON.Infrastructure.Persistence.Configurations;
 
 /// <summary>
 /// EF Core configuration for ChatConversation.
-/// Enforces the uniqueness constraint: only one conversation can exist per pair of users.
+/// Supports both direct messages and group chats (IsGroup flag).
 /// </summary>
 public class ChatConversationConfiguration : IEntityTypeConfiguration<ChatConversation>
 {
@@ -15,15 +15,24 @@ public class ChatConversationConfiguration : IEntityTypeConfiguration<ChatConver
         builder.ToTable("ChatConversations");
         builder.HasKey(c => c.Id);
 
+        // ── Group Chat Columns ─────────────────────────────────
+        builder.Property(c => c.GroupName)
+            .HasMaxLength(100);
+
+        builder.Property(c => c.GroupIconUrl)
+            .HasMaxLength(500);
+
         // ── Relationships ──────────────────────────────────────
         builder.HasOne(c => c.Initiator)
             .WithMany()
             .HasForeignKey(c => c.InitiatorId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // ParticipantId is now nullable (null for group chats)
         builder.HasOne(c => c.Participant)
             .WithMany()
             .HasForeignKey(c => c.ParticipantId)
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(c => c.Messages)
@@ -31,15 +40,22 @@ public class ChatConversationConfiguration : IEntityTypeConfiguration<ChatConver
             .HasForeignKey(m => m.ConversationId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.HasMany(c => c.Participants)
+            .WithOne(p => p.Conversation)
+            .HasForeignKey(p => p.ConversationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         // ── Unique Constraint ──────────────────────────────────
-        // Prevents two separate rows for the same pair of users (A→B and B→A).
-        // Application logic always stores them with the lower GUID as InitiatorId.
+        // Only enforced for DM pairs (IsGroup == false).
+        // Application logic always stores with the lower GUID as InitiatorId.
         builder.HasIndex(c => new { c.InitiatorId, c.ParticipantId })
-            .IsUnique()
             .HasDatabaseName("IX_ChatConversations_UserPair");
 
         // ── Performance Index ─────────────────────────────────
         builder.HasIndex(c => c.LastMessageAt)
             .HasDatabaseName("IX_ChatConversations_LastMessageAt");
+
+        builder.HasIndex(c => c.IsGroup)
+            .HasDatabaseName("IX_ChatConversations_IsGroup");
     }
 }
