@@ -32,22 +32,48 @@
 
   <!-- Legend -->
   <div class="calendar-legend">
-    <span class="legend-label">{{ 'CALENDAR_VIEW.LEGEND_LABEL' | translate }}</span>
-    <div class="legend-item legend-exam">
-      <div class="legend-dot dot-exam"></div>
-      <span class="legend-text">{{ 'CALENDAR_VIEW.LEGEND_EXAM' | translate }}</span>
+    <div class="legend-items-left">
+      <span class="legend-label">{{ 'CALENDAR_VIEW.LEGEND_LABEL' | translate }}</span>
+      
+      <button 
+        class="legend-item legend-exam" 
+        [class.legend-inactive]="!legendFilters.exam"
+        (click)="toggleFilter('exam')"
+        type="button">
+        <div class="legend-dot dot-exam"></div>
+        <span class="legend-text">{{ 'CALENDAR_VIEW.LEGEND_EXAM' | translate }}</span>
+      </button>
+      
+      <button 
+        class="legend-item legend-assignment" 
+        [class.legend-inactive]="!legendFilters.assignment"
+        (click)="toggleFilter('assignment')"
+        type="button">
+        <div class="legend-dot dot-assignment"></div>
+        <span class="legend-text">{{ 'CALENDAR_VIEW.LEGEND_ASSIGNMENT' | translate }}</span>
+      </button>
+      
+      <button 
+        class="legend-item legend-custom" 
+        [class.legend-inactive]="!legendFilters.courseEvent"
+        (click)="toggleFilter('courseEvent')"
+        type="button">
+        <div class="legend-dot dot-custom"></div>
+        <span class="legend-text">{{ 'CALENDAR_VIEW.LEGEND_COURSE_EVENT' | translate }}</span>
+      </button>
+      
+      <button 
+        class="legend-item legend-global" 
+        [class.legend-inactive]="!legendFilters.globalEvent"
+        (click)="toggleFilter('globalEvent')"
+        type="button">
+        <div class="legend-dot dot-global"></div>
+        <span class="legend-text">{{ 'CALENDAR_VIEW.LEGEND_GLOBAL_EVENT' | translate }}</span>
+      </button>
     </div>
-    <div class="legend-item legend-assignment">
-      <div class="legend-dot dot-assignment"></div>
-      <span class="legend-text">{{ 'CALENDAR_VIEW.LEGEND_ASSIGNMENT' | translate }}</span>
-    </div>
-    <div class="legend-item legend-custom">
-      <div class="legend-dot dot-custom"></div>
-      <span class="legend-text">{{ 'CALENDAR_VIEW.LEGEND_COURSE_EVENT' | translate }}</span>
-    </div>
-    <div class="legend-item legend-global">
-      <div class="legend-dot dot-global"></div>
-      <span class="legend-text">{{ 'CALENDAR_VIEW.LEGEND_GLOBAL_EVENT' | translate }}</span>
+    
+    <div class="legend-hint">
+      <span>{{ 'CALENDAR_VIEW.FILTER_HINT' | translate }}</span>
     </div>
   </div>
 

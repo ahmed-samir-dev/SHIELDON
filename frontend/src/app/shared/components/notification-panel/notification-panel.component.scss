@@ -59,6 +59,10 @@
   inset-inline-end: -10px; 
   width: 380px;
   max-width: calc(100vw - 2rem);
+  // Default hidden state to prevent flash on initial page load
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px) scale(0.95);
   // Glassmorphism Premium Effect
   background: var(--theme-bg-surface);
   @supports (-webkit-backdrop-filter: none) or (backdrop-filter: none) {

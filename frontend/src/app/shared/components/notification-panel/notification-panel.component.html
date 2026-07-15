@@ -7,7 +7,7 @@
   </button>
 
   <!-- The Dropdown Panel -->
-  <div #panelContainer class="panel-dropdown" [@panelState]="isOpen() ? 'open' : 'closed'" [class.maximized]="isExpanded()">
+  <div #panelContainer class="panel-dropdown" [@.disabled]="!isReady" [@panelState]="isOpen() ? 'open' : 'closed'" [class.maximized]="isExpanded()">
     <div class="panel-header">
       <h3>Notifications</h3>
       <div class="header-actions">

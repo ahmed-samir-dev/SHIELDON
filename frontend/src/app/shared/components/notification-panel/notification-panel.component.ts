@@ -32,6 +32,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 export class NotificationPanelComponent implements OnInit {
   isOpen = signal<boolean>(false);
   isExpanded = signal<boolean>(false);
+  isReady = false; // prevents open→closed flash on page load
   
   @ViewChild('panelContainer') panelContainer!: ElementRef;
   @ViewChild('bellButton') bellButton!: ElementRef;
@@ -44,6 +45,9 @@ export class NotificationPanelComponent implements OnInit {
 
   ngOnInit() {
     this.notificationService.fetchUnreadCount();
+    // Delay enabling animations by one tick — prevents the
+    // open→closed flash visible on every page reload.
+    setTimeout(() => this.isReady = true, 0);
   }
 
   togglePanel(event: Event) {

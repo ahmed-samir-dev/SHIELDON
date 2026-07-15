@@ -4,7 +4,7 @@
 </button>
 
 <!-- Slide-in Chat Panel -->
-<div class="ai-chat-panel" [@slideInOut]="isOpen ? 'in' : 'out'">
+<div class="ai-chat-panel" [@.disabled]="!isReady" [@slideInOut]="isOpen ? 'in' : 'out'">
   <div class="ai-chat-header">
     <div class="header-brand">
       <img src="assets/images/logo.png" alt="SHIELDON Logo" class="ai-logo" />
