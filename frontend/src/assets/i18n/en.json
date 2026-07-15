@@ -1250,6 +1250,7 @@
     "SUBTITLE": "View and manage your exams, assignments, and custom events across all courses in one unified interface.",
     "BTN_NEW_EVENT": "New Event",
     "LEGEND_LABEL": "Legend:",
+    "FILTER_HINT": "Click event types to filter the calendar",
     "LEGEND_EXAM": "Exams",
     "LEGEND_ASSIGNMENT": "Assignments",
     "LEGEND_COURSE_EVENT": "Course Event",

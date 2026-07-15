@@ -70,6 +70,13 @@ export class CalendarViewComponent implements OnInit {
   isAdmin = false;
   isTutor = false;
   
+  legendFilters = {
+    exam: true,
+    assignment: true,
+    courseEvent: true,
+    globalEvent: true
+  };
+  
   // Modal State
   showModal = false;
   selectedEvent: CalendarEventDto | null = null;
@@ -123,8 +130,21 @@ export class CalendarViewComponent implements OnInit {
     });
   }
 
+  toggleFilter(type: 'exam' | 'assignment' | 'courseEvent' | 'globalEvent') {
+    this.legendFilters[type] = !this.legendFilters[type];
+    this.mapEventsToCalendar();
+  }
+
   mapEventsToCalendar() {
-    const calendarEvents: EventInput[] = this.events.map(event => {
+    const filtered = this.events.filter(event => {
+      if (event.type === EventType.Exam) return this.legendFilters.exam;
+      if (event.type === EventType.Assignment) return this.legendFilters.assignment;
+      if (event.type === EventType.Custom && event.courseId) return this.legendFilters.courseEvent;
+      if (event.type === EventType.Custom && !event.courseId) return this.legendFilters.globalEvent;
+      return true;
+    });
+
+    const calendarEvents: EventInput[] = filtered.map(event => {
       let color = '';
       let className = '';
       
