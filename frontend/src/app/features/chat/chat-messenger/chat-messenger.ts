@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatService } from '../../../core/services/chat.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { ChatMessageDto, ChatUserDto, ConversationSummaryDto, SendMessageRequest, SendGroupMessageRequest, AttachmentType, GroupParticipantDto, RenameGroupRequest, AddGroupMembersRequest } from '../../../core/models/chat.model';
+import { ChatMessageDto, ChatUserDto, ConversationSummaryDto, SendMessageRequest, SendGroupMessageRequest, AttachmentType, GroupParticipantDto, RenameGroupRequest, AddGroupMembersRequest, MessageReactionDto } from '../../../core/models/chat.model';
 import { environment } from '../../../../environments/environment';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -24,6 +24,38 @@ export class ChatMessengerComponent implements OnInit, OnDestroy, AfterViewCheck
 
   // Component State
   activeConversation = signal<ConversationSummaryDto | null>(null);
+  activeTypingUsers = computed(() => {
+    const activeConv = this.activeConversation();
+    if (!activeConv) return [];
+    return this.chatService.typingIndicators().filter(i => i.conversationId === activeConv.conversationId);
+  });
+  
+  getTypingUsersInConv(conversationId: string) {
+    return this.chatService.typingIndicators().filter(i => i.conversationId === conversationId);
+  }
+
+  getTypingText(users: any[]): string {
+    if (!users || users.length === 0) return '';
+    const currentLang = this.translate.currentLang || 'en';
+    if (users.length === 1) {
+      return currentLang === 'ar'
+        ? `${users[0].userName} يكتب الآن...`
+        : `${users[0].userName} is typing...`;
+    }
+    const names = users.map(u => u.userName).join(', ');
+    return currentLang === 'ar'
+      ? `${names} يكتبون الآن...`
+      : `${names} are typing...`;
+  }
+
+  getOfflineLastSeen(conv: ConversationSummaryDto) {
+    const offlineState = this.chatService.userOfflineState();
+    if (offlineState && offlineState.userId === conv.otherUserId) {
+      return offlineState.lastSeenAt;
+    }
+    return conv.otherUserLastSeenAt;
+  }
+
   newMessageContent = signal<string>('');
   
   // New Chat Modal State
@@ -61,6 +93,21 @@ export class ChatMessengerComponent implements OnInit, OnDestroy, AfterViewCheck
   manageSelectedMemberIds = signal<Set<string>>(new Set());
 
   @ViewChild('messagesArea') private messagesArea?: ElementRef;
+
+  // New features state
+  replyingToMessage = signal<ChatMessageDto | null>(null);
+  showScrollToBottom = signal<boolean>(false);
+  
+  // Forward modal state
+  isForwardModalOpen = signal<boolean>(false);
+  forwardingMessage = signal<ChatMessageDto | null>(null);
+  forwardSearchQuery = signal<string>('');
+  selectedForwardTargetIds = signal<Set<string>>(new Set());
+  
+  // Reaction details modal
+  isReactionModalOpen = signal<boolean>(false);
+  activeReactionMessage = signal<ChatMessageDto | null>(null);
+  activeReactionEmoji = signal<string>('');
 
   // ── WebRTC State ──────────────────────────────────────────────────────────
   // WebRTC logic has been moved to GlobalCallOverlayComponent
@@ -107,6 +154,16 @@ export class ChatMessengerComponent implements OnInit, OnDestroy, AfterViewCheck
         }
       }
     });
+
+    if (conv.isGroup) {
+      this.chatService.getGroupParticipants(conv.conversationId).subscribe({
+        next: (participants) => {
+          this.manageGroupParticipants.set(participants);
+        }
+      });
+    } else {
+      this.manageGroupParticipants.set([]);
+    }
   }
 
   // ── Messaging ─────────────────────────────────────────────────────────────
@@ -118,20 +175,24 @@ export class ChatMessengerComponent implements OnInit, OnDestroy, AfterViewCheck
     const conv = this.activeConversation();
     if (!conv) return;
 
-    if (conv.isGroup) {
-      const request: SendGroupMessageRequest = {
-        conversationId: conv.conversationId,
-        content
-      };
-      await this.chatService.sendGroupMessage(request);
-    } else {
-      const recipientId = conv.otherUserId;
-      if (!recipientId) return;
+    const request: SendMessageRequest = {
+      recipientId: conv.otherUserId || '',
+      content,
+      attachmentUrl: undefined,
+      attachmentType: AttachmentType.None,
+      repliedToMessageId: this.replyingToMessage()?.id
+    };
 
-      const request: SendMessageRequest = {
-        recipientId,
-        content
+    if (conv.isGroup) {
+      const requestGroup: SendGroupMessageRequest = {
+        conversationId: conv.conversationId,
+        content,
+        attachmentUrl: undefined,
+        attachmentType: AttachmentType.None,
+        repliedToMessageId: this.replyingToMessage()?.id
       };
+      await this.chatService.sendGroupMessage(requestGroup);
+    } else {
       await this.chatService.sendMessage(request);
     }
 
@@ -330,15 +391,38 @@ export class ChatMessengerComponent implements OnInit, OnDestroy, AfterViewCheck
     return 'generic';
   }
 
+  formatLastSeen(lastSeenAt?: string): string {
+    if (!lastSeenAt) return '';
+    const date = new Date(lastSeenAt);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffHrs = diffMs / (1000 * 60 * 60);
+
+    if (diffHrs < 24) {
+      if (diffHrs < 1) {
+        const mins = Math.max(1, Math.floor(diffMs / 60000));
+        return `${mins}m ago`;
+      }
+      return `${Math.floor(diffHrs)}h ago`;
+    } else {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${day}/${month}/${year} ${hours}:${minutes}`;
+    }
+  }
+
   onTyping(): void {
     const conv = this.activeConversation();
     if (!conv || conv.conversationId === 'NEW') return;
 
     if (!this.typingTimeout) {
-      this.chatService.notifyTyping(conv.otherUserId || '');
+      this.chatService.notifyTyping(conv.conversationId);
       this.typingTimeout = setTimeout(() => {
         this.typingTimeout = null;
-      }, 1000);
+      }, 300);
     }
   }
 
@@ -354,7 +438,16 @@ export class ChatMessengerComponent implements OnInit, OnDestroy, AfterViewCheck
     });
   }
 
-  private scrollToBottom(): void {
+  onMessagesScroll(): void {
+    if (this.messagesArea) {
+      const element = this.messagesArea.nativeElement;
+      const threshold = 300;
+      const distanceFromBottom = element.scrollHeight - element.scrollTop - element.clientHeight;
+      this.showScrollToBottom.set(distanceFromBottom > threshold);
+    }
+  }
+
+  scrollToBottom(): void {
     if (this.messagesArea) {
       try {
         this.messagesArea.nativeElement.scrollTop = this.messagesArea.nativeElement.scrollHeight;
@@ -374,16 +467,19 @@ export class ChatMessengerComponent implements OnInit, OnDestroy, AfterViewCheck
         conversationId: conv.conversationId,
         content: '',
         attachmentUrl,
-        attachmentType
+        attachmentType,
+        repliedToMessageId: this.replyingToMessage()?.id
       });
     } else if (conv.otherUserId) {
       await this.chatService.sendAttachmentMessage(
         conv.otherUserId,
         '',
         attachmentUrl,
-        attachmentType
+        attachmentType,
+        this.replyingToMessage()?.id
       );
     }
+    this.replyingToMessage.set(null);
   }
 
   // ── Voice Notes ───────────────────────────────────────────────────────────
@@ -516,7 +612,157 @@ export class ChatMessengerComponent implements OnInit, OnDestroy, AfterViewCheck
     this.chatService.startOutgoingCall(conv.otherUserId);
   }
 
-  // ── Group Management ──────────────────────────────────────────────────────
+  // ── Advanced Messaging Handlers (Reply, Forward, Delete, React) ───────────
+
+  onReplyTo(message: ChatMessageDto): void {
+    if (message.isDeleted) return;
+    this.replyingToMessage.set(message);
+    // Focus the input field if possible
+    setTimeout(() => {
+      const input = document.querySelector('.chat-input textarea') as HTMLTextAreaElement;
+      if (input) input.focus();
+    }, 50);
+  }
+
+  cancelReply(): void {
+    this.replyingToMessage.set(null);
+  }
+
+  scrollToMessage(messageId: string): void {
+    const el = document.getElementById(`msg-${messageId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('highlight-flash');
+      setTimeout(() => el.classList.remove('highlight-flash'), 2000);
+    }
+  }
+
+  onDeleteMessage(message: ChatMessageDto): void {
+    const conv = this.activeConversation();
+    const isGroupAdmin = conv?.isGroup && this.isCurrentUserGroupAdmin();
+    
+    if (!message.isOwnMessage && !isGroupAdmin) return;
+    
+    Swal.fire({
+      title: this.translate.instant('CHAT.DELETE_MSG_TITLE') || 'Delete Message?',
+      text: this.translate.instant('CHAT.DELETE_MSG_TEXT') || 'This will delete the message for everyone in this chat.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: this.translate.instant('CHAT.DELETE_CONFIRM') || 'Yes, delete it'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.chatService.deleteMessage(message.id).subscribe({
+          next: () => {
+            // UI updates via SignalR MessageDeleted event
+          },
+          error: () => this.toastr.error('Failed to delete message.')
+        });
+      }
+    });
+  }
+
+  onReact(message: ChatMessageDto, emoji: string): void {
+    if (message.isDeleted) return;
+    this.chatService.reactToMessage(message.id, emoji).subscribe({
+      next: () => {
+        // Optimistic UI updates handled by SignalR MessageReactionChanged event
+      },
+      error: () => this.toastr.error('Failed to react to message.')
+    });
+  }
+
+  showReactionDetails(message: ChatMessageDto): void {
+    if (!message.reactions || message.reactions.length === 0) return;
+    this.activeReactionMessage.set(message);
+    // Set the first emoji as active tab
+    const emojis = [...new Set(message.reactions.map(r => r.emoji))];
+    this.activeReactionEmoji.set(emojis[0]);
+    this.isReactionModalOpen.set(true);
+  }
+
+  getUniqueEmojis(reactions: MessageReactionDto[] | undefined): string[] {
+    if (!reactions) return [];
+    return [...new Set(reactions.map(r => r.emoji))];
+  }
+
+  getEmojiCount(emoji: string): number {
+    const msg = this.activeReactionMessage();
+    if (!msg || !msg.reactions) return 0;
+    return msg.reactions.filter(r => r.emoji === emoji).length;
+  }
+
+  getGroupedReactions(reactions: MessageReactionDto[] | undefined) {
+    if (!reactions || reactions.length === 0) return [];
+    const groups: { emoji: string; count: number; hasReacted: boolean }[] = [];
+    const currentUserId = this.authService.currentUser()?.userId;
+    
+    reactions.forEach(r => {
+      let group = groups.find(g => g.emoji === r.emoji);
+      if (!group) {
+        group = { emoji: r.emoji, count: 0, hasReacted: false };
+        groups.push(group);
+      }
+      group.count++;
+      if (r.userId === currentUserId) {
+        group.hasReacted = true;
+      }
+    });
+    return groups;
+  }
+
+  closeReactionModal(): void {
+    this.isReactionModalOpen.set(false);
+    this.activeReactionMessage.set(null);
+  }
+
+  openForwardModal(message: ChatMessageDto): void {
+    if (message.isDeleted) return;
+    this.forwardingMessage.set(message);
+    this.selectedForwardTargetIds.set(new Set());
+    this.forwardSearchQuery.set('');
+    this.isForwardModalOpen.set(true);
+  }
+
+  closeForwardModal(): void {
+    this.isForwardModalOpen.set(false);
+    this.forwardingMessage.set(null);
+    this.selectedForwardTargetIds.set(new Set());
+  }
+
+  toggleForwardTarget(conversationId: string): void {
+    this.selectedForwardTargetIds.update(set => {
+      const newSet = new Set(set);
+      if (newSet.has(conversationId)) newSet.delete(conversationId);
+      else newSet.add(conversationId);
+      return newSet;
+    });
+  }
+
+  forwardSearchFilteredInbox = computed(() => {
+    const query = this.forwardSearchQuery().toLowerCase();
+    return this.chatService.inbox().filter(conv => {
+      const name = conv.isGroup ? conv.groupName : conv.otherUserName;
+      return (name || '').toLowerCase().includes(query);
+    });
+  });
+
+  confirmForward(): void {
+    const msg = this.forwardingMessage();
+    const targets = Array.from(this.selectedForwardTargetIds());
+    if (!msg || targets.length === 0) return;
+
+    this.chatService.forwardMessage(msg.id, targets).subscribe({
+      next: () => {
+        this.toastr.success('Message forwarded successfully.');
+        this.closeForwardModal();
+      },
+      error: () => this.toastr.error('Failed to forward message.')
+    });
+  }
+
+  // ── Group Creation ────────────────────────────────────────────────────────
 
   openManageGroupModal(): void {
     const conv = this.activeConversation();
@@ -546,7 +792,6 @@ export class ChatMessengerComponent implements OnInit, OnDestroy, AfterViewCheck
 
   closeManageGroupModal(): void {
     this.isManagingGroup.set(false);
-    this.manageGroupParticipants.set([]);
     this.manageUserSearchQuery.set('');
     this.manageSelectedMemberIds.set(new Set());
   }

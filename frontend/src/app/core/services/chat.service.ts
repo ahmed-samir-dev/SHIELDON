@@ -15,6 +15,9 @@ import {
   RenameGroupRequest,
   AddGroupMembersRequest,
   AttachmentUploadResponse,
+  MessageReactionDto,
+  ReactToMessageRequest,
+  ForwardMessageRequest,
   GroupParticipantDto,
   WebRtcSignalDto,
   MessageStatus,
@@ -44,7 +47,8 @@ export class ChatService {
   readonly onlineUsers = this._onlineUsers.asReadonly();
   readonly isConnected = signal<boolean>(false);
   
-  readonly typingUsers = signal<string[]>([]);
+  // Array of active typing indicators (conversationId, userId, userName)
+  readonly typingIndicators = signal<{conversationId: string, userId: string, userName: string}[]>([]);
   private typingTimeouts = new Map<string, any>();
 
   // WebRTC Signals — set by incoming SignalR events, consumed by the component via effect()
@@ -56,6 +60,9 @@ export class ChatService {
 
   readonly messageStatusChanged = signal<{conversationId: string, status: MessageStatus, updatedByUserId: string} | null>(null);
   readonly groupRenamed = signal<{conversationId: string, newGroupName: string} | null>(null);
+
+  // Expose an observable-like signal for user offline events with last seen updates
+  readonly userOfflineState = signal<{userId: string, lastSeenAt: string} | null>(null);
 
   // ── REST Methods ─────────────────────────────────────────────────────────
 
@@ -110,6 +117,21 @@ export class ChatService {
       .pipe(map(response => response.data));
   }
 
+  reactToMessage(messageId: string, emoji: string): Observable<MessageReactionDto[]> {
+    return this.http.post<ApiResponse<MessageReactionDto[]>>(`${environment.apiUrl}/chat/messages/${messageId}/react`, { emoji })
+      .pipe(map(response => response.data));
+  }
+
+  deleteMessage(messageId: string): Observable<any> {
+    return this.http.delete<ApiResponse<any>>(`${environment.apiUrl}/chat/messages/${messageId}`)
+      .pipe(map(response => response.data));
+  }
+
+  forwardMessage(messageId: string, targetConversationIds: string[]): Observable<ChatMessageDto[]> {
+    return this.http.post<ApiResponse<ChatMessageDto[]>>(`${environment.apiUrl}/chat/messages/forward`, { messageId, targetConversationIds })
+      .pipe(map(response => response.data));
+  }
+
   // ── SignalR Methods ──────────────────────────────────────────────────────
 
   private setupSignalREvents(): void {
@@ -136,23 +158,29 @@ export class ChatService {
       this._onlineUsers.update(users => [...new Set([...users, userId])]);
     });
 
-    this.hubConnection.on('UserIsOffline', (userId: string) => {
+    this.hubConnection.on('UserIsOffline', (userId: string, lastSeenAt: string) => {
       this._onlineUsers.update(users => users.filter(id => id !== userId));
+      this.userOfflineState.set({ userId, lastSeenAt });
     });
 
-    this.hubConnection.on('UserIsTyping', (userId: string) => {
-      this.typingUsers.update(users => users.includes(userId) ? users : [...users, userId]);
+    this.hubConnection.on('UserIsTyping', (conversationId: string, userId: string, userName: string) => {
+      this.typingIndicators.update(indicators => {
+        const exists = indicators.find(i => i.conversationId === conversationId && i.userId === userId);
+        if (exists) return indicators;
+        return [...indicators, { conversationId, userId, userName }];
+      });
       
-      if (this.typingTimeouts.has(userId)) {
-        clearTimeout(this.typingTimeouts.get(userId));
+      const timeoutKey = `${conversationId}_${userId}`;
+      if (this.typingTimeouts.has(timeoutKey)) {
+        clearTimeout(this.typingTimeouts.get(timeoutKey));
       }
 
       const timeout = setTimeout(() => {
-        this.typingUsers.update(users => users.filter(id => id !== userId));
-        this.typingTimeouts.delete(userId);
-      }, 1500);
+        this.typingIndicators.update(indicators => indicators.filter(i => !(i.conversationId === conversationId && i.userId === userId)));
+        this.typingTimeouts.delete(timeoutKey);
+      }, 2000); // 2 second auto-clear
       
-      this.typingTimeouts.set(userId, timeout);
+      this.typingTimeouts.set(timeoutKey, timeout);
     });
 
     // ── Delivery Receipts ─────────────────────────────────────────────────
@@ -245,6 +273,46 @@ export class ChatService {
         this._activeConversationMessages.set([]);
       }
     });
+
+    // ── Message Updates ───────────────────────────────────────────────────
+    this.hubConnection.on('MessageReactionChanged', (conversationId: string, messageId: string, userId: string, userName: string, emoji: string, reactions: MessageReactionDto[]) => {
+      this._activeConversationMessages.update(msgs => {
+        if (msgs.length > 0 && msgs[0].conversationId === conversationId) {
+          return msgs.map(m => {
+            if (m.id === messageId) {
+              return { ...m, reactions: reactions };
+            }
+            return m;
+          });
+        }
+        return msgs;
+      });
+    });
+
+    this.hubConnection.on('MessageDeleted', (conversationId: string, messageId: string) => {
+      this._activeConversationMessages.update(msgs => {
+        if (msgs.length > 0 && msgs[0].conversationId === conversationId) {
+          return msgs.map(m => {
+            if (m.id === messageId) {
+              return { ...m, isDeleted: true, content: '', attachmentUrl: undefined, attachmentType: AttachmentType.None, reactions: [] };
+            }
+            return m;
+          });
+        }
+        return msgs;
+      });
+      // Also check inbox if this was the last message preview
+      this.inbox.update(inbox => {
+        return inbox.map(conv => {
+          if (conv.conversationId === conversationId && conv.lastMessagePreview !== 'This message was deleted') {
+             // In a perfect world, we'd fetch the previous message. For now, we refresh the inbox from the server.
+             // We'll call refreshInbox() below, so this local update is just immediate visual feedback if it matched.
+          }
+          return conv;
+        });
+      });
+      this.refreshInbox();
+    });
   }
 
   startConnection(): void {
@@ -327,12 +395,13 @@ export class ChatService {
     }
   }
 
-  async sendAttachmentMessage(recipientId: string, content: string, attachmentUrl: string, attachmentType: AttachmentType): Promise<void> {
+  async sendAttachmentMessage(recipientId: string, content: string, attachmentUrl: string, attachmentType: AttachmentType, repliedToMessageId?: string): Promise<void> {
     await this.sendMessage({
       recipientId,
       content,
       attachmentUrl,
-      attachmentType
+      attachmentType,
+      repliedToMessageId
     });
   }
 
@@ -383,10 +452,10 @@ export class ChatService {
     await this.hubConnection.invoke('EndCall', targetUserId);
   }
 
-  async notifyTyping(recipientId: string): Promise<void> {
+  async notifyTyping(conversationId: string): Promise<void> {
     if (!this.hubConnection || this.hubConnection.state !== 'Connected') return;
     try {
-      await this.hubConnection.invoke('NotifyTyping', recipientId);
+      await this.hubConnection.invoke('NotifyTyping', conversationId);
     } catch (err) {
       // Ignore typing errors silently
     }

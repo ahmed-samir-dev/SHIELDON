@@ -16,6 +16,7 @@ export interface SendMessageRequest {
   content: string;
   attachmentUrl?: string;
   attachmentType?: AttachmentType;
+  repliedToMessageId?: string;
 }
 
 export interface SendGroupMessageRequest {
@@ -23,6 +24,7 @@ export interface SendGroupMessageRequest {
   content: string;
   attachmentUrl?: string;
   attachmentType?: AttachmentType;
+  repliedToMessageId?: string;
 }
 
 export interface ChatMessageDto {
@@ -37,6 +39,28 @@ export interface ChatMessageDto {
   attachmentUrl?: string;
   sentAt: string;
   isOwnMessage: boolean;
+  isDeleted?: boolean;
+  isForwarded?: boolean;
+  repliedToMessageId?: string;
+  repliedToMessageContent?: string;
+  repliedToMessageSenderName?: string;
+  repliedToMessageAttachmentType?: AttachmentType;
+  reactions?: MessageReactionDto[];
+}
+
+export interface MessageReactionDto {
+  userId: string;
+  userName: string;
+  emoji: string;
+}
+
+export interface ReactToMessageRequest {
+  emoji: string;
+}
+
+export interface ForwardMessageRequest {
+  messageId: string;
+  targetConversationIds: string[];
 }
 
 export interface ConversationSummaryDto {
@@ -51,6 +75,7 @@ export interface ConversationSummaryDto {
   lastMessagePreview: string;
   lastMessageAt: string;
   unreadCount: number;
+  otherUserLastSeenAt?: string;
 }
 
 export interface ChatUserDto {
@@ -59,6 +84,7 @@ export interface ChatUserDto {
   avatarUrl?: string;
   role: string;
   isOnline: boolean;
+  lastSeenAt?: string;
 }
 
 export interface CreateGroupRequest {
@@ -90,3 +116,4 @@ export interface GroupParticipantDto {
   avatarUrl?: string;
   isAdmin: boolean;
 }
+
