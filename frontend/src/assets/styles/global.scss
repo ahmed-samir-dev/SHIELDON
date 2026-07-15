@@ -96,6 +96,10 @@ button {
 }
 
 // SweetAlert2 Customization to match SHIELDON theme
+.swal2-container {
+  z-index: 100000 !important;
+}
+
 .swal2-popup {
   border-radius: $border-radius-xl !important;
   font-family: $font-family-primary !important;

@@ -114,7 +114,7 @@ SHIELDON follows a **Clean Architecture + Vertical Slice Hybrid** approach:
 
 ---
 
-## 🚀 Comprehensive Feature List (F1 – F30)
+## 🚀 Comprehensive Feature List (F1 – F31)
 
 | # | Feature | Details |
 |---|---|---|
@@ -140,14 +140,15 @@ SHIELDON follows a **Clean Architecture + Vertical Slice Hybrid** approach:
 | F20 | **Tutor Monitoring Dashboard** | Live overview of ongoing exams and violations with CSV data export |
 | F21 | **Admin Dashboard & Global Layout** | System-wide admin panel with responsive Collapsible Sidebar and dynamic data grids |
 | F22 | **SHIELDON AI Assistant** | Gemini-powered chatbot with backend proxy, automatically blocked during exams |
-| F23 | **Shepherd.js Onboarding Tours** | Role-based guided tours for first-time users |
-| F24 | **Tutor & Global Analytics Dashboard** | Course-level and system-wide analytics with ECharts visualizations |
-| F25 | **Dynamic QR Attendance Tracking** | QR code refreshes every 15 seconds, manual override, attendance history |
-| F26 | **Calendar & Schedule View** | Unified calendar with exams, assignments, and custom events |
-| F27 | **Online Payment Gateway (Stripe)** | Secure checkout, payment history, pending payments, webhook processing |
-| F28 | **Dark / Light Mode** | Seamless theme toggle with CSS custom properties |
-| F29 | **English / Arabic (i18n)** | Full RTL support with ngx-translate |
-| F30 | **Mobile Guard** | Detects and blocks mobile/tablet devices from accessing exam engine |
+| F23 | **Real-Time Chat System** | 11-feature complete chat system: attachment uploads, voice notes, delivery receipts, WebRTC calls, group management, reactions, deletion, reply & forward (see details below) |
+| F24 | **Shepherd.js Onboarding Tours** | Role-based guided tours for first-time users |
+| F25 | **Tutor & Global Analytics Dashboard** | Course-level and system-wide analytics with ECharts visualizations |
+| F26 | **Dynamic QR Attendance Tracking** | QR code refreshes every 15 seconds, manual override, attendance history |
+| F27 | **Calendar & Schedule View** | Unified calendar with exams, assignments, and custom events |
+| F28 | **Online Payment Gateway (Stripe)** | Secure checkout, payment history, pending payments, webhook processing |
+| F29 | **Dark / Light Mode** | Seamless theme toggle with CSS custom properties |
+| F30 | **English / Arabic (i18n)** | Full RTL support with ngx-translate |
+| F31 | **Mobile Guard** | Detects and blocks mobile/tablet devices from accessing exam engine |
 
 ### 🛡️ Anti-Cheating Engine — Sub-Features (F17)
 
@@ -167,6 +168,24 @@ The Anti-Cheating Engine is built entirely with browser Web APIs — no plugins 
 | 10 | **Action Debouncer & Score Normalization** | 500ms aggregation window preventing cascading violations (e.g. `ALT+TAB`) and unified decimal scoring (Minor=0.5, Medium=1.0, Critical=1.0) |
 | 11 | **Warning System & Force-Submit** | 3-strike escalation (displayed on an elegant horizontal progress bar) — warnings → final warning → auto force-submit |
 | 12 | **Monitoring Continuity on Reconnect** | Anti-cheat resumes seamlessly if the student reconnects or refreshes |
+
+### 💬 Real-Time Chat System — Sub-Features (F23)
+
+The Real-Time Chat System is built with SignalR (WebSockets), WebRTC, and browser-native APIs. 
+
+| # | Feature | Description |
+|---|---|---|
+| 1 | **File Attachments & Uploads** | Send images, documents, and audio files (max 10 MB). Images render as constrained thumbnail previews (`250×250px`). Documents display with a styled download link. |
+| 2 | **Voice Notes** | Record audio messages (up to 5 minutes) directly from the chat composer via HTML5 `MediaRecorder`. Renders as a full-width horizontal audio player bubble. |
+| 3 | **Delivery Receipts** | Three-state read receipts: single gray tick (Sent), double gray tick (Delivered), double blue tick (Read). Updated in real-time via SignalR callbacks. |
+| 4 | **WebRTC 1-on-1 Video Calls** | Peer-to-peer WebRTC video calls with a global ringtone overlay that persists across SPA page navigation. Strict media track teardown on hang-up, rejection, or logout. |
+| 5 | **Group Chat Management** | Full group lifecycle: create (Admin/Tutor only), rename, add/remove members, and permanently delete (Group Admin/creator only, with cascade delete). |
+| 6 | **Contacts Filtration** | Real-time inbox filtering by status (All / Online / Offline) and by role (Admin / Tutor / Student) powered by the SignalR `PresenceTracker`. |
+| 7 | **Last Seen Tracking** | Shows relative time (e.g. "2 hours ago") for recently offline users, or an absolute date/time stamp for users offline more than 24 hours. |
+| 8 | **Real-Time Typing Indicators** | 3-dot pulsating animation in the active chat window plus an italic `typing...` prompt in the sidebar inbox row. Auto-clears after 2.5 s of inactivity. |
+| 9 | **Message Reactions** | Emoji reaction picker with optimistic UI updates. Aggregated reaction pill chips (e.g. `👍 3`). Reaction-details modal with per-emoji tabs showing user avatars and counts. |
+| 10 | **Message Deletion** | Any user may delete their own messages. Group Admins may delete any member's message. Replaced with a dashed "deleted" bubble for all participants. |
+| 11 | **Reply & Forward** | Inline reply with a quoted message block and click-to-scroll highlight animation. Forward sends messages to multiple conversations with double-curved arrow icon. |
 
 ---
 
@@ -620,6 +639,32 @@ Below is the complete endpoint reference:
 | `GET` | `/api/chat/conversations/{conversationId}/messages` | Get messages in a conversation |
 | `GET` | `/api/chat/users` | Search users to start a chat |
 | `GET` | `/api/chat/conversation-id` | Get/create conversation with a user |
+| `POST` | `/api/chat/conversations` | Create a 1-on-1 or Group conversation |
+| `POST` | `/api/chat/conversations/{id}/messages` | Send a message (text, reply, or forward) |
+| `POST` | `/api/chat/conversations/{id}/upload` | Upload a file or voice note attachment |
+| `POST` | `/api/chat/messages/{id}/react` | Toggle an emoji reaction on a message |
+| `DELETE` | `/api/chat/messages/{id}` | Delete a message (own, or any if Group Admin) |
+| `POST` | `/api/chat/messages/forward` | Forward a message to multiple conversations |
+| `GET` | `/api/chat/conversations/{id}/participants` | List group participants and admin status |
+| `PATCH` | `/api/chat/conversations/{id}/rename` | Rename a group (Group Admin only) |
+| `POST` | `/api/chat/conversations/{id}/members` | Add member(s) to a group (Group Admin only) |
+| `DELETE` | `/api/chat/conversations/{id}/members/{userId}` | Remove a member from a group (Group Admin only) |
+| `DELETE` | `/api/chat/conversations/{id}` | Permanently delete a group (Group Admin only) |
+
+### SignalR Events (ChatHub — `ws://.../hubs/chat`)
+
+| Event | Direction | Description |
+|---|---|---|
+| `ReceiveMessage` | Server → Client | Delivers a new message to all conversation participants |
+| `MessageReactionChanged` | Server → Client | Broadcasts updated emoji reaction state for a message |
+| `MessageDeleted` | Server → Client | Notifies all participants that a message was soft-deleted |
+| `UserIsTyping` | Server → Client | Pushes composing state (`conversationId`, `userName`) |
+| `UserIsOffline` | Server → Client | Pushes `lastSeenAt` timestamp when a user disconnects |
+| `GroupRenamed` | Server → Client | Notifies all members of a group name change |
+| `AddedToGroup` | Server → Client | Notifies a user they were added to a group |
+| `RemovedFromGroup` | Server → Client | Notifies a user they were removed from a group |
+| `GroupDeleted` | Server → Client | Notifies all members their group conversation was deleted |
+| `NotifyTyping` | Client → Server | Client signals composing activity with `conversationId` |
 
 ### Calendar (`/api/calendar`)
 

@@ -7,6 +7,7 @@ import { ShepherdService } from '../../core/services/shepherd.service';
 import { environment } from '../../../environments/environment';
 import { NotificationPanelComponent } from '../../shared/components/notification-panel/notification-panel.component';
 import { AiChatPanelComponent } from '../../shared/components/ai-chat-panel/ai-chat-panel';
+import { GlobalCallOverlayComponent } from '../../shared/components/global-call-overlay/global-call-overlay';
 import { ChatService } from '../../core/services/chat.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { LanguageService } from '../../core/services/language.service';
@@ -16,7 +17,7 @@ import { TranslateModule } from '@ngx-translate/core';
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, NotificationPanelComponent, AiChatPanelComponent, TranslateModule],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, NotificationPanelComponent, AiChatPanelComponent, GlobalCallOverlayComponent, TranslateModule],
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.scss',
   providers: [AiService]

@@ -51,6 +51,9 @@ public class User
     /// <summary>UTC timestamp of the user's most recent login. Null if never logged in.</summary>
     public DateTime? LastLoginAt { get; set; }
 
+    /// <summary>UTC timestamp of the user's most recent active connection or activity status. Null if never active.</summary>
+    public DateTime? LastSeenAt { get; set; }
+
     /// <summary>UTC timestamp when the account was locked due to too many failed attempts.</summary>
     public DateTime? LockedAt { get; set; }
 
