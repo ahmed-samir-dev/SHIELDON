@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, AfterViewChecked, OnDestroy } from '@angular/core';
+import { Component, ElementRef, ViewChild, AfterViewChecked, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AiService } from '../../../core/services/ai.service';
@@ -21,10 +21,11 @@ import { trigger, state, style, transition, animate } from '@angular/animations'
     ])
   ]
 })
-export class AiChatPanelComponent implements AfterViewChecked, OnDestroy {
+export class AiChatPanelComponent implements OnInit, AfterViewChecked, OnDestroy {
   @ViewChild('scrollMe') private myScrollContainer!: ElementRef;
 
   isOpen = false;
+  isReady = false; // prevents slide-in flash on page load
   messageInput = '';
   
   SendIcon = Send;
@@ -35,6 +36,12 @@ export class AiChatPanelComponent implements AfterViewChecked, OnDestroy {
   PlusIcon = Plus;
 
   constructor(public aiService: AiService) {}
+
+  ngOnInit() {
+    // Delay enabling animations by one tick — prevents the
+    // 'in→out' flash visible on every page reload.
+    setTimeout(() => this.isReady = true, 0);
+  }
 
   ngAfterViewChecked() {
     this.scrollToBottom();

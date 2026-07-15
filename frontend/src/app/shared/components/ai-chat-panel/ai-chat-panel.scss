@@ -43,6 +43,10 @@
   max-width: calc(100vw - 48px);
   height: 600px;
   max-height: calc(100vh - 48px);
+  // Default hidden state to prevent flash on initial page load
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
   background-color: var(--theme-bg-surface);
   border-radius: $border-radius-xl;
   box-shadow: var(--theme-shadow-lg);
