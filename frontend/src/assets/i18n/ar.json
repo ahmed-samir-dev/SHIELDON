@@ -243,7 +243,21 @@
     "ALL_ROLES": "جميع الأدوار",
     "ADMIN": "مسؤول",
     "TUTOR": "معلم",
-    "STUDENT": "طالب"
+    "STUDENT": "طالب",
+    "DELETE_MSG_TITLE": "حذف الرسالة؟",
+    "DELETE_MSG_TEXT": "سيؤدي هذا إلى حذف الرسالة للجميع في هذه الدردشة.",
+    "DELETE_CONFIRM": "نعم، احذفها",
+    "DELETED_MSG_BODY": "تم حذف هذه الرسالة",
+    "FORWARDED": "معاد توجيهها",
+    "VOICE_NOTE": "تسجيل صوتي",
+    "PHOTO": "صورة",
+    "DOCUMENT": "مستند",
+    "FORWARD_TITLE": "إعادة توجيه الرسالة",
+    "FORWARD_BTN": "إعادة توجيه",
+    "REPLY_TO": "رد على",
+    "MANAGE_GROUP": "إدارة المجموعة",
+    "DELETE_GROUP": "حذف المجموعة",
+    "TYPING": "يكتب..."
   },
   "COURSE_LIST": {
     "TITLE": "المقررات",
