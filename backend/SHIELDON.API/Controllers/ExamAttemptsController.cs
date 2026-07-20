@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SHIELDON.Application.Common;
 using SHIELDON.Application.Features.Exams.DTOs;
 using SHIELDON.Application.Interfaces;
+using SHIELDON.Domain.Enums;
 using System.Security.Claims;
 
 namespace SHIELDON.API.Controllers;
@@ -13,11 +14,14 @@ namespace SHIELDON.API.Controllers;
 public class ExamAttemptsController : ControllerBase
 {
     private readonly IExamAttemptService _examAttemptService;
-
-    public ExamAttemptsController(IExamAttemptService examAttemptService)
+    public ExamAttemptsController(
+        IExamAttemptService examAttemptService)
     {
         _examAttemptService = examAttemptService;
     }
+
+    private string? GetClientIp() => HttpContext.Connection.RemoteIpAddress?.ToString();
+    private string? GetUserAgent() => Request.Headers.UserAgent.ToString();
 
     [HttpPost("exams/{examId}/start")]
     [Authorize(Policy = "RequireStudent")]
@@ -29,6 +33,7 @@ public class ExamAttemptsController : ControllerBase
     {
         var studentId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var response = await _examAttemptService.StartExamAsync(examId, studentId, ct);
+
         return Ok(response);
     }
 
@@ -62,7 +67,9 @@ public class ExamAttemptsController : ControllerBase
         if (!Guid.TryParse(tokenValues.FirstOrDefault(), out var token))
             return Unauthorized(ApiResponse<object>.Fail("Invalid X-Exam-Token header format."));
 
+        var studentId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
         var response = await _examAttemptService.SubmitExamAsync(attemptId, token, isForceSubmit: false, ct);
+
         return Ok(response);
     }
 

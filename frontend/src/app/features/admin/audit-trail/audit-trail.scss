@@ -1,0 +1,577 @@
+@import '../../../../assets/styles/variables';
+@import '../../../../assets/styles/mixins';
+
+.audit-trail-container {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: $spacing-6;
+  min-height: calc(100vh - 64px);
+  background-color: var(--theme-bg-main);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+// ── Dashboard Header ────────────────────────────────────────────────────────
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: $spacing-4;
+  border-bottom: 1px solid var(--theme-border);
+  padding-bottom: $spacing-5;
+
+  .header-title {
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
+    color: var(--theme-text-main);
+    letter-spacing: -0.5px;
+    margin: 0;
+  }
+
+  .header-subtitle {
+    font-size: $font-size-sm;
+    color: var(--theme-text-muted);
+    margin-top: $spacing-1;
+  }
+
+  .export-btn {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: 10px 18px;
+    background: linear-gradient(135deg, $color-primary-base 0%, $color-primary-dark 100%);
+    color: $color-neutral-white;
+    font-weight: $font-weight-semibold;
+    border: none;
+    border-radius: $border-radius-md;
+    box-shadow: $shadow-md;
+    transition: all 0.2s ease;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: $shadow-lg;
+      opacity: 0.95;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: var(--theme-bg-secondary);
+      color: var(--theme-text-muted);
+      box-shadow: none;
+    }
+  }
+}
+
+// RTL Adjustment for Header Export Button
+[dir="rtl"] {
+  .dashboard-header {
+    flex-direction: row;
+  }
+}
+
+// ── Error State ─────────────────────────────────────────────────────────────
+.error-state {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-4;
+  background-color: rgba($color-danger-base, 0.1);
+  border: 1px solid rgba($color-danger-base, 0.25);
+  border-radius: $border-radius-md;
+  color: $color-danger-base;
+  font-weight: $font-weight-medium;
+}
+
+// ── Table Card ──────────────────────────────────────────────────────────────
+.table-card {
+  background-color: var(--theme-bg-surface);
+  border: 1px solid var(--theme-border);
+  border-radius: $border-radius-lg;
+  box-shadow: var(--theme-shadow-md);
+  overflow: hidden;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+// ── Table Header / Filters ──────────────────────────────────────────────────
+.table-header-filters {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  padding: $spacing-5;
+  border-bottom: 1px solid var(--theme-border);
+  background-color: rgba(var(--theme-bg-secondary), 0.05);
+
+  @media (min-width: 1024px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .search-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--theme-text-muted);
+      pointer-events: none;
+    }
+
+    .enhanced-input {
+      width: 100%;
+      padding: 10px 16px 10px 42px;
+      border: 1px solid var(--theme-border-strong);
+      border-radius: $border-radius-md;
+      background-color: var(--theme-bg-main);
+      color: var(--theme-text-main);
+      font-size: $font-size-sm;
+      transition: all 0.2s ease;
+
+      &:focus {
+        outline: none;
+        border-color: $color-primary-base;
+        box-shadow: 0 0 0 3px rgba($color-primary-base, 0.15);
+      }
+    }
+  }
+
+  // RTL search input adjustment
+  [dir="rtl"] & .search-wrapper {
+    .input-icon {
+      left: auto;
+      right: 14px;
+    }
+    .enhanced-input {
+      padding: 10px 42px 10px 16px;
+    }
+  }
+
+  .filters-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: $spacing-4;
+    width: 100%;
+    
+    @media (min-width: 1024px) {
+      width: auto;
+      justify-content: flex-end;
+    }
+
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+
+      label {
+        font-size: $font-size-xs;
+        font-weight: $font-weight-semibold;
+        color: var(--theme-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .enhanced-select {
+        padding: 8px 12px;
+        border: 1px solid var(--theme-border-strong);
+        border-radius: $border-radius-md;
+        background-color: var(--theme-bg-main);
+        color: var(--theme-text-main);
+        font-size: $font-size-sm;
+        cursor: pointer;
+        min-width: 150px;
+        
+        &:focus {
+          outline: none;
+          border-color: $color-primary-base;
+        }
+      }
+    }
+
+    .checkbox-filters {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+      flex-wrap: wrap;
+
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: $spacing-2;
+        padding: 8px 14px;
+        border: 1px dashed var(--theme-border-strong);
+        border-radius: $border-radius-round;
+        font-size: $font-size-xs;
+        font-weight: $font-weight-medium;
+        color: var(--theme-text-secondary);
+        cursor: pointer;
+        transition: all 0.25s ease;
+        background-color: var(--theme-bg-main);
+
+        input {
+          display: none;
+        }
+
+        &:hover {
+          border-color: $color-primary-base;
+          color: $color-primary-base;
+        }
+
+        &.active {
+          border-color: $color-primary-base;
+          background-color: rgba($color-primary-base, 0.08);
+          color: $color-primary-base;
+          font-weight: $font-weight-semibold;
+          border-style: solid;
+        }
+      }
+    }
+  }
+}
+
+// ── Loading & Shimmer State ────────────────────────────────────────────────
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+  padding: $spacing-6;
+
+  .shimmer-row {
+    height: 48px;
+    background: linear-gradient(90deg, 
+      var(--theme-bg-main) 25%, 
+      var(--theme-bg-secondary) 50%, 
+      var(--theme-bg-main) 75%
+    );
+    background-size: 200% 100%;
+    animation: loading-shimmer 1.5s infinite;
+    border-radius: $border-radius-md;
+  }
+
+  .loading-text {
+    text-align: center;
+    color: var(--theme-text-muted);
+    font-size: $font-size-sm;
+    margin-top: $spacing-2;
+  }
+}
+
+@keyframes loading-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+// ── Data Table ──────────────────────────────────────────────────────────────
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+
+  [dir="rtl"] & {
+    text-align: right;
+  }
+
+  th {
+    padding: $spacing-4 $spacing-5;
+    background-color: rgba(var(--theme-bg-secondary), 0.03);
+    border-bottom: 1px solid var(--theme-border-strong);
+    color: var(--theme-text-muted);
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    text-transform: uppercase;
+    letter-spacing: 0.75px;
+  }
+
+  td {
+    padding: $spacing-4 $spacing-5;
+    border-bottom: 1px solid var(--theme-border);
+    color: var(--theme-text-secondary);
+    font-size: $font-size-sm;
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: rgba(var(--theme-bg-hover), 0.3);
+    }
+
+    // Custom coloring for flagged threats
+    &.row-vpn {
+      background-color: rgba($color-warning-base, 0.02);
+      
+      &:hover {
+        background-color: rgba($color-warning-base, 0.04);
+      }
+    }
+
+    &.row-duplicate {
+      background-color: rgba($color-danger-base, 0.02);
+
+      &:hover {
+        background-color: rgba($color-danger-base, 0.04);
+      }
+    }
+  }
+}
+
+// User Metadata Cell
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+
+  .user-avatar-initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: $border-radius-round;
+    background: linear-gradient(135deg, $color-primary-light 0%, $color-primary-base 100%);
+    color: $color-neutral-white;
+    font-weight: $font-weight-bold;
+    font-size: $font-size-base;
+    box-shadow: $shadow-sm;
+  }
+
+  .user-meta {
+    display: flex;
+    flex-direction: column;
+
+    .user-name {
+      font-weight: $font-weight-semibold;
+      color: var(--theme-text-main);
+    }
+
+    .user-id {
+      font-size: $font-size-xs;
+      color: var(--theme-text-muted);
+    }
+  }
+}
+
+// ── Badges Styling ──────────────────────────────────────────────────────────
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: $border-radius-round;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  letter-spacing: 0.2px;
+}
+
+// Event Badges
+.event-badge {
+  text-transform: uppercase;
+}
+
+.badge-login {
+  background-color: rgba($color-info-base, 0.1);
+  color: $color-info-dark;
+  
+  [data-theme="dark"] & {
+    background-color: rgba($color-info-base, 0.15);
+    color: $color-info-light;
+  }
+}
+
+.badge-exam-start {
+  background-color: rgba($color-success-base, 0.1);
+  color: $color-success-dark;
+
+  [data-theme="dark"] & {
+    background-color: rgba($color-success-base, 0.15);
+    color: $color-success-light;
+  }
+}
+
+.badge-exam-end {
+  background-color: rgba($color-primary-base, 0.1);
+  color: $color-primary-dark;
+
+  [data-theme="dark"] & {
+    background-color: rgba($color-primary-light, 0.15);
+    color: $color-primary-light;
+  }
+}
+
+.badge-violation {
+  background-color: rgba($color-danger-base, 0.1);
+  color: $color-danger-dark;
+
+  [data-theme="dark"] & {
+    background-color: rgba($color-danger-base, 0.15);
+    color: $color-danger-light;
+  }
+}
+
+// Flag Badges (Advisory Warnings)
+.flags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-2;
+}
+
+.flag-badge {
+  box-shadow: $shadow-sm;
+  animation: pulse-light 2s infinite;
+
+  &.badge-vpn {
+    background-color: rgba($color-warning-base, 0.15);
+    color: $color-warning-dark;
+    border: 1px solid rgba($color-warning-base, 0.2);
+
+    [data-theme="dark"] & {
+      color: $color-warning-base;
+    }
+  }
+
+  &.badge-duplicate {
+    background-color: rgba($color-danger-base, 0.15);
+    color: $color-danger-dark;
+    border: 1px solid rgba($color-danger-base, 0.2);
+
+    [data-theme="dark"] & {
+      color: $color-danger-base;
+    }
+  }
+
+  &.badge-net-change {
+    background-color: rgba($color-warning-base, 0.12);
+    color: $color-warning-dark;
+    border: 1px dashed rgba($color-warning-base, 0.3);
+
+    [data-theme="dark"] & {
+      color: $color-warning-base;
+    }
+  }
+}
+
+@keyframes pulse-light {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.font-mono {
+  font-family: $font-family-mono;
+  font-weight: $font-weight-medium;
+  color: var(--theme-text-main);
+  background-color: rgba(var(--theme-bg-secondary), 0.05);
+  padding: 2px 6px;
+  border-radius: $border-radius-sm;
+}
+
+.device-cell {
+  max-width: 250px;
+  
+  span {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: help;
+  }
+}
+
+.date-cell {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  color: var(--theme-text-muted);
+}
+
+// ── Empty State ─────────────────────────────────────────────────────────────
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-16 $spacing-6;
+  text-align: center;
+  color: var(--theme-text-muted);
+
+  .empty-icon {
+    color: var(--theme-border-strong);
+    margin-bottom: $spacing-4;
+  }
+
+  h3 {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: var(--theme-text-secondary);
+    margin-bottom: $spacing-1;
+  }
+}
+
+// ── Pagination Footer ───────────────────────────────────────────────────────
+.table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-4 $spacing-5;
+  border-top: 1px solid var(--theme-border);
+  background-color: rgba(var(--theme-bg-secondary), 0.01);
+
+  .pagination-info {
+    font-size: $font-size-sm;
+    color: var(--theme-text-muted);
+  }
+
+  .pagination-buttons {
+    display: flex;
+    gap: $spacing-2;
+
+    .btn-outline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border: 1px solid var(--theme-border-strong);
+      border-radius: $border-radius-md;
+      background-color: var(--theme-bg-surface);
+      color: var(--theme-text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+
+      &:hover:not(:disabled) {
+        border-color: $color-primary-base;
+        color: $color-primary-base;
+        background-color: rgba($color-primary-base, 0.03);
+      }
+
+      &:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+// RTL Alignment for pagination buttons
+[dir="rtl"] {
+  .table-footer .pagination-buttons {
+    flex-direction: row-reverse;
+  }
+}

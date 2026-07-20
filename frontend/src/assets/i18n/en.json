@@ -29,7 +29,8 @@
     "MESSAGES": "Messages",
     "ATTENDANCE": "Attendance",
     "MY_PROFILE": "My Profile",
-    "USERS_MANAGEMENT": "Users Management"
+    "USERS_MANAGEMENT": "Users Management",
+    "AUDIT_TRAIL": "Audit Trail"
   },
   "PUBLIC": {
     "LOGIN": "Login",
@@ -1348,5 +1349,39 @@
     "ERR_TITLE": "Error",
     "ERR_SEND_MSG": "Failed to send message.",
     "NEW_MSG_TITLE": "New Message"
+  },
+  "AUDIT_TRAIL": {
+    "TITLE": "IP Audit Trail",
+    "SUBTITLE": "Platform-wide network identity and security tracking logs.",
+    "SEARCH_PLACEHOLDER": "Search by User Name or IP...",
+    "FILTER_EVENT_TYPE": "Event Type",
+    "FILTER_ALL_EVENTS": "All Events",
+    "FILTER_VPN_PROXY": "VPN/Proxy Only",
+    "FILTER_DUPLICATE_SESSION": "Duplicate Session Only",
+    "FILTER_NETWORK_CHANGE": "Network Change Only",
+    "COL_USER": "User",
+    "COL_EVENT_TYPE": "Event Type",
+    "COL_IP": "IP Address",
+    "COL_DEVICE": "Device / User-Agent",
+    "COL_FLAGS": "Security Flags",
+    "COL_DATE": "Date & Time",
+    "FLAG_VPN": "VPN/Proxy",
+    "FLAG_DUPLICATE": "Duplicate Login",
+    "FLAG_NET_CHANGE": "Network Change",
+    "EVENT_LOGIN": "Login",
+    "EVENT_EXAM_START": "Exam Start",
+    "EVENT_EXAM_END": "Exam End",
+    "EVENT_VIOLATION": "Violation Reported",
+    "LOADING": "Loading audit logs...",
+    "NO_RECORDS": "No audit log records found matching the current filters.",
+    "NETWORK_INFO": "Network Security Audit",
+    "NET_CHANGE_WARNING": "Network change detected during exam!",
+    "NET_CHANGE_WARNING_DESC": "This student changed their IP address from the initial exam start IP. This could indicate proxying or hotspot switching.",
+    "VPN_WARNING": "VPN / Proxy detected!",
+    "DUPLICATE_WARNING": "Duplicate session detected in 30s window!",
+    "DISCLAIMER": "These network metrics are advisory. Tutors should evaluate context during review.",
+    "EXPORT_CSV": "Export Audit Trail",
+    "CONCURRENT_LOGOUT_TITLE": "Security Alert",
+    "CONCURRENT_LOGOUT_MESSAGE": "Your account was logged in from another device. Please log in again."
   }
 }

@@ -227,16 +227,19 @@
         </div>
       </div>
 
-      <!-- RIGHT: Chart -->
-      <div class="chart-panel" *ngIf="summaryData() && summaryData()!.chartData.length > 0">
-        <div class="panel-header">
-          <lucide-icon [img]="Activity" [size]="18"></lucide-icon>
-          <h2>{{ 'ATTEMPT_DETAIL.CHART_HEADER' | translate }}</h2>
+      <!-- RIGHT: Chart & Network Security Audit -->
+      <div style="display: flex; flex-direction: column; gap: 20px; width: 100%;">
+        <!-- Chart -->
+        <div class="chart-panel" *ngIf="summaryData() && summaryData()!.chartData.length > 0" style="position: static; width: 100%;">
+          <div class="panel-header">
+            <lucide-icon [img]="Activity" [size]="18"></lucide-icon>
+            <h2>{{ 'ATTEMPT_DETAIL.CHART_HEADER' | translate }}</h2>
+          </div>
+          <div class="echarts-wrapper">
+            <div echarts [options]="chartOptions()" class="echarts-el"></div>
+          </div>
         </div>
-        <div class="echarts-wrapper">
-          <div echarts [options]="chartOptions()" class="echarts-el"></div>
-        </div>
-      </div>
+      </div>
 
     </div>
 

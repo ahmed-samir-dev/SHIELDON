@@ -29,7 +29,8 @@
     "MESSAGES": "الرسائل",
     "ATTENDANCE": "الحضور",
     "MY_PROFILE": "ملفي الشخصي",
-    "USERS_MANAGEMENT": "إدارة المستخدمين"
+    "USERS_MANAGEMENT": "إدارة المستخدمين",
+    "AUDIT_TRAIL": "سجل التدقيق"
   },
   "PUBLIC": {
     "LOGIN": "تسجيل الدخول",
@@ -1347,5 +1348,39 @@
     "ERR_TITLE": "خطأ",
     "ERR_SEND_MSG": "فشل إرسال الرسالة.",
     "NEW_MSG_TITLE": "رسالة جديدة"
+  },
+  "AUDIT_TRAIL": {
+    "TITLE": "سجل تدقيق عناوين IP",
+    "SUBTITLE": "سجلات تتبع الهوية الشبكية وحماية المنصة على مستوى النظام.",
+    "SEARCH_PLACEHOLDER": "البحث بالاسم أو عنوان IP...",
+    "FILTER_EVENT_TYPE": "نوع الحدث",
+    "FILTER_ALL_EVENTS": "جميع الأحداث",
+    "FILTER_VPN_PROXY": "الشبكات الافتراضية/البروكسي فقط",
+    "FILTER_DUPLICATE_SESSION": "الجلسات المكررة فقط",
+    "FILTER_NETWORK_CHANGE": "تغيير الشبكة فقط",
+    "COL_USER": "المستخدم",
+    "COL_EVENT_TYPE": "نوع الحدث",
+    "COL_IP": "عنوان IP",
+    "COL_DEVICE": "الجهاز / وكيل المستخدم",
+    "COL_FLAGS": "مؤشرات الأمان",
+    "COL_DATE": "التاريخ والوقت",
+    "FLAG_VPN": "VPN/بروكسي",
+    "FLAG_DUPLICATE": "تسجيل دخول مكرر",
+    "FLAG_NET_CHANGE": "تغيير الشبكة",
+    "EVENT_LOGIN": "تسجيل الدخول",
+    "EVENT_EXAM_START": "بدء الامتحان",
+    "EVENT_EXAM_END": "تسليم الامتحان",
+    "EVENT_VIOLATION": "تم الإبلاغ عن انتهاك",
+    "LOADING": "جاري تحميل سجلات التدقيق...",
+    "NO_RECORDS": "لم يتم العثور على سجلات تدقيق تطابق التصفية الحالية.",
+    "NETWORK_INFO": "تدقيق أمن الشبكة",
+    "NET_CHANGE_WARNING": "تم رصد تغيير الشبكة أثناء الامتحان!",
+    "NET_CHANGE_WARNING_DESC": "قام هذا الطالب بتغيير عنوان IP الخاص به عن عنوان بدء الامتحان. قد يشير هذا إلى استخدام بروكسي أو تبديل نقطة الاتصال.",
+    "VPN_WARNING": "تم رصد شبكة افتراضية (VPN) أو بروكسي!",
+    "DUPLICATE_WARNING": "تم رصد جلسة مكررة في غضون 30 ثانية!",
+    "DISCLAIMER": "مؤشرات الشبكة هذه استشارية فقط. يجب على المعلم تقييم السياق أثناء المراجعة.",
+    "EXPORT_CSV": "تصدير سجل التدقيق",
+    "CONCURRENT_LOGOUT_TITLE": "تنبيه أمني",
+    "CONCURRENT_LOGOUT_MESSAGE": "تم تسجيل الدخول إلى حسابك من جهاز آخر. يرجى تسجيل الدخول مرة أخرى."
   }
 }

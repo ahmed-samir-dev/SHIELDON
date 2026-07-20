@@ -334,6 +334,20 @@ public class ExamService : IExamService
             throw new BusinessRuleException(
                 "Only Draft exams or expired Published exams can be permanently deleted.");
 
+        // Clean up IpAuditLogs for attempts of this exam to prevent FK violation
+        var attemptIds = await _db.ExamAttempts
+            .Where(a => a.ExamId == examId)
+            .Select(a => a.Id)
+            .ToListAsync(ct);
+
+        if (attemptIds.Any())
+        {
+            var ipLogs = await _db.IpAuditLogs
+                .Where(l => l.ExamAttemptId.HasValue && attemptIds.Contains(l.ExamAttemptId.Value))
+                .ToListAsync(ct);
+            if (ipLogs.Any()) _db.IpAuditLogs.RemoveRange(ipLogs);
+        }
+
         // Manually delete entities that have Restrict foreign keys to Exam to prevent DbUpdateException
         var violationLogs = await _db.ViolationLogs.Where(v => v.ExamId == examId).ToListAsync(ct);
         if (violationLogs.Any()) _db.ViolationLogs.RemoveRange(violationLogs);

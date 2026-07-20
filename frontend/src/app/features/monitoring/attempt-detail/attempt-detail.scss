@@ -566,3 +566,218 @@
     }
   }
 }
+
+// ─── Network Security Audit Panel ──────────────────────────────────────────
+.network-panel {
+  background: var(--theme-bg-surface);
+  border-radius: 16px;
+  border: 1px solid var(--theme-border);
+  padding: 24px;
+  box-shadow: $shadow-sm;
+  height: fit-content;
+
+  .panel-header {
+    margin-bottom: 20px;
+    lucide-icon { color: $color-primary-base; }
+  }
+
+  // Warnings Group
+  .network-alerts {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .alert-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+
+    lucide-icon { flex-shrink: 0; }
+    
+    .alert-content {
+      h4 {
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin: 0 0 4px 0;
+      }
+      p {
+        font-size: 0.75rem;
+        margin: 0;
+        line-height: 1.4;
+      }
+    }
+
+    &.alert-warning {
+      background-color: rgba($color-warning-base, 0.08);
+      border-color: rgba($color-warning-base, 0.25);
+      color: $color-warning-dark;
+      lucide-icon { color: $color-warning-base; }
+
+      [data-theme="dark"] & {
+        background-color: rgba($color-warning-base, 0.12);
+        color: $color-warning-light;
+      }
+    }
+
+    &.alert-danger {
+      background-color: rgba($color-danger-base, 0.08);
+      border-color: rgba($color-danger-base, 0.25);
+      color: $color-danger-dark;
+      lucide-icon { color: $color-danger-base; }
+
+      [data-theme="dark"] & {
+        background-color: rgba($color-danger-base, 0.12);
+        color: $color-danger-light;
+      }
+    }
+  }
+
+  // Log Feed Timeline
+  .ip-timeline-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+    padding-inline-start: 16px;
+    border-inline-start: 2px solid var(--theme-border-strong);
+  }
+
+  .ip-log-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-bottom: 4px;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: -22px;
+      top: 4px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--theme-border-strong);
+      border: 2px solid var(--theme-bg-surface);
+    }
+
+    [dir="rtl"] &::before {
+      left: auto;
+      right: -22px;
+    }
+
+    &.has-threat::before {
+      background: $color-warning-base;
+      box-shadow: 0 0 6px rgba($color-warning-base, 0.5);
+    }
+
+    .ip-log-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .ip-log-time {
+        font-size: 0.7rem;
+        color: var(--theme-text-muted);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+    }
+
+    .ip-log-body {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+
+      .font-mono {
+        font-family: $font-family-mono;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--theme-text-main);
+        background-color: var(--theme-bg-main);
+        padding: 2px 6px;
+        border-radius: 4px;
+        width: fit-content;
+      }
+
+      .device-text {
+        font-size: 0.75rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+      }
+    }
+
+    .ip-log-flags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 2px;
+
+      .mini-flag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 99px;
+        font-size: 0.65rem;
+        font-weight: 700;
+
+        &.vpn {
+          background-color: rgba($color-warning-base, 0.1);
+          color: $color-warning-dark;
+          [data-theme="dark"] & { color: $color-warning-light; }
+        }
+
+        &.duplicate {
+          background-color: rgba($color-danger-base, 0.1);
+          color: $color-danger-dark;
+          [data-theme="dark"] & { color: $color-danger-light; }
+        }
+
+        &.net-change {
+          background-color: rgba($color-warning-base, 0.08);
+          color: $color-warning-dark;
+          border: 1px dashed rgba($color-warning-base, 0.2);
+          [data-theme="dark"] & { color: $color-warning-light; }
+        }
+      }
+    }
+  }
+
+  // Badges Inside Timeline
+  .badge {
+    font-size: 0.65rem;
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .badge-login { background-color: rgba($color-info-base, 0.1); color: $color-info-dark; [data-theme="dark"] & { color: $color-info-light; } }
+  .badge-exam-start { background-color: rgba($color-success-base, 0.1); color: $color-success-dark; [data-theme="dark"] & { color: $color-success-light; } }
+  .badge-exam-end { background-color: rgba($color-primary-base, 0.1); color: $color-primary-dark; [data-theme="dark"] & { color: $color-primary-light; } }
+  .badge-violation { background-color: rgba($color-danger-base, 0.1); color: $color-danger-dark; [data-theme="dark"] & { color: $color-danger-light; } }
+
+  .ip-timeline-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 0;
+    gap: 8px;
+    color: var(--theme-text-muted);
+    
+    .empty-icon { color: var(--theme-border-strong); }
+    p { font-size: 0.8rem; margin: 0; }
+  }
+}
+

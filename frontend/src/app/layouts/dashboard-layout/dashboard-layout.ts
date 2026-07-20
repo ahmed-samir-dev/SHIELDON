@@ -9,6 +9,7 @@ import { NotificationPanelComponent } from '../../shared/components/notification
 import { AiChatPanelComponent } from '../../shared/components/ai-chat-panel/ai-chat-panel';
 import { GlobalCallOverlayComponent } from '../../shared/components/global-call-overlay/global-call-overlay';
 import { ChatService } from '../../core/services/chat.service';
+import { SecuritySignalrService } from '../../core/services/security-signalr.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { LanguageService } from '../../core/services/language.service';
 import { LayoutService } from '../../core/services/layout.service';
@@ -26,6 +27,7 @@ export class DashboardLayout implements AfterViewInit {
   authService = inject(AuthService);
   shepherdService = inject(ShepherdService);
   chatService = inject(ChatService);
+  securitySignalrService = inject(SecuritySignalrService);
   themeService = inject(ThemeService);
   languageService = inject(LanguageService);
   layoutService = inject(LayoutService);
@@ -73,9 +75,12 @@ export class DashboardLayout implements AfterViewInit {
 
     // Start global chat connection for incoming messages toast & unread counts
     this.chatService.startConnection();
+    // Start global security socket connection for concurrency logout & security checks
+    this.securitySignalrService.startConnection();
   }
 
   ngOnDestroy(): void {
     this.chatService.stopConnection();
+    this.securitySignalrService.stopConnection();
   }
 }
