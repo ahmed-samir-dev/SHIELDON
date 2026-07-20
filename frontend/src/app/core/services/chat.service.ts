@@ -313,6 +313,7 @@ export class ChatService {
       });
       this.refreshInbox();
     });
+
   }
 
   startConnection(): void {

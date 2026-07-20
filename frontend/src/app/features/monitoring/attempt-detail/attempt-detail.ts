@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
-import { LucideAngularModule, AlertTriangle, CheckCircle, Clock, ShieldAlert, Monitor, User, ArrowLeft, Calendar, FileText, Activity, AlertCircle, Play } from 'lucide-angular';
+import { LucideAngularModule, AlertTriangle, CheckCircle, Clock, ShieldAlert, Monitor, User, ArrowLeft, Calendar, FileText, Activity, AlertCircle, Play, ShieldOff, WifiOff, History } from 'lucide-angular';
 import { NgxEchartsModule } from 'ngx-echarts';
 import type { EChartsOption } from 'echarts';
 import { MonitoringService, AttemptTimelineResponse, ViolationSummaryResponse } from '../../../core/services/monitoring.service';
@@ -37,6 +37,9 @@ export class AttemptDetailComponent implements OnInit {
   Activity = Activity;
   AlertCircle = AlertCircle;
   Play = Play;
+  ShieldOff = ShieldOff;
+  WifiOff = WifiOff;
+  History = History;
 
   Math = Math;
 
@@ -156,7 +159,6 @@ export class AttemptDetailComponent implements OnInit {
     let timelineLoaded = false;
     let summaryLoaded = false;
     let hasError = false;
-
     const checkDone = () => {
       if (timelineLoaded && summaryLoaded) {
         this.loading.set(false);
