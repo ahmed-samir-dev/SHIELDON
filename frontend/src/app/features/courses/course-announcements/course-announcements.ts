@@ -1,5 +1,5 @@
-import { Component, Input, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { Component, Input, OnInit, OnDestroy, inject, signal, computed, ViewChild, ElementRef, Renderer2 } from '@angular/core';
+import { CommonModule, DatePipe, DOCUMENT } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AnnouncementService, AnnouncementResponse } from '../services/announcement.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -26,7 +26,11 @@ export class CourseAnnouncementsComponent implements OnInit, OnDestroy {
   private readonly languageService = inject(LanguageService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly toastr = inject(ToastrService);
+  private readonly renderer = inject(Renderer2);
+  private readonly document = inject(DOCUMENT);
   private langSub!: Subscription;
+
+  @ViewChild('postModalOverlay') postModalOverlayRef!: ElementRef<HTMLElement>;
 
   announcements = signal<AnnouncementResponse[]>([]);
   isLoading = signal<boolean>(true);
@@ -77,9 +81,27 @@ export class CourseAnnouncementsComponent implements OnInit, OnDestroy {
   }
 
   togglePostForm(): void {
-    this.showPostForm.update((v) => !v);
     if (!this.showPostForm()) {
-      this.postForm.reset({ priority: 'Normal' });
+      this.showPostForm.set(true);
+      setTimeout(() => {
+        const el = this.postModalOverlayRef?.nativeElement;
+        if (el) {
+          this.renderer.appendChild(this.document.body, el);
+          requestAnimationFrame(() => {
+            this.renderer.removeClass(el, 'modal-pending');
+          });
+        }
+      }, 0);
+    } else {
+      const el = this.postModalOverlayRef?.nativeElement;
+      if (el) this.renderer.addClass(el, 'modal-pending');
+      setTimeout(() => {
+        if (el && el.parentElement === this.document.body) {
+          this.renderer.removeChild(this.document.body, el);
+        }
+        this.showPostForm.set(false);
+        this.postForm.reset({ priority: 'Normal' });
+      }, 150);
     }
   }
 

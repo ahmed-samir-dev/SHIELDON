@@ -33,7 +33,7 @@
           
           @if (!authService.isStudent()) {
             <a [routerLink]="['/courses', courseData.id, 'attendance']" class="btn-take-attendance">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
               {{ 'COURSE_DETAIL.TAKE_ATTENDANCE' | translate }}
             </a>
           }
@@ -45,8 +45,6 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             <span>{{ courseData.enrolledStudentCount }} {{ 'COURSE_DETAIL.STUDENTS' | translate }}</span>
           </div>
-
-
 
           <div class="stat-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
@@ -86,71 +84,95 @@
           }
         </div>
 
-        <!-- Modern Tabs Navigation -->
-        <nav class="hub-tabs">
-          <button class="tab-btn" 
-            [class.active]="activeTab() === 'announcements'" 
-            (click)="setActiveTab('announcements')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-            </svg>
-            {{ 'COURSE_DETAIL.ANNOUNCEMENTS' | translate }}
-          </button>
-          
-          <button class="tab-btn" 
-            [class.active]="activeTab() === 'materials'" 
-            (click)="setActiveTab('materials')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-              <polyline points="14 2 14 8 20 8"/>
-            </svg>
-            {{ 'COURSE_DETAIL.MATERIALS' | translate }}
-          </button>
+        <!-- ── Modern Pill Tabs Navigation ── -->
+        <nav class="hub-tabs" role="tablist">
+          <div class="tabs-track">
 
-          <button class="tab-btn" 
-            [class.active]="activeTab() === 'assignments'" 
-            (click)="setActiveTab('assignments')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="16" y1="13" x2="8" y2="13"/>
-              <line x1="16" y1="17" x2="8" y2="17"/>
-              <polyline points="10 9 9 9 8 9"/>
-            </svg>
-            {{ 'COURSE_DETAIL.ASSIGNMENTS' | translate }}
-          </button>
-
-          <button class="tab-btn" 
-            [class.active]="activeTab() === 'exams'" 
-            (click)="setActiveTab('exams')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
-              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
-              <polyline points="9 14 11 16 15 11"></polyline>
-            </svg>
-            {{ 'COURSE_DETAIL.EXAMS' | translate }}
-          </button>
-
-          @if (!authService.isStudent()) {
-            <button class="tab-btn" 
-              [class.active]="activeTab() === 'question-bank'" 
-              (click)="setActiveTab('question-bank')">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
-                <circle cx="12" cy="11" r="3"/>
+            <button class="tab-btn" role="tab"
+              [class.active]="activeTab() === 'announcements'"
+              [attr.aria-selected]="activeTab() === 'announcements'"
+              (click)="setActiveTab('announcements')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
               </svg>
-              {{ 'COURSE_DETAIL.QUESTION_BANK' | translate }}
+              {{ 'COURSE_DETAIL.ANNOUNCEMENTS' | translate }}
             </button>
 
-            <button class="tab-btn" 
-              [class.active]="activeTab() === 'grades'" 
-              (click)="setActiveTab('grades')">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            <button class="tab-btn" role="tab"
+              [class.active]="activeTab() === 'materials'"
+              [attr.aria-selected]="activeTab() === 'materials'"
+              (click)="setActiveTab('materials')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                <polyline points="14 2 14 8 20 8"/>
               </svg>
-              {{ 'COURSE_DETAIL.GRADES_PANEL' | translate }}
+              {{ 'COURSE_DETAIL.MATERIALS' | translate }}
             </button>
-          }
+
+            <button class="tab-btn" role="tab"
+              [class.active]="activeTab() === 'assignments'"
+              [attr.aria-selected]="activeTab() === 'assignments'"
+              (click)="setActiveTab('assignments')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10 9 9 9 8 9"/>
+              </svg>
+              {{ 'COURSE_DETAIL.ASSIGNMENTS' | translate }}
+            </button>
+
+            <button class="tab-btn" role="tab"
+              [class.active]="activeTab() === 'exams'"
+              [attr.aria-selected]="activeTab() === 'exams'"
+              (click)="setActiveTab('exams')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                <polyline points="9 14 11 16 15 11"></polyline>
+              </svg>
+              {{ 'COURSE_DETAIL.EXAMS' | translate }}
+            </button>
+
+            @if (!authService.isStudent()) {
+              <button class="tab-btn" role="tab"
+                [class.active]="activeTab() === 'question-bank'"
+                [attr.aria-selected]="activeTab() === 'question-bank'"
+                (click)="setActiveTab('question-bank')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+                  <circle cx="12" cy="11" r="3"/>
+                </svg>
+                {{ 'COURSE_DETAIL.QUESTION_BANK' | translate }}
+              </button>
+
+              <button class="tab-btn" role="tab"
+                [class.active]="activeTab() === 'grades'"
+                [attr.aria-selected]="activeTab() === 'grades'"
+                (click)="setActiveTab('grades')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                </svg>
+                {{ 'COURSE_DETAIL.GRADES_PANEL' | translate }}
+              </button>
+            }
+
+            <!-- Leaderboard tab — visible to all roles -->
+            <button class="tab-btn tab-btn-trophy" role="tab"
+              [class.active]="activeTab() === 'leaderboard'"
+              [attr.aria-selected]="activeTab() === 'leaderboard'"
+              (click)="setActiveTab('leaderboard')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                <path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+                <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+                <path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>
+              </svg>
+              {{ 'COURSE_DETAIL.LEADERBOARD' | translate }}
+            </button>
+
+          </div>
         </nav>
       </div>
     </header>
@@ -179,6 +201,10 @@
 
       @if (activeTab() === 'grades' && !authService.isStudent()) {
         <app-course-grades [courseId]="courseData.id"></app-course-grades>
+      }
+
+      @if (activeTab() === 'leaderboard') {
+        <app-course-leaderboard [courseId]="courseData.id"></app-course-leaderboard>
       }
     </div>
   </div>

@@ -276,6 +276,7 @@ app.MapHub<ChatHub>("/hubs/chat");
 app.MapHub<AttendanceHub>("/hubs/attendance");
 app.MapHub<DashboardHub>("/hubs/dashboard");
 app.MapHub<SecurityHub>("/hubs/security");
+app.MapHub<LeaderboardHub>("/hubs/leaderboard");
 
 // ── BACKGROUND SERVICES (API-layer) ──────────────────────────────────────────
 // AttendanceRotationService is registered above via builder.Services

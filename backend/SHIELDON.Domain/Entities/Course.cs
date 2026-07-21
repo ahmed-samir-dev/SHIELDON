@@ -56,4 +56,6 @@ public class Course : ITranslatable
     public ICollection<Assignment> Assignments { get; set; } = [];
     public ICollection<Exam> Exams { get; set; } = [];
     public ICollection<ExamQuestion> QuestionBankItems { get; set; } = [];
+    public LeaderboardSettings? LeaderboardSettings { get; set; }
+    public ICollection<LeaderboardRankSnapshot> LeaderboardRankSnapshots { get; set; } = [];
 }

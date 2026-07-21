@@ -1,5 +1,5 @@
-import { Component, Input, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, OnInit, inject, signal, computed, ViewChild, ElementRef, Renderer2 } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MaterialService } from '../services/material.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -24,6 +24,10 @@ export class CourseMaterialsComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly formBuilder = inject(FormBuilder);
   private readonly toastr = inject(ToastrService);
+  private readonly renderer = inject(Renderer2);
+  private readonly document = inject(DOCUMENT);
+
+  @ViewChild('uploadModalOverlay') uploadModalOverlayRef!: ElementRef<HTMLElement>;
 
   materials = signal<MaterialResponse[]>([]);
   isLoading = signal<boolean>(true);
@@ -138,11 +142,29 @@ isDragging = signal<boolean>(false);
   }
 
   toggleUploadForm(): void {
-    this.showUploadForm.update((val) => !val);
     if (!this.showUploadForm()) {
-      this.uploadForm.reset({ materialType: 'File' });
-      this.selectedFile = null;
-      this.fileError.set(null);
+      this.showUploadForm.set(true);
+      setTimeout(() => {
+        const el = this.uploadModalOverlayRef?.nativeElement;
+        if (el) {
+          this.renderer.appendChild(this.document.body, el);
+          requestAnimationFrame(() => {
+            this.renderer.removeClass(el, 'modal-pending');
+          });
+        }
+      }, 0);
+    } else {
+      const el = this.uploadModalOverlayRef?.nativeElement;
+      if (el) this.renderer.addClass(el, 'modal-pending');
+      setTimeout(() => {
+        if (el && el.parentElement === this.document.body) {
+          this.renderer.removeChild(this.document.body, el);
+        }
+        this.showUploadForm.set(false);
+        this.uploadForm.reset({ materialType: 'File' });
+        this.selectedFile = null;
+        this.fileError.set(null);
+      }, 150);
     }
   }
 

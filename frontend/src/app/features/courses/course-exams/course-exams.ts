@@ -1,5 +1,5 @@
-import { Component, Input, OnInit, OnDestroy, inject, signal } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { Component, Input, OnInit, OnDestroy, inject, signal, ViewChild, ElementRef, Renderer2 } from '@angular/core';
+import { CommonModule, DatePipe, DOCUMENT } from '@angular/common';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ExamService } from '../services/exam.service';
 import { QuestionBankService } from '../services/question-bank.service';
@@ -46,7 +46,11 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private translate = inject(TranslateService);
+  private renderer = inject(Renderer2);
+  private document = inject(DOCUMENT);
   private langSub!: Subscription;
+
+  @ViewChild('examModalOverlay') examModalOverlayRef!: ElementRef<HTMLElement>;
 
   exams = signal<ExamSummaryResponse[]>([]);
   isLoading = signal(true);
@@ -100,7 +104,12 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.timeInterval) clearInterval(this.timeInterval);
     this.langSub?.unsubscribe();
+    const pickerEl = this.document.querySelector('.attempt-picker-overlay');
+    if (pickerEl && pickerEl.parentElement === this.document.body) {
+      this.renderer.removeChild(this.document.body, pickerEl);
+    }
   }
+
 
   loadExams() {
     this.isLoading.set(true);
@@ -142,6 +151,15 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
       shortAnswerCount: 0
     });
     this.isModalOpen.set(true);
+    setTimeout(() => {
+      const el = this.examModalOverlayRef?.nativeElement;
+      if (el) {
+        this.renderer.appendChild(this.document.body, el);
+        requestAnimationFrame(() => {
+          this.renderer.removeClass(el, 'modal-pending');
+        });
+      }
+    }, 0);
   }
 
   openEditModal(exam: ExamSummaryResponse) {
@@ -176,13 +194,30 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
     });
 
     this.isModalOpen.set(true);
+    setTimeout(() => {
+      const el = this.examModalOverlayRef?.nativeElement;
+      if (el) {
+        this.renderer.appendChild(this.document.body, el);
+        requestAnimationFrame(() => {
+          this.renderer.removeClass(el, 'modal-pending');
+        });
+      }
+    }, 0);
   }
 
   closeModal() {
-    this.isModalOpen.set(false);
-    this.editingExamId.set(null);
-    this.editingExam.set(null);
+    const el = this.examModalOverlayRef?.nativeElement;
+    if (el) this.renderer.addClass(el, 'modal-pending');
+    setTimeout(() => {
+      if (el && el.parentElement === this.document.body) {
+        this.renderer.removeChild(this.document.body, el);
+      }
+      this.isModalOpen.set(false);
+      this.editingExamId.set(null);
+      this.editingExam.set(null);
+    }, 150);
   }
+
 
   onSubmit() {
     if (this.examForm.invalid) {
@@ -388,6 +423,15 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
           this.studentAttemptsForPicker.set(attempts);
           this.pickerExamId.set(examId);
           this.showAttemptPicker.set(true);
+          setTimeout(() => {
+            const el = this.document.querySelector('.attempt-picker-overlay');
+            if (el && el.parentElement !== this.document.body) {
+              this.renderer.appendChild(this.document.body, el);
+              requestAnimationFrame(() => {
+                this.renderer.removeClass(el, 'modal-pending');
+              });
+            }
+          }, 0);
         } else {
           // Fallback to directly viewing the latest attempt if only 1 exists
           this.router.navigate(['/exam-results', latestAttemptId]);
@@ -401,14 +445,24 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
   }
 
   viewSpecificAttempt(attemptId: string) {
-    this.showAttemptPicker.set(false);
-    this.router.navigate(['/exam-results', attemptId]);
+    this.closeAttemptPicker(() => {
+      this.router.navigate(['/exam-results', attemptId]);
+    });
   }
 
-  closeAttemptPicker() {
-    this.showAttemptPicker.set(false);
-    this.pickerExamId.set(null);
+  closeAttemptPicker(callback?: () => void) {
+    const el = this.document.querySelector('.attempt-picker-overlay');
+    if (el) this.renderer.addClass(el, 'modal-pending');
+    setTimeout(() => {
+      if (el && el.parentElement === this.document.body) {
+        this.renderer.removeChild(this.document.body, el);
+      }
+      this.showAttemptPicker.set(false);
+      this.pickerExamId.set(null);
+      if (callback) callback();
+    }, 150);
   }
+
 
   manageResults(examId: string) {
     this.router.navigate(['/courses', this.course.id, 'exams', examId, 'results']);

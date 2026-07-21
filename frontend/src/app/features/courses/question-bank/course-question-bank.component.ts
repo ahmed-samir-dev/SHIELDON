@@ -1,5 +1,5 @@
-import { Component, Input, OnInit, inject, signal, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, Input, OnInit, inject, signal, computed, ViewChild, ElementRef, Renderer2 } from '@angular/core';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { QuestionBankService } from '../services/question-bank.service';
 import { ToastrService } from 'ngx-toastr';
@@ -21,6 +21,11 @@ export class CourseQuestionBankComponent implements OnInit {
   private toastr = inject(ToastrService);
   private fb = inject(FormBuilder);
   private translate = inject(TranslateService);
+  private renderer = inject(Renderer2);
+  private document = inject(DOCUMENT);
+
+  @ViewChild('questionModalOverlay') questionModalOverlayRef!: ElementRef<HTMLElement>;
+  @ViewChild('viewDetailsModalOverlay') viewDetailsModalOverlayRef!: ElementRef<HTMLElement>;
 
   questions = signal<ExamQuestion[]>([]);
   mcqCount = computed(() => this.questions().filter(q => q.type === 'MCQ').length);
@@ -112,6 +117,15 @@ export class CourseQuestionBankComponent implements OnInit {
       this.optionsFormArray.at(0).patchValue({ isCorrect: true });
     }
     this.isModalOpen.set(true);
+    setTimeout(() => {
+      const el = this.questionModalOverlayRef?.nativeElement;
+      if (el) {
+        this.renderer.appendChild(this.document.body, el);
+        requestAnimationFrame(() => {
+          this.renderer.removeClass(el, 'modal-pending');
+        });
+      }
+    }, 0);
   }
 
   openEditModal(question: ExamQuestion) {
@@ -147,15 +161,32 @@ export class CourseQuestionBankComponent implements OnInit {
     this.questionForm.get('type')?.disable();
 
     this.isModalOpen.set(true);
+    setTimeout(() => {
+      const el = this.questionModalOverlayRef?.nativeElement;
+      if (el) {
+        this.renderer.appendChild(this.document.body, el);
+        requestAnimationFrame(() => {
+          this.renderer.removeClass(el, 'modal-pending');
+        });
+      }
+    }, 0);
   }
 
   closeModal() {
-    this.isModalOpen.set(false);
-    this.editingQuestionId.set(null);
-    this.selectedImage.set(null);
-    this.imagePreview.set(null);
-    this.deleteExistingImage.set(false);
+    const el = this.questionModalOverlayRef?.nativeElement;
+    if (el) this.renderer.addClass(el, 'modal-pending');
+    setTimeout(() => {
+      if (el && el.parentElement === this.document.body) {
+        this.renderer.removeChild(this.document.body, el);
+      }
+      this.isModalOpen.set(false);
+      this.editingQuestionId.set(null);
+      this.selectedImage.set(null);
+      this.imagePreview.set(null);
+      this.deleteExistingImage.set(false);
+    }, 150);
   }
+
 
   // --- Image Upload Handling ---
 
@@ -408,11 +439,28 @@ export class CourseQuestionBankComponent implements OnInit {
 
   openViewDetailsModal(question: ExamQuestion) {
     this.viewingQuestion.set(question);
+    setTimeout(() => {
+      const el = this.viewDetailsModalOverlayRef?.nativeElement;
+      if (el) {
+        this.renderer.appendChild(this.document.body, el);
+        requestAnimationFrame(() => {
+          this.renderer.removeClass(el, 'modal-pending');
+        });
+      }
+    }, 0);
   }
 
   closeViewDetailsModal() {
-    this.viewingQuestion.set(null);
+    const el = this.viewDetailsModalOverlayRef?.nativeElement;
+    if (el) this.renderer.addClass(el, 'modal-pending');
+    setTimeout(() => {
+      if (el && el.parentElement === this.document.body) {
+        this.renderer.removeChild(this.document.body, el);
+      }
+      this.viewingQuestion.set(null);
+    }, 150);
   }
+
 
   getBadgeClass(type: string): string {
     switch(type) {

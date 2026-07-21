@@ -1,94 +1,175 @@
 <div class="attendance-tutor-container">
-  <div class="header">
-    <div class="title-area">
-      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
-        <a [routerLink]="['/courses', courseId()]" class="back-button" [title]="'ATTENDANCE_TUTOR.BACK_TO_COURSE' | translate">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-        </a>
-        <h1>{{ 'ATTENDANCE_TUTOR.TITLE' | translate }}</h1>
+  
+  <!-- ── Header Banner ─────────────────────────────────────────────────── -->
+  <div class="att-header">
+    <div class="att-title-group">
+      <a [routerLink]="['/courses', courseId()]" class="att-back-btn" [title]="'ATTENDANCE_TUTOR.BACK_TO_COURSE' | translate">
+        <lucide-icon [img]="ArrowLeft" [size]="20"></lucide-icon>
+      </a>
+      <div class="att-title-meta">
+        <h1 class="att-main-title">
+          {{ 'ATTENDANCE_TUTOR.TITLE' | translate }}
+          @if (activeCheck()) {
+            <span class="att-live-pill">
+              <span class="att-pulse-dot"></span>
+              {{ 'ATTENDANCE_TUTOR.LIVE_INDICATOR' | translate }}
+            </span>
+          }
+        </h1>
+        <p class="att-subtitle">{{ 'ATTENDANCE_TUTOR.SUBTITLE' | translate }}</p>
       </div>
-      <p class="subtitle" style="margin-left: 3rem;">{{ 'ATTENDANCE_TUTOR.SUBTITLE' | translate }}</p>
     </div>
     
-    <div class="actions">
+    <div class="att-actions">
       @if (activeCheck()) {
-        <button class="btn-danger" (click)="endCheck()" [disabled]="isLoading()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-          {{ 'ATTENDANCE_TUTOR.BTN_END_SESSION' | translate }}
+        <button class="att-btn att-btn-danger" (click)="endCheck()" [disabled]="isLoading()">
+          <lucide-icon [img]="Square" [size]="18"></lucide-icon>
+          <span>{{ 'ATTENDANCE_TUTOR.BTN_END_SESSION' | translate }}</span>
         </button>
       } @else {
-        <button class="btn-primary" (click)="startCheck()" [disabled]="isLoading()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          {{ 'ATTENDANCE_TUTOR.BTN_START_NEW' | translate }}
+        <button class="att-btn att-btn-primary" (click)="startCheck()" [disabled]="isLoading()">
+          <lucide-icon [img]="Play" [size]="18"></lucide-icon>
+          <span>{{ 'ATTENDANCE_TUTOR.BTN_START_NEW' | translate }}</span>
         </button>
       }
     </div>
   </div>
 
+  <!-- Error Alert -->
   @if (errorMsg()) {
-    <div class="error-alert">{{ errorMsg() }}</div>
+    <div class="att-error-alert">
+      {{ errorMsg() }}
+    </div>
   }
 
+  <!-- ── LIVE ACTIVE CHECK DASHBOARD ───────────────────────────────────── -->
   @if (activeCheck()) {
-    <div class="dashboard-grid">
-      <!-- Left Column: QR Code Projector -->
-      <div class="card projector-card">
-        <div class="card-header">
-          <h2>{{ 'ATTENDANCE_TUTOR.SCAN_TO_MARK' | translate }}</h2>
-          <div class="live-indicator">
-            <span class="pulse-dot"></span> {{ 'ATTENDANCE_TUTOR.LIVE_INDICATOR' | translate }}
+    <div class="att-live-viewport">
+      
+      <!-- Left Panel: QR Code Projector -->
+      <div class="att-card att-projector-card">
+        <div class="att-card-header">
+          <div class="att-card-title-wrap">
+            <lucide-icon [img]="QrCode" [size]="20" class="att-header-icon"></lucide-icon>
+            <h2>{{ 'ATTENDANCE_TUTOR.SCAN_TO_MARK' | translate }}</h2>
           </div>
         </div>
-        <div class="qr-container">
+
+        <div class="att-qr-body">
           @if (isQrLoading()) {
-            <div class="qr-loading-placeholder">
-              <div class="spinner"></div>
+            <div class="att-qr-placeholder">
+              <div class="att-spinner"></div>
               <p>{{ 'ATTENDANCE_TUTOR.QR_CONNECTING' | translate }}</p>
               <small>{{ 'ATTENDANCE_TUTOR.QR_GENERATING' | translate }}</small>
             </div>
           }
-          <!-- The canvas where the QR gets drawn -->
-          <canvas #qrCanvas width="350" height="350" [class.hidden]="isQrLoading()" [class.qr-flash]="qrFlash()"></canvas>
-          <p class="qr-hint" [class.hidden]="isQrLoading()">{{ 'ATTENDANCE_TUTOR.QR_HINT' | translate }}</p>
+          <!-- Dynamic QR Canvas -->
+          <div class="att-canvas-wrapper" [class.hidden]="isQrLoading()">
+            <canvas #qrCanvas width="240" height="240" [class.qr-flash]="qrFlash()"></canvas>
+          </div>
+
+          <div class="att-qr-security-note" [class.hidden]="isQrLoading()">
+            <span>{{ 'ATTENDANCE_TUTOR.QR_HINT' | translate }}</span>
+          </div>
+
         </div>
-        <div class="stats-footer">
-          <div class="stat">
-            <span class="value">{{ totalPresent() }} / {{ totalEnrolled() }}</span>
-            <span class="label">{{ 'ATTENDANCE_TUTOR.STAT_PRESENT' | translate }}</span>
+
+        <!-- Live Present Counter Footer -->
+        <div class="att-projector-footer">
+          <div class="att-stat-block">
+            <div class="att-stat-rate">{{ attendancePercentage() }}%</div>
+            <div class="att-stat-label">
+              {{ totalPresent() }} / {{ totalEnrolled() }} {{ 'ATTENDANCE_TUTOR.STAT_PRESENT' | translate }}
+            </div>
+            <!-- Animated fill bar -->
+            <div class="att-stat-bar-track">
+              <div class="att-stat-bar-fill" [style.width.%]="attendancePercentage()"></div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Right Column: Live Student Grid -->
-      <div class="card students-card">
-        <div class="card-header">
-          <h2>{{ 'ATTENDANCE_TUTOR.ENROLLED_STUDENTS' | translate }}</h2>
-          <p class="helper">{{ 'ATTENDANCE_TUTOR.STUDENTS_HELPER' | translate }}</p>
+      <!-- Right Panel: Live Student Roster & Manual Toggle -->
+      <div class="att-card att-students-card">
+        
+        <!-- Roster Card Header with Search & Filter Tabs -->
+        <div class="att-card-header att-roster-header">
+          <div class="att-roster-header-top">
+            <div class="att-card-title-wrap">
+              <lucide-icon [img]="Users" [size]="20" class="att-header-icon"></lucide-icon>
+              <div>
+                <h2>{{ 'ATTENDANCE_TUTOR.ENROLLED_STUDENTS' | translate }}</h2>
+                <p class="att-card-subtitle-top">{{ 'ATTENDANCE_TUTOR.STUDENTS_HELPER' | translate }}</p>
+              </div>
+            </div>
+            
+            <!-- Quick Filter Tabs -->
+            <div class="att-filter-tabs">
+              <button 
+                class="att-tab-btn" 
+                [class.active]="selectedFilter() === 'all'"
+                (click)="selectedFilter.set('all')">
+                {{ 'ATTENDANCE_TUTOR.FILTER_ALL' | translate }} ({{ totalEnrolled() }})
+              </button>
+              <button 
+                class="att-tab-btn tab-present" 
+                [class.active]="selectedFilter() === 'present'"
+                (click)="selectedFilter.set('present')">
+                {{ 'ATTENDANCE_TUTOR.FILTER_PRESENT' | translate }} ({{ totalPresent() }})
+              </button>
+              <button 
+                class="att-tab-btn tab-absent" 
+                [class.active]="selectedFilter() === 'absent'"
+                (click)="selectedFilter.set('absent')">
+                {{ 'ATTENDANCE_TUTOR.FILTER_ABSENT' | translate }} ({{ totalAbsent() }})
+              </button>
+            </div>
+          </div>
+
+          <!-- Search Bar -->
+          <div class="att-search-wrapper">
+            <lucide-icon [img]="Search" [size]="16" class="att-search-icon"></lucide-icon>
+            <input 
+              type="text" 
+              class="att-search-input" 
+              [placeholder]="'ATTENDANCE_TUTOR.SEARCH_PLACEHOLDER' | translate"
+              [value]="searchQuery()"
+              (input)="searchQuery.set($any($event.target).value)" />
+            @if (searchQuery()) {
+              <button class="att-clear-search" (click)="searchQuery.set('')">
+                <lucide-icon [img]="X" [size]="14"></lucide-icon>
+              </button>
+            }
+          </div>
         </div>
-        <div class="students-grid">
-          @for (student of students(); track student.id) {
+
+        <!-- Student Roster Grid -->
+        <div class="att-students-grid">
+          @for (student of filteredStudents(); track student.id) {
             <div 
-              class="student-item" 
-              [class.present]="student.isPresent" 
-              (click)="toggleManualPresence(student)">
+              class="att-student-card" 
+              [class.is-present]="student.isPresent"
+              [class.is-manual]="student.isManual"
+              (click)="toggleManualPresence(student)"
+              [title]="'ATTENDANCE_TUTOR.STUDENTS_HELPER' | translate">
               
-              <div class="avatar">
-                @if (student.avatarUrl) {
-                  <img [src]="getAvatarUrl(student.avatarUrl)" alt="Avatar">
+              <div class="att-avatar-wrap">
+                @if (getAvatarUrl(student.avatarUrl); as avatarSrc) {
+                  <img [src]="avatarSrc" [alt]="student.fullName" class="att-avatar-img">
                 } @else {
-                  <div class="avatar-placeholder">{{ student.fullName.charAt(0) }}</div>
+                  <div class="att-avatar-initials">{{ student.fullName.charAt(0).toUpperCase() }}</div>
                 }
                 
                 @if (student.isPresent) {
-                  <div class="check-badge" [class.manual]="student.isManual">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  <div class="att-check-badge" [class.manual]="student.isManual">
+                    <lucide-icon [img]="Check" [size]="12"></lucide-icon>
                   </div>
                 }
               </div>
               
-              <div class="details">
-                <span class="name">{{ student.fullName }}</span>
-                <span class="status-text" [class.present]="student.isPresent">
+              <div class="att-student-info">
+                <span class="att-student-name">{{ student.fullName }}</span>
+                <span class="att-student-status" [class.present]="student.isPresent">
                   @if (student.isPresent) {
                     {{ student.isManual ? ('ATTENDANCE_TUTOR.STATUS_PRESENT_MANUAL' | translate) : ('ATTENDANCE_TUTOR.STATUS_PRESENT_QR' | translate) }}
                   } @else {
@@ -98,39 +179,101 @@
               </div>
             </div>
           } @empty {
-            <div class="empty-state">{{ 'ATTENDANCE_TUTOR.NO_STUDENTS' | translate }}</div>
-          }
-        </div>
-      </div>
-    </div>
-  } @else {
-    <div class="empty-state big">
-      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-      <h2>{{ 'ATTENDANCE_TUTOR.NO_ACTIVE_CHECK' | translate }}</h2>
-      <p>{{ 'ATTENDANCE_TUTOR.NO_ACTIVE_CHECK_DESC' | translate }}</p>
-    </div>
-
-    @if (history().length > 0) {
-      <div class="card history-card">
-        <div class="card-header">
-          <h2>{{ 'ATTENDANCE_TUTOR.PAST_SESSIONS' | translate }}</h2>
-          <p class="helper">{{ 'ATTENDANCE_TUTOR.PAST_SESSIONS_HELPER' | translate }}</p>
-        </div>
-        <div class="history-list">
-          @for (session of history(); track session.id) {
-            <div class="history-item">
-              <div class="history-info">
-                <h3>{{ session.title }}</h3>
-                <span>{{ session.createdAt | date:'medium' }}</span>
-              </div>
-              <div class="history-stats">
-                <div class="fraction">{{ session.totalPresent }} / {{ session.totalEnrolled }}</div>
-                <span class="label">{{ 'ATTENDANCE_TUTOR.STAT_PRESENT' | translate }}</span>
-              </div>
+            <div class="att-roster-empty">
+              <lucide-icon [img]="UserX" [size]="40"></lucide-icon>
+              <p>{{ 'ATTENDANCE_TUTOR.NO_STUDENTS' | translate }}</p>
             </div>
           }
         </div>
       </div>
-    }
+
+    </div>
+  } @else {
+
+    <!-- ── NO ACTIVE CHECK / INITIAL STATE & HISTORY ─────────────────────── -->
+    <div class="att-empty-overview">
+      
+      <!-- Hero Start Banner -->
+      <div class="att-hero-card">
+        <div class="att-hero-icon-bg">
+          <lucide-icon [img]="QrCode" [size]="56"></lucide-icon>
+        </div>
+        <div class="att-hero-content">
+          <h2>{{ 'ATTENDANCE_TUTOR.NO_ACTIVE_CHECK' | translate }}</h2>
+          <p>{{ 'ATTENDANCE_TUTOR.NO_ACTIVE_CHECK_DESC' | translate }}</p>
+        </div>
+      </div>
+
+
+      <!-- Quick Metrics Summary Bar -->
+      @if (history().length > 0) {
+        <div class="att-history-metrics">
+          <div class="att-metric-card">
+            <div class="att-metric-icon blue-bg">
+              <lucide-icon [img]="History" [size]="22"></lucide-icon>
+            </div>
+            <div class="att-metric-data">
+              <span class="att-metric-value">{{ history().length }}</span>
+              <span class="att-metric-label">{{ 'ATTENDANCE_TUTOR.TOTAL_SESSIONS' | translate }}</span>
+            </div>
+          </div>
+
+          <div class="att-metric-card">
+            <div class="att-metric-icon teal-bg">
+              <lucide-icon [img]="TrendingUp" [size]="22"></lucide-icon>
+            </div>
+            <div class="att-metric-data">
+              <span class="att-metric-value">{{ averageAttendanceRate() }}%</span>
+              <span class="att-metric-label">{{ 'ATTENDANCE_TUTOR.AVG_RATE' | translate }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Past Attendance Sessions ───────────────────────────────────── -->
+        <div class="att-card att-history-card">
+          <div class="att-card-header">
+            <div class="att-card-title-wrap">
+              <lucide-icon [img]="History" [size]="20" class="att-header-icon"></lucide-icon>
+              <h2>{{ 'ATTENDANCE_TUTOR.PAST_SESSIONS' | translate }}</h2>
+            </div>
+            <p class="att-card-subtitle">{{ 'ATTENDANCE_TUTOR.PAST_SESSIONS_HELPER' | translate }}</p>
+          </div>
+
+          <div class="att-history-list">
+            @for (session of history(); track session.id) {
+              <div class="att-history-item">
+                <div class="att-history-main">
+                  <div class="att-history-icon-wrapper">
+                    <lucide-icon [img]="Clock" [size]="20"></lucide-icon>
+                  </div>
+                  <div class="att-history-details">
+                    <h3>{{ session.title }}</h3>
+                    <span class="att-history-date">{{ session.createdAt | date:'medium' }}</span>
+                  </div>
+                </div>
+
+                <div class="att-history-stats-wrap">
+                  <div class="att-history-fraction">
+                    <span class="num-present">{{ session.totalPresent }}</span>
+                    <span class="num-separator">/</span>
+                    <span class="num-total">{{ session.totalEnrolled }}</span>
+                    <span class="unit-label">{{ 'ATTENDANCE_TUTOR.STAT_PRESENT' | translate }}</span>
+                  </div>
+
+                  <!-- Session Ratio Progress Bar -->
+                  <div class="att-history-progress">
+                    <div 
+                      class="att-history-fill" 
+                      [style.width.%]="session.totalEnrolled > 0 ? (session.totalPresent / session.totalEnrolled * 100) : 0">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+    </div>
   }
 </div>
