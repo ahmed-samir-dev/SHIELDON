@@ -791,13 +791,19 @@
 .attempt-picker-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(6px);
-  z-index: 2000;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 99999 !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fadeIn 0.2s ease;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+
+  &.modal-pending {
+    opacity: 0;
+    pointer-events: none;
+  }
 
   .attempt-picker-modal {
     background: var(--theme-bg-surface);

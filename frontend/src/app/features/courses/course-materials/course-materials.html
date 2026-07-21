@@ -19,8 +19,8 @@
   </div>
 
   @if (showUploadForm() && canManageMaterials()) {
-  <div class="custom-modal-overlay fadeIn animated">
-    <div class="custom-modal-container slideUp animated">
+  <div class="custom-modal-overlay modal-pending fadeIn animated" #uploadModalOverlay (click)="toggleUploadForm()">
+    <div class="custom-modal-container slideUp animated" (click)="$event.stopPropagation()">
 
       <div class="modal-header">
         <div class="modal-title-wrapper">

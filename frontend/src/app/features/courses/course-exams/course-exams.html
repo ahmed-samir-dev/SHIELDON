@@ -229,7 +229,7 @@
 
   <!-- ══ CREATE EXAM MODAL ══════════════════════════════════════════ -->
 @if (isModalOpen() && canManageExams()) {
-  <div class="custom-modal-overlay fadeIn animated" (click)="closeModal()">
+  <div class="custom-modal-overlay modal-pending fadeIn animated" #examModalOverlay (click)="closeModal()">
     <div class="custom-modal-container slideUp animated wide-modal has-scroller" 
       (click)="$event.stopPropagation()">
       <div class="modal-header">
@@ -488,7 +488,8 @@
 </div>
 
 <!-- Attempt Picker Modal -->
-<div class="attempt-picker-overlay" *ngIf="showAttemptPicker()" (click)="closeAttemptPicker()">
+@if (showAttemptPicker()) {
+<div class="attempt-picker-overlay modal-pending" (click)="closeAttemptPicker()">
   <div class="attempt-picker-modal" (click)="$event.stopPropagation()">
     <div class="picker-header">
       <h3>{{ 'COURSE_EXAMS.PICKER_TITLE' | translate }}</h3>
@@ -513,3 +514,4 @@
     </div>
   </div>
 </div>
+}

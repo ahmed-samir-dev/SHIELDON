@@ -8,11 +8,16 @@ import { environment } from '../../../../environments/environment';
 import { RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import {
+  LucideAngularModule,
+  ArrowLeft, QrCode, Play, Square, Users, UserCheck, UserX,
+  CheckCircle2, Clock, Search, RefreshCw, ShieldCheck, History, Sparkles, Check, X, TrendingUp
+} from 'lucide-angular';
 
 @Component({
   selector: 'app-attendance-tutor',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule],
+  imports: [CommonModule, RouterModule, TranslateModule, LucideAngularModule],
   templateUrl: './attendance-tutor.html',
   styleUrls: ['./attendance-tutor.scss']
 })
@@ -23,6 +28,25 @@ export class AttendanceTutorComponent implements OnInit, OnDestroy {
   private attendanceService = inject(AttendanceService);
   public translate = inject(TranslateService);
 
+  // ── Lucide Icons ────────────────────────────────────────────────────────
+  readonly ArrowLeft = ArrowLeft;
+  readonly QrCode = QrCode;
+  readonly Play = Play;
+  readonly Square = Square;
+  readonly Users = Users;
+  readonly UserCheck = UserCheck;
+  readonly UserX = UserX;
+  readonly CheckCircle2 = CheckCircle2;
+  readonly Clock = Clock;
+  readonly Search = Search;
+  readonly RefreshCw = RefreshCw;
+  readonly ShieldCheck = ShieldCheck;
+  readonly History = History;
+  readonly Sparkles = Sparkles;
+  readonly TrendingUp = TrendingUp;
+  readonly Check = Check;
+  readonly X = X;
+
   courseId = signal<string>('');
   activeCheck = signal<AttendanceCheckDetailDto | null>(null);
   history = signal<any[]>([]);
@@ -31,6 +55,46 @@ export class AttendanceTutorComponent implements OnInit, OnDestroy {
   students = signal<EnrolledStudentDto[]>([]);
   totalEnrolled = computed(() => this.students().length);
   totalPresent = computed(() => this.students().filter(s => s.isPresent).length);
+  totalAbsent = computed(() => this.students().filter(s => !s.isPresent).length);
+  attendancePercentage = computed(() => {
+    const total = this.totalEnrolled();
+    return total > 0 ? Math.round((this.totalPresent() / total) * 100) : 0;
+  });
+
+  // Search & Filter
+  searchQuery = signal<string>('');
+  selectedFilter = signal<'all' | 'present' | 'absent'>('all');
+
+  filteredStudents = computed(() => {
+    const query = this.searchQuery().toLowerCase().trim();
+    const filter = this.selectedFilter();
+    let list = this.students();
+
+    if (filter === 'present') {
+      list = list.filter(s => s.isPresent);
+    } else if (filter === 'absent') {
+      list = list.filter(s => !s.isPresent);
+    }
+
+    if (query) {
+      list = list.filter(s =>
+        s.fullName.toLowerCase().includes(query)
+      );
+    }
+
+    return list;
+  });
+
+  // History stats
+  averageAttendanceRate = computed(() => {
+    const h = this.history();
+    if (h.length === 0) return 0;
+    const totalRatio = h.reduce((acc, curr) => {
+      const ratio = curr.totalEnrolled > 0 ? (curr.totalPresent / curr.totalEnrolled) : 0;
+      return acc + ratio;
+    }, 0);
+    return Math.round((totalRatio / h.length) * 100);
+  });
 
   isLoading = signal<boolean>(false);
   isQrLoading = signal<boolean>(true);
@@ -169,7 +233,7 @@ export class AttendanceTutorComponent implements OnInit, OnDestroy {
   private renderQrCode(payload: string) {
     if (!this.qrCanvas?.nativeElement) return;
     QRCode.toCanvas(this.qrCanvas.nativeElement, payload, {
-      width: 350,
+      width: 240,
       margin: 2,
       color: { dark: '#0f172a', light: '#ffffff' }
     }, (error) => {

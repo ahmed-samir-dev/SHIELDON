@@ -26,7 +26,7 @@
 
   <!-- ══ CREATE ASSIGNMENT MODAL ══════════════════════════════════════ -->
   @if (showCreateModal() && canManage()) {
-    <div class="custom-modal-overlay fadeIn animated" (click)="closeCreateModal()">
+    <div class="custom-modal-overlay modal-pending fadeIn animated" #createModalOverlay (click)="closeCreateModal()">
       <div class="custom-modal-container slideUp animated wide-modal has-scroller" (click)="$event.stopPropagation()">
 
         <div class="modal-header">
@@ -156,7 +156,7 @@
 
   <!-- ══ EDIT ASSIGNMENT MODAL ══════════════════════════════════════════ -->
   @if (showEditModal() && canManage()) {
-    <div class="custom-modal-overlay fadeIn animated" (click)="closeEditModal()">
+    <div class="custom-modal-overlay modal-pending fadeIn animated" #editModalOverlay (click)="closeEditModal()">
       <div class="custom-modal-container slideUp animated wide-modal has-scroller" (click)="$event.stopPropagation()">
 
         <div class="modal-header">
@@ -246,7 +246,7 @@
 
   <!-- ══ STUDENT: SUBMIT MODAL ════════════════════════════════════════ -->
   @if (showSubmitModal() && isStudent()) {
-    <div class="custom-modal-overlay fadeIn animated" (click)="closeSubmitModal()">
+    <div class="custom-modal-overlay modal-pending fadeIn animated" #submitModalOverlay (click)="closeSubmitModal()">
       <div class="custom-modal-container slideUp animated" (click)="$event.stopPropagation()">
 
         <div class="modal-header">

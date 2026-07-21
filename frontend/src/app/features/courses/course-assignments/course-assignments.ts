@@ -1,7 +1,8 @@
 import {
-  Component, Input, OnInit, OnDestroy, inject, signal, computed
+  Component, Input, OnInit, OnDestroy, inject, signal, computed,
+  ViewChild, ElementRef, Renderer2
 } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule, DatePipe, DOCUMENT } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
   AssignmentService,
@@ -32,7 +33,13 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
   private readonly fb                = inject(FormBuilder);
   private readonly toastr            = inject(ToastrService);
   private readonly translate         = inject(TranslateService);
+  private readonly renderer          = inject(Renderer2);
+  private readonly document          = inject(DOCUMENT);
   private langSub!: Subscription;
+
+  @ViewChild('createModalOverlay') createModalOverlayRef!: ElementRef<HTMLElement>;
+  @ViewChild('editModalOverlay') editModalOverlayRef!: ElementRef<HTMLElement>;
+  @ViewChild('submitModalOverlay') submitModalOverlayRef!: ElementRef<HTMLElement>;
 
   // ── State ──────────────────────────────────────────────────────────────
   assignments      = signal<AssignmentResponse[]>([]);
@@ -123,15 +130,33 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
 
   // ── Create Assignment ──────────────────────────────────────────────────
 
+  // ── Create Assignment ──────────────────────────────────────────────────
+
   openCreateModal(): void {
     this.createForm.reset();
     this.selectedReferenceFile = null;
     this.showCreateModal.set(true);
+    setTimeout(() => {
+      const el = this.createModalOverlayRef?.nativeElement;
+      if (el) {
+        this.renderer.appendChild(this.document.body, el);
+        requestAnimationFrame(() => {
+          this.renderer.removeClass(el, 'modal-pending');
+        });
+      }
+    }, 0);
   }
 
   closeCreateModal(): void {
-    this.showCreateModal.set(false);
-    this.selectedReferenceFile = null;
+    const el = this.createModalOverlayRef?.nativeElement;
+    if (el) this.renderer.addClass(el, 'modal-pending');
+    setTimeout(() => {
+      if (el && el.parentElement === this.document.body) {
+        this.renderer.removeChild(this.document.body, el);
+      }
+      this.showCreateModal.set(false);
+      this.selectedReferenceFile = null;
+    }, 150);
   }
 
   onReferenceFileSelected(event: Event): void {
@@ -204,12 +229,29 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
       weight:       assignment.weight
     });
     this.showEditModal.set(true);
+    setTimeout(() => {
+      const el = this.editModalOverlayRef?.nativeElement;
+      if (el) {
+        this.renderer.appendChild(this.document.body, el);
+        requestAnimationFrame(() => {
+          this.renderer.removeClass(el, 'modal-pending');
+        });
+      }
+    }, 0);
   }
 
   closeEditModal(): void {
-    this.showEditModal.set(false);
-    this.selectedAssignment.set(null);
+    const el = this.editModalOverlayRef?.nativeElement;
+    if (el) this.renderer.addClass(el, 'modal-pending');
+    setTimeout(() => {
+      if (el && el.parentElement === this.document.body) {
+        this.renderer.removeChild(this.document.body, el);
+      }
+      this.showEditModal.set(false);
+      this.selectedAssignment.set(null);
+    }, 150);
   }
+
 
   submitEditForm(): void {
     if (this.editForm.invalid) {
@@ -446,13 +488,30 @@ export class CourseAssignmentsComponent implements OnInit, OnDestroy {
     this.selectedAssignment.set(assignment);
     this.selectedSubmissionFile = null;
     this.showSubmitModal.set(true);
+    setTimeout(() => {
+      const el = this.submitModalOverlayRef?.nativeElement;
+      if (el) {
+        this.renderer.appendChild(this.document.body, el);
+        requestAnimationFrame(() => {
+          this.renderer.removeClass(el, 'modal-pending');
+        });
+      }
+    }, 0);
   }
 
   closeSubmitModal(): void {
-    this.showSubmitModal.set(false);
-    this.selectedAssignment.set(null);
-    this.selectedSubmissionFile = null;
+    const el = this.submitModalOverlayRef?.nativeElement;
+    if (el) this.renderer.addClass(el, 'modal-pending');
+    setTimeout(() => {
+      if (el && el.parentElement === this.document.body) {
+        this.renderer.removeChild(this.document.body, el);
+      }
+      this.showSubmitModal.set(false);
+      this.selectedAssignment.set(null);
+      this.selectedSubmissionFile = null;
+    }, 150);
   }
+
 
   onSubmissionFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;

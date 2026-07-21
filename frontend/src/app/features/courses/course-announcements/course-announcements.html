@@ -18,7 +18,7 @@
 
   <!-- Post Announcement Modal -->
   @if (showPostForm() && canManageAnnouncements()) {
-  <div class="custom-modal-overlay fadeIn animated" (click)="togglePostForm()">
+  <div class="custom-modal-overlay modal-pending fadeIn animated" #postModalOverlay (click)="togglePostForm()">
     <div class="custom-modal-container slideUp animated" (click)="$event.stopPropagation()">
 
       <div class="modal-header">

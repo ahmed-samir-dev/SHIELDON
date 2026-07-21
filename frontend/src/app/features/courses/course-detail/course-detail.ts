@@ -11,16 +11,30 @@ import { CourseAssignmentsComponent } from '../course-assignments/course-assignm
 import { CourseExamsComponent } from '../course-exams/course-exams';
 import { CourseQuestionBankComponent } from '../question-bank/course-question-bank.component';
 import { CourseGrades } from '../../grades/course-grades/course-grades';
+import { CourseLeaderboardComponent } from '../course-leaderboard/course-leaderboard';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
+type CourseTab = 'announcements' | 'materials' | 'assignments' | 'exams' | 'question-bank' | 'grades' | 'leaderboard';
+const VALID_TABS: CourseTab[] = ['announcements', 'materials', 'assignments', 'exams', 'question-bank', 'grades', 'leaderboard'];
 
 @Component({
   selector: 'app-course-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, CourseMaterialsComponent, CourseAnnouncementsComponent, CourseAssignmentsComponent, CourseExamsComponent, CourseQuestionBankComponent, CourseGrades, TranslateModule],
+  imports: [
+    CommonModule,
+    RouterLink,
+    CourseMaterialsComponent,
+    CourseAnnouncementsComponent,
+    CourseAssignmentsComponent,
+    CourseExamsComponent,
+    CourseQuestionBankComponent,
+    CourseGrades,
+    CourseLeaderboardComponent,
+    TranslateModule,
+  ],
   templateUrl: './course-detail.html',
   styleUrl: './course-detail.scss'
 })
-// Main course detail component
 export class CourseDetail implements OnInit {
   private translate = inject(TranslateService);
   private route = inject(ActivatedRoute);
@@ -31,7 +45,7 @@ export class CourseDetail implements OnInit {
 
   course = signal<CourseDetailResponse | null>(null);
   isLoading = signal(true);
-  activeTab = signal<'announcements' | 'materials' | 'assignments' | 'exams' | 'question-bank' | 'grades'>('announcements');
+  activeTab = signal<CourseTab>('announcements');
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
@@ -44,8 +58,8 @@ export class CourseDetail implements OnInit {
     // Listen for query parameter changes to activate the correct tab
     this.route.queryParamMap.subscribe(queryParams => {
       const tab = queryParams.get('tab');
-      if (tab && ['announcements', 'materials', 'assignments', 'exams', 'question-bank', 'grades'].includes(tab)) {
-        this.activeTab.set(tab as any);
+      if (tab && (VALID_TABS as string[]).includes(tab)) {
+        this.activeTab.set(tab as CourseTab);
       }
     });
   }
@@ -64,7 +78,7 @@ export class CourseDetail implements OnInit {
     });
   }
 
-  setActiveTab(tab: 'announcements' | 'materials' | 'assignments' | 'exams' | 'question-bank' | 'grades') {
+  setActiveTab(tab: CourseTab) {
     this.activeTab.set(tab);
     // Sync the active tab backward to the URL to allow sharable URLs and persistent state
     this.router.navigate([], {
