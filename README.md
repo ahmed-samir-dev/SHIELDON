@@ -114,7 +114,7 @@ SHIELDON follows a **Clean Architecture + Vertical Slice Hybrid** approach:
 
 ---
 
-## 🚀 Comprehensive Feature List (F1 – F31)
+## 🚀 Comprehensive Feature List (F1 – F33)
 
 | # | Feature | Details |
 |---|---|---|
@@ -149,6 +149,8 @@ SHIELDON follows a **Clean Architecture + Vertical Slice Hybrid** approach:
 | F29 | **Dark / Light Mode** | Seamless theme toggle with CSS custom properties |
 | F30 | **English / Arabic (i18n)** | Full RTL support with ngx-translate |
 | F31 | **Mobile Guard** | Detects and blocks mobile/tablet devices from accessing exam engine |
+| F32 | **Single Active Session Enforcement** | Real-time single-session-per-user policy via `SecurityHub` SignalR. Login from a new device instantly revokes old tokens and triggers a 7-second blocking countdown overlay on the displaced session before forced logout. |
+| F33 | **Live Real-Time Course Leaderboard** | Top-10 course ranking with SignalR real-time updates, neon podium (Gold/Silver/Bronze), delta rank badges (↑↓=, NEW), tutor-controlled visibility, dense-rank tie handling, and student own-rank card (see details below) |
 
 ### 🛡️ Anti-Cheating Engine — Sub-Features (F17)
 
