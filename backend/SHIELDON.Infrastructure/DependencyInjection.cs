@@ -77,6 +77,7 @@ public static class DependencyInjection
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<ICurrentLanguageProvider, CurrentLanguageProvider>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<ILeaderboardService, LeaderboardService>();
         services.AddSingleton<PresenceTracker>();
 
         // ── HTTP Clients ───────────────────────────────────────────────────

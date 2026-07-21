@@ -1016,6 +1016,121 @@ namespace SHIELDON.Infrastructure.Migrations
                     b.ToTable("GradeRecords");
                 });
 
+            modelBuilder.Entity("SHIELDON.Domain.Entities.IpAuditLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("EventType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("ExamAttemptId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
+
+                    b.Property<bool>("IsDuplicateSession")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsNetworkChangeDuringExam")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsVpnOrProxy")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IpAddress")
+                        .HasDatabaseName("IX_IpAuditLogs_IpAddress");
+
+                    b.HasIndex("ExamAttemptId", "OccurredAt")
+                        .HasDatabaseName("IX_IpAuditLogs_AttemptId_OccurredAt");
+
+                    b.HasIndex("UserId", "OccurredAt")
+                        .HasDatabaseName("IX_IpAuditLogs_UserId_OccurredAt");
+
+                    b.ToTable("IpAuditLogs", (string)null);
+                });
+
+            modelBuilder.Entity("SHIELDON.Domain.Entities.LeaderboardRankSnapshot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CourseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("RankPosition")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Score")
+                        .HasPrecision(8, 4)
+                        .HasColumnType("decimal(8,4)");
+
+                    b.Property<DateTime>("SnapshotAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("CourseId", "StudentId")
+                        .IsUnique();
+
+                    b.ToTable("LeaderboardRankSnapshots");
+                });
+
+            modelBuilder.Entity("SHIELDON.Domain.Entities.LeaderboardSettings", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CourseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsLeaderboardVisible")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ScoringMetric")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<bool>("ShowStudentOwnRank")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId")
+                        .IsUnique();
+
+                    b.ToTable("LeaderboardSettings");
+                });
+
             modelBuilder.Entity("SHIELDON.Domain.Entities.LoginActivityLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1934,6 +2049,54 @@ namespace SHIELDON.Infrastructure.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("SHIELDON.Domain.Entities.IpAuditLog", b =>
+                {
+                    b.HasOne("SHIELDON.Domain.Entities.ExamAttempt", "ExamAttempt")
+                        .WithMany()
+                        .HasForeignKey("ExamAttemptId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("SHIELDON.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ExamAttempt");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SHIELDON.Domain.Entities.LeaderboardRankSnapshot", b =>
+                {
+                    b.HasOne("SHIELDON.Domain.Entities.Course", "Course")
+                        .WithMany("LeaderboardRankSnapshots")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SHIELDON.Domain.Entities.User", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("SHIELDON.Domain.Entities.LeaderboardSettings", b =>
+                {
+                    b.HasOne("SHIELDON.Domain.Entities.Course", "Course")
+                        .WithOne("LeaderboardSettings")
+                        .HasForeignKey("SHIELDON.Domain.Entities.LeaderboardSettings", "CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+                });
+
             modelBuilder.Entity("SHIELDON.Domain.Entities.LoginActivityLog", b =>
                 {
                     b.HasOne("SHIELDON.Domain.Entities.User", "User")
@@ -2158,6 +2321,10 @@ namespace SHIELDON.Infrastructure.Migrations
                     b.Navigation("Enrollments");
 
                     b.Navigation("Exams");
+
+                    b.Navigation("LeaderboardRankSnapshots");
+
+                    b.Navigation("LeaderboardSettings");
 
                     b.Navigation("Materials");
 

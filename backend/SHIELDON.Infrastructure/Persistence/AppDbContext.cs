@@ -75,6 +75,13 @@ public class AppDbContext : DbContext
     // ── Phase 6.5: Payment Gateway ────────────────────────────────────────────
     public DbSet<PaymentRecord> PaymentRecords { get; set; } = null!;
 
+    // ── Stage 7.7.1: IP Audit & Security Trail ────────────────────────────────
+    public DbSet<IpAuditLog> IpAuditLogs { get; set; } = null!;
+
+    // ── Stage 7.7.2: Live Leaderboard ─────────────────────────────────────────
+    public DbSet<LeaderboardSettings> LeaderboardSettings { get; set; } = null!;
+    public DbSet<LeaderboardRankSnapshot> LeaderboardRankSnapshots { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -1,0 +1,353 @@
+<div class="leaderboard-page">
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="lb-loading">
+      <div class="lb-spinner"></div>
+      <p>{{ 'LEADERBOARD.LOADING' | translate }}</p>
+    </div>
+  }
+
+  <!-- Main Content -->
+  @if (!isLoading() && leaderboard(); as lb) {
+
+    <!-- ── Hidden State (Student only, when BOTH full leaderboard AND own rank are hidden) ── -->
+    @if (!lb.isLeaderboardVisible && !lb.showStudentOwnRank && isStudent()) {
+      <div class="lb-hidden-card">
+        <div class="lb-hidden-icon">
+          <lucide-icon [img]="Lock" [size]="48"></lucide-icon>
+        </div>
+        <h2>{{ 'LEADERBOARD.HIDDEN_TITLE' | translate }}</h2>
+        <p>{{ 'LEADERBOARD.HIDDEN_DESC' | translate }}</p>
+      </div>
+    }
+
+    <!-- ── Full Leaderboard (Visible) ──────────────────────────── -->
+    @if (lb.isLeaderboardVisible || isInstructor()) {
+
+      <!-- Header -->
+      <div class="lb-header">
+        <div class="lb-header-left">
+          <!-- Gold animated trophy badge (fix #5) -->
+          <div class="lb-title-badge">
+            <lucide-icon [img]="Trophy" [size]="22" class="trophy-animate"></lucide-icon>
+          </div>
+          <div>
+            <h1 class="lb-title">
+              {{ 'LEADERBOARD.TITLE' | translate }}
+              <span class="lb-live-badge">
+                <span class="lb-live-dot"></span>
+                {{ 'LEADERBOARD.LIVE' | translate }}
+              </span>
+            </h1>
+            <p class="lb-subtitle">
+              {{ 'LEADERBOARD.SCORING_BY' | translate }}: <strong>{{ getMetricLabel(lb.scoringMetric) }}</strong>
+            </p>
+          </div>
+        </div>
+        <div class="lb-header-actions">
+          <!-- Instructor Preview Banner (when hidden) -->
+          @if (!lb.isLeaderboardVisible && isInstructor()) {
+            <div class="lb-preview-badge">
+              <lucide-icon [img]="EyeOff" [size]="14"></lucide-icon>
+              {{ 'LEADERBOARD.PREVIEW_MODE' | translate }}
+            </div>
+          }
+          @if (isInstructor()) {
+            <button class="lb-btn lb-btn-ghost" id="lb-refresh-btn" (click)="refreshLeaderboard()" [disabled]="isRefreshing()">
+              <lucide-icon [img]="RefreshCw" [size]="16" [class.spinning]="isRefreshing()"></lucide-icon>
+              {{ 'LEADERBOARD.BTN_REFRESH' | translate }}
+            </button>
+            <button class="lb-btn lb-btn-primary" id="lb-settings-btn" (click)="openSettingsModal()">
+              <lucide-icon [img]="Settings2" [size]="16"></lucide-icon>
+              {{ 'LEADERBOARD.BTN_SETTINGS' | translate }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- ── Podium (Top 3) ─────────────────────────────────────── -->
+      @if (hasData()) {
+        <div class="lb-podium-section">
+          <div class="lb-podium">
+
+            <!-- 2nd Place -->
+            <div class="podium-slot podium-2nd" [class.is-me]="podiumTop3().second && isCurrentUser(podiumTop3().second!.studentId)">
+              @if (podiumTop3().second; as entry) {
+                <div class="podium-avatar-wrap">
+                  <!-- Fix #1: use getAvatarUrl() to resolve relative paths -->
+                  @if (getAvatarUrl(entry.avatarUrl); as avatarSrc) {
+                    <img class="podium-avatar" [src]="avatarSrc" [alt]="entry.studentName" />
+                  } @else {
+                    <div class="podium-avatar avatar-initials silver-bg">{{ getAvatarInitials(entry.studentName) }}</div>
+                  }
+                  <p class="podium-name">{{ entry.studentName }}</p>
+                </div>
+                <div class="podium-score silver-score">{{ entry.score | number:'1.1-1' }}%</div>
+              } @else {
+                <div class="podium-empty">—</div>
+              }
+              <div class="podium-block silver-block"><span>#2</span></div>
+            </div>
+
+            <!-- 1st Place -->
+            <div class="podium-slot podium-1st" [class.is-me]="podiumTop3().first && isCurrentUser(podiumTop3().first!.studentId)">
+              <!-- Fix #5: only crown above 1st, bigger and neon, no gold-medal badge -->
+              <div class="crown-wrapper">
+                <lucide-icon [img]="Crown" [size]="44" class="crown-icon"></lucide-icon>
+              </div>
+              @if (podiumTop3().first; as entry) {
+                <div class="podium-avatar-wrap">
+                  <!-- Fix #1: use getAvatarUrl() to resolve relative paths -->
+                  @if (getAvatarUrl(entry.avatarUrl); as avatarSrc) {
+                    <img class="podium-avatar podium-avatar-lg" [src]="avatarSrc" [alt]="entry.studentName" />
+                  } @else {
+                    <div class="podium-avatar podium-avatar-lg avatar-initials gold-bg">{{ getAvatarInitials(entry.studentName) }}</div>
+                  }
+                  <p class="podium-name podium-name-lg">{{ entry.studentName }}</p>
+                </div>
+                <div class="podium-score gold-score">{{ entry.score | number:'1.1-1' }}%</div>
+              } @else {
+                <div class="podium-empty">—</div>
+              }
+              <div class="podium-block gold-block"><span>#1</span></div>
+            </div>
+
+            <!-- 3rd Place -->
+            <div class="podium-slot podium-3rd" [class.is-me]="podiumTop3().third && isCurrentUser(podiumTop3().third!.studentId)">
+              @if (podiumTop3().third; as entry) {
+                <div class="podium-avatar-wrap">
+                  <!-- Fix #1: use getAvatarUrl() to resolve relative paths -->
+                  @if (getAvatarUrl(entry.avatarUrl); as avatarSrc) {
+                    <img class="podium-avatar" [src]="avatarSrc" [alt]="entry.studentName" />
+                  } @else {
+                    <div class="podium-avatar avatar-initials bronze-bg">{{ getAvatarInitials(entry.studentName) }}</div>
+                  }
+                  <p class="podium-name">{{ entry.studentName }}</p>
+                </div>
+                <div class="podium-score bronze-score">{{ entry.score | number:'1.1-1' }}%</div>
+              } @else {
+                <div class="podium-empty">—</div>
+              }
+              <div class="podium-block bronze-block"><span>#3</span></div>
+            </div>
+
+
+          </div>
+        </div>
+
+        <!-- ── Full Rankings Table ──────────────────────────────── -->
+        <div class="lb-rankings-card">
+          <div class="lb-section-header">
+            <lucide-icon [img]="BarChart3" [size]="18"></lucide-icon>
+            <h2>{{ 'LEADERBOARD.FULL_RANKINGS' | translate }}</h2>
+          </div>
+          <div class="lb-table-wrap">
+            <table class="lb-table">
+              <thead>
+                <tr>
+                  <th class="col-rank">{{ 'LEADERBOARD.COL_RANK' | translate }}</th>
+                  <th class="col-student">{{ 'LEADERBOARD.COL_STUDENT' | translate }}</th>
+                  <th class="col-score">{{ 'LEADERBOARD.COL_SCORE' | translate }}</th>
+                  <th class="col-delta">{{ 'LEADERBOARD.COL_CHANGE' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (entry of lb.topEntries; track entry.studentId) {
+                  <tr class="lb-row" [class.lb-row-me]="isCurrentUser(entry.studentId)"
+                      [class.rank-gold]="entry.rank === 1"
+                      [class.rank-silver]="entry.rank === 2"
+                      [class.rank-bronze]="entry.rank === 3">
+                    <!-- Rank -->
+                    <td class="col-rank">
+                      <div class="rank-badge-wrap">
+                        <div class="rank-badge" [class.rank-badge-gold]="entry.rank === 1"
+                                                [class.rank-badge-silver]="entry.rank === 2"
+                                                [class.rank-badge-bronze]="entry.rank === 3">
+                          @if (entry.rank === 1) { <lucide-icon [img]="Crown" [size]="13"></lucide-icon> }
+                          {{ entry.rank }}
+                        </div>
+                        @if (isTied(entry, lb.topEntries)) {
+                          <span class="tied-tag" title="Tied Rank Position">Tied</span>
+                        }
+                      </div>
+                    </td>
+                    <!-- Student -->
+                    <td class="col-student">
+                      <div class="student-cell">
+                        <!-- Fix #1: use getAvatarUrl() to resolve relative paths -->
+                        @if (getAvatarUrl(entry.avatarUrl); as avatarSrc) {
+                          <img class="row-avatar" [src]="avatarSrc" [alt]="entry.studentName" />
+                        } @else {
+                          <div class="row-avatar avatar-initials-sm">{{ getAvatarInitials(entry.studentName) }}</div>
+                        }
+                        <div class="student-info-wrap">
+                          <span class="student-name">
+                            {{ entry.studentName }}
+                            @if (isCurrentUser(entry.studentId)) {
+                              <span class="you-badge">{{ 'LEADERBOARD.YOU' | translate }}</span>
+                            }
+                          </span>
+                          <span class="student-id">{{ entry.studentDisplayId ?? '—' }}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <!-- Score -->
+                    <td class="col-score">
+                      <span class="score-value">{{ entry.score | number:'1.1-1' }}%</span>
+                    </td>
+                    <!-- Delta -->
+                    <td class="col-delta">
+                      @if (entry.rankDelta === null) {
+                        <span class="delta-badge delta-new">
+                          {{ 'LEADERBOARD.DELTA_NEW' | translate }}
+                        </span>
+                      } @else if (entry.rankDelta > 0) {
+                        <span class="delta-badge delta-up">
+                          <lucide-icon [img]="TrendingUp" [size]="12"></lucide-icon>
+                          +{{ entry.rankDelta }}
+                        </span>
+                      } @else if (entry.rankDelta < 0) {
+                        <span class="delta-badge delta-down">
+                          <lucide-icon [img]="TrendingDown" [size]="12"></lucide-icon>
+                          {{ entry.rankDelta }}
+                        </span>
+                      } @else {
+                        <span class="delta-badge delta-same">
+                          <lucide-icon [img]="Minus" [size]="12"></lucide-icon>
+                        </span>
+                      }
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      } @else {
+        <!-- Empty state -->
+        <div class="lb-empty">
+          <lucide-icon [img]="BarChart3" [size]="56"></lucide-icon>
+          <h3>{{ 'LEADERBOARD.EMPTY_TITLE' | translate }}</h3>
+          <p>{{ 'LEADERBOARD.EMPTY_DESC' | translate }}</p>
+        </div>
+      }
+
+    }
+
+    <!-- ── Your Rank Card (student view when Show Student's Own Rank is enabled) ── -->
+    @if (lb.studentOwnRank && isStudent() && lb.showStudentOwnRank) {
+      <div class="lb-own-rank-card">
+        <div class="own-rank-label">
+          <lucide-icon [img]="Star" [size]="16"></lucide-icon>
+          {{ 'LEADERBOARD.YOUR_RANK' | translate }}
+        </div>
+        <div class="own-rank-row">
+          <div class="rank-badge">{{ lb.studentOwnRank.rank }}</div>
+          <div class="student-cell">
+            <!-- Fix #1: use getAvatarUrl() to resolve relative paths -->
+            @if (getAvatarUrl(lb.studentOwnRank.avatarUrl); as avatarSrc) {
+              <img class="row-avatar" [src]="avatarSrc" [alt]="lb.studentOwnRank.studentName" />
+            } @else {
+              <div class="row-avatar avatar-initials-sm">{{ getAvatarInitials(lb.studentOwnRank.studentName) }}</div>
+            }
+            <span class="student-name">{{ lb.studentOwnRank.studentName }}</span>
+          </div>
+          <span class="student-id">{{ lb.studentOwnRank.studentDisplayId ?? '—' }}</span>
+          <span class="score-value">{{ lb.studentOwnRank.score | number:'1.1-1' }}%</span>
+          @if (lb.studentOwnRank.rankDelta === null) {
+            <span class="delta-badge delta-new">{{ 'LEADERBOARD.DELTA_NEW' | translate }}</span>
+          } @else if (lb.studentOwnRank.rankDelta > 0) {
+            <span class="delta-badge delta-up"><lucide-icon [img]="TrendingUp" [size]="12"></lucide-icon> +{{ lb.studentOwnRank.rankDelta }}</span>
+          } @else if (lb.studentOwnRank.rankDelta < 0) {
+            <span class="delta-badge delta-down"><lucide-icon [img]="TrendingDown" [size]="12"></lucide-icon> {{ lb.studentOwnRank.rankDelta }}</span>
+          } @else {
+            <span class="delta-badge delta-same"><lucide-icon [img]="Minus" [size]="12"></lucide-icon></span>
+          }
+        </div>
+      </div>
+    }
+
+  }
+
+
+  <!-- ── Settings Modal ───────────────────────────────────────── -->
+  @if (showSettingsModal()) {
+    <!-- Backdrop is moved to document.body by openSettingsModal() to escape overflow:hidden stacking context -->
+    <div class="lb-modal-backdrop" #modalBackdrop (click)="closeSettingsModal()">
+      <div class="lb-modal" (click)="$event.stopPropagation()">
+        <div class="lb-modal-header">
+          <h3>{{ 'LEADERBOARD.MODAL_TITLE' | translate }}</h3>
+          <button class="lb-modal-close" id="lb-modal-close-btn" (click)="closeSettingsModal()">
+            <lucide-icon [img]="X" [size]="18"></lucide-icon>
+          </button>
+        </div>
+        <form [formGroup]="settingsForm" (ngSubmit)="saveSettings()" class="lb-modal-body">
+
+          <!-- Visibility Toggle -->
+          <div class="form-group">
+            <label class="toggle-label">
+              <div class="toggle-info">
+                <span class="toggle-title">{{ 'LEADERBOARD.SETTING_VISIBLE' | translate }}</span>
+                <span class="toggle-desc">{{ 'LEADERBOARD.SETTING_VISIBLE_DESC' | translate }}</span>
+              </div>
+              <div class="toggle-switch" [class.active]="settingsForm.value.isLeaderboardVisible">
+                <input type="checkbox" formControlName="isLeaderboardVisible" />
+                <span class="toggle-knob"></span>
+              </div>
+            </label>
+          </div>
+
+          <!-- Own Rank Toggle -->
+          <div class="form-group">
+            <label class="toggle-label">
+              <div class="toggle-info">
+                <span class="toggle-title">{{ 'LEADERBOARD.SETTING_OWN_RANK' | translate }}</span>
+                <span class="toggle-desc">{{ 'LEADERBOARD.SETTING_OWN_RANK_DESC' | translate }}</span>
+              </div>
+              <div class="toggle-switch" [class.active]="settingsForm.value.showStudentOwnRank">
+                <input type="checkbox" formControlName="showStudentOwnRank" />
+                <span class="toggle-knob"></span>
+              </div>
+            </label>
+          </div>
+
+          <!-- Scoring Metric -->
+          <div class="form-group">
+            <label class="field-label">{{ 'LEADERBOARD.SETTING_METRIC' | translate }}</label>
+            <div class="metric-options">
+              <label class="metric-option" [class.selected]="settingsForm.value.scoringMetric === 'TotalScore'">
+                <input type="radio" formControlName="scoringMetric" value="TotalScore" />
+                <span>{{ 'LEADERBOARD.METRIC_TOTAL' | translate }}</span>
+              </label>
+              <label class="metric-option" [class.selected]="settingsForm.value.scoringMetric === 'ExamAverage'">
+                <input type="radio" formControlName="scoringMetric" value="ExamAverage" />
+                <span>{{ 'LEADERBOARD.METRIC_EXAM' | translate }}</span>
+              </label>
+              <label class="metric-option" [class.selected]="settingsForm.value.scoringMetric === 'AssignmentAverage'">
+                <input type="radio" formControlName="scoringMetric" value="AssignmentAverage" />
+                <span>{{ 'LEADERBOARD.METRIC_ASSIGNMENT' | translate }}</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="lb-modal-footer">
+            <button type="button" class="lb-btn lb-btn-ghost" (click)="closeSettingsModal()">
+              {{ 'LEADERBOARD.BTN_CANCEL' | translate }}
+            </button>
+            <button type="submit" class="lb-btn lb-btn-primary" [disabled]="isSavingSettings()">
+              @if (isSavingSettings()) {
+                <span class="btn-spinner"></span>
+              } @else {
+                <lucide-icon [img]="Check" [size]="16"></lucide-icon>
+              }
+              {{ 'LEADERBOARD.BTN_SAVE' | translate }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+
+</div>

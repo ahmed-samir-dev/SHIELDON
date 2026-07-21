@@ -5,11 +5,18 @@
   top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(#0B1120, 0.4);
   backdrop-filter: blur(4px);
-  z-index: $z-index-modal;
+  z-index: 9999 !important;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: $spacing-4;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
+
+  &.modal-pending {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
 
   &.animated.fadeIn {
     animation: fadeInModal 0.25s ease-out forwards;

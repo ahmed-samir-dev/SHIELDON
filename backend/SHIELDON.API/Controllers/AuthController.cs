@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using SHIELDON.API.Hubs;
 using SHIELDON.Application.Common;
 using SHIELDON.Application.Features.Auth.DTOs;
 using SHIELDON.Application.Interfaces;
+using SHIELDON.Domain.Enums;
 using System.Security.Claims;
 
 namespace SHIELDON.API.Controllers;
@@ -16,13 +19,25 @@ namespace SHIELDON.API.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly IHubContext<SecurityHub> _hubContext;
     private readonly ILogger<AuthController> _logger;
 
-    public AuthController(IAuthService authService, ILogger<AuthController> logger)
+    public AuthController(
+        IAuthService authService,
+        IHubContext<SecurityHub> hubContext,
+        ILogger<AuthController> logger)
     {
         _authService = authService;
+        _hubContext = hubContext;
         _logger = logger;
     }
+
+    /// <summary>Resolves the client IP address, respecting X-Forwarded-For if present.</summary>
+    private string? GetClientIp() =>
+        HttpContext.Connection.RemoteIpAddress?.ToString();
+
+    private string? GetUserAgent() =>
+        Request.Headers.UserAgent.ToString();
 
     /// <summary>
     /// POST /api/auth/register
@@ -58,6 +73,19 @@ public class AuthController : ControllerBase
     {
         var result = await _authService.LoginAsync(request, cancellationToken);
         _logger.LogInformation("User {Email} logged in successfully.", result.Email);
+
+        // Real-time Concurrent Session Invalidation (Wall 1)
+        // Send logout event to the user's connection group on the SecurityHub
+        try
+        {
+            await _hubContext.Clients.Group(result.UserId.ToString())
+                .SendAsync("ForceLogout", "Your account was logged in from another device. Please log in again.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to broadcast ForceLogout SignalR message for user {UserId}", result.UserId);
+        }
+
         return Ok(ApiResponse<LoginResponse>.Ok(result, "Login successful."));
     }
 

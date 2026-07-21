@@ -1,0 +1,159 @@
+<div class="audit-trail-container animate__animated animate__fadeIn">
+  <!-- Header -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <h1 class="header-title">{{ 'AUDIT_TRAIL.TITLE' | translate }}</h1>
+      <p class="header-subtitle">{{ 'AUDIT_TRAIL.SUBTITLE' | translate }}</p>
+    </div>
+    <div>
+      <button class="btn btn-primary export-btn" (click)="exportToCsv()" [disabled]="logsList().length === 0">
+        <lucide-icon [img]="FileText" [size]="16"></lucide-icon>
+        {{ 'AUDIT_TRAIL.EXPORT_CSV' | translate }}
+      </button>
+    </div>
+  </header>
+
+  <!-- Error State -->
+  <div *ngIf="error()" class="error-state">
+    <lucide-icon [img]="AlertTriangle" [size]="20"></lucide-icon>
+    <span>{{ error() }}</span>
+  </div>
+
+  <!-- Content Card -->
+  <div class="table-card" *ngIf="!error()">
+    <!-- Table Header with Search & Filters -->
+    <div class="table-header-filters">
+      <!-- Search Input -->
+      <div class="search-wrapper">
+        <lucide-icon [img]="Search" [size]="16" class="input-icon"></lucide-icon>
+        <input 
+          type="text" 
+          class="enhanced-input" 
+          [placeholder]="'AUDIT_TRAIL.SEARCH_PLACEHOLDER' | translate"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearchKeyup($event)"
+        />
+      </div>
+
+      <!-- Filters Row -->
+      <div class="filters-group">
+        <!-- Event Type Filter -->
+        <div class="filter-item">
+          <label>{{ 'AUDIT_TRAIL.FILTER_EVENT_TYPE' | translate }}</label>
+          <select 
+            class="enhanced-input enhanced-select" 
+            [(ngModel)]="eventTypeFilter" 
+            (change)="onFilterChange()"
+          >
+            <option value="">{{ 'AUDIT_TRAIL.FILTER_ALL_EVENTS' | translate }}</option>
+            <option value="Login">{{ 'AUDIT_TRAIL.EVENT_LOGIN' | translate }}</option>
+            <option value="ExamStart">{{ 'AUDIT_TRAIL.EVENT_EXAM_START' | translate }}</option>
+            <option value="ExamEnd">{{ 'AUDIT_TRAIL.EVENT_EXAM_END' | translate }}</option>
+            <option value="ViolationReported">{{ 'AUDIT_TRAIL.EVENT_VIOLATION' | translate }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading()" class="loading-state">
+      <div class="shimmer-row" *ngFor="let i of [1, 2, 3, 4, 5]"></div>
+      <p class="loading-text">{{ 'AUDIT_TRAIL.LOADING' | translate }}</p>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-responsive" *ngIf="!loading() && logsList().length > 0">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ 'AUDIT_TRAIL.COL_USER' | translate }}</th>
+            <th>{{ 'AUDIT_TRAIL.COL_EVENT_TYPE' | translate }}</th>
+            <th>{{ 'AUDIT_TRAIL.COL_IP' | translate }}</th>
+            <th>{{ 'AUDIT_TRAIL.COL_DEVICE' | translate }}</th>
+            <th>{{ 'AUDIT_TRAIL.COL_DATE' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let log of logsList()">
+            <!-- User Info -->
+            <td>
+              <div class="user-cell">
+                <div class="user-avatar-initials">
+                  {{ log.userFullName.charAt(0) }}
+                </div>
+                <div class="user-meta">
+                  <span class="user-name">{{ log.userFullName }}</span>
+                  <span class="user-id" *ngIf="log.userDisplayId">{{ log.userDisplayId }}</span>
+                </div>
+              </div>
+            </td>
+
+            <!-- Event Type Badge -->
+            <td>
+              <span class="badge event-badge" [ngClass]="{
+                'badge-login': log.eventTypeLabel === 'Login',
+                'badge-exam-start': log.eventTypeLabel === 'ExamStart',
+                'badge-exam-end': log.eventTypeLabel === 'ExamEnd',
+                'badge-violation': log.eventTypeLabel === 'ViolationReported'
+              }">
+                <lucide-icon [img]="History" [size]="14"></lucide-icon>
+                {{ 'AUDIT_TRAIL.EVENT_' + log.eventTypeLabel.toUpperCase() | translate }}
+              </span>
+            </td>
+
+            <!-- IP Address -->
+            <td>
+              <span class="ip-address-text font-mono">{{ log.ipAddress || '—' }}</span>
+            </td>
+
+            <!-- User Agent / Device -->
+            <td class="device-cell">
+              <span class="text-muted" [attr.title]="log.userAgent">{{ log.userAgent || '—' }}</span>
+            </td>
+
+            <!-- Timestamp -->
+            <td>
+              <div class="date-cell">
+                <lucide-icon [img]="Clock" [size]="12"></lucide-icon>
+                <span>{{ log.occurredAt | date:'medium' }}</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!loading() && logsList().length === 0">
+      <lucide-icon [img]="History" [size]="48" class="empty-icon"></lucide-icon>
+      <h3>{{ 'AUDIT_TRAIL.NO_RECORDS' | translate }}</h3>
+    </div>
+
+    <!-- Table Footer / Pagination -->
+    <div class="table-footer" *ngIf="!loading() && totalPages() > 1">
+      <div class="pagination-info">
+        {{ 'ADMIN_DASHBOARD.PAGINATION_SHOWING' | translate:{
+          start: (currentPage() - 1) * pageSize + 1, 
+          end: showingEnd(), 
+          total: totalCount()
+        } }}
+      </div>
+      <div class="pagination-buttons">
+        <button 
+          class="btn btn-outline" 
+          [disabled]="currentPage() === 1" 
+          (click)="onPageChange(currentPage() - 1)"
+        >
+          <lucide-icon [img]="ChevronLeft" [size]="16"></lucide-icon>
+        </button>
+        <button 
+          class="btn btn-outline" 
+          [disabled]="currentPage() >= totalPages()" 
+          (click)="onPageChange(currentPage() + 1)"
+        >
+          <lucide-icon [img]="ChevronRight" [size]="16"></lucide-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

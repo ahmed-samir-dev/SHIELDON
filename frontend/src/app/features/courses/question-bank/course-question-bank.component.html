@@ -105,7 +105,7 @@
 </div>
 
 @if (isModalOpen()) {
-  <div class="custom-modal-overlay fadeIn animated" (click)="closeModal()">
+  <div class="custom-modal-overlay modal-pending fadeIn animated" #questionModalOverlay (click)="closeModal()">
     <div class="custom-modal-container slideUp animated wide-modal" (click)="$event.stopPropagation()">
 
       <div class="modal-header">
@@ -340,7 +340,7 @@
 }
 
 @if (viewingQuestion()) {
-  <div class="custom-modal-overlay fadeIn animated" (click)="closeViewDetailsModal()">
+  <div class="custom-modal-overlay modal-pending fadeIn animated" #viewDetailsModalOverlay (click)="closeViewDetailsModal()">
     <div class="custom-modal-container slideUp animated" (click)="$event.stopPropagation()">
       <div class="modal-header">
         <div class="modal-title-wrapper">
