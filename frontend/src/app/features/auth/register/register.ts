@@ -7,6 +7,7 @@ import { UserRole } from '../../../core/models/user-role.enum';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-register',
@@ -30,6 +31,54 @@ export class Register {
   // Available roles for registration
   readonly UserRole = UserRole;
   selectedRole = signal<UserRole>(UserRole.Student); // Default to Student
+
+  private readonly GOOGLE_CLIENT_ID = environment.googleClientId;
+
+  onGoogleSignIn(): void {
+    const role = this.selectedRole() === UserRole.Tutor ? 'Tutor' : 'Student';
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+
+    const google = (window as any).google;
+    if (!google?.accounts?.id) {
+      this.isLoading.set(false);
+      this.toastr.error('Google Sign-In is not available. Please check your connection and try again.', 'Error');
+      return;
+    }
+
+    google.accounts.id.initialize({
+      client_id: this.GOOGLE_CLIENT_ID,
+      callback: (response: any) => {
+        const idToken = response.credential;
+        this.authService.googleAuth(idToken, role).subscribe({
+          next: (res) => {
+            this.isLoading.set(false);
+            const user = res.data;
+            this.toastr.success(
+              `Welcome, ${user.firstName}! Signed up with Google as ${role}.`,
+              'Google Authentication'
+            );
+            this.router.navigateByUrl(user.role === UserRole.Admin ? '/admin/dashboard' : '/courses');
+          },
+          error: (err) => {
+            this.isLoading.set(false);
+            const msg = err.error?.message || 'Google registration failed. Please try again.';
+            this.errorMessage.set(msg);
+            this.toastr.error(msg, 'Authentication Error');
+          }
+        });
+      },
+      auto_select: false,
+      cancel_on_tap_outside: true
+    });
+
+    google.accounts.id.prompt((notification: any) => {
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        this.isLoading.set(false);
+        this.toastr.warning('Google Sign-In popup was blocked. Please allow popups for this site.', 'Sign-In');
+      }
+    });
+  }
 
   registerForm = this.fb.group({
     firstName: ['', [Validators.required, Validators.maxLength(100)]],

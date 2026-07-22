@@ -328,6 +328,7 @@
     .action-buttons {
       display: flex;
       gap: $spacing-2;
+      margin-left: auto;
 
       .btn-sm {
         padding: $spacing-1 $spacing-3;

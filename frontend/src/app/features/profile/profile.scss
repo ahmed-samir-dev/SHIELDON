@@ -31,6 +31,81 @@
   border: 1px solid var(--theme-border);
 }
 
+.passwordless-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: linear-gradient(135deg, rgba(33, 93, 174, 0.08) 0%, rgba(24, 152, 161, 0.08) 100%);
+  border: 1px solid rgba(24, 152, 161, 0.3);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+
+  .banner-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    color: #1898A1;
+    flex-shrink: 0;
+    margin-top: 2px;
+    animation: bannerIconFloat 2.4s ease-in-out infinite;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .banner-content {
+    h4 {
+      margin: 0 0 4px 0;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--theme-text-main);
+    }
+    p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--theme-text-muted);
+      line-height: 1.45;
+    }
+  }
+}
+
+@keyframes bannerIconFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.badge-not-required {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #1898A1;
+  background: rgba(24, 152, 161, 0.12);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.disabled-group {
+  opacity: 0.75;
+  input {
+    background: var(--theme-bg-body) !important;
+    cursor: not-allowed;
+  }
+}
+
 // Avatar Styles
 .avatar-section {
   display: flex;

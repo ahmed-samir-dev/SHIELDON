@@ -164,6 +164,13 @@ export class CourseList implements OnInit, OnDestroy {
     return existing ? existing.status : null;
   }
 
+  canViewCourseHub(courseId: string): boolean {
+    if (!this.authService.isStudent()) {
+      return true; // Admins and Tutors can always view course details
+    }
+    return this.getEnrollmentStatus(courseId) === 'Approved';
+  }
+
   // ── Modal Actions ────────────────────────────────────────────────────────
 
   openCreateModal() {

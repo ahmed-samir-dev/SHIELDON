@@ -68,8 +68,28 @@ export class CourseDetail implements OnInit {
     this.isLoading.set(true);
     this.courseService.getCourse(id).subscribe({
       next: (res) => {
-        this.course.set(res.data);
-        this.isLoading.set(false);
+        if (this.authService.isStudent()) {
+          this.courseService.getMyEnrollments({ pageSize: 1000 }).subscribe({
+            next: (enrollRes) => {
+              const myEnrollment = enrollRes.data.items.find(e => e.courseId === id);
+              if (!myEnrollment || myEnrollment.status !== 'Approved') {
+                this.toastr.warning('Access Restricted: You must have an approved enrollment to view course details.', 'Access Restricted');
+                this.router.navigateByUrl('/courses');
+                return;
+              }
+              this.course.set(res.data);
+              this.isLoading.set(false);
+            },
+            error: () => {
+              this.toastr.error(this.translate.instant('COURSE_DETAIL.TOAST_LOAD_ERR'));
+              this.router.navigateByUrl('/courses');
+              this.isLoading.set(false);
+            }
+          });
+        } else {
+          this.course.set(res.data);
+          this.isLoading.set(false);
+        }
       },
       error: () => {
         this.toastr.error(this.translate.instant('COURSE_DETAIL.TOAST_LOAD_ERR'));

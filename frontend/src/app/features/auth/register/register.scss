@@ -60,6 +60,7 @@
     justify-content: center;
     background: transparent;
     position: relative;
+    border-radius: 12px;
 
     img {
       width: 100%;
@@ -285,4 +286,61 @@
 @keyframes slideDown {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+// ── Google Sign-In & Divider ────────────────────────────────────────────────
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: $spacing-5 0;
+  color: var(--theme-text-muted);
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+
+  &::before, &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--theme-border-strong);
+  }
+
+  span {
+    padding: 0 $spacing-3;
+    letter-spacing: 0.05em;
+  }
+}
+
+.btn-google {
+  width: 100%;
+  padding: $spacing-3 $spacing-4;
+  background: var(--theme-bg-surface);
+  border: 1.5px solid var(--theme-border-strong);
+  border-radius: $border-radius-md;
+  color: var(--theme-text-main);
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  font-family: $font-family-primary;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-3;
+  transition: all 0.2s ease;
+  box-shadow: $shadow-sm;
+
+  &:hover:not(:disabled) {
+    background: var(--theme-bg-body);
+    border-color: rgba($color-primary-base, 0.4);
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .google-svg {
+    flex-shrink: 0;
+  }
 }

@@ -41,7 +41,8 @@ public class ProfileService : IProfileService
             user.Role,
             displayId,
             user.AccountStatus,
-            user.CreatedAt
+            user.CreatedAt,
+            user.HasPassword
         );
     }
 
@@ -83,9 +84,14 @@ public class ProfileService : IProfileService
         var user = await _db.Users.FindAsync([userId], ct)
             ?? throw new NotFoundException("User Profile", userId);
 
-        if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash))
+        bool isPasswordless = !user.HasPassword;
+
+        if (!isPasswordless)
         {
-            throw new BusinessRuleException("Incorrect current password.");
+            if (string.IsNullOrEmpty(request.CurrentPassword) || !BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash))
+            {
+                throw new BusinessRuleException("Incorrect current password.");
+            }
         }
 
         user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);

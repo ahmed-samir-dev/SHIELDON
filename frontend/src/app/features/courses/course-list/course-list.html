@@ -81,8 +81,9 @@
       </div>
       
       <div class="card-footer">
-        <!-- Always available to view details -->
-        <a [routerLink]="['/courses', course.id]" class="btn-link">{{ 'COURSE_LIST.BTN_VIEW_HUB' | translate }}</a>
+        @if (canViewCourseHub(course.id)) {
+          <a [routerLink]="['/courses', course.id]" class="btn-link">{{ 'COURSE_LIST.BTN_VIEW_HUB' | translate }}</a>
+        }
         
         <div class="action-buttons">
           @if (authService.isStudent() && course.isActive) {

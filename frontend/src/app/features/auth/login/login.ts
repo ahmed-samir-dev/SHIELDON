@@ -6,6 +6,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { UserRole } from '../../../core/models/user-role.enum';
 import { ToastrService } from 'ngx-toastr';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -25,6 +26,104 @@ export class Login {
   isLoading = signal(false);
   showPassword = signal(false);
   errorMessage = signal<string | null>(null);
+  showRoleModal = signal(false);
+  selectedRole = signal<'Student' | 'Tutor'>('Student');
+
+  onGoogleSignIn(): void {
+    this.showRoleModal.set(true);
+  }
+
+  selectRole(role: 'Student' | 'Tutor'): void {
+    this.selectedRole.set(role);
+  }
+
+  closeRoleModal(): void {
+    this.showRoleModal.set(false);
+  }
+
+  private readonly GOOGLE_CLIENT_ID = environment.googleClientId;
+
+  confirmGoogleSignIn(): void {
+    if (!this.selectedRole() || this.isLoading()) return;
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+
+    const google = (window as any).google;
+    if (!google?.accounts?.id) {
+      this.isLoading.set(false);
+      this.toastr.error('Google Sign-In is not available. Please check your connection and try again.', 'Error');
+      return;
+    }
+
+    google.accounts.id.initialize({
+      client_id: this.GOOGLE_CLIENT_ID,
+      callback: (response: any) => {
+        this.executeGoogleAuth(response.credential);
+      },
+      auto_select: false,
+      cancel_on_tap_outside: true
+    });
+
+    google.accounts.id.prompt((notification: any) => {
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        // One Tap was blocked/skipped — fall back to the popup flow
+        google.accounts.oauth2.initTokenClient({
+          client_id: this.GOOGLE_CLIENT_ID,
+          scope: 'openid email profile',
+          callback: () => {}
+        });
+
+        // Use renderButton as fallback trigger via a hidden div
+        const tempDiv = document.createElement('div');
+        tempDiv.style.display = 'none';
+        document.body.appendChild(tempDiv);
+
+        google.accounts.id.renderButton(tempDiv, {
+          type: 'standard',
+          theme: 'outline',
+          size: 'large'
+        });
+
+        const btn = tempDiv.querySelector('div[role="button"]') as HTMLElement;
+        if (btn) {
+          btn.click();
+        } else {
+          document.body.removeChild(tempDiv);
+          this.isLoading.set(false);
+          this.toastr.warning('Google Sign-In popup was blocked. Please allow popups for this site.', 'Sign-In');
+        }
+
+        setTimeout(() => {
+          if (document.body.contains(tempDiv)) {
+            document.body.removeChild(tempDiv);
+          }
+        }, 3000);
+      }
+    });
+  }
+
+  private executeGoogleAuth(idToken: string): void {
+    const role = this.selectedRole() ?? 'Student';
+    this.authService.googleAuth(idToken, role).subscribe({
+      next: (response) => {
+        this.isLoading.set(false);
+        this.showRoleModal.set(false);
+        const user = response.data;
+        this.toastr.success(
+          `Welcome, ${user.firstName}! Signed in with Google.`,
+          'Google Authentication'
+        );
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'] || this._getDashboardRoute(user.role);
+        this.router.navigateByUrl(returnUrl);
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        const msg = err.error?.message || 'Google authentication failed. Please try again.';
+        this.errorMessage.set(msg);
+        this.toastr.error(msg, 'Authentication Error');
+      }
+    });
+  }
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
