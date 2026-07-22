@@ -374,6 +374,180 @@ public class AuthService : IAuthService
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    public async Task<LoginResponse> GoogleAuthAsync(GoogleAuthRequest request, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(request.IdToken))
+            throw new BusinessRuleException("Google ID token is required.");
+
+        string email;
+        string firstName;
+        string lastName;
+        string? googlePictureUrl;
+
+        try
+        {
+            var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+            if (!handler.CanReadToken(request.IdToken))
+                throw new BusinessRuleException("Invalid Google ID token format.");
+
+            var jwtToken = handler.ReadJwtToken(request.IdToken);
+            email = jwtToken.Claims.FirstOrDefault(c => c.Type == "email")?.Value?.Trim().ToLowerInvariant()
+                ?? throw new BusinessRuleException("Google ID token payload is missing email address.");
+
+            firstName = jwtToken.Claims.FirstOrDefault(c => c.Type == "given_name")?.Value
+                ?? jwtToken.Claims.FirstOrDefault(c => c.Type == "name")?.Value
+                ?? "Google";
+
+            lastName = jwtToken.Claims.FirstOrDefault(c => c.Type == "family_name")?.Value
+                ?? "User";
+
+            googlePictureUrl = jwtToken.Claims.FirstOrDefault(c => c.Type == "picture")?.Value;
+        }
+        catch (Exception ex) when (ex is not BusinessRuleException)
+        {
+            throw new BusinessRuleException("Failed to validate Google ID token: " + ex.Message);
+        }
+
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
+
+        if (user != null)
+        {
+            // Existing user
+            if (user.AccountStatus == AccountStatus.Locked)
+                throw new ForbiddenException("Your account has been locked. Please contact support.");
+
+            if (user.AccountStatus == AccountStatus.Unverified)
+            {
+                user.AccountStatus = AccountStatus.Active;
+                user.EmailVerifiedAt = DateTime.UtcNow;
+            }
+
+            // Sync Google profile picture if user doesn't have one
+            if (string.IsNullOrEmpty(user.ProfilePictureUrl) && !string.IsNullOrEmpty(googlePictureUrl))
+            {
+                var localAvatar = await DownloadAndSaveGoogleAvatarAsync(googlePictureUrl, user.Id, ct);
+                if (localAvatar != null)
+                {
+                    user.ProfilePictureUrl = localAvatar;
+                }
+            }
+
+            user.LastLoginAt = DateTime.UtcNow;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            // Invalidate existing refresh tokens (Single Session Rule)
+            var existingTokens = await _db.RefreshTokens
+                .Where(t => t.UserId == user.Id && t.RevokedAt == null && t.ExpiresAt > DateTime.UtcNow)
+                .ToListAsync(ct);
+
+            foreach (var t in existingTokens)
+            {
+                t.RevokedAt = DateTime.UtcNow;
+                t.RevokedReason = "New Login Session";
+            }
+
+            var accessToken = _jwtService.GenerateAccessToken(user);
+            var rawRefreshToken = _jwtService.GenerateRefreshToken();
+            var refreshTokenExpiry = int.Parse(_configuration["JwtSettings:RefreshTokenExpiryDays"] ?? "7");
+
+            _db.RefreshTokens.Add(new RefreshToken
+            {
+                Id = Guid.NewGuid(),
+                Token = rawRefreshToken,
+                ExpiresAt = DateTime.UtcNow.AddDays(refreshTokenExpiry),
+                CreatedAt = DateTime.UtcNow,
+                UserId = user.Id
+            });
+
+            RecordLoginLog(user, true);
+            await _db.SaveChangesAsync(ct);
+
+            var accessExpiryMinutes = int.Parse(_configuration["JwtSettings:AccessTokenExpiryMinutes"] ?? "15");
+            return MapToResponse(user, accessToken, rawRefreshToken, DateTime.UtcNow.AddMinutes(accessExpiryMinutes));
+        }
+
+        // New User via Google Registration: Enforce Role Selection
+        if (string.IsNullOrWhiteSpace(request.Role) ||
+            !Enum.TryParse<UserRole>(request.Role, ignoreCase: true, out var role) ||
+            role == UserRole.Admin)
+        {
+            throw new BusinessRuleException("RoleSelectionRequired: Please select your account role (Student or Tutor) to complete Google registration.");
+        }
+
+        var newUserId = Guid.NewGuid();
+        string? localAvatarPath = null;
+        if (!string.IsNullOrEmpty(googlePictureUrl))
+        {
+            localAvatarPath = await DownloadAndSaveGoogleAvatarAsync(googlePictureUrl, newUserId, ct);
+        }
+
+        user = new User
+        {
+            Id = newUserId,
+            FirstName = firstName.Trim(),
+            LastName = lastName.Trim(),
+            Email = email,
+            PasswordHash = null, // Passwordless account
+            AuthProvider = "Google",
+            Role = role,
+            AccountStatus = AccountStatus.Active,
+            EmailVerifiedAt = DateTime.UtcNow,
+            ProfilePictureUrl = localAvatarPath,
+            LastLoginAt = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        if (role == UserRole.Tutor) user.TutorId = GenerateRoleId("TUT");
+        if (role == UserRole.Student) user.StudentId = GenerateRoleId("STU");
+
+        _db.Users.Add(user);
+
+        var newAccessToken = _jwtService.GenerateAccessToken(user);
+        var newRawRefreshToken = _jwtService.GenerateRefreshToken();
+        var expiryDays = int.Parse(_configuration["JwtSettings:RefreshTokenExpiryDays"] ?? "7");
+
+        _db.RefreshTokens.Add(new RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            Token = newRawRefreshToken,
+            ExpiresAt = DateTime.UtcNow.AddDays(expiryDays),
+            CreatedAt = DateTime.UtcNow,
+            UserId = user.Id
+        });
+
+        RecordLoginLog(user, true);
+        await _db.SaveChangesAsync(ct);
+
+        var expiryMinutes = int.Parse(_configuration["JwtSettings:AccessTokenExpiryMinutes"] ?? "15");
+        return MapToResponse(user, newAccessToken, newRawRefreshToken, DateTime.UtcNow.AddMinutes(expiryMinutes));
+    }
+
+    private static async Task<string?> DownloadAndSaveGoogleAvatarAsync(string pictureUrl, Guid userId, CancellationToken ct)
+    {
+        try
+        {
+            using var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+            var bytes = await httpClient.GetByteArrayAsync(pictureUrl, ct);
+            if (bytes.Length == 0) return null;
+
+            var webRoot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            var storageFolder = Path.Combine(webRoot, "Storage", "Uploads", "profile-pictures");
+            Directory.CreateDirectory(storageFolder);
+
+            var fileName = $"{userId}_{Guid.NewGuid():N}.jpg";
+            var fullPath = Path.Combine(storageFolder, fileName);
+            await File.WriteAllBytesAsync(fullPath, bytes, ct);
+
+            return $"Storage/Uploads/profile-pictures/{fileName}";
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     /// <summary>Generates a cryptographically secure URL-safe token.</summary>
     private static string GenerateSecureToken()
     {

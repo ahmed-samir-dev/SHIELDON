@@ -15,7 +15,8 @@ public class User
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
-    public string PasswordHash { get; set; } = string.Empty;
+    public string? PasswordHash { get; set; }
+    public string AuthProvider { get; set; } = "Local";
 
     // ── Profile ────────────────────────────────────────────────
     /// <summary>Relative path to uploaded avatar, e.g. "uploads/avatars/guid.jpg"</summary>
@@ -73,4 +74,5 @@ public class User
 
     // ── Computed ───────────────────────────────────────────────
     public string FullName => $"{FirstName} {LastName}";
+    public bool HasPassword => !string.IsNullOrEmpty(PasswordHash);
 }

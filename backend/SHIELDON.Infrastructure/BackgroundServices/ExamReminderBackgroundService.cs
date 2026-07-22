@@ -9,20 +9,18 @@ using SHIELDON.Infrastructure.Persistence;
 namespace SHIELDON.Infrastructure.BackgroundServices;
 
 /// <summary>
-/// A hosted background service that polls every 15 minutes for exams scheduled
-/// to start within the next 3 hours and sends in-app + email reminders to
-/// enrolled students who have not yet started an attempt.
+/// A hosted background service that polls every 15 minutes for published exams.
 ///
 /// Reminder logic:
-///   - Fires when: ScheduledAt is between (now + 2h45m) and (now + 3h15m)
-///   - Target: all Approved-enrolled students who have 0 completed attempts
-///   - Each student receives both an in-app notification and an email
+///   - If exam start date (ScheduledAt) is set >= 24 hours in advance:
+///     Sends a 24-hour advance reminder ("starts in 24 hours").
+///   - If the scheduling period is less than 24 hours or exam starts immediately:
+///     Sends the reminder when the exam becomes active.
+///   - Enforces single delivery per student per exam via Notifications tracking.
 /// </summary>
 public class ExamReminderBackgroundService : BackgroundService
 {
     private static readonly TimeSpan _pollingInterval = TimeSpan.FromMinutes(15);
-    private static readonly TimeSpan _reminderWindow = TimeSpan.FromHours(3);
-    private static readonly TimeSpan _windowBuffer = TimeSpan.FromMinutes(15);
 
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<ExamReminderBackgroundService> _logger;
@@ -48,13 +46,12 @@ public class ExamReminderBackgroundService : BackgroundService
             }
             catch (OperationCanceledException)
             {
-                // Host is shutting down - exit the loop cleanly without crashing.
+                // Host is shutting down - exit cleanly.
                 break;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in ExamReminderBackgroundService cycle.");
-                // Brief back-off before retrying so a transient error doesn't tight-loop.
                 await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken).ConfigureAwait(false);
             }
         }
@@ -67,30 +64,73 @@ public class ExamReminderBackgroundService : BackgroundService
         var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
 
         var now = DateTime.UtcNow;
-        var windowStart = now + _reminderWindow - _windowBuffer;   // now + 2h45m
-        var windowEnd   = now + _reminderWindow + _windowBuffer;   // now + 3h15m
 
-        // Find published exams whose ScheduledAt falls in the 3-hour window
-        var upcomingExams = await db.Exams
-            .Where(e =>
-                e.Status == ExamStatus.Published &&
-                e.ScheduledAt.HasValue &&
-                e.ScheduledAt.Value >= windowStart &&
-                e.ScheduledAt.Value <= windowEnd)
+        var publishedExams = await db.Exams
+            .Where(e => e.Status == ExamStatus.Published)
             .Include(e => e.Course)
             .ToListAsync(ct);
 
-        if (!upcomingExams.Any())
+        if (!publishedExams.Any())
             return;
 
-        _logger.LogInformation("Found {Count} exam(s) with upcoming 3-hour reminders.", upcomingExams.Count);
-
-        foreach (var exam in upcomingExams)
+        foreach (var exam in publishedExams)
         {
-            // Get enrolled students who have NOT yet started or completed an attempt
+            // Skip expired exams
+            if (exam.ScheduledEndAt.HasValue && exam.ScheduledEndAt.Value < now)
+                continue;
+
+            bool is24HourReminder = false;
+            bool isActiveReminder = false;
+
+            if (exam.ScheduledAt.HasValue)
+            {
+                var timeUntilStart = exam.ScheduledAt.Value - now;
+
+                if (timeUntilStart > TimeSpan.FromHours(24))
+                {
+                    // More than 24h away - not time yet
+                    continue;
+                }
+                else if (timeUntilStart > TimeSpan.Zero)
+                {
+                    // Starts in <= 24h. Check if scheduled period was >= 24h
+                    var totalPeriod = exam.ScheduledAt.Value - exam.CreatedAt;
+                    if (totalPeriod >= TimeSpan.FromHours(24))
+                    {
+                        is24HourReminder = true;
+                    }
+                    else
+                    {
+                        // Period < 24h: wait until exam is active
+                        continue;
+                    }
+                }
+                else
+                {
+                    // ScheduledAt <= now -> exam is active
+                    isActiveReminder = true;
+                }
+            }
+            else
+            {
+                // No ScheduledAt set -> exam is active
+                isActiveReminder = true;
+            }
+
+            if (!is24HourReminder && !isActiveReminder)
+                continue;
+
+            // Get students who already started or completed an attempt for this exam
             var studentsWithAttempts = await db.ExamAttempts
                 .Where(a => a.ExamId == exam.Id)
                 .Select(a => a.StudentId)
+                .Distinct()
+                .ToListAsync(ct);
+
+            // Get students who have already received an UpcomingExamReminder for this exam
+            var alreadyNotifiedStudentIds = await db.Notifications
+                .Where(n => n.Type == NotificationType.UpcomingExamReminder && n.RelatedEntityId == exam.Id)
+                .Select(n => n.UserId)
                 .Distinct()
                 .ToListAsync(ct);
 
@@ -98,23 +138,32 @@ public class ExamReminderBackgroundService : BackgroundService
                 .Where(e =>
                     e.CourseId == exam.CourseId &&
                     e.Status == CourseEnrollmentStatus.Approved &&
-                    !studentsWithAttempts.Contains(e.StudentId))
+                    !studentsWithAttempts.Contains(e.StudentId) &&
+                    !alreadyNotifiedStudentIds.Contains(e.StudentId))
                 .Select(e => e.StudentId)
                 .ToListAsync(ct);
 
             if (!eligibleStudentIds.Any())
-            {
-                _logger.LogDebug("All students have already started exam '{ExamTitle}'. No reminders needed.", exam.Title);
                 continue;
+
+            string reminderTitle;
+            string reminderMessage;
+
+            if (is24HourReminder)
+            {
+                var scheduledTime = exam.ScheduledAt!.Value.ToString("dd MMM yyyy, HH:mm");
+                reminderTitle = $"Exam Reminder: '{exam.Title}'";
+                reminderMessage = $"Your exam '{exam.Title}' in '{exam.Course!.Title}' starts in 24 hours ({scheduledTime} UTC). Make sure you are ready!";
+            }
+            else
+            {
+                reminderTitle = $"Exam Active: '{exam.Title}'";
+                reminderMessage = $"Your exam '{exam.Title}' in '{exam.Course!.Title}' is now active and ready for you to take.";
             }
 
-            var scheduledTime = exam.ScheduledAt!.Value.ToString("dd MMM yyyy, HH:mm");
-            string reminderTitle  = $"⏰ Exam Reminder: '{exam.Title}'";
-            string reminderMessage = $"Your exam '{exam.Title}' in '{exam.Course!.Title}' starts in approximately 3 hours ({scheduledTime} UTC). Make sure you are ready!";
-
             _logger.LogInformation(
-                "Sending 3-hour reminder for exam '{ExamTitle}' to {Count} student(s).",
-                exam.Title, eligibleStudentIds.Count);
+                "Sending exam reminder ({Type}) for '{ExamTitle}' to {Count} student(s).",
+                is24HourReminder ? "24-Hour" : "Active", exam.Title, eligibleStudentIds.Count);
 
             foreach (var studentId in eligibleStudentIds)
             {

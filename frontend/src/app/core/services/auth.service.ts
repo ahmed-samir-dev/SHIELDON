@@ -40,6 +40,14 @@ export class AuthService {
     );
   }
 
+  googleAuth(idToken: string, role?: string): Observable<{ data: LoginResponse }> {
+    return this.http.post<{ data: LoginResponse }>(`${environment.apiUrl}/auth/google`, { idToken, role }).pipe(
+      tap(response => {
+        this._persist(response.data);
+      })
+    );
+  }
+
   logout(): void {
     const refreshToken = this.getRefreshToken();
     if (refreshToken) {

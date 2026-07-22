@@ -10,6 +10,7 @@ export interface UserProfileResponse {
   displayId: string | null;
   accountStatus: string;
   createdAt: string;
+  hasPassword?: boolean;
 }
 
 export interface UpdateProfileRequest {
@@ -18,7 +19,7 @@ export interface UpdateProfileRequest {
 }
 
 export interface ChangePasswordRequest {
-  currentPassword: string;
+  currentPassword?: string;
   newPassword: string;
-  confirmNewPassword: string;
+  confirmNewPassword?: string;
 }

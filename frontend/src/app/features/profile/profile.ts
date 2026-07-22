@@ -75,6 +75,18 @@ export class ProfileComponent implements OnInit {
           displayId: res.data.displayId,
           accountStatus: res.data.accountStatus
         });
+
+        // Passwordless user handling
+        if (res.data.hasPassword === false) {
+          this.changePasswordForm.get('currentPassword')?.disable();
+          this.changePasswordForm.get('currentPassword')?.clearValidators();
+          this.changePasswordForm.get('currentPassword')?.updateValueAndValidity();
+        } else {
+          this.changePasswordForm.get('currentPassword')?.enable();
+          this.changePasswordForm.get('currentPassword')?.setValidators([Validators.required]);
+          this.changePasswordForm.get('currentPassword')?.updateValueAndValidity();
+        }
+
         this.isLoading.set(false);
       },
       error: () => {
@@ -169,9 +181,9 @@ export class ProfileComponent implements OnInit {
     }
 
     this.isChangingPassword.set(true);
-    const formValue = this.changePasswordForm.value;
+    const formValue = this.changePasswordForm.getRawValue();
     const request = {
-      currentPassword: formValue.currentPassword!,
+      currentPassword: formValue.currentPassword || '',
       newPassword: formValue.newPassword!,
       confirmNewPassword: formValue.confirmNewPassword!
     };
@@ -181,6 +193,7 @@ export class ProfileComponent implements OnInit {
         this.isChangingPassword.set(false);
         this.changePasswordForm.reset();
         this.toastr.success(this.translate.instant('PROFILE.TOAST_PASS_SUCCESS'));
+        this.loadProfile();
       },
       error: (err) => {
         this.isChangingPassword.set(false);

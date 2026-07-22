@@ -16,6 +16,8 @@ scratch/
 CLAUDE.md
 stripe_cli/
 *.zip
+# Angular environment files with real secrets (use environment.example.ts as template)
+frontend/src/environments/environment.ts
 
 # ── .NET / Visual Studio ────────────────────────────────────
 *.user

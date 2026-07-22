@@ -90,6 +90,36 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
+    /// POST /api/auth/google
+    /// Authenticates or registers a user using a Google Sign-In ID Token.
+    /// Supports passwordless accounts and role selection.
+    /// </summary>
+    [HttpPost("google")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+    public async Task<IActionResult> GoogleAuth(
+        [FromBody] GoogleAuthRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _authService.GoogleAuthAsync(request, cancellationToken);
+        _logger.LogInformation("User {Email} authenticated via Google.", result.Email);
+
+        try
+        {
+            await _hubContext.Clients.Group(result.UserId.ToString())
+                .SendAsync("ForceLogout", "Your account was logged in from another device. Please log in again.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to broadcast ForceLogout SignalR message for Google auth user {UserId}", result.UserId);
+        }
+
+        return Ok(ApiResponse<LoginResponse>.Ok(result, "Google authentication successful."));
+    }
+
+    /// <summary>
     /// POST /api/auth/refresh
     /// Rotates the refresh token and returns a new access token.
     /// </summary>

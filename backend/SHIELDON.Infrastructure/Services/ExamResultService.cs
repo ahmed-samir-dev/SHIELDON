@@ -355,7 +355,7 @@ public class ExamResultService : IExamResultService
                 $"/exam-results/{attempt.Id}",
                 NotificationType.ExamResultReleased,
                 exam.Id,
-                sendEmail: true,
+                sendEmail: false,
                 ct);
         }
 
@@ -514,7 +514,7 @@ public class ExamResultService : IExamResultService
                 $"/exam-results/{attempt.Id}",
                 NotificationType.ExamResultReleased,
                 exam.Id,
-                sendEmail: true,
+                sendEmail: false,
                 ct);
         }
     }

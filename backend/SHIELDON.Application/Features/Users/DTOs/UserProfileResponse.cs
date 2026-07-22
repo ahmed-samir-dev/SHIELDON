@@ -11,7 +11,8 @@ public record UserProfileResponse(
     UserRole Role,
     string? DisplayId,
     AccountStatus AccountStatus,
-    DateTime CreatedAt
+    DateTime CreatedAt,
+    bool HasPassword = true
 );
 
 public record UpdateProfileRequest(

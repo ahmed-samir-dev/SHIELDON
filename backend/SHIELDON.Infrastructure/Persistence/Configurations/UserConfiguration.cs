@@ -35,8 +35,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasDatabaseName("IX_Users_Email");
 
         builder.Property(u => u.PasswordHash)
-            .IsRequired()
+            .IsRequired(false)
             .HasMaxLength(512);
+
+        builder.Property(u => u.AuthProvider)
+            .IsRequired()
+            .HasMaxLength(50)
+            .HasDefaultValue("Local");
 
         // ── Profile ───────────────────────────────────────────
         builder.Property(u => u.ProfilePictureUrl)
