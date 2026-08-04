@@ -8,11 +8,14 @@ import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { environment } from '../../../../environments/environment';
+import { COUNTRY_CODES, CountryCode } from '../../../core/constants/country-codes.constant';
+
+import { CountryPickerComponent } from '../../../shared/components/country-picker/country-picker';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslateModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslateModule, CountryPickerComponent],
   templateUrl: './register.html',
   styleUrl: './register.scss'
 })
@@ -27,6 +30,9 @@ export class Register {
   showPassword = signal(false);
   showConfirmPassword = signal(false);
   errorMessage = signal<string | null>(null);
+
+  readonly countryCodes: CountryCode[] = COUNTRY_CODES;
+  selectedCountry = signal<CountryCode>(COUNTRY_CODES[0]); // Default Egypt
   
   // Available roles for registration
   readonly UserRole = UserRole;
@@ -84,6 +90,8 @@ export class Register {
     firstName: ['', [Validators.required, Validators.maxLength(100)]],
     lastName: ['', [Validators.required, Validators.maxLength(100)]],
     email: ['', [Validators.required, Validators.email, Validators.maxLength(255)]],
+    countryCode: ['+20'],
+    localPhone: ['', [this.phoneValidationRule.bind(this)]],
     password: [
       '', 
       [
@@ -94,6 +102,85 @@ export class Register {
     ],
     confirmPassword: ['', [Validators.required]]
   }, { validators: this.passwordMatchValidator });
+
+  onCountrySelected(country: CountryCode): void {
+    this.selectedCountry.set(country);
+    this.sanitizePhoneInput();
+    this.localPhoneControl.updateValueAndValidity();
+  }
+
+  onCountryChange(code: string): void {
+    const found = this.countryCodes.find(c => c.code === code) || COUNTRY_CODES[0];
+    this.onCountrySelected(found);
+  }
+
+  getMaxPhoneLength(): number {
+    const code = this.registerForm?.get('countryCode')?.value || '+20';
+    const val = (this.registerForm?.get('localPhone')?.value || '').trim();
+    if (code === '+20') {
+      return val.startsWith('0') ? 11 : 10;
+    }
+    return 12;
+  }
+
+  onPhoneInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let val = input.value.replace(/\D/g, ''); // Digits only
+
+    const code = this.registerForm.get('countryCode')?.value || '+20';
+    if (code === '+20') {
+      const maxLen = val.startsWith('0') ? 11 : 10;
+      if (val.length > maxLen) {
+        val = val.substring(0, maxLen);
+      }
+    } else {
+      if (val.length > 12) {
+        val = val.substring(0, 12);
+      }
+    }
+
+    input.value = val;
+    this.localPhoneControl.setValue(val, { emitEvent: false });
+  }
+
+  private sanitizePhoneInput(): void {
+    const control = this.registerForm?.get('localPhone');
+    if (!control || !control.value) return;
+    let val = control.value.replace(/\D/g, '');
+    const code = this.registerForm.get('countryCode')?.value || '+20';
+    if (code === '+20') {
+      const maxLen = val.startsWith('0') ? 11 : 10;
+      if (val.length > maxLen) val = val.substring(0, maxLen);
+    } else {
+      if (val.length > 12) val = val.substring(0, 12);
+    }
+    control.setValue(val, { emitEvent: false });
+  }
+
+  // Custom Phone Validator supporting Egyptian (+20) strict rules
+  phoneValidationRule(control: AbstractControl): ValidationErrors | null {
+    const val = (control.value || '').toString().trim();
+    if (!val) return null; // Optional
+
+    const country = this.registerForm?.get('countryCode')?.value || '+20';
+
+    if (country === '+20') {
+      if (val.startsWith('0')) {
+        if (!/^01[0125]\d{8}$/.test(val)) {
+          return { invalidEgyptPhoneWithZero: true };
+        }
+      } else {
+        if (!/^1[0125]\d{8}$/.test(val)) {
+          return { invalidEgyptPhoneNoZero: true };
+        }
+      }
+    } else {
+      if (!/^\d{7,12}$/.test(val)) {
+        return { invalidPhone: true };
+      }
+    }
+    return null;
+  }
 
   togglePassword(): void {
     this.showPassword.update(v => !v);
@@ -117,10 +204,21 @@ export class Register {
     this.errorMessage.set(null);
 
     const formValue = this.registerForm.value;
+    
+    // Format optional phone number as E.164
+    let fullPhone: string | undefined = undefined;
+    if (formValue.localPhone && formValue.localPhone.trim()) {
+      const cleanCode = formValue.countryCode || '+20';
+      // Automatically strip leading zero for Egypt (e.g. 01012345678 -> 1012345678)
+      const cleanLocal = formValue.localPhone.trim().replace(/^0+/, ''); 
+      fullPhone = `${cleanCode}${cleanLocal}`;
+    }
+
     const request = {
       firstName: formValue.firstName!,
       lastName: formValue.lastName!,
       email: formValue.email!,
+      phoneNumber: fullPhone,
       password: formValue.password!,
       confirmPassword: formValue.confirmPassword!,
       role: this.selectedRole()
@@ -179,6 +277,7 @@ export class Register {
   get firstNameControl() { return this.registerForm.get('firstName')!; }
   get lastNameControl() { return this.registerForm.get('lastName')!; }
   get emailControl() { return this.registerForm.get('email')!; }
+  get localPhoneControl() { return this.registerForm.get('localPhone')!; }
   get passwordControl() { return this.registerForm.get('password')!; }
   get confirmPasswordControl() { return this.registerForm.get('confirmPassword')!; }
 }

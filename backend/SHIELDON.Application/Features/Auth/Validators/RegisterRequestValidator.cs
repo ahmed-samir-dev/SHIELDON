@@ -36,5 +36,12 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
             .IsInEnum().WithMessage("Invalid role selection.")
             .Must(role => role == UserRole.Student || role == UserRole.Tutor)
             .WithMessage("Registration is only permitted for Students and Tutors.");
+
+        When(x => !string.IsNullOrWhiteSpace(x.PhoneNumber), () =>
+        {
+            RuleFor(x => x.PhoneNumber)
+                .Matches(@"^\+[1-9]\d{6,14}$")
+                .WithMessage("Phone number must be in valid E.164 international format (e.g. +201012345678).");
+        });
     }
 }

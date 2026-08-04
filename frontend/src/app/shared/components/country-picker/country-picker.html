@@ -1,0 +1,61 @@
+<div class="country-picker-container">
+  
+  <!-- Trigger Button -->
+  <button 
+    type="button" 
+    class="picker-trigger" 
+    [class.active]="isOpen()"
+    (click)="toggleDropdown()"
+    aria-haspopup="listbox"
+    [attr.aria-expanded]="isOpen()">
+    <span class="flag-icon">{{ selectedCountry().flag }}</span>
+    <span class="dial-code">{{ selectedCountry().code }}</span>
+    <svg class="chevron-icon" [class.rotated]="isOpen()" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 12 15 18 9"></polyline>
+    </svg>
+  </button>
+
+  <!-- Floating Searchable Dropdown Popover -->
+  <div class="picker-popover scale-in" *ngIf="isOpen()" role="listbox">
+    
+    <!-- Search Input Box -->
+    <div class="search-box">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input 
+        #searchInput
+        type="text" 
+        class="search-input"
+        placeholder="Search country or code..."
+        [ngModel]="searchQuery()"
+        (ngModelChange)="onSearchInput($event)"
+        aria-autocomplete="list">
+    </div>
+
+    <!-- Country Options List -->
+    <div #optionsList class="options-list custom-scrollbar">
+      <div 
+        *ngFor="let c of filteredCountries(); let i = index" 
+        class="option-item"
+        [class.selected]="c.code === selectedCode()"
+        [class.active-highlight]="i === activeIndex()"
+        (mouseenter)="activeIndex.set(i)"
+        (click)="selectCountry(c)"
+        role="option"
+        [attr.aria-selected]="c.code === selectedCode()">
+        <span class="option-flag">{{ c.flag }}</span>
+        <span class="option-name">{{ c.name }}</span>
+        <span class="option-code">{{ c.code }}</span>
+      </div>
+
+      <!-- No Results State -->
+      <div class="no-results" *ngIf="filteredCountries().length === 0">
+        No country found
+      </div>
+    </div>
+
+  </div>
+
+</div>

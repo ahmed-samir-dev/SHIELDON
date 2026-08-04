@@ -7,11 +7,15 @@ import { UserProfileResponse } from '../../core/models/profile.model';
 import { ToastrService } from 'ngx-toastr';
 import { environment } from '../../../environments/environment';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { OtpModalService } from '../../core/services/otp-modal.service';
+
+import { COUNTRY_CODES, CountryCode } from '../../core/constants/country-codes.constant';
+import { CountryPickerComponent } from '../../shared/components/country-picker/country-picker';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, CountryPickerComponent],
   templateUrl: './profile.html',
   styleUrl: './profile.scss'
 })
@@ -19,6 +23,7 @@ export class ProfileComponent implements OnInit {
   private translate = inject(TranslateService);
   private profileService = inject(ProfileService);
   private shepherdService = inject(ShepherdService);
+  private otpModalService = inject(OtpModalService);
   private fb = inject(FormBuilder);
   private toastr = inject(ToastrService);
 
@@ -26,6 +31,107 @@ export class ProfileComponent implements OnInit {
   isLoading = signal(true);
   isSaving = signal(false);
   isUploading = signal(false);
+
+  // Tab Navigation for Compact Non-Scrolling Layout
+  activeTab = signal<'profile' | 'phone' | 'security' | 'tour'>('profile');
+
+  setActiveTab(tab: 'profile' | 'phone' | 'security' | 'tour'): void {
+    this.activeTab.set(tab);
+  }
+
+
+  // Country Codes & Phone Verification
+  readonly countryCodes: CountryCode[] = COUNTRY_CODES;
+  selectedCountry = signal<CountryCode>(COUNTRY_CODES[0]); // Default Egypt
+
+  isSavingPhone = signal(false);
+
+  phoneForm = this.fb.group({
+    countryCode: ['+20'],
+    localPhone: ['', [Validators.required, this.phoneValidationRule.bind(this)]]
+  });
+
+  onCountrySelected(country: CountryCode): void {
+    this.selectedCountry.set(country);
+    this.sanitizePhoneInput();
+    this.phoneForm.get('localPhone')?.updateValueAndValidity();
+  }
+
+  onCountryChange(code: string): void {
+    const found = this.countryCodes.find(c => c.code === code) || COUNTRY_CODES[0];
+    this.onCountrySelected(found);
+  }
+
+  getMaxPhoneLength(): number {
+    const code = this.phoneForm?.get('countryCode')?.value || '+20';
+    if (code === '+20') {
+      const val = (this.phoneForm?.get('localPhone')?.value || '').trim();
+      return val.startsWith('0') ? 11 : 10;
+    }
+    return 12;
+  }
+
+  onPhoneInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let val = input.value.replace(/\D/g, ''); // Keep numbers only
+
+    const code = this.phoneForm.get('countryCode')?.value || '+20';
+    if (code === '+20') {
+      const maxLen = val.startsWith('0') ? 11 : 10;
+      if (val.length > maxLen) {
+        val = val.substring(0, maxLen);
+      }
+    } else {
+      if (val.length > 12) {
+        val = val.substring(0, 12);
+      }
+    }
+
+    input.value = val;
+    this.phoneForm.get('localPhone')?.setValue(val, { emitEvent: false });
+    this.phoneForm.get('localPhone')?.markAsDirty();
+    this.phoneForm.get('localPhone')?.updateValueAndValidity();
+  }
+
+  private sanitizePhoneInput(): void {
+    const control = this.phoneForm?.get('localPhone');
+    if (!control || !control.value) return;
+    const code = this.phoneForm.get('countryCode')?.value || '+20';
+    let val = control.value.toString().replace(/\D/g, '');
+    if (code === '+20') {
+      const maxLen = val.startsWith('0') ? 11 : 10;
+      if (val.length > maxLen) val = val.substring(0, maxLen);
+    } else {
+      if (val.length > 12) val = val.substring(0, 12);
+    }
+    control.setValue(val, { emitEvent: false });
+  }
+
+  // Custom Phone Validator supporting Egyptian (+20) strict rules
+  phoneValidationRule(control: AbstractControl): ValidationErrors | null {
+    const val = (control.value || '').toString().trim();
+    if (!val) return null;
+
+    const country = this.phoneForm?.get('countryCode')?.value || '+20';
+
+    if (country === '+20') {
+      // Egypt: Allow 010, 011, 012, 015 (11 digits) OR 10, 11, 12, 15 (10 digits)
+      if (val.startsWith('0')) {
+        if (!/^01[0125]\d{8}$/.test(val)) {
+          return { invalidEgyptPhoneWithZero: true };
+        }
+      } else {
+        if (!/^1[0125]\d{8}$/.test(val)) {
+          return { invalidEgyptPhoneNoZero: true };
+        }
+      }
+    } else {
+      if (!/^\d{7,12}$/.test(val)) {
+        return { invalidPhone: true };
+      }
+    }
+    return null;
+  }
 
   // Use environment url to prepend to file path
   apiUrl = environment.apiUrl.replace('/api', '');
@@ -76,6 +182,29 @@ export class ProfileComponent implements OnInit {
           accountStatus: res.data.accountStatus
         });
 
+        // Parse existing phone number if present
+        if (res.data.phoneNumber) {
+          const full = res.data.phoneNumber.trim();
+          // Match against known country codes list (longest code first to avoid partial prefix match)
+          const foundCountry = this.countryCodes
+            .slice()
+            .sort((a, b) => b.code.length - a.code.length)
+            .find(c => full.startsWith(c.code));
+
+          if (foundCountry) {
+            const code = foundCountry.code;
+            let local = full.substring(code.length);
+            if (code === '+20') {
+              local = local.replace(/^0+/, '');
+            }
+            this.phoneForm.patchValue({ countryCode: code, localPhone: local });
+            this.onCountrySelected(foundCountry);
+          } else {
+            let local = full.replace(/^\+\d{1,3}/, '').replace(/^0+/, '');
+            this.phoneForm.patchValue({ localPhone: local });
+          }
+        }
+
         // Passwordless user handling
         if (res.data.hasPassword === false) {
           this.changePasswordForm.get('currentPassword')?.disable();
@@ -94,6 +223,47 @@ export class ProfileComponent implements OnInit {
         this.toastr.error(this.translate.instant('PROFILE.TOAST_LOAD_ERR'));
       }
     });
+  }
+
+  onSavePhone(): void {
+    this.phoneForm.markAllAsTouched();
+    if (this.phoneForm.invalid || this.isSavingPhone()) return;
+
+    this.isSavingPhone.set(true);
+    const countryCode = this.phoneForm.value.countryCode || '+20';
+    let localPhone = (this.phoneForm.value.localPhone || '').trim();
+    if (countryCode === '+20') {
+      localPhone = localPhone.replace(/^0+/, '');
+    }
+    const fullPhone = `${countryCode}${localPhone}`;
+
+    this.profileService.updatePhone(fullPhone).subscribe({
+      next: (res) => {
+        this.profileData.set(res.data);
+        this.isSavingPhone.set(false);
+        this.toastr.success('Phone number saved. Click "Verify Now" to complete verification.', 'Saved');
+      },
+      error: (err) => {
+        this.isSavingPhone.set(false);
+        const msg = err.error?.message
+          || err.error?.errors?.PhoneNumber?.[0]
+          || err.error?.title
+          || 'Failed to save phone number. Please try again.';
+        this.toastr.error(msg);
+      }
+    });
+  }
+
+  openOtpModal(phoneOverride?: string): void {
+    const phone = phoneOverride || this.profileData()?.phoneNumber;
+    if (!phone) {
+      this.toastr.warning('Please enter and save a phone number first.', 'No Phone Number');
+      return;
+    }
+    this.otpModalService.open(
+      phone,
+      (updatedProfile: UserProfileResponse) => this.profileData.set(updatedProfile)
+    );
   }
 
   onSubmit(): void {
@@ -210,4 +380,5 @@ export class ProfileComponent implements OnInit {
   get currentPasswordControl() { return this.changePasswordForm.get('currentPassword')!; }
   get newPasswordControl() { return this.changePasswordForm.get('newPassword')!; }
   get confirmNewPasswordControl() { return this.changePasswordForm.get('confirmNewPassword')!; }
+  get profileLocalPhoneControl() { return this.phoneForm.get('localPhone')!; }
 }

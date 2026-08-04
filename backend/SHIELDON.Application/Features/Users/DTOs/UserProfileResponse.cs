@@ -12,7 +12,10 @@ public record UserProfileResponse(
     string? DisplayId,
     AccountStatus AccountStatus,
     DateTime CreatedAt,
-    bool HasPassword = true
+    bool HasPassword = true,
+    string? PhoneNumber = null,
+    string PhoneVerificationStatus = "None",
+    DateTime? PhoneVerifiedAt = null
 );
 
 public record UpdateProfileRequest(

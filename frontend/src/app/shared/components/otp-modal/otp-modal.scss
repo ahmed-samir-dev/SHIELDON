@@ -1,0 +1,359 @@
+@import '../../../../assets/styles/variables';
+
+.otp-backdrop {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(11, 17, 32, 0.55) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+  z-index: 99999 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-4;
+}
+
+.otp-dialog {
+  width: 100%;
+  max-width: 440px;
+  background: var(--theme-bg-surface);
+  border: 1px solid var(--theme-border-strong);
+  border-top: 1px solid var(--theme-border-strong) !important;
+  border-radius: $border-radius-xl;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.25);
+  padding: $spacing-6;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+
+  &::before, &::after {
+    display: none !important;
+    content: none !important;
+  }
+}
+
+.close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: var(--theme-bg-hover);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--theme-text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--theme-border-strong);
+    color: var(--theme-text-main);
+    transform: rotate(90deg);
+  }
+}
+
+/* ── HEADER ────────────────────────────────────────────────── */
+
+.otp-header {
+  text-align: center;
+  margin-bottom: $spacing-6;
+
+  .icon-ring {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(#25D366, 0.12);
+    color: #25D366;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto $spacing-3;
+  }
+
+  h2 {
+    font-family: $font-family-secondary;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: var(--theme-text-main);
+    margin-bottom: $spacing-1;
+  }
+
+  .subtitle {
+    font-size: $font-size-sm;
+    color: var(--theme-text-muted);
+
+    .phone-badge {
+      color: var(--theme-text-main);
+      font-weight: $font-weight-semibold;
+      background: var(--theme-bg-secondary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--theme-border-strong);
+    }
+  }
+}
+
+/* ── CHANNEL TOGGLE ────────────────────────────────────────── */
+
+.channel-toggle {
+  display: flex;
+  gap: $spacing-2;
+  background: var(--theme-bg-secondary);
+  padding: 4px;
+  border-radius: $border-radius-lg;
+  border: 1px solid var(--theme-border);
+  margin-bottom: $spacing-5;
+
+  .channel-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-2;
+    padding: $spacing-2 $spacing-3;
+    border: none;
+    border-radius: $border-radius-md;
+    background: transparent;
+    color: var(--theme-text-muted);
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    svg {
+      transition: transform 0.2s ease;
+    }
+
+    &:hover {
+      color: var(--theme-text-main);
+    }
+
+    &.active {
+      background: var(--theme-bg-surface);
+      color: $color-primary-base;
+      box-shadow: $shadow-sm;
+
+      svg {
+        transform: scale(1.1);
+      }
+    }
+  }
+}
+
+/* ── SEND CODE ACTION ──────────────────────────────────────── */
+
+.send-action-wrapper {
+  margin-bottom: $spacing-4;
+}
+
+.btn-send-code {
+  width: 100%;
+  padding: $spacing-3 $spacing-4;
+  background: rgba($color-primary-base, 0.08);
+  border: 1px solid rgba($color-primary-base, 0.25);
+  border-radius: $border-radius-md;
+  color: $color-primary-base;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba($color-primary-base, 0.15);
+    border-color: $color-primary-base;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.resend-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2;
+  font-size: $font-size-xs;
+  color: var(--theme-text-muted);
+  margin-bottom: $spacing-4;
+
+  strong {
+    color: $color-primary-base;
+    font-weight: $font-weight-bold;
+  }
+}
+
+/* ── 6-DIGIT INPUT GRID ───────────────────────────────────── */
+
+.otp-inputs-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: $spacing-2;
+  margin-bottom: $spacing-5;
+
+  .otp-box {
+    width: 100%;
+    height: 52px;
+    text-align: center;
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    font-family: $font-family-secondary;
+    color: var(--theme-text-main);
+    background: var(--theme-bg-secondary);
+    border: 2px solid var(--theme-border-strong);
+    border-radius: $border-radius-md;
+    outline: none;
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: $color-primary-base;
+      background: var(--theme-bg-surface);
+      box-shadow: 0 0 0 3px rgba($color-primary-base, 0.2);
+      transform: translateY(-2px);
+    }
+
+    &.filled {
+      border-color: rgba($color-primary-base, 0.6);
+      background: rgba($color-primary-base, 0.04);
+    }
+
+    &.is-invalid {
+      border-color: $color-danger-base;
+      animation: shake 0.4s ease-in-out;
+    }
+  }
+}
+
+/* ── VERIFY BUTTON ────────────────────────────────────────── */
+
+.btn-verify-glow {
+  width: 100%;
+  padding: $spacing-3 $spacing-4;
+  background: $color-primary-base;
+  border: none;
+  border-radius: $border-radius-md;
+  color: white;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba($color-primary-base, 0.25);
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: $color-primary-dark;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba($color-primary-base, 0.35);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+}
+
+/* ── SUCCESS STATE ────────────────────────────────────────── */
+
+.success-state {
+  text-align: center;
+  padding: $spacing-6 0;
+
+  .success-icon-badge {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(#10B981, 0.12);
+    color: #10B981;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto $spacing-4;
+  }
+
+  h3 {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: var(--theme-text-main);
+    margin-bottom: $spacing-2;
+  }
+
+  p {
+    font-size: $font-size-sm;
+    color: var(--theme-text-muted);
+  }
+}
+
+/* ── ALERT BANNERS ────────────────────────────────────────── */
+
+.alert-banner {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: $spacing-3;
+  border-radius: $border-radius-md;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  margin-bottom: $spacing-4;
+
+  &.alert-danger {
+    background: rgba($color-danger-base, 0.08);
+    border: 1px solid rgba($color-danger-base, 0.2);
+    color: $color-danger-base;
+  }
+}
+
+.spinner-small {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+.scale-in {
+  animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.bounce-in {
+  animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes bounceIn {
+  0% { opacity: 0; transform: scale(0.3); }
+  50% { opacity: 1; transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
