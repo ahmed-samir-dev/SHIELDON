@@ -354,7 +354,7 @@ public class ReattemptService : IReattemptService
                 $"/courses/{reattempt.Exam!.CourseId}?tab=exams",
                 NotificationType.ReattemptApproved,
                 reattempt.ExamId,
-                sendEmail: true,
+                sendEmail: false,
                 ct);
         }
         else
@@ -370,7 +370,7 @@ public class ReattemptService : IReattemptService
                 null,
                 NotificationType.ReattemptRejected,
                 reattempt.ExamId,
-                sendEmail: true,
+                sendEmail: false,
                 ct);
         }
 

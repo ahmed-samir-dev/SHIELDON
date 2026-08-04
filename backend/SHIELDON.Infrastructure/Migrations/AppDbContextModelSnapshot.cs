@@ -1454,6 +1454,13 @@ namespace SHIELDON.Infrastructure.Migrations
                     b.Property<string>("AdminId")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("AuthProvider")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasDefaultValue("Local");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -1491,9 +1498,35 @@ namespace SHIELDON.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("PasswordHash")
-                        .IsRequired()
                         .HasMaxLength(512)
                         .HasColumnType("nvarchar(512)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("PhoneOtpCodeHash")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("PhoneOtpExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PhoneOtpFailedAttempts")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("PhoneOtpLastSentAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PhoneVerificationStatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasDefaultValueSql("'None'");
+
+                    b.Property<DateTime?>("PhoneVerifiedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("ProfilePictureUrl")
                         .HasMaxLength(512)

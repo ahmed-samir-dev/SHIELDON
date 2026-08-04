@@ -8,5 +8,6 @@ public record RegisterRequest(
     string Email,
     string Password,
     string ConfirmPassword,
-    UserRole Role
+    UserRole Role,
+    string? PhoneNumber = null
 );

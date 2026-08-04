@@ -59,5 +59,11 @@ public interface IAuthService
     /// Throws DomainException if the token is invalid or expired.
     /// </summary>
     Task ResetPasswordAsync(ResetPasswordRequest request, CancellationToken ct = default);
+
+    /// <summary>
+    /// Authenticates or registers a user using a Google Sign-In ID Token.
+    /// Supports passwordless account creation and native profile avatar sync.
+    /// </summary>
+    Task<LoginResponse> GoogleAuthAsync(GoogleAuthRequest request, CancellationToken ct = default);
 }
 

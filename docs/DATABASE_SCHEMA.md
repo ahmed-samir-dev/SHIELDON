@@ -5,8 +5,9 @@ This document provides a high-level conceptual overview of the core database ent
 ## Core Entities & Relationships
 
 ### Users & Identity
-- **`User`**: The central identity entity. Contains credentials, role (`Admin`, `Tutor`, `Student`), language preferences, and profile picture paths.
-- **Roles**: Determined by a simple string or enum property within the User table, enforcing authorization rules via standard .NET Identity or custom JWT claims.
+- **`User`**: The central identity entity. Contains credentials, role (`Admin`, `Tutor`, `Student`), language preferences, profile picture paths, and phone verification state (`PhoneNumber`, `PhoneVerificationStatus`, `PhoneOtpCodeHash`, `PhoneOtpExpiry`, `PhoneOtpResendAvailableAt`, `PhoneOtpAttempts`).
+- **Phone Uniqueness**: Enforces `IX_Users_PhoneNumber` unique index (1 phone number per user account).
+- **Roles**: Enforced via ASP.NET Core Identity & custom JWT claims (`Admin`, `Tutor`, `Student`).
 
 ### Courses & Enrollment
 - **`Course`**: Represents a class. Has a Title, Description, and an associated `TutorId` (Foreign Key to `User`).

@@ -35,6 +35,22 @@ export class ProfileService {
     return this.http.patch<{ message: string }>(`${environment.apiUrl}/profile/password`, request);
   }
 
+  updatePhone(phoneNumber: string): Observable<{ data: UserProfileResponse, message: string }> {
+    return this.http.put<{ data: UserProfileResponse, message: string }>(`${environment.apiUrl}/profile/phone`, { phoneNumber }).pipe(
+      tap(res => this.updateAuthIdentity(res.data))
+    );
+  }
+
+  sendPhoneOtp(channel: 'whatsapp' = 'whatsapp'): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/profile/phone/send-otp`, { channel });
+  }
+
+  verifyPhoneOtp(code: string): Observable<{ data: UserProfileResponse, message: string }> {
+    return this.http.post<{ data: UserProfileResponse, message: string }>(`${environment.apiUrl}/profile/phone/verify-otp`, { code }).pipe(
+      tap(res => this.updateAuthIdentity(res.data))
+    );
+  }
+
   // ── Sync with Auth Identity ──────────────────────────────────────────────
   // When the profile is updated, we proactively update the currentUser signal 
   // so the Avatar in the NavBar updates immediately everywhere.

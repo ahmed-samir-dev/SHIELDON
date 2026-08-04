@@ -1,5 +1,6 @@
 <div class="features-wrapper animate-fade-in">
   
+  <!-- Page Header -->
   <div class="header-section">
     <h1>{{ 'PROFILE.TITLE' | translate }}</h1>
     <p>{{ 'PROFILE.SUBTITLE' | translate }}</p>
@@ -12,8 +13,9 @@
     </div>
   } @else if (profileData()) {
     
-    <div class="profile-card">
-      <div class="avatar-section">
+    <!-- Profile Hero Card -->
+    <div class="profile-hero-card">
+      <div class="hero-left">
         <div class="avatar-wrapper">
           @if (getAvatarUrl()) {
             <img [src]="getAvatarUrl()" alt="Profile Avatar" class="avatar-image">
@@ -27,202 +29,416 @@
             @if (isUploading()) {
               <div class="spinner-small"></div>
             } @else {
-              <label for="avatar-upload" class="upload-label">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+              <label for="avatar-upload" class="upload-label" title="Upload Photo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
               </label>
               <input type="file" id="avatar-upload" accept="image/png, image/jpeg, image/webp" (change)="onFileSelected($event)" hidden>
             }
           </div>
         </div>
-        
-        <div class="avatar-info">
-          <h3>{{ 'PROFILE.PICTURE' | translate }}</h3>
-          <p [innerHTML]="'PROFILE.PICTURE_DESC' | translate"></p>
+
+        <div class="user-meta">
+          <h2 class="user-name">{{ profileData()!.firstName }} {{ profileData()!.lastName }}</h2>
+          <p class="user-email">{{ profileData()!.email }}</p>
+          <div class="meta-pills">
+            <!-- Account Role -->
+            <span class="role-pill">{{ profileData()!.role }}</span>
+
+            <!-- Account Status (Active) -->
+            <span class="status-pill verified">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              {{ 'PROFILE.ACCOUNT_STATUS_ACTIVE' | translate }}
+            </span>
+          </div>
         </div>
       </div>
 
-      <hr class="divider">
-
-      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" novalidate class="profile-form">
-        
-        <div class="form-row">
-          <!-- First Name -->
-          <div class="form-group" [class.has-error]="firstNameControl.invalid && firstNameControl.touched">
-            <label for="firstName">{{ 'PROFILE.FN_LABEL' | translate }}</label>
-            <input id="firstName" formControlName="firstName" type="text" [placeholder]="'PROFILE.FN_PLACEHOLDER' | translate">
-            @if (firstNameControl.hasError('required') && firstNameControl.touched) {
-              <span class="field-error">{{ 'PROFILE.FN_REQ' | translate }}</span>
-            }
-            @if (firstNameControl.hasError('maxlength') && firstNameControl.touched) {
-              <span class="field-error">{{ 'PROFILE.FN_MAX' | translate }}</span>
-            }
-          </div>
-
-          <!-- Last Name -->
-          <div class="form-group" [class.has-error]="lastNameControl.invalid && lastNameControl.touched">
-            <label for="lastName">{{ 'PROFILE.LN_LABEL' | translate }}</label>
-            <input id="lastName" formControlName="lastName" type="text" [placeholder]="'PROFILE.LN_PLACEHOLDER' | translate">
-            @if (lastNameControl.hasError('required') && lastNameControl.touched) {
-              <span class="field-error">{{ 'PROFILE.LN_REQ' | translate }}</span>
-            }
-          </div>
-        </div>
-
-        <!-- Email (Disabled) -->
-        <div class="form-group disabled-group">
-          <label for="email">{{ 'PROFILE.EMAIL_LABEL' | translate }}</label>
-          <div class="input-wrapper">
-            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-            <input id="email" formControlName="email" type="email">
-          </div>
-          <span class="field-help">{{ 'PROFILE.EMAIL_HELP' | translate }}</span>
-        </div>
-
-        <div class="form-row">
-          <!-- Unique ID (Disabled) -->
-          <div class="form-group disabled-group">
-            <label for="displayId">{{ 'PROFILE.ID_LABEL' | translate }}</label>
-            <div class="input-wrapper">
-              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10h2"/><path d="M16 14h2"/><path d="M6.17 15a3 3 0 0 1 5.66 0"/><circle cx="9" cy="11" r="2"/><rect x="2" y="5" width="20" height="14" rx="2"/></svg>
-              <input id="displayId" formControlName="displayId" type="text" [placeholder]="'PROFILE.ID_PLACEHOLDER' | translate">
+      <!-- Right-Aligned Phone Verification Status Card -->
+      <div class="hero-right">
+        @if (profileData()?.phoneVerificationStatus === 'Verified') {
+          <div class="phone-hero-status verified">
+            <div class="status-icon-box">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             </div>
-            <span class="field-help">{{ 'PROFILE.ID_HELP' | translate }}</span>
-          </div>
-
-          <!-- Account Status (Disabled) -->
-          <div class="form-group disabled-group">
-            <label for="accountStatus">{{ 'PROFILE.STATUS_LABEL' | translate }}</label>
-            <div class="input-wrapper">
-              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-              <input id="accountStatus" formControlName="accountStatus" type="text">
+            <div class="status-text-box">
+              <span class="status-label">{{ 'PROFILE.PHONE_VERIFIED' | translate }}</span>
+              <span class="status-subtext">{{ profileData()?.phoneNumber }}</span>
             </div>
           </div>
+        } @else if (profileData()?.phoneVerificationStatus === 'Unverified') {
+          <div class="phone-hero-status unverified">
+            <div class="status-icon-box pulse">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </div>
+            <div class="status-text-box">
+              <span class="status-label">{{ 'PROFILE.PHONE_VERIFICATION_PENDING' | translate }}</span>
+              <button type="button" class="verify-action-link" (click)="openOtpModal()">
+                {{ 'PROFILE.VERIFY_NOW' | translate }}
+              </button>
+            </div>
+          </div>
+        } @else {
+          <div class="phone-hero-status none">
+            <div class="status-text-box">
+              <span class="status-label">{{ 'PROFILE.PHONE_NOT_ADDED' | translate }}</span>
+              <button type="button" class="verify-action-link" (click)="setActiveTab('phone')">
+                Add Phone
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Segmented Navigation Tabs -->
+    <div class="profile-tabs-nav">
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="activeTab() === 'profile'" 
+        (click)="setActiveTab('profile')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>{{ 'PROFILE.TITLE' | translate }}</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="activeTab() === 'phone'" 
+        (click)="setActiveTab('phone')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        <span>{{ 'PROFILE.PHONE_VERIFICATION_TAB' | translate }}</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="activeTab() === 'security'" 
+        (click)="setActiveTab('security')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>{{ 'PROFILE.SEC_TITLE' | translate }}</span>
+      </button>
+
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="activeTab() === 'tour'" 
+        (click)="setActiveTab('tour')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6Z"/></svg>
+        <span>{{ 'PROFILE.TOUR_TITLE' | translate }}</span>
+      </button>
+    </div>
+
+    <!-- TAB 1: PROFILE INFO -->
+    @if (activeTab() === 'profile') {
+      <div class="profile-card tab-pane animate-fade-in">
+        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" novalidate class="profile-form">
+          
+          <!-- Editable Section: First Name, Last Name + Inline Save Button -->
+          <div class="form-section">
+            <div class="section-header-sm">
+              <h4>Personal Details</h4>
+              <p>Update your first name and last name</p>
+            </div>
+
+            <div class="editable-name-row">
+              <!-- First Name -->
+              <div class="form-group name-field-group" [class.has-error]="firstNameControl.invalid && firstNameControl.touched">
+                <label for="firstName">{{ 'PROFILE.FN_LABEL' | translate }}</label>
+                <input id="firstName" formControlName="firstName" type="text" placeholder="Ahmed">
+                @if (firstNameControl.hasError('required') && firstNameControl.touched) {
+                  <span class="field-error">{{ 'PROFILE.FN_REQ' | translate }}</span>
+                }
+                @if (firstNameControl.hasError('maxlength') && firstNameControl.touched) {
+                  <span class="field-error">{{ 'PROFILE.FN_MAX' | translate }}</span>
+                }
+              </div>
+
+              <!-- Last Name -->
+              <div class="form-group name-field-group" [class.has-error]="lastNameControl.invalid && lastNameControl.touched">
+                <label for="lastName">{{ 'PROFILE.LN_LABEL' | translate }}</label>
+                <input id="lastName" formControlName="lastName" type="text" placeholder="Samir">
+                @if (lastNameControl.hasError('required') && lastNameControl.touched) {
+                  <span class="field-error">{{ 'PROFILE.LN_REQ' | translate }}</span>
+                }
+              </div>
+
+              <!-- Inline Save Button -->
+              <div class="form-group name-save-btn-group">
+                <label class="invisible-label" aria-hidden="true">&nbsp;</label>
+                <button type="submit" class="btn-primary inline-save-btn" [disabled]="profileForm.invalid || isSaving() || !profileForm.dirty">
+                  @if (isSaving()) {
+                    <span class="btn-spinner"></span> {{ 'PROFILE.SAVING' | translate }}
+                  } @else {
+                    {{ 'PROFILE.SAVE_BTN' | translate }}
+                  }
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <hr class="section-divider">
+
+          <!-- Read-Only Section: System & Account Information -->
+          <div class="form-section">
+            <div class="section-header-sm">
+              <h4>Account Information</h4>
+              <p>Read-only identity attributes managed by system settings</p>
+            </div>
+
+            <div class="form-row">
+              <!-- Email (Disabled) -->
+              <div class="form-group disabled-group">
+                <label for="email">{{ 'PROFILE.EMAIL_LABEL' | translate }}</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                  <input id="email" formControlName="email" type="email">
+                </div>
+                <span class="field-help">{{ 'PROFILE.EMAIL_HELP' | translate }}</span>
+              </div>
+
+              <!-- Account Role (Disabled) -->
+              <div class="form-group disabled-group">
+                <label>{{ 'PROFILE.ROLE_LABEL' | translate }}</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <input type="text" [value]="profileData()!.role" disabled class="role-field-input">
+                </div>
+                <span class="field-help">System assigned user role</span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <!-- Unique ID (Disabled) -->
+              <div class="form-group disabled-group">
+                <label for="displayId">{{ 'PROFILE.ID_LABEL' | translate }}</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10h2"/><path d="M16 14h2"/><path d="M6.17 15a3 3 0 0 1 5.66 0"/><circle cx="9" cy="11" r="2"/><rect x="2" y="5" width="20" height="14" rx="2"/></svg>
+                  <input id="displayId" formControlName="displayId" type="text" [placeholder]="'PROFILE.ID_PLACEHOLDER' | translate">
+                </div>
+                <span class="field-help">{{ 'PROFILE.ID_HELP' | translate }}</span>
+              </div>
+
+              <!-- Account Status (Disabled) -->
+              <div class="form-group disabled-group">
+                <label for="accountStatus">{{ 'PROFILE.STATUS_LABEL' | translate }}</label>
+                <div class="input-wrapper">
+                  <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                  <input id="accountStatus" formControlName="accountStatus" type="text">
+                </div>
+                <span class="field-help">Current account state</span>
+              </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    }
+
+    <!-- TAB 2: PHONE VERIFICATION -->
+    @if (activeTab() === 'phone') {
+      <div class="profile-card tab-pane animate-fade-in">
+        <div class="card-section-header">
+          <div>
+            <h3>{{ 'PROFILE.PHONE_VERIFICATION_TITLE' | translate }}</h3>
+            <p>{{ 'PROFILE.PHONE_VERIFICATION_DESC' | translate }}</p>
+          </div>
+          
+          <div>
+            @if (profileData()?.phoneVerificationStatus === 'Verified') {
+              <span class="badge-status badge-verified">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                {{ 'PROFILE.VERIFIED' | translate }}
+              </span>
+            } @else if (profileData()?.phoneVerificationStatus === 'Unverified') {
+              <span class="badge-status badge-unverified float-pulse">
+                <svg class="bounce-up-down" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                {{ 'PROFILE.VERIFICATION_PENDING' | translate }}
+              </span>
+            } @else {
+              <span class="badge-status badge-none">{{ 'PROFILE.NOT_PROVIDED' | translate }}</span>
+            }
+          </div>
         </div>
 
-        <!-- Role Badge -->
-        <div class="role-actions-row">  
-          <div class="form-group mb-0">
-            <label>{{ 'PROFILE.ROLE_LABEL' | translate }}</label>
-            <div class="role-badge">
-              {{ profileData()!.role }}
+        @if (profileData()?.phoneVerificationStatus === 'Unverified') {
+          <div class="unverified-callout">
+            <div class="callout-icon float-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+            </div>
+            <div class="callout-text">
+              <h4>{{ 'PROFILE.UNVERIFIED_CALLOUT_TITLE' | translate }} ({{ profileData()?.phoneNumber }})</h4>
+              <p>{{ 'PROFILE.UNVERIFIED_CALLOUT_DESC' | translate }}</p>
+            </div>
+            <button type="button" class="btn-verify-now" (click)="openOtpModal()">
+              {{ 'PROFILE.VERIFY_NOW' | translate }}
+            </button>
+          </div>
+        }
+
+        <form [formGroup]="phoneForm" (ngSubmit)="onSavePhone()" class="profile-form">
+          <div class="form-group">
+            <label for="profilePhone">{{ 'PROFILE.PHONE_NUMBER_LABEL' | translate }}</label>
+            <div class="phone-input-row">
+              <app-country-picker
+                formControlName="countryCode"
+                (countrySelected)="onCountrySelected($event)">
+              </app-country-picker>
+
+              <div class="phone-input-wrapper flex-grow-1">
+                <input 
+                  id="profilePhone" 
+                  type="tel" 
+                  formControlName="localPhone" 
+                  [placeholder]="selectedCountry().placeholder || '1012345678'"
+                  [attr.maxlength]="getMaxPhoneLength()"
+                  (input)="onPhoneInput($event)"
+                  [class.is-invalid]="profileLocalPhoneControl.invalid && (profileLocalPhoneControl.dirty || profileLocalPhoneControl.touched)">
+              </div>
+
+              <button type="submit" class="btn-primary" [disabled]="phoneForm.invalid || isSavingPhone()">
+                @if (isSavingPhone()) {
+                  <span class="btn-spinner"></span> {{ 'PROFILE.SAVING' | translate }}
+                } @else {
+                  {{ 'PROFILE.SAVE_NUMBER' | translate }}
+                }
+              </button>
+            </div>
+
+            <div class="error-badge slide-down" *ngIf="profileLocalPhoneControl.invalid && (profileLocalPhoneControl.dirty || profileLocalPhoneControl.touched)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span *ngIf="profileLocalPhoneControl.errors?.['required']">Phone number is required.</span>
+              <span *ngIf="profileLocalPhoneControl.errors?.['invalidEgyptPhoneWithZero']">{{ 'PROFILE.INVALID_EGYPT_PHONE_WITH_ZERO' | translate }}</span>
+              <span *ngIf="profileLocalPhoneControl.errors?.['invalidEgyptPhoneNoZero']">{{ 'PROFILE.INVALID_EGYPT_PHONE_NO_ZERO' | translate }}</span>
+              <span *ngIf="profileLocalPhoneControl.errors?.['invalidPhone']">Invalid phone format (7–12 digits)</span>
+            </div>
+          </div>
+        </form>
+      </div>
+    }
+
+    <!-- TAB 3: SECURITY & PASSWORD -->
+    @if (activeTab() === 'security') {
+      <div class="profile-card tab-pane animate-fade-in">
+        <div class="card-section-header">
+          <div>
+            <h3>{{ 'PROFILE.SEC_TITLE' | translate }}</h3>
+            <p>{{ 'PROFILE.SEC_DESC' | translate }}</p>
+          </div>
+        </div>
+
+        @if (profileData()?.hasPassword === false) {
+          <div class="passwordless-banner animate-slide-up">
+            <div class="banner-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+            </div>
+            <div class="banner-content">
+              <h4>First-Time Password Setup</h4>
+              <p>You registered using Google Sign-In and do not have an existing password yet. You can set a new password below anytime without entering an old password.</p>
+            </div>
+          </div>
+        }
+
+        <form [formGroup]="changePasswordForm" (ngSubmit)="onChangePasswordSubmit()" novalidate class="profile-form">
+          <!-- Current Password -->
+          <div class="form-group" [class.disabled-group]="profileData()?.hasPassword === false" [class.has-error]="currentPasswordControl.invalid && currentPasswordControl.touched">
+            <div class="label-row">
+              <label for="currentPassword">{{ 'PROFILE.CURR_PASS_LABEL' | translate }}</label>
+              @if (profileData()?.hasPassword === false) {
+                <span class="badge-not-required">Not Required for Google Accounts</span>
+              }
+            </div>
+            <div class="input-wrapper">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <input id="currentPassword" formControlName="currentPassword" [type]="showCurrentPassword() ? 'text' : 'password'" [placeholder]="profileData()?.hasPassword === false ? 'No old password (Google Account)' : ('PROFILE.CURR_PASS_PLACEHOLDER' | translate)">
+              @if (profileData()?.hasPassword !== false) {
+                <button type="button" class="password-toggle" (click)="toggleCurrentPassword()">
+                  @if (showCurrentPassword()) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  }
+                </button>
+              }
+            </div>
+            @if (currentPasswordControl.hasError('required') && currentPasswordControl.touched) {
+              <span class="field-error">{{ 'PROFILE.CURR_PASS_REQ' | translate }}</span>
+            }
+          </div>
+
+          <div class="form-row">
+            <!-- New Password -->
+            <div class="form-group" [class.has-error]="newPasswordControl.invalid && newPasswordControl.touched">
+              <label for="newPassword">{{ 'PROFILE.NEW_PASS_LABEL' | translate }}</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <input id="newPassword" formControlName="newPassword" [type]="showNewPassword() ? 'text' : 'password'" [placeholder]="'PROFILE.NEW_PASS_PLACEHOLDER' | translate">
+                <button type="button" class="password-toggle" (click)="toggleNewPassword()">
+                  @if (showNewPassword()) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  }
+                </button>
+              </div>
+              @if (newPasswordControl.hasError('required') && newPasswordControl.touched) {
+                <span class="field-error">{{ 'PROFILE.NEW_PASS_REQ' | translate }}</span>
+              } @else if (newPasswordControl.hasError('minlength') && newPasswordControl.touched) {
+                <span class="field-error">{{ 'PROFILE.NEW_PASS_MIN' | translate }}</span>
+              } @else if (newPasswordControl.hasError('pattern') && newPasswordControl.touched) {
+                <span class="field-error">{{ 'PROFILE.NEW_PASS_PAT' | translate }}</span>
+              }
+            </div>
+
+            <!-- Confirm New Password -->
+            <div class="form-group" [class.has-error]="confirmNewPasswordControl.invalid && confirmNewPasswordControl.touched">
+              <label for="confirmNewPassword">{{ 'PROFILE.CONF_PASS_LABEL' | translate }}</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <input id="confirmNewPassword" formControlName="confirmNewPassword" [type]="showConfirmPassword() ? 'text' : 'password'" [placeholder]="'PROFILE.CONF_PASS_PLACEHOLDER' | translate">
+                <button type="button" class="password-toggle" (click)="toggleConfirmPassword()">
+                  @if (showConfirmPassword()) {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  }
+                </button>
+              </div>
+              @if (confirmNewPasswordControl.hasError('required') && confirmNewPasswordControl.touched) {
+                <span class="field-error">{{ 'PROFILE.CONF_PASS_REQ' | translate }}</span>
+              } @else if (confirmNewPasswordControl.hasError('passwordMismatch') && confirmNewPasswordControl.touched) {
+                <span class="field-error">{{ 'PROFILE.PASS_MISMATCH' | translate }}</span>
+              }
             </div>
           </div>
 
           <div class="form-actions">
-            <button type="submit" class="btn-primary" [disabled]="profileForm.invalid || isSaving() || !profileForm.dirty">
-              @if (isSaving()) {
-                <span class="btn-spinner"></span> {{ 'PROFILE.SAVING' | translate }}
+            <button type="submit" class="btn-primary" [disabled]="changePasswordForm.invalid || isChangingPassword()">
+              @if (isChangingPassword()) {
+                <span class="btn-spinner"></span> {{ 'PROFILE.UPDATING' | translate }}
               } @else {
-                {{ 'PROFILE.SAVE_BTN' | translate }}
+                {{ 'PROFILE.UPDATE_BTN' | translate }}
               }
             </button>
           </div>
-        </div>
-      </form>
-
-    </div>
-    <br><br>
-    <!-- Security Settings / Change Password -->
-    <div class="profile-card mt-24">
-      <div class="header-section" style="margin-bottom: 24px;">
-        <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--theme-text-main);">{{ 'PROFILE.SEC_TITLE' | translate }}</h3>
-        <p style="color: var(--theme-text-muted); font-size: 0.875rem;">{{ 'PROFILE.SEC_DESC' | translate }}</p>
+        </form>
       </div>
+    }
 
-      <form [formGroup]="changePasswordForm" (ngSubmit)="onChangePasswordSubmit()" novalidate class="profile-form">
+    <!-- TAB 4: PLATFORM TOUR -->
+    @if (activeTab() === 'tour') {
+      <div class="profile-card tour-settings-card tab-pane animate-fade-in">
+        <div class="tour-card-content">
+          <h3 class="tour-title">{{ 'PROFILE.TOUR_TITLE' | translate }}</h3>
+          <p class="tour-desc">{{ 'PROFILE.TOUR_DESC' | translate }}</p>
+        </div>
         
-        <!-- Current Password -->
-        <div class="form-group" [class.has-error]="currentPasswordControl.invalid && currentPasswordControl.touched">
-          <label for="currentPassword">{{ 'PROFILE.CURR_PASS_LABEL' | translate }}</label>
-          <div class="input-wrapper">
-            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <input id="currentPassword" formControlName="currentPassword" [type]="showCurrentPassword() ? 'text' : 'password'" [placeholder]="'PROFILE.CURR_PASS_PLACEHOLDER' | translate">
-            <button type="button" class="password-toggle" (click)="toggleCurrentPassword()">
-              @if (showCurrentPassword()) {
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
-              } @else {
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-              }
-            </button>
-          </div>
-          @if (currentPasswordControl.hasError('required') && currentPasswordControl.touched) {
-            <span class="field-error">{{ 'PROFILE.CURR_PASS_REQ' | translate }}</span>
-          }
-        </div>
-
-        <div class="form-row">
-          <!-- New Password -->
-          <div class="form-group" [class.has-error]="newPasswordControl.invalid && newPasswordControl.touched">
-            <label for="newPassword">{{ 'PROFILE.NEW_PASS_LABEL' | translate }}</label>
-            <div class="input-wrapper">
-              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              <input id="newPassword" formControlName="newPassword" [type]="showNewPassword() ? 'text' : 'password'" [placeholder]="'PROFILE.NEW_PASS_PLACEHOLDER' | translate">
-              <button type="button" class="password-toggle" (click)="toggleNewPassword()">
-                @if (showNewPassword()) {
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
-                } @else {
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                }
-              </button>
-            </div>
-            @if (newPasswordControl.hasError('required') && newPasswordControl.touched) {
-              <span class="field-error">{{ 'PROFILE.NEW_PASS_REQ' | translate }}</span>
-            } @else if (newPasswordControl.hasError('minlength') && newPasswordControl.touched) {
-              <span class="field-error">{{ 'PROFILE.NEW_PASS_MIN' | translate }}</span>
-            } @else if (newPasswordControl.hasError('pattern') && newPasswordControl.touched) {
-              <span class="field-error">{{ 'PROFILE.NEW_PASS_PAT' | translate }}</span>
-            }
-          </div>
-
-          <!-- Confirm New Password -->
-          <div class="form-group" [class.has-error]="confirmNewPasswordControl.invalid && confirmNewPasswordControl.touched">
-            <label for="confirmNewPassword">{{ 'PROFILE.CONF_PASS_LABEL' | translate }}</label>
-            <div class="input-wrapper">
-              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              <input id="confirmNewPassword" formControlName="confirmNewPassword" [type]="showConfirmPassword() ? 'text' : 'password'" [placeholder]="'PROFILE.CONF_PASS_PLACEHOLDER' | translate">
-              <button type="button" class="password-toggle" (click)="toggleConfirmPassword()">
-                @if (showConfirmPassword()) {
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
-                } @else {
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                }
-              </button>
-            </div>
-            @if (confirmNewPasswordControl.hasError('required') && confirmNewPasswordControl.touched) {
-              <span class="field-error">{{ 'PROFILE.CONF_PASS_REQ' | translate }}</span>
-            } @else if (confirmNewPasswordControl.hasError('passwordMismatch') && confirmNewPasswordControl.touched) {
-              <span class="field-error">{{ 'PROFILE.PASS_MISMATCH' | translate }}</span>
-            }
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn-primary" [disabled]="changePasswordForm.invalid || isChangingPassword()">
-            @if (isChangingPassword()) {
-              <span class="btn-spinner"></span> {{ 'PROFILE.UPDATING' | translate }}
-            } @else {
-              {{ 'PROFILE.UPDATE_BTN' | translate }}
-            }
-          </button>
-        </div>
-      </form>
-    </div>
-
-  }
-    <br><br>
-    <!-- Platform Tour Settings -->
-    <div class="profile-card mt-24">
-      <div class="header-section" style="margin-bottom: 24px;">
-        <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--theme-text-main);">{{ 'PROFILE.TOUR_TITLE' | translate }}</h3>
-        <p style="color: var(--theme-text-muted); font-size: 0.875rem;">{{ 'PROFILE.TOUR_DESC' | translate }}</p>
-      </div>
-      
-      <div class="form-actions" style="justify-content: flex-end; border-top: none; padding-top: 0; margin-top: 0;">
-        <button type="button" class="btn-primary" (click)="replayTour()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-          {{ 'PROFILE.TOUR_BTN' | translate }}
+        <button type="button" class="btn-primary tour-replay-btn" (click)="replayTour()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          <span>{{ 'PROFILE.TOUR_BTN' | translate }}</span>
         </button>
       </div>
-    </div>
+    }
 
+  }
 </div>

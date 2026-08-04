@@ -16,6 +16,11 @@ scratch/
 CLAUDE.md
 stripe_cli/
 *.zip
+frontend/src/environments/environment.ts
+auth_info/
+auth_info_baileys/
+auth-info/
+start-dev.ps1
 
 # ── .NET / Visual Studio ────────────────────────────────────
 *.user

@@ -10,4 +10,7 @@ public interface IProfileService
     Task<bool> ChangePasswordAsync(Guid userId, ChangePasswordRequest request, CancellationToken ct = default);
     Task CompleteOnboardingAsync(Guid userId, CancellationToken ct = default);
     Task ResetOnboardingAsync(Guid userId, CancellationToken ct = default);
+    Task<UserProfileResponse> UpdatePhoneAsync(Guid userId, UpdatePhoneRequest request, CancellationToken ct = default);
+    Task SendPhoneOtpAsync(Guid userId, SendPhoneOtpRequest request, CancellationToken ct = default);
+    Task<UserProfileResponse> VerifyPhoneOtpAsync(Guid userId, VerifyPhoneOtpRequest request, CancellationToken ct = default);
 }

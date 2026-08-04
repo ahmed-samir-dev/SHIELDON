@@ -171,4 +171,12 @@
 
   <!-- Global WebRTC Call Overlay -->
   <app-global-call-overlay></app-global-call-overlay>
+
+  <!-- Global OTP Modal (rendered at shell root to avoid stacking context issues) -->
+  <app-otp-modal
+    [isOpen]="otpModalService.state().isOpen"
+    [phoneNumber]="otpModalService.state().phoneNumber"
+    (closeModal)="otpModalService.close()"
+    (verifiedSuccess)="otpModalService.handleVerified($event)">
+  </app-otp-modal>
 </div>

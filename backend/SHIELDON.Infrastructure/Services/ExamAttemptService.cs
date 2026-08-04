@@ -390,7 +390,7 @@ public class ExamAttemptService : IExamAttemptService
                 $"/exam-results/{attempt.Id}",
                 NotificationType.ExamResultReleased,
                 exam.Id,
-                sendEmail: true,
+                sendEmail: false,
                 ct);
         }
     }

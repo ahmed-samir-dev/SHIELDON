@@ -36,6 +36,13 @@
   position: relative;
   overflow: hidden;
 
+  &:has(app-country-picker.open),
+  &:has(.picker-popover) {
+    overflow: visible !important;
+    z-index: 100000;
+  }
+
+
   &::before {
     content: '';
     position: absolute;
@@ -60,6 +67,7 @@
     justify-content: center;
     background: transparent;
     position: relative;
+    border-radius: 12px;
 
     img {
       width: 100%;
@@ -201,6 +209,66 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ── PHONE INPUT STYLING ────────────────────────────────────────────────── */
+
+.optional-badge {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-regular;
+  color: var(--theme-text-muted);
+  margin-left: 4px;
+}
+
+.phone-input-group {
+  display: flex;
+  gap: $spacing-2;
+  align-items: center;
+
+  .country-select {
+    width: 140px;
+    height: 46px;
+    padding: 0 32px 0 12px;
+    background-color: var(--theme-bg-secondary);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 14px;
+    border: 1.5px solid var(--theme-border-strong);
+    border-radius: $border-radius-md;
+    color: var(--theme-text-main);
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    font-family: $font-family-primary;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    text-overflow: ellipsis;
+
+    &:hover {
+      border-color: rgba($color-primary-base, 0.4);
+      background-color: var(--theme-bg-hover);
+    }
+
+    &:focus {
+      border-color: $color-primary-base;
+      box-shadow: 0 0 0 3px rgba($color-primary-base, 0.18);
+      background-color: var(--theme-bg-surface);
+    }
+
+    option {
+      background: var(--theme-bg-surface);
+      color: var(--theme-text-main);
+      padding: 8px;
+    }
+  }
+
+  .flex-grow-1 {
+    flex: 1;
+  }
+}
+
 /* ── ERROR REFINEMENT ──────────────────────────────────────────────────────── */
 
 .error-text {
@@ -210,6 +278,24 @@
   color: $color-danger-base;
   font-weight: $font-weight-medium;
   margin-bottom: $spacing-3;
+}
+
+.error-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 4px 10px;
+  background: rgba($color-danger-base, 0.08);
+  border: 1px solid rgba($color-danger-base, 0.25);
+  border-radius: $border-radius-md;
+  color: $color-danger-base;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+
+  svg {
+    flex-shrink: 0;
+  }
 }
 
 /* ── SPINNER ──────────────────────────────────────────────────────────────── */
@@ -285,4 +371,61 @@
 @keyframes slideDown {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+// ── Google Sign-In & Divider ────────────────────────────────────────────────
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: $spacing-5 0;
+  color: var(--theme-text-muted);
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+
+  &::before, &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--theme-border-strong);
+  }
+
+  span {
+    padding: 0 $spacing-3;
+    letter-spacing: 0.05em;
+  }
+}
+
+.btn-google {
+  width: 100%;
+  padding: $spacing-3 $spacing-4;
+  background: var(--theme-bg-surface);
+  border: 1.5px solid var(--theme-border-strong);
+  border-radius: $border-radius-md;
+  color: var(--theme-text-main);
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  font-family: $font-family-primary;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-3;
+  transition: all 0.2s ease;
+  box-shadow: $shadow-sm;
+
+  &:hover:not(:disabled) {
+    background: var(--theme-bg-body);
+    border-color: rgba($color-primary-base, 0.4);
+    transform: translateY(-1px);
+    box-shadow: $shadow-md;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .google-svg {
+    flex-shrink: 0;
+  }
 }

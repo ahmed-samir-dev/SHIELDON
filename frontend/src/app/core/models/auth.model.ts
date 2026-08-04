@@ -7,6 +7,7 @@ export interface RegisterRequest {
   password: string;
   confirmPassword: string;
   role: UserRole;
+  phoneNumber?: string;
 }
 
 export interface LoginRequest {

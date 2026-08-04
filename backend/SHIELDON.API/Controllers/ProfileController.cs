@@ -116,4 +116,49 @@ public class ProfileController : ControllerBase
         await _profileService.ResetOnboardingAsync(GetUserId(), cancellationToken);
         return NoContent();
     }
+
+    /// <summary>
+    /// PUT /api/profile/phone
+    /// Saves or updates the user's phone number (resets status to Unverified).
+    /// </summary>
+    [HttpPut("phone")]
+    [ProducesResponseType(typeof(ApiResponse<UserProfileResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> UpdatePhone(
+        [FromBody] UpdatePhoneRequest request,
+        CancellationToken cancellationToken)
+    {
+        var userId = GetUserId();
+        var profile = await _profileService.UpdatePhoneAsync(userId, request, cancellationToken);
+        return Ok(ApiResponse<UserProfileResponse>.Ok(profile, "Phone number updated successfully. Please verify via OTP."));
+    }
+
+    /// <summary>
+    /// POST /api/profile/phone/send-otp
+    /// Triggers a WhatsApp OTP code via the self-hosted WhatsApp Gateway microservice.
+    /// </summary>
+    [HttpPost("phone/send-otp")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> SendPhoneOtp(
+        [FromBody] SendPhoneOtpRequest request,
+        CancellationToken cancellationToken)
+    {
+        var userId = GetUserId();
+        await _profileService.SendPhoneOtpAsync(userId, request, cancellationToken);
+        return Ok(ApiResponse<object>.Ok(null, $"OTP code sent successfully via {request.Channel}."));
+    }
+
+    /// <summary>
+    /// POST /api/profile/phone/verify-otp
+    /// Verifies the 6-digit OTP code submitted by the user.
+    /// </summary>
+    [HttpPost("phone/verify-otp")]
+    [ProducesResponseType(typeof(ApiResponse<UserProfileResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> VerifyPhoneOtp(
+        [FromBody] VerifyPhoneOtpRequest request,
+        CancellationToken cancellationToken)
+    {
+        var userId = GetUserId();
+        var profile = await _profileService.VerifyPhoneOtpAsync(userId, request, cancellationToken);
+        return Ok(ApiResponse<UserProfileResponse>.Ok(profile, "Phone number verified successfully!"));
+    }
 }

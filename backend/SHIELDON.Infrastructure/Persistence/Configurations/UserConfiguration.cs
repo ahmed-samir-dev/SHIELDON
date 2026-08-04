@@ -35,12 +35,41 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasDatabaseName("IX_Users_Email");
 
         builder.Property(u => u.PasswordHash)
-            .IsRequired()
+            .IsRequired(false)
             .HasMaxLength(512);
+
+        builder.Property(u => u.AuthProvider)
+            .IsRequired()
+            .HasMaxLength(50)
+            .HasDefaultValue("Local");
 
         // ── Profile ───────────────────────────────────────────
         builder.Property(u => u.ProfilePictureUrl)
             .HasMaxLength(512);
+
+        builder.Property(u => u.PhoneNumber)
+            .HasMaxLength(20);
+
+        builder.Property(u => u.PhoneVerificationStatus)
+            .IsRequired()
+            .HasConversion<string>()
+            .HasMaxLength(20)
+            .HasDefaultValueSql("'None'");
+
+        builder.Property(u => u.PhoneVerifiedAt)
+            .HasColumnType("datetime2");
+
+        builder.Property(u => u.PhoneOtpLastSentAt)
+            .HasColumnType("datetime2");
+
+        builder.Property(u => u.PhoneOtpExpiresAt)
+            .HasColumnType("datetime2");
+
+        // BCrypt hash of the active OTP code — replaces Twilio server-side storage
+        builder.Property(u => u.PhoneOtpCodeHash)
+            .IsRequired(false)
+            .HasMaxLength(100);
+
 
         // ── Role & Status ─────────────────────────────────────
         builder.Property(u => u.Role)
