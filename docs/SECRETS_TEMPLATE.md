@@ -33,6 +33,9 @@ This file is **gitignored** - it will never be committed.
   "GeminiSettings": {
     "ApiKey": "your-gemini-api-key-here"
   },
+  "WhatsAppGateway": {
+    "BaseUrl": "http://localhost:3001"
+  },
   "AdminSeed": {
     "Email": "admin@shieldon.com",
     "Password": "Admin@Shieldon2025!",
