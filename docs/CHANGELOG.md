@@ -2,6 +2,14 @@
 
 All notable changes to the SHIELDON project will be documented in this file.
 
+## [v1.1.0-phone-verification] - 2026-08-04
+
+### Added - WhatsApp OTP Microservice & Phone Verification
+- **WhatsApp Gateway Microservice**: Standalone Node.js microservice (`@whiskeysockets/baileys`) running on port 3001 for zero-cost WhatsApp OTP message delivery.
+- **Phone Verification Flow**: 6-digit WhatsApp OTP validation with 2-minute resend cooldown, Egyptian phone number normalization (`010`/`011`/`012`/`015` → `+20`), auto-advancing 6-cell OTP input modal in Angular, and 1-phone-per-account uniqueness enforcement in EF Core.
+- **Google OAuth 2.0 Integration**: Passwordless social sign-in and registration via Google account.
+- **Live Real-Time Leaderboard**: Course Top-10 ranking with SignalR real-time updates, neon podium (Gold/Silver/Bronze), delta rank badges, dense-rank tie handling, and student own-rank card.
+
 ## [v1.0.0-graduation] - 2026-05-24
 
 ### Added - Final Core Infrastructure
