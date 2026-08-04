@@ -87,6 +87,15 @@ public static class DependencyInjection
         // Register Free Translation API
         services.AddHttpClient<ITranslationService, LingvaTranslationService>();
 
+        // WhatsApp Gateway: typed HttpClient for self-hosted OTP delivery microservice
+        services.AddHttpClient<IOtpService, WhatsAppGatewayOtpService>(client =>
+        {
+            var gatewayUrl = configuration["WhatsAppGateway:ServiceUrl"]
+                ?? throw new InvalidOperationException("WhatsAppGateway:ServiceUrl is not configured.");
+            client.BaseAddress = new Uri(gatewayUrl);
+            client.Timeout = TimeSpan.FromSeconds(15);
+        });
+
         // ── Background Services ────────────────────────────────────────────
         services.AddHostedService<ExamReminderBackgroundService>();
         services.AddHostedService<HeartbeatMonitorService>();

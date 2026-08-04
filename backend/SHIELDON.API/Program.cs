@@ -14,6 +14,8 @@ using FluentValidation.AspNetCore;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
+using SHIELDON.Application.Common;
 
 
 // ── SERILOG: Configure bootstrap logger ────────────────────────────────────
@@ -68,12 +70,27 @@ var builder = WebApplication.CreateBuilder(args);
         options.Limits.MaxRequestBodySize = 105_000_000;
     });
 
-
     // ── FLUENTVALIDATION: Auto-register all validators from Application layer
     builder.Services.AddFluentValidationAutoValidation();
     builder.Services.AddValidatorsFromAssembly(
         Assembly.Load("SHIELDON.Application"),
         includeInternalTypes: true);
+
+    // ── Return ApiResponse format for FluentValidation failures (instead of default ProblemDetails)
+    builder.Services.Configure<ApiBehaviorOptions>(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
+
+            var message = errors.FirstOrDefault() ?? "Validation failed.";
+            var response = ApiResponse<object>.Fail(message, errors);
+            return new BadRequestObjectResult(response);
+        };
+    });
 
     // ── CORS: Allow Angular dev server ─────────────────────────────────────
     builder.Services.AddCors(options =>

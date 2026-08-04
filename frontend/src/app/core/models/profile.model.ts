@@ -11,6 +11,9 @@ export interface UserProfileResponse {
   accountStatus: string;
   createdAt: string;
   hasPassword?: boolean;
+  phoneNumber?: string | null;
+  phoneVerificationStatus?: 'None' | 'Unverified' | 'Verified';
+  phoneVerifiedAt?: string | null;
 }
 
 export interface UpdateProfileRequest {
@@ -22,4 +25,16 @@ export interface ChangePasswordRequest {
   currentPassword?: string;
   newPassword: string;
   confirmNewPassword?: string;
+}
+
+export interface UpdatePhoneRequest {
+  phoneNumber: string;
+}
+
+export interface SendPhoneOtpRequest {
+  channel: 'whatsapp';
+}
+
+export interface VerifyPhoneOtpRequest {
+  code: string;
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SHIELDON.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using SHIELDON.Infrastructure.Persistence;
 namespace SHIELDON.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260723161049_AddPhoneVerification")]
+    partial class AddPhoneVerification
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1505,9 +1508,9 @@ namespace SHIELDON.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("PhoneOtpCodeHash")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<string>("PhoneOtpCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<DateTime?>("PhoneOtpExpiresAt")
                         .HasColumnType("datetime2");
@@ -1515,15 +1518,10 @@ namespace SHIELDON.Infrastructure.Migrations
                     b.Property<int>("PhoneOtpFailedAttempts")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("PhoneOtpLastSentAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("PhoneVerificationStatus")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasDefaultValueSql("'None'");
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<DateTime?>("PhoneVerifiedAt")
                         .HasColumnType("datetime2");

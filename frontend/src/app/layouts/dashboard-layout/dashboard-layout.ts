@@ -14,11 +14,13 @@ import { ThemeService } from '../../core/services/theme.service';
 import { LanguageService } from '../../core/services/language.service';
 import { LayoutService } from '../../core/services/layout.service';
 import { TranslateModule } from '@ngx-translate/core';
+import { OtpModalService } from '../../core/services/otp-modal.service';
+import { OtpModalComponent } from '../../shared/components/otp-modal/otp-modal';
 
 @Component({
   selector: 'app-dashboard-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, NotificationPanelComponent, AiChatPanelComponent, GlobalCallOverlayComponent, TranslateModule],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, NotificationPanelComponent, AiChatPanelComponent, GlobalCallOverlayComponent, TranslateModule, OtpModalComponent],
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.scss',
   providers: [AiService]
@@ -31,6 +33,7 @@ export class DashboardLayout implements AfterViewInit {
   themeService = inject(ThemeService);
   languageService = inject(LanguageService);
   layoutService = inject(LayoutService);
+  otpModalService = inject(OtpModalService);
   router = inject(Router);
 
   isMobileMenuOpen = false;

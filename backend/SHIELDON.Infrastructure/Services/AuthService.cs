@@ -50,6 +50,22 @@ public class AuthService : IAuthService
             throw new BusinessRuleException("An account with this email already exists.");
         }
 
+        string formattedPhone = null;
+        if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
+        {
+            formattedPhone = request.PhoneNumber.Trim();
+            if (formattedPhone.StartsWith("+200"))
+            {
+                formattedPhone = "+20" + formattedPhone[4..];
+            }
+
+            var existingPhoneUser = await _db.Users.FirstOrDefaultAsync(u => u.PhoneNumber == formattedPhone, ct);
+            if (existingPhoneUser != null)
+            {
+                throw new BusinessRuleException("This phone number is already registered to another account.");
+            }
+        }
+
         // 2. Hash Password
         var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
@@ -62,6 +78,8 @@ public class AuthService : IAuthService
             Email = email,
             PasswordHash = passwordHash,
             Role = request.Role,
+            PhoneNumber = formattedPhone,
+            PhoneVerificationStatus = formattedPhone != null ? PhoneVerificationStatus.Unverified : PhoneVerificationStatus.None,
             AccountStatus = AccountStatus.Unverified,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
@@ -490,6 +508,7 @@ public class AuthService : IAuthService
             PasswordHash = null, // Passwordless account
             AuthProvider = "Google",
             Role = role,
+            PhoneVerificationStatus = PhoneVerificationStatus.None, // Phone must be added/verified from Profile page
             AccountStatus = AccountStatus.Active,
             EmailVerifiedAt = DateTime.UtcNow,
             ProfilePictureUrl = localAvatarPath,
