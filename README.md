@@ -226,6 +226,9 @@ If you are new to development and want to run this project on your own computer,
 
 Follow these comprehensive steps in order to properly get the project running on your device from scratch. 🚀
 
+<details>
+<summary>Click to expand complete Installation & Setup Guide</summary>
+
 ### 1. Clone the Repository
 
 This downloads the project files to your computer. 📥
@@ -449,6 +452,8 @@ Use Stripe's official test card numbers to simulate different payment scenarios.
 - **Expiry:** Any future date (e.g., `12/30`)
 - **CVC:** Any 3 digits (e.g., `123`)
 - **Name / ZIP:** Any values
+
+</details>
 
 ---
 
