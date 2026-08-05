@@ -22,5 +22,9 @@ public class AttemptAnswerConfiguration : IEntityTypeConfiguration<AttemptAnswer
             .WithMany()
             .HasForeignKey(e => e.SelectedOptionId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Property(e => e.IsFlagged)
+            .HasDefaultValue(false)
+            .IsRequired();
     }
 }

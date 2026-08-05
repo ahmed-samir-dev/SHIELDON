@@ -33,6 +33,9 @@ export class CourseList implements OnInit, OnDestroy {
   tutors = signal<UserBasicResponse[]>([]);
   myEnrollments = signal<StudentEnrollmentStatusResponse[]>([]);
   isLoading = signal(true);
+  // Prevents the tab bar from rendering before the correct default tab is
+  // determined (avoids "All Courses" flashing as active on first paint).
+  tabReady = signal(false);
   isInitialized = false;
   
   query: CourseQueryParams = {
@@ -71,17 +74,22 @@ export class CourseList implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    if (this.authService.isStudent()) {
-      this.query.enrollmentStatus = 'enrolled';
-    }
-
-    this.isInitialized = true;
-    this.loadCourses();
     if (this.authService.isAdmin()) {
       this.loadTutors();
     }
+
     if (this.authService.isStudent()) {
-      this.loadMyEnrollments();
+      // NOTE: isInitialized and tabReady are intentionally NOT set here yet.
+      // They are set inside loadMyEnrollmentsAndSetDefaultTab() just before
+      // the first loadCourses() call. This prevents the constructor's effect()
+      // from firing loadCourses() with no filter (which caused an "all courses"
+      // flash) AND prevents the tab bar from rendering before the correct tab
+      // is determined.
+      this.loadMyEnrollmentsAndSetDefaultTab();
+    } else {
+      this.tabReady.set(true);
+      this.isInitialized = true;
+      this.loadCourses();
     }
 
     // Auto-reload translated course data whenever the user toggles language
@@ -92,6 +100,40 @@ export class CourseList implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.langSub?.unsubscribe();
+  }
+
+  loadMyEnrollmentsAndSetDefaultTab() {
+    this.courseService.getMyEnrollments({ pageSize: 1000 }).subscribe({
+      next: (res) => {
+        const allEnrollments = res.data.items;
+        this.myEnrollments.set(allEnrollments);
+
+        // A student is "new" if they have no Approved enrollment at all.
+        // In that case default to the "Available to Enroll" view so they
+        // immediately see courses they can join instead of an empty list.
+        const hasApprovedEnrollment = allEnrollments.some(e => e.status === 'Approved');
+        if (hasApprovedEnrollment) {
+          this.query.enrollmentStatus = 'enrolled'; // ← existing behavior
+        } else {
+          this.query.enrollmentStatus = 'unenrolled'; // ← smart default for new students
+        }
+
+        // Mark initialized AFTER the filter is set so the sidebar effect()
+        // cannot fire loadCourses() with an empty filter beforehand.
+        this.isInitialized = true;
+        // Allow the tab bar to paint now — correct tab is already set.
+        this.tabReady.set(true);
+        this.loadCourses();
+      },
+      error: () => {
+        // Fallback: just show enrolled courses (safe default)
+        console.error('Failed to load my enrollments.');
+        this.query.enrollmentStatus = 'enrolled';
+        this.isInitialized = true;
+        this.tabReady.set(true);
+        this.loadCourses();
+      }
+    });
   }
 
   loadMyEnrollments() {

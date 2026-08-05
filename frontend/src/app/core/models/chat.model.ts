@@ -4,6 +4,15 @@ export enum MessageStatus {
   Read = 2
 }
 
+export interface LinkPreviewData {
+  url: string;
+  title?: string;
+  description?: string;
+  image?: string;
+  siteName?: string;
+}
+
+
 export enum AttachmentType {
   None = 0,
   Audio = 1,

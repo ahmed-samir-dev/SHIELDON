@@ -131,12 +131,32 @@
       <!-- Left Navigator Sidebar -->
       <aside class="navigator-sidebar">
         <h3>{{ 'EXAM_ENGINE.NAV_TITLE' | translate }}</h3>
+
+        <!-- Filter Tabs -->
+        <div class="nav-filters">
+          <button type="button" class="filter-tab" [class.active]="navFilter() === 'all'" (click)="navFilter.set('all')">
+            {{ 'EXAM_ENGINE.FILTER_ALL' | translate }} ({{ attemptData()?.questions?.length || 0 }})
+          </button>
+          <button type="button" class="filter-tab" [class.active]="navFilter() === 'answered'" (click)="navFilter.set('answered')">
+            {{ 'EXAM_ENGINE.FILTER_ANSWERED' | translate }} ({{ answeredCount() }})
+          </button>
+          <button type="button" class="filter-tab" [class.active]="navFilter() === 'unanswered'" (click)="navFilter.set('unanswered')">
+            {{ 'EXAM_ENGINE.FILTER_UNANSWERED' | translate }} ({{ unansweredCount() }})
+          </button>
+          <button type="button" class="filter-tab filter-flagged" [class.active]="navFilter() === 'flagged'" (click)="navFilter.set('flagged')">
+            <lucide-icon [img]="Flag" size="13"></lucide-icon>
+            {{ 'EXAM_ENGINE.FILTER_FLAGGED' | translate }} ({{ flaggedCount() }})
+          </button>
+        </div>
+
         <div class="question-grid">
-          <button *ngFor="let q of attemptData()?.questions; let i = index"
-                  [class.active]="currentQuestionIndex() === i"
-                  [class.answered]="isAnswered()(q.id)"
-                  (click)="goToQuestion(i)">
-            {{ i + 1 }}
+          <button *ngFor="let item of filteredQuestions()"
+                  [class.active]="currentQuestionIndex() === item.originalIndex"
+                  [class.answered]="isAnswered()(item.question.id)"
+                  [class.flagged]="isFlagged()(item.question.id)"
+                  (click)="goToQuestion(item.originalIndex)">
+            <span>{{ item.originalIndex + 1 }}</span>
+            <lucide-icon *ngIf="isFlagged()(item.question.id)" [img]="Flag" size="12" class="pill-flag-icon"></lucide-icon>
           </button>
         </div>
       </aside>
@@ -147,7 +167,19 @@
           <div class="question-card">
             <div class="question-header">
               <span class="q-number">{{ ('EXAM_ENGINE.LABEL_QUESTION_N_OF_M' | translate).replace('{n}', (currentQuestionIndex() + 1).toString()).replace('{m}', (attemptData()?.questions?.length || 0).toString()) }}</span>
-              <span class="q-points">{{ q.points }} {{ 'EXAM_ENGINE.LABEL_POINTS' | translate }}</span>
+              
+              <div class="q-header-right">
+                <button type="button"
+                        class="flag-btn"
+                        [class.flagged]="isFlagged()(q.id)"
+                        (click)="toggleFlag(q)"
+                        [title]="(isFlagged()(q.id) ? 'EXAM_ENGINE.BTN_UNFLAG' : 'EXAM_ENGINE.BTN_FLAG') | translate">
+                  <lucide-icon [img]="Flag" size="16"></lucide-icon>
+                  <span>{{ (isFlagged()(q.id) ? 'EXAM_ENGINE.BTN_UNFLAG' : 'EXAM_ENGINE.BTN_FLAG') | translate }}</span>
+                </button>
+
+                <span class="q-points">{{ q.points }} {{ 'EXAM_ENGINE.LABEL_POINTS' | translate }}</span>
+              </div>
             </div>
 
             <div class="q-text">{{ q.text }}</div>
@@ -234,13 +266,23 @@
         <h2>{{ 'EXAM_ENGINE.REVIEW_TITLE' | translate }}</h2>
         <p class="review-subtitle">{{ 'EXAM_ENGINE.REVIEW_SUBTITLE' | translate }}</p>
 
+        <!-- Red Flag Warning Banner -->
+        <div *ngIf="flaggedCount() > 0" class="flagged-review-banner">
+          <lucide-icon [img]="Flag" size="20" class="banner-flag-icon"></lucide-icon>
+          <span>{{ ('EXAM_ENGINE.REVIEW_FLAGGED_WARN' | translate).replace('{count}', flaggedCount().toString()) }}</span>
+        </div>
+
         <div class="review-grid">
           <div *ngFor="let q of attemptData()?.questions; let i = index" 
                class="review-item" 
                [class.answered]="isAnswered()(q.id)"
+               [class.item-flagged]="isFlagged()(q.id)"
                (click)="goToQuestion(i); backToExam()">
             
-            <div class="q-number">{{ 'EXAM_ENGINE.PREFIX_Q' | translate }}{{ i + 1 }}</div>
+            <div class="q-number">
+              {{ 'EXAM_ENGINE.PREFIX_Q' | translate }}{{ i + 1 }}
+              <lucide-icon *ngIf="isFlagged()(q.id)" [img]="Flag" size="14" class="review-flag-badge"></lucide-icon>
+            </div>
             
             <div class="q-status">
               <ng-container *ngIf="isAnswered()(q.id)">
