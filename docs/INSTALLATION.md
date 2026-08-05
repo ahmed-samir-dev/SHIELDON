@@ -156,6 +156,8 @@ The WhatsApp Gateway is a lightweight Node.js microservice running on port 3001 
 
 ## 🎉 Congratulations! You are now running SHIELDON on your local machine!
 
+---
+
 ### 7. Stripe Payment Setup
 
 To enable the online payment gateway, you need a Stripe account and the Stripe CLI.
