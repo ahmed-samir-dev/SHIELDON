@@ -871,3 +871,181 @@
     }
   }
 }
+
+/* ── Red Flag Feature Styles (Dark & Light Theme Support) ───────────── */
+
+.q-header-right {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+}
+
+.flag-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  padding: 6px 14px;
+  border-radius: $border-radius-round;
+  background: var(--theme-bg-secondary);
+  border: 1px solid var(--theme-border-strong);
+  color: var(--theme-text-muted);
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+
+  lucide-icon {
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  &:hover {
+    background: rgba(#ef4444, 0.08);
+    border-color: rgba(#ef4444, 0.4);
+    color: #ef4444;
+
+    lucide-icon {
+      transform: scale(1.15) rotate(-5deg);
+      color: #ef4444;
+    }
+  }
+
+  &.flagged {
+    background: rgba(#ef4444, 0.12);
+    border-color: rgba(#ef4444, 0.6);
+    color: #ef4444;
+    box-shadow: 0 0 12px rgba(#ef4444, 0.2);
+
+    lucide-icon {
+      color: #ef4444;
+      fill: #ef4444;
+    }
+  }
+}
+
+/* Navigator Sidebar Filter Tabs */
+.nav-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: $spacing-4;
+  padding: 4px;
+  background: var(--theme-bg-secondary);
+  border-radius: $border-radius-lg;
+  border: 1px solid var(--theme-border);
+
+  .filter-tab {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 6px 8px;
+    font-size: 11px;
+    font-weight: $font-weight-semibold;
+    color: var(--theme-text-muted);
+    background: transparent;
+    border: none;
+    border-radius: $border-radius-md;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+
+    &:hover {
+      color: var(--theme-text-main);
+      background: var(--theme-bg-hover);
+    }
+
+    &.active {
+      background: var(--theme-bg-surface);
+      color: var(--theme-text-main);
+      box-shadow: $shadow-sm;
+      font-weight: $font-weight-bold;
+    }
+
+    &.filter-flagged.active {
+      color: #ef4444;
+      lucide-icon {
+        color: #ef4444;
+        fill: #ef4444;
+      }
+    }
+  }
+}
+
+/* Question Grid Pill Flag Icon & States */
+.question-grid button {
+  position: relative;
+
+  .pill-flag-icon {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    color: #ef4444;
+    fill: #ef4444;
+    transition: color 0.2s ease, fill 0.2s ease;
+  }
+
+  /* Flagged and NOT active */
+  &.flagged:not(.active) {
+    border-color: rgba(#ef4444, 0.6);
+    background: rgba(#ef4444, 0.12);
+    color: #dc2626;
+
+    &:hover {
+      background: rgba(#ef4444, 0.2);
+      border-color: #ef4444;
+    }
+  }
+
+  /* Active AND Flagged (rich solid red background with crisp white text & flag icon) */
+  &.active.flagged {
+    background: #dc2626 !important;
+    border-color: #b91c1c !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(220, 38, 38, 0.4) !important;
+    transform: scale(1.05);
+
+    .pill-flag-icon {
+      color: #ffffff !important;
+      fill: #ffffff !important;
+    }
+  }
+}
+
+/* Review Screen Flagged Warning Banner */
+.flagged-review-banner {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-4 $spacing-5;
+  margin-bottom: $spacing-6;
+  background: rgba(#ef4444, 0.08);
+  border: 1px solid rgba(#ef4444, 0.3);
+  border-radius: $border-radius-xl;
+  color: var(--theme-text-main);
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  animation: fadeIn 0.3s ease;
+
+  .banner-flag-icon {
+    color: #ef4444;
+    fill: #ef4444;
+    flex-shrink: 0;
+  }
+}
+
+.review-item {
+  &.item-flagged {
+    border-color: rgba(#ef4444, 0.4);
+    background: rgba(#ef4444, 0.03);
+  }
+
+  .review-flag-badge {
+    color: #ef4444;
+    fill: #ef4444;
+    margin-left: 6px;
+    vertical-align: middle;
+  }
+}
+

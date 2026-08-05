@@ -9,6 +9,7 @@ All notable changes to the SHIELDON project will be documented in this file.
 - **Phone Verification Flow**: 6-digit WhatsApp OTP validation with 2-minute resend cooldown, Egyptian phone number normalization (`010`/`011`/`012`/`015` → `+20`), auto-advancing 6-cell OTP input modal in Angular, and 1-phone-per-account uniqueness enforcement in EF Core.
 - **Google OAuth 2.0 Integration**: Passwordless social sign-in and registration via Google account.
 - **Live Real-Time Leaderboard**: Course Top-10 ranking with SignalR real-time updates, neon podium (Gold/Silver/Bronze), delta rank badges, dense-rank tie handling, and student own-rank card.
+- **Red Flag Question Bookmarking**: Students can mark questions with a Red Flag in the Exam Engine for later review. State is persisted to SQL Server database, displayed in the Question Navigator with filter tabs (All/Answered/Unanswered/Flagged), and summarized before final submission with full Light & Dark theme support.
 
 ## [v1.0.0-graduation] - 2026-05-24
 

@@ -28,6 +28,7 @@ export interface SavedAnswerDto {
   questionId: string;
   selectedOptionId?: string | null;
   textAnswer?: string | null;
+  isFlagged?: boolean;
 }
 
 export interface StartExamResponse {
@@ -47,6 +48,7 @@ export interface SaveAnswerRequest {
   questionId: string;
   selectedOptionId?: string | null;
   textAnswer?: string | null;
+  isFlagged?: boolean;
 }
 
 export interface SubmitExamResponse {

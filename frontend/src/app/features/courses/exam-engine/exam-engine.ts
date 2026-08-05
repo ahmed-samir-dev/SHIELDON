@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, inject, signal, computed, effect } from '
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { LucideAngularModule, Clock, AlertTriangle, CheckCircle, ChevronRight, ChevronLeft, Save } from 'lucide-angular';
+import { LucideAngularModule, Clock, AlertTriangle, CheckCircle, ChevronRight, ChevronLeft, Save, Flag } from 'lucide-angular';
 import { ToastrService } from 'ngx-toastr';
 import { Subject, Subscription, interval } from 'rxjs';
 import { takeUntil, debounceTime } from 'rxjs/operators';
@@ -16,6 +16,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { environment } from '../../../../environments/environment';
 
 type EngineState = 'loading' | 'rules' | 'active' | 'review' | 'submitting' | 'error';
+type NavFilterType = 'all' | 'answered' | 'unanswered' | 'flagged';
 
 @Component({
   selector: 'app-exam-engine',
@@ -40,6 +41,7 @@ export class ExamEngine implements OnInit, OnDestroy {
   ChevronLeft = ChevronLeft;
   ChevronRight = ChevronRight;
   Save = Save;
+  Flag = Flag;
 
   // State
   state = signal<EngineState>('loading');
@@ -53,6 +55,10 @@ export class ExamEngine implements OnInit, OnDestroy {
   // Maps questionId -> answer text or optionId
   answers = signal<Record<string, string | null>>({});
   savingState = signal<Record<string, boolean>>({});
+
+  // Red Flag Feature State
+  flaggedQuestions = signal<Record<string, boolean>>({});
+  navFilter = signal<NavFilterType>('all');
 
   // Anti-Cheat Rules Acknowledgment
   rulesChecked = signal<boolean[]>([false, false, false, false]);
@@ -78,6 +84,40 @@ export class ExamEngine implements OnInit, OnDestroy {
   isAnswered = computed(() => {
     const ans = this.answers();
     return (questionId: string) => !!ans[questionId];
+  });
+
+  isFlagged = computed(() => {
+    const flags = this.flaggedQuestions();
+    return (questionId: string) => !!flags[questionId];
+  });
+
+  flaggedCount = computed(() => {
+    return Object.values(this.flaggedQuestions()).filter(Boolean).length;
+  });
+
+  answeredCount = computed(() => {
+    return Object.values(this.answers()).filter(Boolean).length;
+  });
+
+  unansweredCount = computed(() => {
+    const total = this.attemptData()?.questions?.length || 0;
+    return Math.max(0, total - this.answeredCount());
+  });
+
+  filteredQuestions = computed(() => {
+    const questions = this.attemptData()?.questions || [];
+    const filter = this.navFilter();
+    const ansMap = this.answers();
+    const flagMap = this.flaggedQuestions();
+
+    return questions
+      .map((q, originalIndex) => ({ question: q, originalIndex }))
+      .filter(item => {
+        if (filter === 'answered') return !!ansMap[item.question.id];
+        if (filter === 'unanswered') return !ansMap[item.question.id];
+        if (filter === 'flagged') return !!flagMap[item.question.id];
+        return true; // 'all'
+      });
   });
 
   formattedTime = computed(() => {
@@ -237,18 +277,55 @@ export class ExamEngine implements OnInit, OnDestroy {
 
   private initializeAnswers(data: StartExamResponse): void {
     const initialAnswers: Record<string, string | null> = {};
+    const initialFlags: Record<string, boolean> = {};
     
-    // Default to null
-    data.questions.forEach(q => initialAnswers[q.id] = null);
+    // Default to null / false
+    data.questions.forEach(q => {
+      initialAnswers[q.id] = null;
+      initialFlags[q.id] = false;
+    });
     
-    // Override with saved answers from DB
+    // Override with saved answers and flags from DB
     if (data.savedAnswers && data.savedAnswers.length > 0) {
       data.savedAnswers.forEach(ans => {
         initialAnswers[ans.questionId] = ans.selectedOptionId || ans.textAnswer || null;
+        if (ans.isFlagged) {
+          initialFlags[ans.questionId] = true;
+        }
       });
     }
     
     this.answers.set(initialAnswers);
+    this.flaggedQuestions.set(initialFlags);
+  }
+
+  // ── Red Flag Toggle ──
+
+  toggleFlag(question: StudentQuestionDto): void {
+    const current = !!this.flaggedQuestions()[question.id];
+    const newFlagState = !current;
+
+    // Optimistic UI update
+    this.flaggedQuestions.update(flags => ({ ...flags, [question.id]: newFlagState }));
+
+    const attemptId = this.attemptData()?.attemptId;
+    if (!attemptId) return;
+
+    const currentAnswer = this.answers()[question.id];
+    const isOption = question.type !== QuestionType.ShortAnswer;
+
+    this.attemptService.saveAnswer(attemptId, {
+      questionId: question.id,
+      selectedOptionId: isOption ? (currentAnswer || null) : null,
+      textAnswer: isOption ? null : (currentAnswer || null),
+      isFlagged: newFlagState
+    }).subscribe({
+      error: () => {
+        // Rollback on error
+        this.flaggedQuestions.update(flags => ({ ...flags, [question.id]: current }));
+        this.toastr.error(this.translate.instant('EXAM_ENGINE.TOAST_ERR_SAVE'));
+      }
+    });
   }
 
   private startTimer(expiresAtIso: string): void {
