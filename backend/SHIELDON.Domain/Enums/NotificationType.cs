@@ -8,6 +8,7 @@ public enum NotificationType
 {
     EnrollmentApproved = 10,
     EnrollmentRejected = 11,
+    KickedFromCourse = 12,
     
     NewCourseAnnouncement = 20,
     ImportantCourseAnnouncement = 21,

@@ -1,6 +1,6 @@
 # 🔧 Installation & Setup Guide (Step-by-Step)
 
-Follow these comprehensive steps in order to properly get **SHIELDON** running on your local machine from scratch. 🚀
+Follow these comprehensive steps in order to properly get **SHIELDON** running on your local machine from scratch. 
 
 ---
 
@@ -20,7 +20,7 @@ Follow these comprehensive steps in order to properly get **SHIELDON** running o
 
 ## 📋 Prerequisites (For Beginners)
 
-If you are new to development and want to run this project on your own computer, you need to download and install the following tools first. They are all free! 🆓
+If you are new to development and want to run this project on your own computer, you need to download and install the following tools first. They are all free! 
 
 1. **Node.js**: Required to run the frontend.
    - Download the **LTS** version from [nodejs.org](https://nodejs.org/).
@@ -44,7 +44,7 @@ If you are new to development and want to run this project on your own computer,
 
 ### 1. Clone the Repository
 
-This downloads the project files to your computer. 📥
+This downloads the project files to your computer. 
 
 1. Open your terminal (or Command Prompt / PowerShell on Windows).
 2. Run this command:
@@ -114,7 +114,7 @@ The WhatsApp Gateway is a lightweight Node.js microservice running on port 3001 
    - The terminal will display a **WhatsApp QR code**.
    - Open WhatsApp on your mobile phone → **Linked Devices** → **Link a Device** and scan the terminal QR code.
    - Once linked, it will output `WhatsApp connected! Gateway is ready to send OTP messages.`.
-   - Your session is saved locally — you do **not** need to scan the QR code again on future restarts!
+   - Your session is saved locally - you do **not** need to scan the QR code again on future restarts!
 5. Keep this terminal window open.
 
 ### 5. Run the Backend API
@@ -167,19 +167,19 @@ To enable the online payment gateway, you need a Stripe account and the Stripe C
 2. After logging in, make sure you are in **Test mode** (toggle in the top-right of the dashboard).
 3. Navigate to [Developers → API Keys](https://dashboard.stripe.com/test/apikeys).
 4. You will see two keys:
-   - **Publishable key** — starts with `pk_test_...`
-   - **Secret key** — starts with `sk_test_...` (click "Reveal test key" to see it)
-5. Copy both keys — you'll need them in the next step.
+   - **Publishable key** - starts with `pk_test_...`
+   - **Secret key** - starts with `sk_test_...` (click "Reveal test key" to see it)
+5. Copy both keys - you'll need them in the next step.
 
 #### Step B: Install the Stripe CLI
 The Stripe CLI is a command-line tool that forwards payment events from Stripe's servers to your local machine.
 
-**Option 1 — Download manually (recommended for beginners):**
+**Option 1 - Download manually (recommended for beginners):**
 1. Go to [Stripe CLI releases](https://github.com/stripe/stripe-cli/releases).
 2. Download the latest `.zip` file for your OS (e.g., `stripe_X.X.X_windows_x86_64.zip`).
 3. Extract the `.zip` and place the `stripe.exe` file somewhere accessible (e.g., inside a `stripe_cli` folder in your project root).
 
-**Option 2 — Install via package manager:**
+**Option 2 - Install via package manager:**
 ```bash
 # Windows (Scoop)
 scoop install stripe
@@ -209,7 +209,7 @@ brew install stripe/stripe-cli/stripe
      "WebhookSecret": "whsec_YOUR_WEBHOOK_SECRET"
    }
    ```
-   > You'll get the `WebhookSecret` in the next step — leave it blank for now.
+   > You'll get the `WebhookSecret` in the next step - leave it blank for now.
 
 #### Step D: Run Stripe CLI for Webhooks
 The Stripe CLI forwards webhook events (like `checkout.session.completed`) to your local backend so payments are processed correctly.
@@ -236,7 +236,7 @@ The Stripe CLI forwards webhook events (like `checkout.session.completed`) to yo
    ```
 4. **Copy this `whsec_...` value** and paste it into `appsettings.json` → `Stripe.WebhookSecret`.
 5. **Restart the backend** after updating the secret.
-6. **Keep this terminal open** while testing payments — it must be running to receive Stripe events.
+6. **Keep this terminal open** while testing payments - it must be running to receive Stripe events.
 
 #### Step E: Test Payments
 

@@ -95,6 +95,16 @@ export class CourseService {
     return this.http.get<ApiResponse<PagedResponse<EnrollmentResponse>>>(`${this.baseUrl}/enrollments/approved`, { params: httpParams });
   }
 
+  getRemovedEnrollments(query: EnrollmentQueryParams = {}): Observable<ApiResponse<PagedResponse<EnrollmentResponse>>> {
+    let httpParams = new HttpParams();
+    if (query.page) httpParams = httpParams.set('page', query.page);
+    if (query.pageSize) httpParams = httpParams.set('pageSize', query.pageSize);
+    if (query.search) httpParams = httpParams.set('search', query.search);
+    if (query.courseId) httpParams = httpParams.set('courseId', query.courseId);
+
+    return this.http.get<ApiResponse<PagedResponse<EnrollmentResponse>>>(`${this.baseUrl}/enrollments/removed`, { params: httpParams });
+  }
+
   reviewEnrollment(enrollmentId: string, request: ReviewEnrollmentRequest): Observable<ApiResponse<EnrollmentResponse>> {
     return this.http.patch<ApiResponse<EnrollmentResponse>>(`${this.baseUrl}/enrollments/${enrollmentId}/review`, request);
   }
@@ -113,5 +123,11 @@ export class CourseService {
     if (query.status) params = params.set('status', query.status);
 
     return this.http.get<ApiResponse<PagedResponse<StudentEnrollmentStatusResponse>>>(`${this.baseUrl}/enrollments/my`, { params });
+  }
+
+  kickStudent(enrollmentId: string): Observable<ApiResponse<EnrollmentResponse>> {
+    return this.http.delete<ApiResponse<EnrollmentResponse>>(
+      `${this.baseUrl}/enrollments/${enrollmentId}/kick`
+    );
   }
 }

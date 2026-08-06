@@ -13,8 +13,9 @@ import { SecuritySignalrService } from '../../core/services/security-signalr.ser
 import { ThemeService } from '../../core/services/theme.service';
 import { LanguageService } from '../../core/services/language.service';
 import { LayoutService } from '../../core/services/layout.service';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { OtpModalService } from '../../core/services/otp-modal.service';
+import Swal from 'sweetalert2';
 import { OtpModalComponent } from '../../shared/components/otp-modal/otp-modal';
 
 @Component({
@@ -35,6 +36,7 @@ export class DashboardLayout implements AfterViewInit {
   layoutService = inject(LayoutService);
   otpModalService = inject(OtpModalService);
   router = inject(Router);
+  translate = inject(TranslateService);
 
   isMobileMenuOpen = false;
   isSidebarCollapsed = this.layoutService.isSidebarCollapsed;
@@ -48,8 +50,21 @@ export class DashboardLayout implements AfterViewInit {
     this.layoutService.toggleSidebar();
   }
 
-  logout(): void {
-    this.authService.logout();
+  async logout(): Promise<void> {
+    const result = await Swal.fire({
+      title: this.translate.instant('NAVBAR.CONFIRM_LOGOUT_TITLE'),
+      text: this.translate.instant('NAVBAR.CONFIRM_LOGOUT_TEXT'),
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: this.translate.instant('NAVBAR.CONFIRM_LOGOUT_YES'),
+      cancelButtonText: this.translate.instant('NAVBAR.CONFIRM_LOGOUT_NO'),
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280'
+    });
+
+    if (result.isConfirmed) {
+      this.authService.logout();
+    }
   }
 
   getAvatarUrl(): string {

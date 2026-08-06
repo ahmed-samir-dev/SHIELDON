@@ -23,10 +23,11 @@ export class EnrollmentPanel implements OnInit {
 
   pendingRequests = signal<EnrollmentResponse[]>([]);
   approvedStudents = signal<EnrollmentResponse[]>([]);
+  removedStudents = signal<EnrollmentResponse[]>([]);
   studentEnrollments = signal<StudentEnrollmentStatusResponse[]>([]);
   isLoading = signal(true);
   selectedIds = signal<Set<string>>(new Set<string>());
-  activeTab = signal<'pending' | 'approved'>('pending');
+  activeTab = signal<'pending' | 'approved' | 'removed'>('pending');
 
   // Pagination & Filtering for Pending tab
   pendingPage = signal(1);
@@ -42,6 +43,15 @@ export class EnrollmentPanel implements OnInit {
   approvedDateFrom = signal('');
   approvedDateTo = signal('');
   isApprovedLoading = signal(false);
+
+  // Pagination & Filtering for Removed tab
+  removedPage = signal(1);
+  removedPageSize = 10;
+  removedTotalCount = signal(0);
+  removedSearch = signal('');
+  removedDateFrom = signal('');
+  removedDateTo = signal('');
+  isRemovedLoading = signal(false);
 
   // Pagination & Filtering for Student tab
   studentPage = signal(1);
@@ -62,6 +72,7 @@ export class EnrollmentPanel implements OnInit {
     } else {
       this.loadPendingData();
       this.loadApprovedData();
+      this.loadRemovedData();
     }
   }
 
@@ -136,6 +147,41 @@ export class EnrollmentPanel implements OnInit {
     return Math.ceil(this.approvedTotalCount() / this.approvedPageSize);
   }
 
+  loadRemovedData() {
+    this.isRemovedLoading.set(true);
+    this.courseService.getRemovedEnrollments({
+      page: this.removedPage(),
+      pageSize: this.removedPageSize,
+      search: this.removedSearch() || null,
+      approvedFrom: this.removedDateFrom() || null,
+      approvedTo: this.removedDateTo() || null
+    }).subscribe({
+      next: (res) => {
+        this.removedStudents.set(res.data.items);
+        this.removedTotalCount.set(res.data.totalCount);
+        this.isRemovedLoading.set(false);
+      },
+      error: () => {
+        this.isRemovedLoading.set(false);
+        this.handleError();
+      }
+    });
+  }
+
+  onRemovedSearch() {
+    this.removedPage.set(1);
+    this.loadRemovedData();
+  }
+
+  onRemovedPageChange(page: number) {
+    this.removedPage.set(page);
+    this.loadRemovedData();
+  }
+
+  get removedTotalPages(): number {
+    return Math.ceil(this.removedTotalCount() / this.removedPageSize);
+  }
+
   onPendingPageChange(page: number) {
     this.pendingPage.set(page);
     this.loadPendingData();
@@ -163,7 +209,7 @@ export class EnrollmentPanel implements OnInit {
     return Math.min(a, b);
   }
 
-  setTab(tab: 'pending' | 'approved') {
+  setTab(tab: 'pending' | 'approved' | 'removed') {
     this.activeTab.set(tab);
     this.selectedIds.set(new Set<string>());
   }
@@ -212,7 +258,7 @@ export class EnrollmentPanel implements OnInit {
     this.courseService.reviewEnrollment(id, { approved, rejectionReason: reason }).subscribe({
       next: () => {
         const status = approved ? this.translate.instant('ENROLLMENT_PANEL.STATUS_APPROVED') : this.translate.instant('ENROLLMENT_PANEL.STATUS_REJECTED');
-        this.toastr.success(this.translate.instant('ENROLLMENT_PANEL.TOAST_REVIEW_SUCCESS').replace('{status}', status));
+        this.toastr.success(this.translate.instant('ENROLLMENT_PANEL.TOAST_REVIEW_SUCCESS', { status }));
         this.loadData();
       },
       error: () => this.toastr.error(this.translate.instant('ENROLLMENT_PANEL.TOAST_REVIEW_ERR'))
@@ -242,7 +288,7 @@ export class EnrollmentPanel implements OnInit {
 
     this.courseService.bulkReviewEnrollments(request).subscribe({
       next: () => {
-        this.toastr.success(this.translate.instant('ENROLLMENT_PANEL.TOAST_BULK_SUCCESS').replace('{count}', request.enrollmentIds.length.toString()));
+        this.toastr.success(this.translate.instant('ENROLLMENT_PANEL.TOAST_BULK_SUCCESS', { count: request.enrollmentIds.length }));
         this.loadData();
       },
       error: () => this.toastr.error(this.translate.instant('ENROLLMENT_PANEL.TOAST_BULK_ERR'))
@@ -262,5 +308,40 @@ export class EnrollmentPanel implements OnInit {
     });
 
     return isConfirmed ? (reason || null) : false;
+  }
+
+  async kickStudent(req: EnrollmentResponse) {
+    const title = this.translate.instant('ENROLLMENT_PANEL.SWAL_KICK_TITLE');
+    const text = this.translate.instant('ENROLLMENT_PANEL.SWAL_KICK_TEXT', { name: req.studentName, course: req.courseTitle });
+    const confirmButtonText = this.translate.instant('ENROLLMENT_PANEL.SWAL_BTN_KICK');
+    const cancelButtonText = this.translate.instant('ENROLLMENT_PANEL.SWAL_BTN_CANCEL');
+
+    const result = await Swal.fire({
+      title,
+      text,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText,
+      confirmButtonColor: '#ef4444',
+      cancelButtonText,
+      cancelButtonColor: '#6b7280'
+    });
+
+    if (!result.isConfirmed) return;
+
+    this.courseService.kickStudent(req.id).subscribe({
+      next: () => {
+        const msg = this.translate.instant('ENROLLMENT_PANEL.TOAST_KICK_SUCCESS', { name: req.studentName, course: req.courseTitle });
+        this.toastr.success(msg);
+        this.loadApprovedData();
+        this.loadRemovedData();
+      },
+      error: (err) => {
+        console.error('[KickStudent] Error:', err);
+        const fallback = this.translate.instant('ENROLLMENT_PANEL.TOAST_KICK_ERR');
+        const errorMsg = err?.error?.message || err?.error?.title || err?.message || fallback;
+        this.toastr.error(errorMsg);
+      }
+    });
   }
 }
