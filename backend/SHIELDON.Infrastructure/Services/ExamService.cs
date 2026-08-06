@@ -342,17 +342,53 @@ public class ExamService : IExamService
 
         if (attemptIds.Any())
         {
+            // 1. IpAuditLogs (FK → ExamAttempts)
             var ipLogs = await _db.IpAuditLogs
                 .Where(l => l.ExamAttemptId.HasValue && attemptIds.Contains(l.ExamAttemptId.Value))
                 .ToListAsync(ct);
             if (ipLogs.Any()) _db.IpAuditLogs.RemoveRange(ipLogs);
+
+            // 2. AttemptAnswers (FK → ExamAttempts, Restrict on QuestionId/SelectedOptionId)
+            var attemptAnswers = await _db.AttemptAnswers
+                .Where(a => attemptIds.Contains(a.AttemptId))
+                .ToListAsync(ct);
+            if (attemptAnswers.Any()) _db.AttemptAnswers.RemoveRange(attemptAnswers);
+
+            // 3. ExamAttemptQuestions (FK → ExamAttempts)
+            var attemptQuestions = await _db.ExamAttemptQuestions
+                .Where(q => attemptIds.Contains(q.AttemptId))
+                .ToListAsync(ct);
+            if (attemptQuestions.Any()) _db.ExamAttemptQuestions.RemoveRange(attemptQuestions);
+
+            // 4. PresenceLogs (FK → ExamAttempts)
+            var presenceLogs = await _db.PresenceLogs
+                .Where(p => attemptIds.Contains(p.AttemptId))
+                .ToListAsync(ct);
+            if (presenceLogs.Any()) _db.PresenceLogs.RemoveRange(presenceLogs);
+
+            // 5. ExamTokens (FK → ExamAttempts)
+            var examTokens = await _db.ExamTokens
+                .Where(t => attemptIds.Contains(t.AttemptId))
+                .ToListAsync(ct);
+            if (examTokens.Any()) _db.ExamTokens.RemoveRange(examTokens);
+
+            // 6. GradeRecords (FK → Exams via ExamId)
+            var gradeRecords = await _db.GradeRecords
+                .Where(g => g.ExamId == examId)
+                .ToListAsync(ct);
+            if (gradeRecords.Any()) _db.GradeRecords.RemoveRange(gradeRecords);
+
+            // 7. ExamAttempts themselves
+            var attempts = await _db.ExamAttempts
+                .Where(a => a.ExamId == examId)
+                .ToListAsync(ct);
+            if (attempts.Any()) _db.ExamAttempts.RemoveRange(attempts);
         }
 
-        // Manually delete entities that have Restrict foreign keys to Exam to prevent DbUpdateException
+        // Manually delete entities with Restrict FKs on Exam itself
         var violationLogs = await _db.ViolationLogs.Where(v => v.ExamId == examId).ToListAsync(ct);
         if (violationLogs.Any()) _db.ViolationLogs.RemoveRange(violationLogs);
 
-        // Remove these safely just in case cascade delete fails on SQL Server side
         var extensions = await _db.ExamExtensions.Where(e => e.ExamId == examId).ToListAsync(ct);
         if (extensions.Any()) _db.ExamExtensions.RemoveRange(extensions);
 

@@ -37,7 +37,9 @@ public record StudentOptionDto(
 public record SavedAnswerDto(
     Guid QuestionId,
     Guid? SelectedOptionId,
-    string? TextAnswer
+    string? TextAnswer,
+    /// <summary>Whether the student has red-flagged this question for later review.</summary>
+    bool IsFlagged
 );
 
 public class SaveAnswerRequest
@@ -46,9 +48,15 @@ public class SaveAnswerRequest
     public Guid QuestionId { get; set; }
 
     public Guid? SelectedOptionId { get; set; }
-    
+
     [MaxLength(2000)]
     public string? TextAnswer { get; set; }
+
+    /// <summary>
+    /// Optional flag toggle. When provided, sets the Red Flag state for this question.
+    /// Can be sent independently (without an answer) to flag/unflag an unanswered question.
+    /// </summary>
+    public bool? IsFlagged { get; set; }
 }
 
 public record SubmitExamResponse(

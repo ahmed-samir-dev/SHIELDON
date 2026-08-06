@@ -1,50 +1,152 @@
-# Contributing to SHIELDON
+# 🤝 Contributing to SHIELDON
 
-Welcome to the SHIELDON development team! Please review the guidelines below before making changes to the repository.
+Thank you for your interest in contributing to **SHIELDON**! 
 
-## Git Workflow
+Whether you are fixing a bug, adding a feature, updating documentation, or proposing new ideas, we appreciate your help in keeping SHIELDON secure, robust, and modern.
 
-We follow a strict Git branching model to ensure stability in production.
+---
 
-1. **`main` Branch**: This is the production-ready code. It must ALWAYS compile, pass tests, and be deployable. **Never push directly to `main`.**
-2. **`develop` Branch**: This is the main integration branch for active development. All new features are merged here first before a release is created.
+## 📑 Table of Contents
 
-### Creating a Feature
-1. Ensure your local `develop` branch is up to date:
+- [Code of Conduct](#-code-of-conduct)
+- [Getting Started](#-getting-started)
+- [Git Branching Strategy](#-git-branching-strategy)
+- [Commit Message Conventions](#-commit-message-conventions)
+- [Development Guidelines](#-development-guidelines)
+  - [Backend (.NET 9)](#backend-net-9)
+  - [Frontend (Angular 21)](#frontend-angular-21)
+  - [WhatsApp Gateway (Node.js)](#whatsapp-gateway-nodejs)
+- [Submitting a Pull Request (PR)](#-submitting-a-pull-request-pr)
+- [Reporting Issues & Bugs](#-reporting-issues--bugs)
+
+---
+
+## 📜 Code of Conduct
+
+We are committed to providing a welcoming, respectful, and inclusive environment for everyone. Please be polite, constructive, and respectful in all issues, pull requests, and discussions.
+
+---
+
+## 🚀 Getting Started
+
+1. **Fork the Repository**: Click the "Fork" button at the top right of the GitHub repository page.
+2. **Clone your Fork**:
    ```bash
-   git checkout develop
-   git pull origin develop
+   git clone https://github.com/YOUR_USERNAME/SHIELDON.git
+   cd SHIELDON
    ```
-2. Create a new branch off of `develop`:
+3. **Set Up Prerequisites**: Follow the step-by-step installation instructions in the main [README.md](../README.md#-prerequisites-for-beginners).
+
+---
+
+## 🔀 Git Branching Strategy
+
+We follow a structured Git workflow to ensure main branch stability:
+
+- **`main`**: Production release branch. Must always compile, pass tests, and be deployable. **Direct pushes are disabled.**
+- **`develop`**: Main integration branch for active development.
+- **Working Branches**: Always create a feature/fix branch off `develop`:
+  - Features: `feature/short-feature-description`
+  - Bug Fixes: `bugfix/issue-description`
+  - Documentation: `docs/what-changed`
+  - Maintenance: `chore/task-name`
+
+```bash
+git checkout develop
+git pull origin develop
+git checkout -b feature/your-feature-name
+```
+
+---
+
+## 📝 Commit Message Conventions
+
+We enforce [Conventional Commits](https://www.conventionalcommits.org/). Commit messages must be clear, concise, and formatted as follows:
+
+`<type>(<scope>): <short summary>`
+
+### Allowed Types:
+- `feat`: A new feature for the user or system
+- `fix`: A bug fix
+- `docs`: Documentation only changes
+- `style`: Formatting, semi-colons, whitespace, styling adjustments (no code logic change)
+- `refactor`: Code change that neither fixes a bug nor adds a feature
+- `perf`: A code change that improves performance
+- `test`: Adding or correcting existing tests
+- `chore`: Updating build tasks, package configurations, or dependencies
+
+### Examples:
+- `feat(auth): add Google OAuth 2.0 passwordless authentication`
+- `fix(exam-engine): prevent cascading violation score on rapid alt-tab`
+- `docs(readme): add contributing guidelines section`
+- `chore(deps): update Angular to version 21.1`
+
+---
+
+## 💻 Development Guidelines
+
+### Backend (.NET 9)
+
+- **Architecture**: Follow **Clean Architecture** patterns (`Domain` → `Application` → `Infrastructure` → `API`). Never leak Infrastructure or Web frameworks into the Domain entity layer.
+- **Nullable Types**: Keep `#nullable enable` on. Address all compiler warnings before pushing.
+- **Validation**: Use **FluentValidation** for request models in the Application layer.
+- **Swagger Documentation**: Annotate new controller endpoints with proper OpenAPI response types and summaries.
+- **Database Migrations**: Generate EF Core migrations locally via terminal:
+  ```bash
+  dotnet ef migrations add NameOfMigration --project SHIELDON.Infrastructure --startup-project SHIELDON.API
+  ```
+  Verify and apply using `dotnet ef database update`.
+
+### Frontend (Angular 21)
+
+- **Standalone Components**: Build all new UI using Angular 21 Standalone Components (`standalone: true`). Avoid creating legacy `NgModules`.
+- **Reactivity**: Prefer Angular **Signals** (`signal()`, `computed()`, `effect()`) for state management.
+- **Styling & Themes**: Use CSS Custom Properties defined in `src/assets/styles/_variables.scss` (`var(--primary-color)`, `var(--card-bg)`, etc.) to ensure seamless Dark & Light theme compatibility.
+- **Internationalization**: Use `ngx-translate` pipes and translation keys for all user-facing strings (support both English `en` and Arabic `ar`).
+- **Anti-Cheat Integrity**: Do not tamper with or disable Anti-Cheating Engine monitoring hooks during production builds.
+
+### WhatsApp Gateway (Node.js)
+
+- Located in `backend/whatsapp-gateway/`.
+- Keep the microservice decoupled from .NET logic. All interaction occurs via HTTP API endpoints on port 3001.
+
+---
+
+## 📬 Submitting a Pull Request (PR)
+
+1. Ensure your local code builds cleanly and passes type checking:
    ```bash
-   git checkout -b feature/your-feature-name
+   # Frontend check
+   cd frontend
+   npx tsc --noEmit
+   
+   # Backend check
+   cd ../backend
+   dotnet build
    ```
-   *(Use `bugfix/` for bug fixes, and `docs/` for documentation updates).*
+2. Push your feature branch to your fork:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+3. Navigate to the main repository on GitHub and click **New Pull Request**.
+4. Set base branch to `develop`.
+5. Fill out the PR template with:
+   - Clear summary of what was added/fixed
+   - Screenshots / Loom video for UI changes
+   - Steps to test
+6. Once approved by reviewers, merge via **Squash and Merge**.
 
-### Committing Changes
-We follow the Conventional Commits specification. Your commit messages must be clear and prefixed appropriately:
-- `feat:` for a new feature.
-- `fix:` for a bug fix.
-- `docs:` for documentation changes.
-- `style:` for formatting, missing semi colons, etc (no code change).
-- `chore:` for updating build tasks, package manager configs, etc.
+---
 
-*Example:* `feat(exams): add auto-grading logic to submission endpoint`
+## 🐛 Reporting Issues & Bugs
 
-### Opening a Pull Request
-1. Push your branch to the remote repository.
-2. Open a Pull Request targeting the `develop` branch (or `main` if releasing a graduation version).
-3. Ensure GitHub Copilot (or human reviewers) review and approve the PR.
-4. Squash and merge when approved.
+If you find a bug or have a feature request:
+1. Search existing GitHub Issues to check if it has already been reported.
+2. If not, open a new Issue with a descriptive title and detailed steps to reproduce.
+3. For security vulnerabilities, please do **not** open a public issue - contact the maintainers directly.
 
-## Backend Guidelines (.NET)
-- Use **Clean Architecture**. Do not reference Infrastructure inside the Domain layer.
-- Use `Nullable` reference types. Address all compiler warnings.
-- All new controllers must have Swagger documentation attributes.
-- EF Core migrations must be generated locally and committed. Do not run `Update-Database` in production directly (use migration bundles or CI/CD).
+---
 
-## Frontend Guidelines (Angular)
-- Use **Standalone Components**. Do not create new `NgModules` unless interfacing with a legacy library.
-- Adhere to the established CSS Custom Properties (Variables) defined in `src/assets/styles/_variables.scss` for theming (Dark/Light mode).
-- Keep components focused. Delegate heavy logic to Services.
-- Do not bypass the Anti-Cheating Engine mechanisms while testing unless explicitly mocking the environment.
+<div align="center">
+  Thank you for contributing to <strong>SHIELDON</strong>! 
+</div>

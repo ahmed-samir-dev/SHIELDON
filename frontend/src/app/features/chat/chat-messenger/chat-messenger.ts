@@ -1,9 +1,11 @@
 import { Component, inject, OnInit, OnDestroy, AfterViewChecked, signal, computed, effect, ElementRef, ViewChild, untracked } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ChatService } from '../../../core/services/chat.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { ChatMessageDto, ChatUserDto, ConversationSummaryDto, SendMessageRequest, SendGroupMessageRequest, AttachmentType, GroupParticipantDto, RenameGroupRequest, AddGroupMembersRequest, MessageReactionDto } from '../../../core/models/chat.model';
+import { LinkPreviewService } from '../../../core/services/link-preview.service';
+import { ChatMessageDto, ChatUserDto, ConversationSummaryDto, SendMessageRequest, SendGroupMessageRequest, AttachmentType, GroupParticipantDto, RenameGroupRequest, AddGroupMembersRequest, MessageReactionDto, LinkPreviewData } from '../../../core/models/chat.model';
 import { environment } from '../../../../environments/environment';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
@@ -19,8 +21,12 @@ import Swal from 'sweetalert2';
 export class ChatMessengerComponent implements OnInit, OnDestroy, AfterViewChecked {
   chatService = inject(ChatService);
   authService = inject(AuthService);
+  linkPreviewService = inject(LinkPreviewService);
   private toastr = inject(ToastrService);
   translate = inject(TranslateService);
+  private sanitizer = inject(DomSanitizer);
+
+
 
   // Component State
   activeConversation = signal<ConversationSummaryDto | null>(null);
@@ -57,6 +63,14 @@ export class ChatMessengerComponent implements OnInit, OnDestroy, AfterViewCheck
   }
 
   newMessageContent = signal<string>('');
+  
+  // Link Preview State
+  composerLinkPreview = signal<LinkPreviewData | null>(null);
+  isComposerPreviewDismissed = signal<boolean>(false);
+  messagePreviewsMap = signal<Map<string, LinkPreviewData | null>>(new Map());
+  private linkPreviewTimer: any = null;
+  // Track which URLs are currently being fetched to avoid duplicate requests
+  private pendingPreviewUrls = new Set<string>();
   
   // New Chat Modal State
   isNewChatModalOpen = signal<boolean>(false);
@@ -118,6 +132,30 @@ export class ChatMessengerComponent implements OnInit, OnDestroy, AfterViewCheck
       const msgs = this.chatService.activeConversationMessages();
       // Wait for Angular to update the DOM before scrolling
       setTimeout(() => this.scrollToBottom(), 50);
+      // Pre-fetch link previews for any new messages that don't have previews yet
+      untracked(() => {
+        const currentMap = this.messagePreviewsMap();
+        const urlsNeeded: string[] = [];
+        for (const msg of msgs) {
+          if (!msg.content) continue;
+          const url = this.linkPreviewService.extractFirstUrl(msg.content);
+          if (!url) continue;
+          if (!currentMap.has(url) && !this.pendingPreviewUrls.has(url)) {
+            urlsNeeded.push(url);
+            this.pendingPreviewUrls.add(url);
+          }
+        }
+        urlsNeeded.forEach((url, index) => {
+          setTimeout(() => {
+            this.linkPreviewService.fetchPreview(url).subscribe(preview => {
+              this.pendingPreviewUrls.delete(url);
+              const newMap = new Map(this.messagePreviewsMap());
+              newMap.set(url, preview);
+              this.messagePreviewsMap.set(newMap);
+            });
+          }, index * 80);
+        });
+      });
     });
 
     effect(() => {
@@ -145,12 +183,19 @@ export class ChatMessengerComponent implements OnInit, OnDestroy, AfterViewCheck
   // ── Conversation Helpers ──────────────────────────────────────────────────
 
   openConversation(conv: ConversationSummaryDto): void {
+    this.composerLinkPreview.set(null);
+    this.isComposerPreviewDismissed.set(false);
+    // Clear previews map for fresh conversation
+    this.messagePreviewsMap.set(new Map());
+    this.pendingPreviewUrls.clear();
     this.activeConversation.set(conv);
     this.chatService.loadMessages(conv.conversationId).subscribe({
       next: (res) => {
         if (res.success && res.data) {
           // Pass conversationId so the service calls markAsRead automatically
           this.chatService.setActiveConversationMessages(res.data, conv.conversationId);
+          // Pre-fetch link previews for all messages so they appear instantly
+          this.prefetchLinkPreviewsForMessages(res.data);
         }
       }
     });
@@ -164,6 +209,38 @@ export class ChatMessengerComponent implements OnInit, OnDestroy, AfterViewCheck
     } else {
       this.manageGroupParticipants.set([]);
     }
+  }
+
+  /**
+   * Pre-fetches link previews for a batch of messages in parallel.
+   * Populates messagePreviewsMap so template reads are instant cache hits.
+   */
+  private prefetchLinkPreviewsForMessages(messages: ChatMessageDto[]): void {
+    const urlsToFetch: string[] = [];
+
+    for (const msg of messages) {
+      if (!msg.content) continue;
+      const url = this.linkPreviewService.extractFirstUrl(msg.content);
+      if (!url) continue;
+      const currentMap = this.messagePreviewsMap();
+      if (currentMap.has(url) || this.pendingPreviewUrls.has(url)) continue;
+      urlsToFetch.push(url);
+      this.pendingPreviewUrls.add(url);
+    }
+
+    if (urlsToFetch.length === 0) return;
+
+    // Fetch all in parallel with a slight stagger to avoid overwhelming the API
+    urlsToFetch.forEach((url, index) => {
+      setTimeout(() => {
+        this.linkPreviewService.fetchPreview(url).subscribe(preview => {
+          this.pendingPreviewUrls.delete(url);
+          const newMap = new Map(this.messagePreviewsMap());
+          newMap.set(url, preview);
+          this.messagePreviewsMap.set(newMap);
+        });
+      }, index * 80); // 80ms stagger between requests to avoid rate limiting
+    });
   }
 
   // ── Messaging ─────────────────────────────────────────────────────────────
@@ -197,9 +274,105 @@ export class ChatMessengerComponent implements OnInit, OnDestroy, AfterViewCheck
     }
 
     this.newMessageContent.set('');
+    this.composerLinkPreview.set(null);
+    this.isComposerPreviewDismissed.set(false);
+    this.replyingToMessage.set(null);
+  }
+
+  checkComposerLinkPreview(): void {
+    clearTimeout(this.linkPreviewTimer);
+    const text = this.newMessageContent();
+    const url = this.linkPreviewService.extractFirstUrl(text);
+
+    if (!url) {
+      this.composerLinkPreview.set(null);
+      this.isComposerPreviewDismissed.set(false);
+      return;
+    }
+
+    if (this.isComposerPreviewDismissed()) {
+      return;
+    }
+
+    // Check cache first for instant display
+    const cached = this.linkPreviewService.getCachedPreview(url);
+    if (cached !== undefined) {
+      // Already in cache — show instantly
+      if (!this.isComposerPreviewDismissed()) {
+        this.composerLinkPreview.set(cached);
+      }
+      return;
+    }
+
+    // Not in cache — debounce fetch to avoid too many requests while typing
+    this.linkPreviewTimer = setTimeout(() => {
+      this.linkPreviewService.fetchPreview(url).subscribe(preview => {
+        if (!this.isComposerPreviewDismissed()) {
+          this.composerLinkPreview.set(preview);
+        }
+      });
+    }, 300);
+  }
+
+  dismissComposerPreview(): void {
+    this.isComposerPreviewDismissed.set(true);
+    this.composerLinkPreview.set(null);
+  }
+
+  getMessageLinkPreview(content: string): LinkPreviewData | null {
+    if (!content) return null;
+    const url = this.linkPreviewService.extractFirstUrl(content);
+    if (!url) return null;
+
+    const currentMap = this.messagePreviewsMap();
+    if (currentMap.has(url)) {
+      return currentMap.get(url) || null;
+    }
+
+    // Not pre-fetched yet (e.g. new real-time message) — fetch now
+    if (!this.pendingPreviewUrls.has(url)) {
+      this.pendingPreviewUrls.add(url);
+      this.linkPreviewService.fetchPreview(url).subscribe(preview => {
+        this.pendingPreviewUrls.delete(url);
+        const newMap = new Map(this.messagePreviewsMap());
+        newMap.set(url, preview);
+        this.messagePreviewsMap.set(newMap);
+      });
+    }
+
+    return null;
+  }
+
+  onPreviewImageError(event: Event, siteName?: string): void {
+    const imgEl = event.target as HTMLImageElement;
+    if (imgEl) {
+      if (siteName && !imgEl.src.includes('google.com/s2/favicons')) {
+        imgEl.src = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(siteName)}&sz=128`;
+      } else {
+        imgEl.style.display = 'none';
+      }
+    }
+  }
+
+  renderFormattedContent(text: string): SafeHtml {
+    if (!text) return '';
+    const escaped = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\n/g, '<br>');
+
+    const urlRegex = /(https?:\/\/[^\s<]+[^<.,:;"')\]\s])/gi;
+    const formatted = escaped.replace(urlRegex, (url) => {
+      return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="chat-inline-link" onclick="event.stopPropagation()">${url}</a>`;
+    });
+
+    return this.sanitizer.bypassSecurityTrustHtml(formatted);
   }
 
   handleKeyPress(event: KeyboardEvent): void {
+
+
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       this.sendMessage();
@@ -424,6 +597,8 @@ export class ChatMessengerComponent implements OnInit, OnDestroy, AfterViewCheck
         this.typingTimeout = null;
       }, 300);
     }
+
+    this.checkComposerLinkPreview();
   }
 
   toggleMessageSize(messageId: string): void {

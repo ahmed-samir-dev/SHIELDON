@@ -289,7 +289,8 @@ public class CourseService : ICourseService
                     return MapToStudentStatus(existing, course.Title);
 
                 case CourseEnrollmentStatus.Dropped:
-                    // Treat a dropped enrollment like a fresh request
+                case CourseEnrollmentStatus.KickedOut:
+                    // Treat dropped or kicked-out enrollment like a fresh request (no penalty applied)
                     existing.Status = CourseEnrollmentStatus.Pending;
                     existing.RejectionCount = 0;
                     existing.CooldownUntil = null;
@@ -467,6 +468,64 @@ public class CourseService : ICourseService
         };
     }
 
+    public async Task<PagedResponse<EnrollmentResponse>> GetRemovedEnrollmentsAsync(
+        Guid reviewerId, string reviewerRole, EnrollmentQueryParams query, CancellationToken ct = default)
+    {
+        var q = _db.CourseEnrollments
+            .Include(e => e.Student)
+            .Include(e => e.Course)
+            .Include(e => e.ReviewedBy)
+            .AsNoTracking()
+            .Where(e => e.Status == CourseEnrollmentStatus.KickedOut || e.Status == CourseEnrollmentStatus.Dropped);
+
+        // Tutor can only see enrollments for courses they are assigned to
+        if (reviewerRole == "Tutor")
+            q = q.Where(e => e.Course!.AssignedTutorId == reviewerId);
+
+        if (query.CourseId.HasValue)
+            q = q.Where(e => e.CourseId == query.CourseId.Value);
+
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            var search = query.Search.Trim().ToLower();
+            q = q.Where(e => 
+                (e.Student!.FirstName + " " + e.Student!.LastName).ToLower().Contains(search) ||
+                e.Student!.Email.ToLower().Contains(search) ||
+                e.Student!.StudentId!.ToLower().Contains(search) ||
+                e.Course!.Title.ToLower().Contains(search) ||
+                e.Course!.CourseCode.ToLower().Contains(search) ||
+                (e.ReviewedBy != null && (e.ReviewedBy.FirstName + " " + e.ReviewedBy.LastName).ToLower().Contains(search))
+            );
+        }
+
+        if (query.ApprovedFrom.HasValue)
+        {
+            var from = query.ApprovedFrom.Value.ToUniversalTime();
+            q = q.Where(e => (e.ReviewedAt ?? e.UpdatedAt) >= from);
+        }
+
+        if (query.ApprovedTo.HasValue)
+        {
+            var to = query.ApprovedTo.Value.ToUniversalTime();
+            q = q.Where(e => (e.ReviewedAt ?? e.UpdatedAt) <= to.AddDays(1));
+        }
+
+        var totalCount = await q.CountAsync(ct);
+        var enrollments = await q
+            .OrderByDescending(e => e.ReviewedAt ?? e.UpdatedAt)
+            .Skip((query.Page - 1) * query.PageSize)
+            .Take(query.PageSize)
+            .ToListAsync(ct);
+
+        return new PagedResponse<EnrollmentResponse>
+        {
+            Items = enrollments.Select(e => MapToEnrollmentResponse(e)).ToList(),
+            TotalCount = totalCount,
+            PageNumber = query.Page,
+            PageSize = query.PageSize
+        };
+    }
+
     public async Task<EnrollmentResponse> ReviewEnrollmentAsync(
         Guid enrollmentId, Guid reviewerId, ReviewEnrollmentRequest request, CancellationToken ct = default)
     {
@@ -536,7 +595,15 @@ public class CourseService : ICourseService
         }
 
         await _db.SaveChangesAsync(ct);
-        return MapToEnrollmentResponse(enrollment);
+
+        var freshEnrollment = await _db.CourseEnrollments
+            .Include(e => e.Student)
+            .Include(e => e.Course)
+            .Include(e => e.ReviewedBy)
+            .AsNoTracking()
+            .FirstAsync(e => e.Id == enrollment.Id, ct);
+
+        return MapToEnrollmentResponse(freshEnrollment);
     }
 
     public async Task<int> BulkReviewEnrollmentsAsync(
@@ -669,6 +736,65 @@ public class CourseService : ICourseService
     }
 
     // ── Private Helpers ──────────────────────────────────────────────────
+
+    /// <summary>
+    /// Removes (kicks) an enrolled student from a course.
+    /// Sets status to KickedOut, sends notification, no rejection penalty applied.
+    /// Tutors are restricted to kicking from their own assigned course only.
+    /// </summary>
+    public async Task<EnrollmentResponse> KickStudentAsync(
+        Guid enrollmentId, Guid kickedById, string kickerRole, CancellationToken ct = default)
+    {
+        var enrollment = await _db.CourseEnrollments
+            .Include(e => e.Student)
+            .Include(e => e.Course)
+            .Include(e => e.ReviewedBy)
+            .FirstOrDefaultAsync(e => e.Id == enrollmentId, ct)
+            ?? throw new NotFoundException("Enrollment", enrollmentId);
+
+        if (enrollment.Status != CourseEnrollmentStatus.Approved)
+            throw new BusinessRuleException("Only currently enrolled (Approved) students can be removed from a course.");
+
+        // Tutors may only kick students from their own assigned course
+        if (kickerRole == "Tutor" && enrollment.Course!.AssignedTutorId != kickedById)
+            throw new BusinessRuleException("You can only remove students from courses assigned to you.");
+
+        enrollment.Status = CourseEnrollmentStatus.KickedOut;
+        enrollment.ReviewedById = kickedById;
+        enrollment.ReviewedAt = DateTime.UtcNow;
+        enrollment.UpdatedAt = DateTime.UtcNow;
+        // Intentionally NOT incrementing RejectionCount — kick carries no enrollment penalty.
+        // Student can re-enroll immediately after being kicked.
+
+        var courseTitle = enrollment.Course!.Title;
+        var courseId = enrollment.CourseId;
+        var studentId = enrollment.StudentId;
+
+        var notificationMessage = $"You have been removed from the course '{courseTitle}'.";
+
+        await _db.SaveChangesAsync(ct);
+
+        // Fetch fresh enrollment with loaded Tutor/Kicker details
+        var freshEnrollment = await _db.CourseEnrollments
+            .Include(e => e.Student)
+            .Include(e => e.Course)
+            .Include(e => e.ReviewedBy)
+            .AsNoTracking()
+            .FirstAsync(e => e.Id == enrollment.Id, ct);
+
+        // Fire in-app notification to the removed student
+        await _notificationService.TriggerNotificationAsync(
+            studentId,
+            "Removed from Course",
+            notificationMessage,
+            $"/courses",
+            NotificationType.KickedFromCourse,
+            courseId,
+            sendEmail: false,
+            ct);
+
+        return MapToEnrollmentResponse(freshEnrollment);
+    }
 
     private async Task<CourseResponse> BuildCourseResponseAsync(Guid courseId, CancellationToken ct)
     {

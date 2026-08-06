@@ -237,18 +237,39 @@
                 
                 @if (msg.content) {
                   @if (msg.content.length > 300 && !expandedMessages().has(msg.id)) {
-                    <p>{{ msg.content.substring(0, 300) }}...</p>
+                    <p [innerHTML]="renderFormattedContent(msg.content.substring(0, 300) + '...')"></p>
                     <button class="show-more-btn" (click)="toggleMessageSize(msg.id)">Show More</button>
                   } @else {
-                    <p>{{ msg.content }}</p>
+                    <p [innerHTML]="renderFormattedContent(msg.content)"></p>
                     @if (msg.content.length > 300) {
                       <button class="show-more-btn" (click)="toggleMessageSize(msg.id)">Show Less</button>
                     }
+                  }
+
+
+                  @if (getMessageLinkPreview(msg.content); as preview) {
+                    <a [href]="preview.url" target="_blank" rel="noopener noreferrer" class="bubble-link-preview-card" (click)="$event.stopPropagation()">
+                      @if (preview.image) {
+                        <div class="preview-img-container">
+                          <img [src]="preview.image" alt="Link Preview" referrerpolicy="no-referrer" (error)="onPreviewImageError($event, preview.siteName)" />
+                        </div>
+                      }
+                      <div class="preview-text-container">
+                        @if (preview.siteName) {
+                          <span class="preview-site">{{ preview.siteName }}</span>
+                        }
+                        <span class="preview-title">{{ preview.title }}</span>
+                        @if (preview.description) {
+                          <span class="preview-desc">{{ preview.description }}</span>
+                        }
+                      </div>
+                    </a>
                   }
                 }
                 }
                 <!-- end else (!msg.isDeleted) -->
               </div>
+
               
               @if (msg.reactions && msg.reactions.length > 0) {
                 <div class="message-reactions">
@@ -334,6 +355,26 @@
                   </span>
                 </div>
                 <button class="close-reply-btn" (click)="cancelReply()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            }
+            @if (composerLinkPreview(); as preview) {
+
+              <div class="composer-link-preview-card">
+                <div class="link-preview-content">
+                  @if (preview.image) {
+                    <img class="link-preview-img" [src]="preview.image" alt="Link Preview" referrerpolicy="no-referrer" (error)="onPreviewImageError($event, preview.siteName)" />
+                  }
+                  <div class="link-preview-text">
+                    <span class="link-preview-domain">{{ preview.siteName || preview.url }}</span>
+                    <h4 class="link-preview-title">{{ preview.title }}</h4>
+                    @if (preview.description) {
+                      <p class="link-preview-desc">{{ preview.description }}</p>
+                    }
+                  </div>
+                </div>
+                <button class="close-preview-btn" (click)="dismissComposerPreview()" title="Dismiss Preview">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
               </div>

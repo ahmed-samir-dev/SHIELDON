@@ -48,6 +48,12 @@ public interface ICourseService
     Task<PagedResponse<EnrollmentResponse>> GetApprovedEnrollmentsAsync(Guid reviewerId, string reviewerRole, EnrollmentQueryParams query, CancellationToken ct = default);
 
     /// <summary>
+    /// Returns removed and dropped enrollment records (KickedOut or Dropped).
+    /// Admin: all courses. Tutor: only their assigned courses.
+    /// </summary>
+    Task<PagedResponse<EnrollmentResponse>> GetRemovedEnrollmentsAsync(Guid reviewerId, string reviewerRole, EnrollmentQueryParams query, CancellationToken ct = default);
+
+    /// <summary>
     /// Admin/Tutor approves or rejects a single enrollment request.
     /// On approval: status → Approved, student gets notification.
     /// On rejection: RejectionCount++, applies 24h cooldown if ≥ 2 consecutive rejections.
@@ -59,4 +65,13 @@ public interface ICourseService
 
     /// <summary>Returns the requesting student's enrollment status for all courses they've interacted with, with pagination and filtering.</summary>
     Task<PagedResponse<StudentEnrollmentStatusResponse>> GetMyEnrollmentsAsync(Guid studentId, StudentEnrollmentQueryParams query, CancellationToken ct = default);
+
+    /// <summary>
+    /// Removes (kicks) an enrolled student from a course.
+    /// The enrollment status is set to KickedOut. RejectionCount is NOT incremented.
+    /// The student can immediately re-submit an enrollment request after being kicked.
+    /// An in-app notification is sent to the student.
+    /// Admin can kick from any course. Tutor can only kick from their assigned course.
+    /// </summary>
+    Task<EnrollmentResponse> KickStudentAsync(Guid enrollmentId, Guid kickedById, string kickerRole, CancellationToken ct = default);
 }

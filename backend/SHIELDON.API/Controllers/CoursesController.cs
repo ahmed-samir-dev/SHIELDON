@@ -163,6 +163,23 @@ public class CoursesController : ControllerBase
     }
 
     /// <summary>
+    /// GET /api/courses/enrollments/removed?courseId=guid&page=1&pageSize=10&search=...
+    /// Returns removed and dropped enrollment records (KickedOut or Dropped). Admin sees all; Tutor sees their courses only.
+    /// </summary>
+    [HttpGet("enrollments/removed")]
+    [Authorize(Roles = "Admin,Tutor")]
+    [ProducesResponseType(typeof(ApiResponse<PagedResponse<EnrollmentResponse>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetRemovedEnrollments(
+        [FromQuery] EnrollmentQueryParams query,
+        CancellationToken cancellationToken)
+    {
+        var result = await _courseService.GetRemovedEnrollmentsAsync(
+            GetUserId(), GetUserRole(), query, cancellationToken);
+
+        return Ok(ApiResponse<PagedResponse<EnrollmentResponse>>.Ok(result, "Removed enrollments retrieved successfully."));
+    }
+
+    /// <summary>
     /// PATCH /api/courses/enrollments/{enrollmentId}/review
     /// Approve or reject a single pending enrollment. Admin or Tutor only.
     /// </summary>
@@ -213,5 +230,25 @@ public class CoursesController : ControllerBase
     {
         var result = await _courseService.GetMyEnrollmentsAsync(GetUserId(), query, cancellationToken);
         return Ok(ApiResponse<PagedResponse<StudentEnrollmentStatusResponse>>.Ok(result, "Your enrollments retrieved successfully."));
+    }
+
+    /// <summary>
+    /// DELETE /api/courses/enrollments/{enrollmentId}/kick
+    /// Removes (kicks) an enrolled student from a course without any enrollment penalty.
+    /// The student can re-submit an enrollment request immediately after being kicked.
+    /// Admin: can kick from any course. Tutor: restricted to their own assigned course.
+    /// </summary>
+    [HttpDelete("enrollments/{enrollmentId:guid}/kick")]
+    [Authorize(Roles = "Admin,Tutor")]
+    [ProducesResponseType(typeof(ApiResponse<EnrollmentResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> KickStudent(
+        Guid enrollmentId,
+        CancellationToken cancellationToken)
+    {
+        var result = await _courseService.KickStudentAsync(
+            enrollmentId, GetUserId(), GetUserRole(), cancellationToken);
+        return Ok(ApiResponse<EnrollmentResponse>.Ok(result, "Student removed from the course successfully."));
     }
 }

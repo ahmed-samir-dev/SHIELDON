@@ -3,11 +3,13 @@
 <div align="center">
   <img src="https://img.shields.io/badge/Angular_21-DD0031?style=for-the-badge&logo=angular&logoColor=white" alt="Angular 21" />
   <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Sass-CC6699?style=for-the-badge&logo=sass&logoColor=white" alt="Sass" />
+  <img src="https://img.shields.io/badge/SCSS-CC6699?style=for-the-badge&logo=sass&logoColor=white" alt="SCSS" />
+  <img src="https://img.shields.io/badge/WebRTC-333333?style=for-the-badge&logo=webrtc&logoColor=white" alt="WebRTC" />
+  <img src="https://img.shields.io/badge/Lucide_Icons-F54E00?style=for-the-badge&logo=lucide&logoColor=white" alt="Lucide Icons" />
 </div>
 
-> 🖥️ The user interface for the SHIELDON Learning Management System & Anti-Cheating Engine.
-> Built with Angular 21.
+> 🖥️ The modern SPA user interface for the **SHIELDON** Learning Management System & Anti-Cheating Engine.
+> Built with **Angular 21** using Standalone Components, Signals, and browser-native APIs.
 
 ---
 
@@ -15,30 +17,27 @@
 
 - [🔭 Project Overview](#-project-overview)
 - [⚙️ Technology Stack](#️-technology-stack)
-- [📋 Prerequisites](#-prerequisites-for-beginners)
-- [🔧 Installation & Setup](#-installation--setup-step-by-step-guide)
 - [🏛️ Architecture & Folder Structure](#️-architecture--folder-structure)
-- [🚀 Feature List (F1 – F30)](#-comprehensive-feature-list-f1--f30)
-- [🛡️ Anti-Cheating Engine](#️-anti-cheating-engine--sub-features-f17)
-- [🌿 Git Workflow](#-git-workflow)
+- [🚀 Comprehensive Feature List (F1 – F35)](#-comprehensive-feature-list-f1--f35)
+- [🛡️ Anti-Cheating Engine (Sub-Features)](#️-anti-cheating-engine--sub-features)
+- [🔧 Setup & Running Locally](#-setup--running-locally)
+- [🤝 Contributing & Guidelines](#-contributing--guidelines)
 
 ---
 
 ## 🔭 Project Overview
 
-This directory contains the frontend application for the **SHIELDON** platform. It provides a modern, responsive, and secure user interface for students, tutors, and administrators.
+This directory contains the single-page application (SPA) frontend for **SHIELDON**. It provides a responsive, role-tailored interface for **Students**, **Tutors**, and **Administrators**.
 
-The frontend is responsible for:
-- Delivering the Learning Management System experience (courses, materials, assignments, exams)
-- Enforcing the **Anti-Cheating Engine** rules natively in the browser during exams
-- Displaying rich visual analytics and monitoring dashboards using Apache ECharts
-- Providing an interactive AI assistant for student support
-- Real-time chat system between users
-- Dynamic QR attendance scanning
-- Unified calendar with exams, assignments, and custom events
-- Online payment interface via Stripe Checkout
-- Dark / Light mode with CSS custom properties
-- Full English / Arabic (RTL) internationalization
+Key frontend responsibilities:
+- **LMS Workflows**: Courses, enrollment management, course materials, announcements, assignments, grades, and calendar.
+- **Browser-Native Anti-Cheating Engine**: Full exam monitoring without plugins, extensions, or external software downloads.
+- **Real-Time Communication**: SignalR WebSocket chat, instant typing indicators, delivery receipts, link preview auto-extraction, audio voice note recording, and peer-to-peer WebRTC video calls with a global ringtone overlay.
+- **Real-Time Leaderboard**: Live Top-10 course ranking podium with SignalR updates, tie handling, and personal rank tracking.
+- **Security & Single Active Session**: Real-time enforcement via `SecurityHub` with 7-second grace countdown modal on session displacement.
+- **Phone Verification**: 6-cell auto-advancing WhatsApp OTP verification input.
+- **Analytics & Dashboards**: Interactive ECharts visualization for course grades, tutor monitoring, and violation density.
+- **Accessibility & Design System**: Dark/Light mode toggle via CSS Custom Properties, and full English / Arabic (RTL) internationalization.
 
 ---
 
@@ -46,168 +45,145 @@ The frontend is responsible for:
 
 | Technology | Purpose |
 |---|---|
-| **Angular 21** | Framework (Standalone Components) |
-| **TypeScript** | Language (Strict mode enabled) |
-| **SCSS** | Styling with CSS Custom Properties (Design Tokens) |
-| **Apache ECharts** | Charts & analytics (via ngx-echarts) |
-| **Lucide Icons** | Icon library |
-| **SweetAlert2** | Beautiful modal dialogs |
-| **ngx-toastr** | Toast notifications |
-| **canvas-confetti** | Celebration effects (exam results) |
-| **Shepherd.js** | Guided onboarding tours |
-| **ngx-translate** | Internationalization (EN / AR with RTL) |
-| **Stripe.js** | Client-side payment integration |
-
----
-
-## 📋 Prerequisites (For Beginners)
-
-If you have zero previous technical background and want to run the frontend part on your device, you need to install these tools first: 
-
-1. **Node.js**: The environment that allows the frontend code to run.
-   - Download the **LTS** version from [nodejs.org](https://nodejs.org/).
-   - Follow the default installation steps.
-2. **Git**: Required to download the project files (if you haven't already).
-   - Download from [git-scm.com](https://git-scm.com/).
-
----
-
-## 🔧 Installation & Setup (Step-by-Step Guide)
-
-> **CRITICAL REQUIREMENT:** The SHIELDON Frontend **cannot function without the Backend API**. You MUST complete the backend database setup and have the backend API running before you can log in or use the frontend. See the root [README.md](../README.md) for full database configuration steps.
-
-Follow these steps to get the frontend running: 🚀
-
-### 1. Ensure Backend is Running
-
-1. Verify that your SQL Server is running.
-2. Verify that the `.NET 9` backend is actively running (usually on `http://localhost:5000`).
-3. **Keep the backend terminal open** in the background.
-
-### 2. Run the Frontend Application
-
-1. Open a **new, completely separate** terminal window (or Command Prompt / PowerShell).
-2. Navigate to the frontend directory of the project:
-   ```bash
-   cd path/to/SHIELDON/frontend
-   ```
-3. Install all required dependencies:
-   ```bash
-   npm install
-   ```
-   _(This may take a couple of minutes ⏳ as it downloads Angular and all required UI libraries)._
-4. Start the Angular development server:
-   ```bash
-   npm start
-   ```
-5. Wait until the terminal says "Compiled successfully".
-6. Open your web browser and go to:
-   👉 `http://localhost:4201`
-   _(Note: The port is explicitly set to 4201 to avoid conflicts)._
-
-**Congratulations! The frontend is now running and talking to your local backend.**
+| **Angular 21** | Modern SPA framework (Standalone Components, Signals, Reactive Forms) |
+| **TypeScript** | Strongly-typed application logic |
+| **SCSS** | CSS custom properties (design tokens) & dark/light theme system |
+| **@microsoft/signalr** | Real-time WebSocket connection (chat, presence, leaderboard, session security) |
+| **WebRTC API** | Peer-to-peer 1-on-1 video call system |
+| **Apache ECharts** | Charts & visual data analytics (via `ngx-echarts`) |
+| **ngx-translate** | Internationalization (EN / AR with full RTL layout support) |
+| **Lucide Icons** | Modern icon set |
+| **SweetAlert2** | Custom dialogs & confirmation modals |
+| **ngx-toastr** | Toast notification alerts |
+| **Shepherd.js** | Guided interactive onboarding tours for first-time users |
+| **canvas-confetti** | Result celebration visual effects |
+| **Stripe.js** | Client-side payment checkout integration |
 
 ---
 
 ## 🏛️ Architecture & Folder Structure
 
-The frontend follows a **feature-based organization (Vertical Slice)** to keep code maintainable:
+The frontend follows a **vertical slice feature organization** for maintainability:
 
 ```
 src/app/
-├── core/                    ← Singleton services, guards, and interceptors
-│   ├── guards/              ← Auth and Role guards
-│   ├── interceptors/        ← JWT and Error interceptors
-│   ├── models/              ← TypeScript interfaces and DTOs
-│   └── services/            ← AuthService, TokenService, LanguageService
+├── core/                    ← Singletons, services, guards, and interceptors
+│   ├── guards/              ← Auth, Role, and Exam guards
+│   ├── interceptors/        ← JWT token injection & global HTTP error handler
+│   ├── models/              ← DTOs and TypeScript models
+│   └── services/            ← AuthService, ChatService, LinkPreviewService, AntiCheatService
 │
-├── shared/                  ← Reusable UI components used across features
-│   ├── components/          ← Navbar, Sidebar, Shared UI elements
-│   ├── directives/          ← Password eye toggle, etc.
-│   └── pipes/               ← Date formatting, etc.
+├── shared/                  ← Reusable UI elements & utilities
+│   ├── components/          ← Navbar, Sidebar, Global Call Overlay, Security Countdown Overlay
+│   ├── directives/          ← UI helper directives
+│   └── pipes/               ← Date, time, and currency pipes
 │
-├── layouts/                 ← Layout wrapper components
-│   ├── public-layout/       ← Horizontal top navbar (for login, landing, etc.)
-│   └── dashboard-layout/    ← Vertical sidebar (for authenticated users)
+├── layouts/                 ← Layout wrapper templates
+│   ├── public-layout/       ← Top navigation bar (Landing, Login, Register)
+│   └── dashboard-layout/    ← Collapsible sidebar navigation (Authenticated App)
 │
-└── features/                ← One folder per feature slice
-    ├── auth/                ← Login, Registration, Password Reset
-    ├── courses/             ← Course cards, Enrollment, Materials, Exams
-    ├── exams/               ← Exam results, Re-attempt requests
-    ├── anti-cheat/          ← Anti-Cheating Engine service & overlay
-    ├── monitoring/          ← Violation timelines and session logs
-    ├── grades/              ← Grade management and student grades
-    ├── admin/               ← Admin dashboard, Users management
-    ├── chat/                ← Real-time messaging
-    ├── attendance/          ← QR attendance scanning & history
-    ├── calendar/            ← Calendar & schedule view
-    ├── payment/             ← Stripe checkout & payment history
-    ├── profile/             ← Profile management & avatar
-    └── public/              ← Landing page, mobile guard
+└── features/                ← Feature modules
+    ├── auth/                ← Login, Register, Google OAuth, Forgot/Reset Password
+    ├── courses/             ← Course list, Enrollment, Materials, Announcements, Assignments, Exams
+    ├── exam-engine/         ← Anti-cheat exam player, token validator, questions navigator
+    ├── monitoring/          ← Tutor live monitoring, Session Timeline, Violation Density chart
+    ├── grades/              ← Gradebook, weighted grade calculator, CSV export
+    ├── admin/               ← System-wide admin panel, User lock/unlock management, Audit logs
+    ├── chat/                ← Real-time messaging, WebRTC call modal, Voice recorder, Link preview
+    ├── attendance/          ← Dynamic QR scanner & attendance log
+    ├── calendar/            ← Unified schedule view
+    ├── payment/             ← Stripe payment checkout & transaction history
+    ├── profile/             ← Profile picture WebP upload, WhatsApp OTP verification modal
+    └── public/              ← Landing page & mobile guard screen
 ```
 
 ---
 
-## 🚀 Comprehensive Feature List (F1 – F30)
+## 🚀 Comprehensive Feature List (F1 – F35)
 
-| # | Feature | Details |
+| # | Feature | Frontend Implementation Details |
 |---|---|---|
-| F1 | **Secure Login & Role-Based Redirect** | JWT authentication, refresh tokens, single-session enforcement |
-| F2 | **Email Verification** | SMTP integration (Mailtrap / Gmail), verification tokens |
-| F3 | **Password Reset Via Email** | Forgot-password workflow with secure reset links |
-| F4 | **Profile Management** | WebP avatar upload, edit profile, change password, reset tour guide |
-| F5 | **Public Registration** | Student or Tutor role selection during sign-up |
-| F6 | **Course Management & Enrollment** | Full CRUD, paginated enrollment, bulk review, enroll/drop, search & filter |
-| F7 | **File Sharing (Course Materials)** | Upload, download, and manage course resources |
-| F8 | **Announcements** | Post, feed, priority pinning for courses |
-| F9 | **Assignment Management System** | Task lifecycle, file submissions, ZIP bulk export, review & grading |
-| F10 | **Notifications** | In-app and email notifications for all key system events |
-| F11 | **Exam Management & Notifications** | CRUD, publish workflow, scheduling, deadline management, reminders |
-| F12 | **Re-Attempt & Re-Open Requests** | Students request re-attempts/re-opens, tutors approve with configurable extensions (24h/48h/72h/custom) |
-| F13 | **Question Bank Management** | Centralized course-level question bank (MCQ, True/False, Short Answer) with image support |
-| F14 | **Exam Engine + Secure Token** | Countdown timer, question navigator, auto-submit on timeout, cryptographic question randomization |
-| F15 | **Exam Results & Auto-Grading** | Confetti animation, per-question review, manual grading for short answers |
-| F16 | **Grade Management Panel** | Bulk publish, CSV export, weighted grade calculation |
-| F17 | **Anti-Cheating Engine** | Browser-native exam integrity system (see sub-features below) |
-| F18 | **Session Timeline View** | Per-attempt timeline of all student activity during an exam |
-| F19 | **Violation Timeline View** | Detailed violation log with types, timestamps, and severity |
-| F20 | **Tutor Monitoring Dashboard** | Live overview of ongoing exams and violations for assigned courses |
-| F21 | **Admin Dashboard & Users Management** | System-wide admin panel, user lock/unlock, tutor listing, user search |
-| F22 | **SHIELDON AI Assistant** | Gemini-powered chatbot with backend proxy, automatically blocked during exams |
-| F23 | **Shepherd.js Onboarding Tours** | Role-based guided tours for first-time users |
-| F24 | **Tutor & Global Analytics Dashboard** | Course-level and system-wide analytics with ECharts visualizations |
-| F25 | **Dynamic QR Attendance Tracking** | QR code refreshes every 15 seconds, manual override, attendance history |
-| F26 | **Calendar & Schedule View** | Unified calendar with exams, assignments, and custom events |
-| F27 | **Online Payment Gateway (Stripe)** | Secure checkout, payment history, pending payments, webhook processing |
-| F28 | **Dark / Light Mode** | Seamless theme toggle with CSS custom properties |
-| F29 | **English / Arabic (i18n)** | Full RTL support with ngx-translate |
-| F30 | **Mobile Guard** | Detects and blocks mobile/tablet devices from accessing exam engine |
-
-### 🛡️ Anti-Cheating Engine — Sub-Features (F17)
-
-The Anti-Cheating Engine is built entirely with browser Web APIs — no plugins or extensions required:
-
-| # | Sub-Feature | Description |
-|---|---|---|
-| 1 | **Pre-Exam Rules Acknowledgment Modal** | Students must read and accept exam integrity rules before starting |
-| 2 | **Keyboard Shortcut Blocking** | Blocks Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A, Ctrl+P, Ctrl+F, Ctrl+U, F12, Ctrl+Shift+I/J, Esc, Alt+Tab |
-| 3 | **Window Resize / Minimize / Split Detection** | Detects split-screen, window resizing, and minimize attempts |
-| 4 | **Mouse Monitoring (Pattern Analysis)** | Tracks mouse movement patterns for anomaly detection |
-| 5 | **Selection by Mouse Blocking** | Prevents text selection via mouse during exams |
-| 6 | **Right-Click Context Menu Blocking** | Disables right-click to prevent copy/paste/inspect operations |
-| 7 | **Violation Intelligence Layer** | Severity scoring per violation type + cooldown periods to prevent duplicate flooding |
-| 8 | **Warning System & Force-Submit** | 3-strike escalation — warnings → final warning → auto force-submit |
-| 9 | **Monitoring Continuity on Reconnect** | Anti-cheat resumes seamlessly if the student reconnects or refreshes |
+| F1 | **Secure Login & Role Redirect** | JWT authentication token storage, auto-login, role-based routing |
+| F2 | **Google OAuth 2.0 Login** | Passwordless social login via Google Account |
+| F3 | **Email Verification** | Verification token verification screen |
+| F4 | **Password Reset via Email** | Forgot-password request and password reset workflow |
+| F5 | **Phone Verification (WhatsApp OTP)** | 6-cell auto-advancing OTP input modal with 2-minute cooldown timer |
+| F6 | **Profile Management** | WebP avatar upload, change password, reset onboarding tour |
+| F7 | **Public Registration** | Student vs Tutor registration selection |
+| F8 | **Course Management & Enrollment** | Paginated grid, search/filter, enrollment status cards |
+| F9 | **File Sharing (Course Materials)** | Material upload modal, file category badges, direct download |
+| F10 | **Announcements** | Priority pinning banner and interactive course feed |
+| F11 | **Assignment Management** | File submission drag-and-drop, grade feedback review |
+| F12 | **Notifications** | In-app notification bell drawer with unread counter badge |
+| F13 | **Exam Management** | Exam scheduling cards, publish state badges |
+| F14 | **Re-Attempt & Re-Open Requests** | Student request form and tutor extension approval modal |
+| F15 | **Question Bank Management** | MCQ, True/False, and Short Answer question authoring |
+| F16 | **Exam Engine + Secure Token** | Countdown timer, Red Flag question bookmarking, auto-submit |
+| F17 | **Exam Results & Auto-Grading** | Confetti celebration, question breakdown review |
+| F18 | **Grade Management Panel** | Weighted grade calculation, CSV export button |
+| F19 | **Anti-Cheating Engine** | Browser-native monitoring layer (12 sub-features) |
+| F20 | **Session Timeline View** | Per-attempt vertical timeline with SignalR presence indicators |
+| F21 | **Violation Density Analytics** | ECharts sticky Bubble/Scatter plot mapping severity over time |
+| F22 | **Tutor Monitoring Dashboard** | Live exam violation stream and real-time monitoring grid |
+| F23 | **Admin Dashboard & Sidebar** | System-wide statistics and responsive collapsible sidebar |
+| F24 | **SHIELDON AI Assistant** | Gemini-powered chat widget (auto-disabled during active exams) |
+| F25 | **Real-Time Chat System** | SignalR chat, WebRTC video calls, voice notes, link previews, reactions, reply/forward |
+| F26 | **Shepherd.js Onboarding Tours** | Interactive step-by-step tour for new users |
+| F27 | **Tutor & Global Analytics** | Interactive ECharts performance analytics |
+| F28 | **Dynamic QR Attendance** | QR scanner interface and history breakdown |
+| F29 | **Calendar & Schedule View** | Month/Week calendar with exams, assignments, and custom events |
+| F30 | **Online Payment (Stripe)** | Stripe Checkout redirect and payment history list |
+| F31 | **Dark / Light Mode** | Single-click theme toggle powered by CSS custom properties |
+| F32 | **English / Arabic (i18n)** | Language switcher with full RTL document layout switching |
+| F33 | **Mobile Guard** | Device detection overlay blocking mobile devices from taking exams |
+| F34 | **Single Active Session Enforcement** | Real-time `SecurityHub` SignalR connection listener with 7s warning modal |
+| F35 | **Live Course Leaderboard** | Real-time podium ranking with SignalR broadcasts and rank badges |
 
 ---
 
-## 🌿 Git Workflow
+## 🛡️ Anti-Cheating Engine — Sub-Features
 
-- **Feature Branches**: Never work directly on `main`. Create a new branch for every feature:
-  ```bash
-  git checkout -b feature/your-feature-name
-  ```
-- **Pull Requests**: When a feature is complete, push it to GitHub and create a Pull Request for code review before merging.
+Built entirely with standard Web APIs (no extensions required):
+
+1. **Pre-Exam Rules Acknowledgment Modal**: Terms acceptance before starting exam.
+2. **Fullscreen Exit Enforcement**: Triggers critical violation on fullscreen exit.
+3. **Tab Switching & Focus Loss**: Detects window blur and tab switching.
+4. **Keyboard Shortcut Blocking**: Disables `Ctrl+C`, `Ctrl+V`, `F12`, `Alt+Tab`, `PrintScreen`, etc.
+5. **Window Resize / Split-Screen Detection**: Monitors viewport boundary alterations.
+6. **Mouse Pattern Monitoring**: Anomaly detection on rapid mouse cursor exits.
+7. **Selection Blocking**: Prevents mouse text selection inside the exam player.
+8. **Right-Click Blocking**: Context menu disabled.
+9. **Violation Intelligence Layer**: Severity scoring & anti-flooding cooldowns.
+10. **Action Debouncer & Score Normalization**: 500ms aggregation window preventing cascading violations.
+11. **Warning Progress Bar & Force-Submit**: 3-strike visual progress bar ending in auto-submit.
+12. **Monitoring Continuity**: Anti-cheat state persists across page refreshes.
+
+---
+
+## 🔧 Setup & Running Locally
+
+> ⚠️ **Prerequisite:** The backend API must be running. See [docs/INSTALLATION.md](../docs/INSTALLATION.md) for full setup instructions.
+
+1. **Navigate to the frontend directory**:
+   ```bash
+   cd frontend
+   ```
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+3. **Start the development server**:
+   ```bash
+   npm start
+   ```
+4. **Open application in browser**:
+   👉 `http://localhost:4201`
+
+---
+
+## 🤝 Contributing & Guidelines
+
+Please read [docs/CONTRIBUTING.md](../docs/CONTRIBUTING.md) before submitting pull requests.
 
 ---
 

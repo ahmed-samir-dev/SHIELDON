@@ -231,18 +231,28 @@ public class ExamAttemptService : IExamAttemptService
 
         if (existingAnswer == null)
         {
+            // Create a new AttemptAnswer even if no answer value is provided.
+            // This allows flagging an unanswered question (IsFlagged = true, answer fields remain null).
             _db.AttemptAnswers.Add(new AttemptAnswer
             {
                 AttemptId = attemptId,
                 QuestionId = request.QuestionId,
                 SelectedOptionId = request.SelectedOptionId,
-                TextAnswer = request.TextAnswer
+                TextAnswer = request.TextAnswer,
+                IsFlagged = request.IsFlagged ?? false
             });
         }
         else
         {
-            existingAnswer.SelectedOptionId = request.SelectedOptionId;
-            existingAnswer.TextAnswer = request.TextAnswer;
+            if (request.SelectedOptionId.HasValue || request.TextAnswer != null)
+            {
+                existingAnswer.SelectedOptionId = request.SelectedOptionId;
+                existingAnswer.TextAnswer = request.TextAnswer;
+            }
+            if (request.IsFlagged.HasValue)
+            {
+                existingAnswer.IsFlagged = request.IsFlagged.Value;
+            }
         }
 
         await _db.SaveChangesAsync(ct);
@@ -455,7 +465,8 @@ public class ExamAttemptService : IExamAttemptService
         var savedAnswers = attempt.Answers?.Select(a => new SavedAnswerDto(
             a.QuestionId,
             a.SelectedOptionId,
-            a.TextAnswer
+            a.TextAnswer,
+            a.IsFlagged
         )).ToList() ?? new List<SavedAnswerDto>();
 
         return new StartExamResponse(

@@ -5,16 +5,17 @@
   <img src="https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white" alt="C#" />
   <img src="https://img.shields.io/badge/Angular_21-DD0031?style=for-the-badge&logo=angular&logoColor=white" alt="Angular 21" />
   <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/SCSS-CC6699?style=for-the-badge&logo=sass&logoColor=white" alt="SCSS" />
   <img src="https://img.shields.io/badge/SQL_Server_2022-CC292B?style=for-the-badge&logo=microsoftsqlserver&logoColor=white" alt="SQL Server" />
   <img src="https://img.shields.io/badge/SignalR-512BD4?style=for-the-badge&logo=.net&logoColor=white" alt="SignalR" />
-  <img src="https://img.shields.io/badge/WhatsApp-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" alt="WhatsApp Gateway" />
+  <img src="https://img.shields.io/badge/WhatsApp_Gateway-25D366?style=for-the-badge&logo=whatsapp&logoColor=white" alt="WhatsApp Gateway" />
   <img src="https://img.shields.io/badge/WebRTC-333333?style=for-the-badge&logo=webrtc&logoColor=white" alt="WebRTC" />
   <img src="https://img.shields.io/badge/Stripe-635BFF?style=for-the-badge&logo=stripe&logoColor=white" alt="Stripe" />
   <img src="https://img.shields.io/badge/Google_OAuth-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Google OAuth" />
+  <img src="https://img.shields.io/badge/Lucide_Icons-F54E00?style=for-the-badge&logo=lucide&logoColor=white" alt="Lucide Icons" />
 </div>
 
-> 🎓 A full-stack Learning Management System (LMS) with a built-in browser-native Anti-Cheating Engine.
-> Built as a graduation project — no external exam-locking software required.
+> A full-stack E-Learning Management System (LMS) with a built-in browser-native Anti-Cheating Engine with no external exam-locking software required.
 
 ---
 
@@ -27,16 +28,9 @@
 - [🚀 Comprehensive Feature List (F1 – F35)](#-comprehensive-feature-list-f1--f35)
 - [📋 Prerequisites (For Beginners)](#-prerequisites-for-beginners)
 - [🔧 Installation & Setup (Step-by-Step Guide)](#-installation--setup-step-by-step-guide)
-  - [1. Clone the Repository](#1-clone-the-repository)
-  - [2. Backend Database Configuration](#2-backend-database-configuration-crucial-step)
-  - [3. Initialize and Update the Database](#3-initialize-and-update-the-database)
-  - [4. Run the WhatsApp Gateway Microservice](#4-run-the-whatsapp-gateway-microservice-for-phone-verification--otp)
-  - [5. Run the Backend API](#5-run-the-backend-api)
-  - [6. Run the Frontend Application](#6-run-the-frontend-application)
-  - [7. Stripe Payment Setup](#7-stripe-payment-setup-optional)
 - [🧪 How to Test (Demo Accounts)](#-how-to-test-demo-accounts)
 - [📡 API Endpoints Reference](#-api-endpoints-reference)
-- [🌿 Git Workflow](#-git-workflow)
+- [🤝 Contributing & Git Workflow](#-contributing--git-workflow)
 
 ---
 
@@ -44,7 +38,7 @@
 
 **SHIELDON** is a comprehensive educational platform that combines a modern Learning Management System with a robust, browser-based Exam Integrity System.
 
-Most traditional LMS platforms depend on external software (like Safe Exam Browser or LockDown Browser) to enforce exam security, requiring students to download and install applications. **SHIELDON eliminates this dependency entirely** by building the Anti-Cheating Engine directly into the web platform using standard Web APIs.
+Most traditional LMS platforms depend on external software like Safe Exam Browser (SEB) or LockDown Browser to enforce exam security, requiring students to download and install external applications to avoid cheating. **SHIELDON eliminates this dependency entirely** by building the Anti-Cheating Engine directly into the web platform using standard Web APIs.
 
 ---
 
@@ -92,7 +86,7 @@ Most traditional LMS platforms depend on external software (like Safe Exam Brows
 | **qrcode-terminal** | Renders QR code in terminal for first-time WhatsApp pairing |
 | **pino** | High-performance JSON logger |
 
-### 💽 Database
+### Database
 | Technology | Purpose |
 |---|---|
 | **Microsoft SQL Server 2022** | Primary relational database |
@@ -139,9 +133,9 @@ SHIELDON follows a **Clean Architecture + Vertical Slice Hybrid** approach for i
 
 | Aspect | Detail |
 |---|---|
-| **Isolation** | Runs as a completely separate process — if it restarts, the .NET API stays unaffected. |
+| **Isolation** | Runs as a completely separate process - if it restarts, the .NET API stays unaffected. |
 | **Communication** | Called exclusively by `SHIELDON.Infrastructure` via `IOtpService` → `WhatsAppGatewayOtpService`. |
-| **Clean Architecture Compliance** | The .NET core has zero knowledge of Node.js or Baileys — only the `IOtpService` interface is referenced. Swapping to Meta Cloud API or Twilio requires changing only one line in `DependencyInjection.cs`. |
+| **Clean Architecture Compliance** | The .NET core has zero knowledge of Node.js or Baileys - only the `IOtpService` interface is referenced. Swapping to Meta Cloud API or Twilio requires changing only one line in `DependencyInjection.cs`. |
 | **Security** | Port 3001 is internal-only and never exposed to the internet or the frontend directly. |
 
 ---
@@ -161,7 +155,7 @@ SHIELDON follows a **Clean Architecture + Vertical Slice Hybrid** approach for i
 | # | Feature | Details |
 |---|---|---|
 | F1 | **Secure Login & Role-Based Redirect** | JWT authentication, refresh tokens, single-session enforcement |
-| F2 | **Google OAuth 2.0 Login** | Passwordless social login — sign in instantly with any Google account |
+| F2 | **Google OAuth 2.0 Login** | Passwordless social login - sign in instantly with any Google account |
 | F3 | **Email Verification** | SMTP integration (Mailtrap / Gmail), verification tokens |
 | F4 | **Password Reset Via Email** | Forgot-password workflow with secure reset links |
 | F5 | **Phone Verification via WhatsApp OTP** | 6-digit WhatsApp OTP via self-hosted Node.js gateway. Unique phone per account enforcement, 2-minute resend cooldown, 6-cell auto-advancing OTP input |
@@ -175,16 +169,16 @@ SHIELDON follows a **Clean Architecture + Vertical Slice Hybrid** approach for i
 | F13 | **Exam Management & Notifications** | CRUD, publish workflow, scheduling, deadline management, reminders |
 | F14 | **Re-Attempt & Re-Open Requests** | Students request re-attempts/re-opens, tutors approve with configurable extensions (24h/48h/72h/custom) |
 | F15 | **Question Bank Management** | Centralized course-level question bank (MCQ, True/False, Short Answer) with image support |
-| F16 | **Exam Engine + Secure Token** | Countdown timer, question navigator, auto-submit on timeout, cryptographic question randomization |
+| F16 | **Exam Engine + Secure Token** | Countdown timer, Red Flag question bookmarking, question navigator with filter tabs, auto-submit on timeout, cryptographic question randomization |
 | F17 | **Exam Results & Auto-Grading** | Confetti animation, per-question review, manual grading for short answers |
 | F18 | **Grade Management Panel** | Bulk publish, CSV export, weighted grade calculation |
-| F19 | **Anti-Cheating Engine** | Browser-native exam integrity system — no plugins or extensions required. <details><summary>See 12 sub-features ▼</summary><br>**1. Pre-Exam Rules Acknowledgment Modal** — Students must read and accept exam integrity rules before starting<br>**2. Fullscreen Exit Enforcement** — Logs a critical violation if the student attempts to exit fullscreen mode<br>**3. Tab Switching & Focus Loss** — Triggers violations if the student switches tabs or clicks outside the exam window<br>**4. Keyboard Shortcut Blocking** — Blocks Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A, Ctrl+P, Ctrl+F, Ctrl+U, F12, Ctrl+Shift+I/J, Esc, Alt+Tab<br>**5. Window Resize / Minimize / Split Detection** — Detects split-screen, window resizing, and minimize attempts<br>**6. Mouse Monitoring (Pattern Analysis)** — Tracks mouse movement patterns for anomaly detection<br>**7. Selection by Mouse Blocking** — Prevents text selection via mouse during exams<br>**8. Right-Click Context Menu Blocking** — Disables right-click to prevent copy/paste/inspect operations<br>**9. Violation Intelligence Layer** — Severity scoring per violation type + cooldown periods to prevent duplicate flooding<br>**10. Action Debouncer & Score Normalization** — 500ms aggregation window preventing cascading violations (e.g. ALT+TAB) and unified decimal scoring (Minor=0.5, Medium=1.0, Critical=1.0)<br>**11. Warning System & Force-Submit** — 3-strike escalation (displayed on an elegant horizontal progress bar) — warnings → final warning → auto force-submit<br>**12. Monitoring Continuity on Reconnect** — Anti-cheat resumes seamlessly if the student reconnects or refreshes</details> |
+| F19 | **Anti-Cheating Engine** | Browser-native exam integrity system - no plugins or extensions required. <details><summary>See 12 sub-features ▼</summary><br>**1. Pre-Exam Rules Acknowledgment Modal** - Students must read and accept exam integrity rules before starting<br>**2. Fullscreen Exit Enforcement** - Logs a critical violation if the student attempts to exit fullscreen mode<br>**3. Tab Switching & Focus Loss** - Triggers violations if the student switches tabs or clicks outside the exam window<br>**4. Keyboard Shortcut Blocking** - Blocks Ctrl+C, Ctrl+V, Ctrl+X, Ctrl+A, Ctrl+P, Ctrl+F, Ctrl+U, F12, Ctrl+Shift+I/J, Esc, Alt+Tab<br>**5. Window Resize / Minimize / Split Detection** - Detects split-screen, window resizing, and minimize attempts<br>**6. Mouse Monitoring (Pattern Analysis)** - Tracks mouse movement patterns for anomaly detection<br>**7. Selection by Mouse Blocking** - Prevents text selection via mouse during exams<br>**8. Right-Click Context Menu Blocking** - Disables right-click to prevent copy/paste/inspect operations<br>**9. Violation Intelligence Layer** - Severity scoring per violation type + cooldown periods to prevent duplicate flooding<br>**10. Action Debouncer & Score Normalization** - 500ms aggregation window preventing cascading violations (e.g. ALT+TAB) and unified decimal scoring (Minor=0.5, Medium=1.0, Critical=1.0)<br>**11. Warning System & Force-Submit** - 3-strike escalation (displayed on an elegant horizontal progress bar) - warnings → final warning → auto force-submit<br>**12. Monitoring Continuity on Reconnect** - Anti-cheat resumes seamlessly if the student disconnects or refreshes</details> |
 | F20 | **Session Timeline View** | Per-attempt vertical timeline with live Presence Tracking (connection status) |
 | F21 | **Violation Density Analytics** | Advanced sticky Bubble/Scatter Chart mapping violation frequency against severity over time |
 | F22 | **Tutor Monitoring Dashboard** | Live overview of ongoing exams and violations with CSV data export |
 | F23 | **Admin Dashboard & Global Layout** | System-wide admin panel with responsive Collapsible Sidebar and dynamic data grids |
 | F24 | **SHIELDON AI Assistant** | Gemini-powered chatbot with backend proxy, automatically blocked during exams |
-| F25 | **Real-Time Chat System** | Built with SignalR (WebSockets), WebRTC, and browser-native APIs. <details><summary>See 11 sub-features ▼</summary><br>**1. File Attachments & Uploads** — Send images, documents, and audio files (max 10 MB). Images render as constrained thumbnail previews (250×250px). Documents display with a styled download link.<br>**2. Voice Notes** — Record audio messages (up to 5 minutes) directly from the chat composer via HTML5 MediaRecorder. Renders as a full-width horizontal audio player bubble.<br>**3. Delivery Receipts** — Three-state read receipts: single gray tick (Sent), double gray tick (Delivered), double blue tick (Read). Updated in real-time via SignalR callbacks.<br>**4. WebRTC 1-on-1 Video Calls** — Peer-to-peer WebRTC video calls with a global ringtone overlay that persists across SPA page navigation. Strict media track teardown on hang-up, rejection, or logout.<br>**5. Group Chat Management** — Full group lifecycle: create (Admin/Tutor only), rename, add/remove members, and permanently delete (Group Admin/creator only, with cascade delete).<br>**6. Contacts Filtration** — Real-time inbox filtering by status (All / Online / Offline) and by role (Admin / Tutor / Student) powered by the SignalR PresenceTracker.<br>**7. Last Seen Tracking** — Shows relative time (e.g. "2 hours ago") for recently offline users, or an absolute date/time stamp for users offline more than 24 hours.<br>**8. Real-Time Typing Indicators** — 3-dot pulsating animation in the active chat window plus an italic typing... prompt in the sidebar inbox row. Auto-clears after 2.5s of inactivity.<br>**9. Message Reactions** — Emoji reaction picker with optimistic UI updates. Aggregated reaction pill chips (e.g. 👍 3). Reaction-details modal with per-emoji tabs showing user avatars and counts.<br>**10. Message Deletion** — Any user may delete their own messages. Group Admins may delete any member's message. Replaced with a dashed "deleted" bubble for all participants.<br>**11. Reply & Forward** — Inline reply with a quoted message block and click-to-scroll highlight animation. Forward sends messages to multiple conversations with double-curved arrow icon.</details> |
+| F25 | **Real-Time Chat System** | Built with SignalR (WebSockets), WebRTC, and browser-native APIs. <details><summary>See 11 sub-features ▼</summary><br>**1. File Attachments & Uploads** - Send images, documents, and audio files (max 10 MB). Images render as constrained thumbnail previews (250×250px). Documents display with a styled download link.<br>**2. Voice Notes** - Record audio messages (up to 5 minutes) directly from the chat composer via HTML5 MediaRecorder. Renders as a full-width horizontal audio player bubble.<br>**3. Delivery Receipts** - Three-state read receipts: single gray tick (Sent), double gray tick (Delivered), double blue tick (Read). Updated in real-time via SignalR callbacks.<br>**4. WebRTC 1-on-1 Video Calls** - Peer-to-peer WebRTC video calls with a global ringtone overlay that persists across SPA page navigation. Strict media track teardown on hang-up, rejection, or logout.<br>**5. Group Chat Management** - Full group lifecycle: create (Admin/Tutor only), rename, add/remove members, and permanently delete (Group Admin/creator only, with cascade delete).<br>**6. Contacts Filtration** - Real-time inbox filtering by status (All / Online / Offline) and by role (Admin / Tutor / Student) powered by the SignalR PresenceTracker.<br>**7. Last Seen Tracking** - Shows relative time (e.g. "2 hours ago") for recently offline users, or an absolute date/time stamp for users offline more than 24 hours.<br>**8. Real-Time Typing Indicators** - 3-dot pulsating animation in the active chat window plus an italic typing... prompt in the sidebar inbox row. Auto-clears after 2.5s of inactivity.<br>**9. Message Reactions** - Emoji reaction picker with optimistic UI updates. Aggregated reaction pill chips (e.g. 👍 3). Reaction-details modal with per-emoji tabs showing user avatars and counts.<br>**10. Message Deletion** - Any user may delete their own messages. Group Admins may delete any member's message. Replaced with a dashed "deleted" bubble for all participants.<br>**11. Reply & Forward** - Inline reply with a quoted message block and click-to-scroll highlight animation. Forward sends messages to multiple conversations with double-curved arrow icon.</details> |
 | F26 | **Shepherd.js Onboarding Tours** | Role-based guided tours for first-time users |
 | F27 | **Tutor & Global Analytics Dashboard** | Course-level and system-wide analytics with ECharts visualizations |
 | F28 | **Dynamic QR Attendance Tracking** | QR code refreshes every 15 seconds, manual override, attendance history |
@@ -200,7 +194,7 @@ SHIELDON follows a **Clean Architecture + Vertical Slice Hybrid** approach for i
 
 ## 📋 Prerequisites (For Beginners)
 
-If you are new to development and want to run this project on your own computer, you need to download and install the following tools first. They are all free! 🆓
+If you are new to development and want to run this project on your own computer, you need to download and install the following tools first. They are all free!
 
 1. **Node.js**: Required to run the frontend.
    - Download the **LTS** version from [nodejs.org](https://nodejs.org/).
@@ -222,11 +216,14 @@ If you are new to development and want to run this project on your own computer,
 
 ## 🔧 Installation & Setup (Step-by-Step Guide)
 
-Follow these comprehensive steps in order to properly get the project running on your device from scratch. 🚀
+Follow these comprehensive steps in order to properly get the project running on your device from scratch. 
+
+<details>
+<summary>Click to expand complete Installation & Setup Guide</summary>
 
 ### 1. Clone the Repository
 
-This downloads the project files to your computer. 📥
+This downloads the project files to your computer. 
 
 1. Open your terminal (or Command Prompt / PowerShell on Windows).
 2. Run this command:
@@ -296,7 +293,7 @@ The WhatsApp Gateway is a lightweight Node.js microservice running on port 3001 
    - The terminal will display a **WhatsApp QR code**.
    - Open WhatsApp on your mobile phone → **Linked Devices** → **Link a Device** and scan the terminal QR code.
    - Once linked, it will output `WhatsApp connected! Gateway is ready to send OTP messages.`.
-   - Your session is saved locally — you do **not** need to scan the QR code again on future restarts!
+   - Your session is saved locally - you do **not** need to scan the QR code again on future restarts!
 5. Keep this terminal window open.
 
 ### 5. Run the Backend API
@@ -338,6 +335,10 @@ The WhatsApp Gateway is a lightweight Node.js microservice running on port 3001 
 
 ## 🎉 Congratulations! You are now running SHIELDON on your local machine!
 
+> For full step-by-step documentation, see the dedicated [docs/INSTALLATION.md](docs/INSTALLATION.md) guide.
+
+---
+
 ### 7. Stripe Payment Setup
 
 To enable the online payment gateway, you need a Stripe account and the Stripe CLI.
@@ -347,19 +348,19 @@ To enable the online payment gateway, you need a Stripe account and the Stripe C
 2. After logging in, make sure you are in **Test mode** (toggle in the top-right of the dashboard).
 3. Navigate to [Developers → API Keys](https://dashboard.stripe.com/test/apikeys).
 4. You will see two keys:
-   - **Publishable key** — starts with `pk_test_...`
-   - **Secret key** — starts with `sk_test_...` (click "Reveal test key" to see it)
-5. Copy both keys — you'll need them in the next step.
+   - **Publishable key** - starts with `pk_test_...`
+   - **Secret key** - starts with `sk_test_...` (click "Reveal test key" to see it)
+5. Copy both keys - you'll need them in the next step.
 
 #### Step B: Install the Stripe CLI
 The Stripe CLI is a command-line tool that forwards payment events from Stripe's servers to your local machine.
 
-**Option 1 — Download manually (recommended for beginners):**
+**Option 1 - Download manually (recommended for beginners):**
 1. Go to [Stripe CLI releases](https://github.com/stripe/stripe-cli/releases).
 2. Download the latest `.zip` file for your OS (e.g., `stripe_X.X.X_windows_x86_64.zip`).
 3. Extract the `.zip` and place the `stripe.exe` file somewhere accessible (e.g., inside a `stripe_cli` folder in your project root).
 
-**Option 2 — Install via package manager:**
+**Option 2 - Install via package manager:**
 ```bash
 # Windows (Scoop)
 scoop install stripe
@@ -389,7 +390,7 @@ brew install stripe/stripe-cli/stripe
      "WebhookSecret": "whsec_YOUR_WEBHOOK_SECRET"
    }
    ```
-   > You'll get the `WebhookSecret` in the next step — leave it blank for now.
+   > You'll get the `WebhookSecret` in the next step - leave it blank for now.
 
 #### Step D: Run Stripe CLI for Webhooks
 The Stripe CLI forwards webhook events (like `checkout.session.completed`) to your local backend so payments are processed correctly.
@@ -416,7 +417,7 @@ The Stripe CLI forwards webhook events (like `checkout.session.completed`) to yo
    ```
 4. **Copy this `whsec_...` value** and paste it into `appsettings.json` → `Stripe.WebhookSecret`.
 5. **Restart the backend** after updating the secret.
-6. **Keep this terminal open** while testing payments — it must be running to receive Stripe events.
+6. **Keep this terminal open** while testing payments - it must be running to receive Stripe events.
 
 #### Step E: Test Payments
 
@@ -443,6 +444,8 @@ Use Stripe's official test card numbers to simulate different payment scenarios.
 - **Expiry:** Any future date (e.g., `12/30`)
 - **CVC:** Any 3 digits (e.g., `123`)
 - **Name / ZIP:** Any values
+
+</details>
 
 ---
 
@@ -472,9 +475,11 @@ The system comes with a pre-seeded Admin account (you cannot register an Admin v
 The backend exposes a comprehensive RESTful API. For an interactive view, run the backend and visit:
 👉 `http://localhost:5000/swagger/index.html`
 
-The SHIELDON API surfaces **160+ API interaction points** — **146 REST endpoints** across **26 controllers** + **14 SignalR real-time events** across **5 hubs** — all fully documented and explorable via Swagger.
+The SHIELDON API surfaces **160+ API interaction points** - **146 REST endpoints** across **26 controllers** + **14 SignalR real-time events** across **5 hubs** - all fully documented and explorable via Swagger.
 
-Below is the complete endpoint reference:
+
+<details>
+<summary>Click to expand complete API Reference</summary>
 
 ### Authentication (`/api/auth`)
 
@@ -785,20 +790,62 @@ Below is the complete endpoint reference:
 |---|---|---|
 | `DashboardUpdated` | Server → Client | Pushes live admin/tutor monitoring dashboard stats updates |
 
+</details>
+
+
 ---
 
-## 🌿 Git Workflow
+## 🤝 Contributing & Git Workflow
 
-To keep the project organized, we follow a structured Git workflow:
+We welcome contributions to **SHIELDON**! To ensure high code quality, consistency, and a seamless developer experience, please follow these guidelines when contributing:
 
-- 🌿 **Feature Branches**: Never work directly on `main`. Create a new branch for every feature or fix:
+### 🔀 Branching Strategy
+- 🚀 **`main` Branch**: Production-ready code. Must always compile cleanly, pass tests, and be deployable. **Never push directly to `main`.**
+- 🛠️ **`develop` Branch**: Main integration branch for active development.
+- 🌿 **Feature & Fix Branches**: Create focused branches off `develop`:
   ```bash
-  git checkout -b feature/your-feature-name
+  git checkout develop
+  git pull origin develop
+  git checkout -b feature/your-feature-name   # For new features
+  git checkout -b bugfix/issue-description   # For bug fixes
+  git checkout -b docs/update-readme         # For documentation updates
   ```
-- 🔀 **Pull Requests**: When a feature is complete, push it to GitHub and create a Pull Request for code review before merging.
+
+### 📝 Commit Message Standards (Conventional Commits)
+All commit messages should follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
+- `feat:` - New feature added
+- `fix:` - Bug fix
+- `docs:` - Documentation updates
+- `style:` - Code formatting, missing semicolons, CSS adjustments (no logic change)
+- `refactor:` - Code restructuring without adding features or fixing bugs
+- `test:` - Adding or updating automated tests
+- `chore:` - Maintenance tasks, dependency updates, configuration changes
+
+*Example:* `feat(chat): add real-time link preview auto-extraction`
+
+### 💻 Technical Guidelines
+
+#### Backend (.NET 9)
+- Adhere strictly to **Clean Architecture** (Domain → Application → Infrastructure → API). Never leak Infrastructure into the Domain layer.
+- Keep `Nullable` reference types active and eliminate compiler warnings.
+- Annotate all API controller endpoints with Swagger response attributes.
+- Test EF Core migrations locally before committing (`dotnet ef database update`).
+
+#### Frontend (Angular 21)
+- Use **Standalone Components**, Angular Signals, and modern RxJS patterns.
+- Utilize established CSS Custom Properties (`var(--primary-color)`, etc.) for dark/light mode consistency.
+- Delegate business logic and HTTP calls to dedicated Angular Services.
+
+### 📬 Submitting a Pull Request (PR)
+1. Push your branch to GitHub: `git push origin feature/your-feature-name`
+2. Open a Pull Request targeting `develop` (or `main` for release milestones).
+3. Fill out the PR description outlining key changes and verification steps.
+4. Once reviewed and approved, merge using **Squash and Merge**.
+
+> 📖 For full detailed instructions, check out the official [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) guide.
 
 ---
 
 <div align="center">
-  <strong> SHIELDON — "Integrity You Can Trust" </strong>
+  <strong> SHIELDON - "Integrity You Can Trust" </strong>
 </div>
