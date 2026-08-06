@@ -38,6 +38,12 @@ public record BulkReviewEnrollmentRequest(
     string? RejectionReason
 );
 
+/// <summary>
+/// Admin or assigned Tutor kicks (removes) an enrolled student from a course.
+/// Reason is optional and included in the notification sent to the student.
+/// </summary>
+public record KickStudentRequest(string? Reason);
+
 // ── Query Params ───────────────────────────────────────────────────────────
 
 /// <summary>Query parameters for paginated course listing.</summary>

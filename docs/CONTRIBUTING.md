@@ -1,6 +1,6 @@
 # 🤝 Contributing to SHIELDON
 
-Thank you for your interest in contributing to **SHIELDON**! 🛡️
+Thank you for your interest in contributing to **SHIELDON**! 
 
 Whether you are fixing a bug, adding a feature, updating documentation, or proposing new ideas, we appreciate your help in keeping SHIELDON secure, robust, and modern.
 
@@ -43,9 +43,9 @@ We are committed to providing a welcoming, respectful, and inclusive environment
 
 We follow a structured Git workflow to ensure main branch stability:
 
-- 🚀 **`main`**: Production release branch. Must always compile, pass tests, and be deployable. **Direct pushes are disabled.**
-- 🛠️ **`develop`**: Main integration branch for active development.
-- 🌿 **Working Branches**: Always create a feature/fix branch off `develop`:
+- **`main`**: Production release branch. Must always compile, pass tests, and be deployable. **Direct pushes are disabled.**
+- **`develop`**: Main integration branch for active development.
+- **Working Branches**: Always create a feature/fix branch off `develop`:
   - Features: `feature/short-feature-description`
   - Bug Fixes: `bugfix/issue-description`
   - Documentation: `docs/what-changed`
@@ -143,10 +143,10 @@ We enforce [Conventional Commits](https://www.conventionalcommits.org/). Commit 
 If you find a bug or have a feature request:
 1. Search existing GitHub Issues to check if it has already been reported.
 2. If not, open a new Issue with a descriptive title and detailed steps to reproduce.
-3. For security vulnerabilities, please do **not** open a public issue — contact the maintainers directly.
+3. For security vulnerabilities, please do **not** open a public issue - contact the maintainers directly.
 
 ---
 
 <div align="center">
-  Thank you for contributing to <strong>SHIELDON</strong>! 🛡️
+  Thank you for contributing to <strong>SHIELDON</strong>! 
 </div>

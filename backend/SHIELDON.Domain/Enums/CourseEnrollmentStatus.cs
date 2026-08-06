@@ -15,5 +15,12 @@ public enum CourseEnrollmentStatus
     Rejected = 2,
 
     /// <summary>Student voluntarily dropped the course after enrollment.</summary>
-    Dropped = 3
+    Dropped = 3,
+
+    /// <summary>
+    /// Student was removed by an Admin or assigned Tutor.
+    /// Does NOT count as a rejection and carries no cooldown.
+    /// The student is free to submit a new enrollment request immediately.
+    /// </summary>
+    KickedOut = 4
 }

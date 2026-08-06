@@ -29,6 +29,10 @@ export interface BulkReviewEnrollmentRequest {
   rejectionReason: string | null;
 }
 
+export interface KickStudentRequest {
+  reason?: string | null;
+}
+
 export interface CourseQueryParams {
   page?: number;
   pageSize?: number;
