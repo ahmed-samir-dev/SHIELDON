@@ -344,6 +344,23 @@
   padding: $spacing-8 $spacing-6;
 }
 
+// ── Mobile Backdrop Overlay ──────────────────────────────────────────────
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+
+  &.show {
+    display: block;
+    opacity: 1;
+  }
+}
+
 // ── Responsive Design ───────────────────────────────────────────────────
 @media (max-width: 768px) {
   .sidebar {
@@ -351,8 +368,21 @@
     top: 0;
     left: 0;
     bottom: 0;
+    width: var(--sidebar-mobile-width, 280px) !important;
     transform: translateX(-100%);
     box-shadow: $shadow-xl;
+    z-index: 1000;
+
+    &.open {
+      transform: translateX(0);
+    }
+  }
+
+  // RTL Slide-in from Right
+  [dir="rtl"] .sidebar {
+    left: auto;
+    right: 0;
+    transform: translateX(100%);
 
     &.open {
       transform: translateX(0);
@@ -364,10 +394,13 @@
   }
 
   .top-header {
-    padding: 0 $spacing-4;
+    height: var(--navbar-mobile-height, 56px);
+    padding: 0 var(--content-padding-mobile, 16px);
     
     .mobile-toggle {
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 
@@ -375,7 +408,12 @@
     display: none !important; // Hide names on small screens, show only avatar
   }
 
+  .header-actions {
+    gap: $spacing-2;
+  }
+
   .page-container {
-    padding: $spacing-6 $spacing-4;
+    padding: var(--content-padding-mobile, 16px);
   }
 }
+

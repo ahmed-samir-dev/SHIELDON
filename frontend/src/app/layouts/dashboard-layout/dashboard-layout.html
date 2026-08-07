@@ -1,4 +1,7 @@
 <div class="dashboard-shell">
+  <!-- Mobile Sidebar Backdrop -->
+  <div class="sidebar-backdrop" [class.show]="isMobileMenuOpen" (click)="toggleMobileMenu()"></div>
+
   <!-- Sidebar -->
   <aside class="sidebar" [class.open]="isMobileMenuOpen" [class.collapsed]="isSidebarCollapsed()">
     <div class="sidebar-header">

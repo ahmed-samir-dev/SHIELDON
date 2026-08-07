@@ -547,3 +547,62 @@
     }
   }
 }
+
+// ── Mobile Responsive Overrides ───────────────────────────────────────────
+@media (max-width: 768px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-3;
+  }
+
+  .course-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .history-section {
+    .action-bar {
+      flex-direction: column;
+      align-items: stretch;
+
+      .search-box input {
+        min-width: unset;
+        width: 100%;
+      }
+    }
+
+    .data-table {
+      display: block;
+
+      thead {
+        display: none;
+      }
+
+      tbody {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-3;
+        padding: $spacing-3;
+      }
+
+      tr {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-2;
+        padding: $spacing-4;
+        background: var(--theme-bg-surface);
+        border: 1px solid var(--theme-border);
+        border-radius: $border-radius-lg;
+      }
+
+      td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0;
+        border-bottom: none;
+      }
+    }
+  }
+}
+

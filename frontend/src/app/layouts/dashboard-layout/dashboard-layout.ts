@@ -42,6 +42,14 @@ export class DashboardLayout implements AfterViewInit {
   isSidebarCollapsed = this.layoutService.isSidebarCollapsed;
   apiUrl = environment.apiUrl.replace('/api', '');
 
+  constructor() {
+    this.router.events.subscribe(() => {
+      if (this.isMobileMenuOpen) {
+        this.isMobileMenuOpen = false;
+      }
+    });
+  }
+
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
   }

@@ -917,3 +917,44 @@
   from { opacity: 0; transform: translateY(20px) scale(0.97); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+// ── Mobile Responsive Overrides ───────────────────────────────────────────
+@media (max-width: 768px) {
+  .exams-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: $spacing-3;
+
+    .post-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .exams-feed {
+    grid-template-columns: 1fr;
+  }
+
+  .tutor-actions.full-width {
+    flex-wrap: wrap;
+    .modern-action-btn {
+      flex: 1 1 45%;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .exam-card {
+    .exam-meta {
+      grid-template-columns: 1fr;
+    }
+
+    .tutor-actions.full-width {
+      flex-direction: column;
+      .modern-action-btn {
+        width: 100%;
+      }
+    }
+  }
+}
+

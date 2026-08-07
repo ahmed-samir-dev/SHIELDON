@@ -521,3 +521,39 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+// ── Mobile Responsive Overrides ───────────────────────────────────────────
+@media (max-width: 768px) {
+  .materials-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: $spacing-3;
+
+    .upload-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .material-card {
+    flex-direction: column;
+    align-items: stretch;
+
+    .material-actions {
+      width: 100%;
+      justify-content: flex-end;
+      margin-top: $spacing-2;
+
+      .modern-btn {
+        flex: 1;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .type-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

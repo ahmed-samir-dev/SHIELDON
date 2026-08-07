@@ -524,3 +524,51 @@
   
   textarea { min-height: 80px; resize: vertical; }
 }
+
+// ── Mobile Responsive Overrides ───────────────────────────────────────────
+@media (max-width: 768px) {
+  .grades-panel-container {
+    .panel-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+
+      .actions-area {
+        width: 100%;
+        .btn {
+          flex: 1;
+          justify-content: center;
+        }
+      }
+    }
+
+    .filters-bar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+
+      .filter-group {
+        flex-direction: column;
+        align-items: stretch;
+
+        select {
+          width: 100%;
+        }
+      }
+
+      .actions-area {
+        width: 100%;
+        .btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+
+    .pagination-footer {
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
+}
+
