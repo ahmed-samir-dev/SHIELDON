@@ -17,6 +17,18 @@
     "CONFIRM_LOGOUT_YES": "Yes, Logout",
     "CONFIRM_LOGOUT_NO": "Cancel"
   },
+  "COURSES": {
+    "HARD_DELETE_CONFIRM_TITLE": "Permanently Delete Course?",
+    "HARD_DELETE_CONFIRM_TEXT": "This action is <strong>irreversible</strong>. All materials, exams, enrollments, and course data will be erased forever.<br><br>Type the course code <strong>{{code}}</strong> to unlock the delete button.",
+    "HARD_DELETE_INPUT_PLACEHOLDER": "Type course code here...",
+    "HARD_DELETE_BTN": "Delete Permanently",
+    "HARD_DELETE_SUCCESS": "Course '{{title}}' has been permanently deleted.",
+    "HARD_DELETE_BLOCKED_TITLE": "Cannot Delete This Course",
+    "HARD_DELETE_BLOCKED": "This course has student grades or paid transactions and cannot be permanently deleted. You can archive it instead.",
+    "HARD_DELETE_BLOCKED_EXAMS": "This course has student exam records and cannot be permanently deleted. You can archive it instead.",
+    "HARD_DELETE_BLOCKED_PAYMENTS": "This course has paid financial records and cannot be permanently deleted. You can archive it instead.",
+    "HARD_DELETE_MISMATCH": "Course code does not match. Deletion cancelled."
+  },
   "SIDEBAR": {
     "DASHBOARD": "Dashboard",
     "COURSES": "Courses",
@@ -466,7 +478,31 @@
     "SWAL_DELETE_DESC": "This will permanently remove this announcement for all students.",
     "SWAL_DELETE_CONFIRM": "Yes, delete it",
     "TOAST_DELETE_SUCCESS": "Announcement deleted successfully",
-    "TOAST_DELETE_ERR": "Failed to delete announcement"
+    "TOAST_DELETE_ERR": "Failed to delete announcement",
+    "REORDER_BTN": "Reorder",
+    "REORDER_DONE_BTN": "Done",
+    "SAVE_ORDER_BTN": "Save Order",
+    "CANCEL_REORDER_BTN": "Cancel",
+    "TOAST_REORDER_SUCCESS": "Announcement order saved successfully!",
+    "TOAST_REORDER_ERR": "Failed to save announcement order",
+    "REORDER_HINT": "Drag announcements to rearrange their order"
+  },
+  "PASSWORD_STRENGTH": {
+    "TITLE": "Password Strength",
+    "WEAK": "Weak",
+    "FAIR": "Fair",
+    "GOOD": "Good",
+    "STRONG": "Strong",
+    "REQ_MIN_LENGTH": "8+ characters",
+    "REQ_CASES": "Upper & Lowercase (A-Z, a-z)",
+    "REQ_NUMBER": "Number (0-9)",
+    "REQ_SPECIAL": "Symbol (!@#$)"
+  },
+  "PASSWORD_MATCH": {
+    "TITLE": "Password Match",
+    "MATCH": "Passwords match",
+    "MISMATCH": "Passwords do not match",
+    "ENTER_CONFIRM": "Re-enter password to confirm"
   },
   "COURSE_ASSIGNMENTS": {
     "TITLE": "Assignments",

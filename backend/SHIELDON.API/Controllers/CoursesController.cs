@@ -98,16 +98,20 @@ public class CoursesController : ControllerBase
 
     /// <summary>
     /// DELETE /api/courses/{id}
-    /// Deletes a course and all its content. Admin role required.
+    /// Permanently hard-deletes a course and all its content.
+    /// Smart Gate: blocked if the course has any Paid payment records or completed exam attempts.
+    /// Writes a CourseDeleteAuditLog entry (admin name + course snapshot + UTC timestamp) before deletion.
+    /// Admin role required.
     /// </summary>
     [HttpDelete("{id:guid}")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteCourse(Guid id, CancellationToken cancellationToken)
     {
-        await _courseService.DeleteCourseAsync(id, cancellationToken);
-        return Ok(ApiResponse<object>.Ok("Course deleted successfully."));
+        await _courseService.HardDeleteCourseAsync(id, GetUserId(), cancellationToken);
+        return Ok(ApiResponse<object>.Ok("Course permanently deleted."));
     }
 
     // ── Enrollment ───────────────────────────────────────────────────────

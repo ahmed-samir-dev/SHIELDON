@@ -63,7 +63,12 @@ export class CourseService {
     return this.http.patch<ApiResponse<CourseResponse>>(`${this.baseUrl}/${id}`, request);
   }
 
-  deleteCourse(id: string): Observable<ApiResponse<any>> {
+  /**
+   * Permanently hard-deletes a course.
+   * Blocked by the API if the course has paid transactions or completed exam attempts.
+   * Admin only — guarded at the API layer.
+   */
+  hardDeleteCourse(id: string): Observable<ApiResponse<any>> {
     return this.http.delete<ApiResponse<any>>(`${this.baseUrl}/${id}`);
   }
 

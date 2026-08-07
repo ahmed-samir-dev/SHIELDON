@@ -79,6 +79,8 @@
               formControlName="password"
               [placeholder]="'LOGIN.PASS_PLACEHOLDER' | translate"
               autocomplete="current-password"
+              (keyup)="checkCapsLock($event)"
+              (keydown)="checkCapsLock($event)"
             />
             <button id="toggle-password" type="button" class="toggle-password" (click)="togglePassword()">
               @if (showPassword()) {
@@ -88,6 +90,11 @@
               }
             </button>
           </div>
+          @if (isCapsLockOn()) {
+            <div class="caps-lock-warning animate-slide-up">
+              <span>Caps Lock is ON</span>
+            </div>
+          }
           @if (passwordControl.hasError('required') && passwordControl.touched) {
             <span class="field-error">{{ 'LOGIN.PASS_REQ' | translate }}</span>
           }

@@ -6,10 +6,13 @@ import { AuthService } from '../../../core/services/auth.service';
 import { ToastrService } from 'ngx-toastr';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import { PasswordStrengthBarComponent } from '../../../shared/components/password-strength-bar/password-strength-bar';
+import { PasswordMatchBarComponent } from '../../../shared/components/password-match-bar/password-match-bar';
+
 @Component({
   selector: 'app-reset-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslateModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslateModule, PasswordStrengthBarComponent, PasswordMatchBarComponent],
   templateUrl: './reset-password.html',
   styleUrl: './reset-password.scss'
 })

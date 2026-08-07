@@ -42,4 +42,19 @@ public interface IAnnouncementService
         Guid requestingUserId,
         string requestingUserRole,
         CancellationToken ct = default);
+
+    /// <summary>
+    /// Updates the DisplayOrder of all announcements for a course in a single transaction.
+    /// The caller must supply a complete ordered list covering all announcements in the course.
+    /// Important announcements must always receive lower DisplayOrder values than Normal ones
+    /// to maintain the priority-group guarantee.
+    /// Only Admin or the assigned Tutor of the course may reorder.
+    /// </summary>
+    Task ReorderAnnouncementsAsync(
+        Guid courseId,
+        ReorderAnnouncementsRequest request,
+        Guid requestingUserId,
+        string requestingUserRole,
+        CancellationToken ct = default);
 }
+

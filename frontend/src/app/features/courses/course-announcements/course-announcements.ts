@@ -37,6 +37,14 @@ export class CourseAnnouncementsComponent implements OnInit, OnDestroy {
   isSubmitting = signal<boolean>(false);
   showPostForm = signal<boolean>(false);
 
+  // ── Drag & Drop / Reordering State ──────────────────────────────────────────
+  isReordering = signal<boolean>(false);
+  hasUnsavedOrder = signal<boolean>(false);
+  isSavingOrder = signal<boolean>(false);
+  draggedIndex = signal<number | null>(null);
+  dragOverIndex = signal<number | null>(null);
+  private originalAnnouncementsSnapshot: AnnouncementResponse[] = [];
+
   postForm!: FormGroup;
 
   canManageAnnouncements = computed(() => {
@@ -105,7 +113,7 @@ export class CourseAnnouncementsComponent implements OnInit, OnDestroy {
     }
   }
 
-onSubmit(): void {
+  onSubmit(): void {
     if (this.postForm.invalid) {
       this.postForm.markAllAsTouched();
       return;
@@ -157,4 +165,119 @@ onSubmit(): void {
       }
     });
   }
+
+  // ── Reordering Methods (HTML5 Drag & Drop) ──────────────────────────────────
+
+  toggleReorderMode(): void {
+    if (this.isReordering()) {
+      // If exiting and there are unsaved changes, prompt or cancel
+      if (this.hasUnsavedOrder()) {
+        this.cancelReorder();
+      } else {
+        this.isReordering.set(false);
+      }
+    } else {
+      // Take snapshot before starting reorder
+      this.originalAnnouncementsSnapshot = [...this.announcements()];
+      this.isReordering.set(true);
+      this.hasUnsavedOrder.set(false);
+    }
+  }
+
+  onDragStart(event: DragEvent, index: number): void {
+    if (!this.isReordering()) return;
+    this.draggedIndex.set(index);
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', index.toString());
+    }
+  }
+
+  onDragOver(event: DragEvent, index: number): void {
+    if (!this.isReordering() || this.draggedIndex() === null) return;
+    const fromIndex = this.draggedIndex()!;
+
+    // Restrict reordering within the same priority group
+    const list = this.announcements();
+    if (list[fromIndex].priority !== list[index].priority) {
+      return; // Do not allow drag over items of a different priority
+    }
+
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+    this.dragOverIndex.set(index);
+  }
+
+  onDrop(event: DragEvent, targetIndex: number): void {
+    if (!this.isReordering() || this.draggedIndex() === null) return;
+    event.preventDefault();
+
+    const fromIndex = this.draggedIndex()!;
+    this.draggedIndex.set(null);
+    this.dragOverIndex.set(null);
+
+    if (fromIndex === targetIndex) return;
+
+    const list = [...this.announcements()];
+    // Confirm priority match
+    if (list[fromIndex].priority !== list[targetIndex].priority) return;
+
+    // Perform swap/move
+    const [movedItem] = list.splice(fromIndex, 1);
+    list.splice(targetIndex, 0, movedItem);
+
+    this.announcements.set(list);
+    this.hasUnsavedOrder.set(true);
+  }
+
+  onDragEnd(): void {
+    this.draggedIndex.set(null);
+    this.dragOverIndex.set(null);
+  }
+
+  saveOrder(): void {
+    if (!this.hasUnsavedOrder() || this.isSavingOrder()) return;
+
+    this.isSavingOrder.set(true);
+
+    const list = this.announcements();
+    // Build items with displayOrder: Important group starts at 0, Normal group starts at 0
+    // Or sequential displayOrder values per priority group
+    let importantCounter = 0;
+    let normalCounter = 0;
+
+    const items = list.map(ann => {
+      const order = ann.priority === 'Important' ? importantCounter++ : normalCounter++;
+      return { id: ann.id, displayOrder: order };
+    });
+
+    this.announcementService.reorderAnnouncements(this.course.id, { items }).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.toastr.success(this.translate.instant('COURSE_ANNOUNCEMENTS.TOAST_REORDER_SUCCESS'));
+          this.hasUnsavedOrder.set(false);
+          this.isReordering.set(false);
+          this.originalAnnouncementsSnapshot = [...this.announcements()];
+        }
+        this.isSavingOrder.set(false);
+      },
+      error: (err) => {
+        this.toastr.error(err.error?.message || this.translate.instant('COURSE_ANNOUNCEMENTS.TOAST_REORDER_ERR'));
+        this.isSavingOrder.set(false);
+      }
+    });
+  }
+
+  cancelReorder(): void {
+    if (this.originalAnnouncementsSnapshot.length > 0) {
+      this.announcements.set([...this.originalAnnouncementsSnapshot]);
+    }
+    this.hasUnsavedOrder.set(false);
+    this.isReordering.set(false);
+    this.draggedIndex.set(null);
+    this.dragOverIndex.set(null);
+  }
 }
+

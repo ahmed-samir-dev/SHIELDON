@@ -9,10 +9,11 @@ using SHIELDON.Infrastructure.Persistence;
 namespace SHIELDON.Infrastructure.Services;
 
 /// <summary>
-/// Implements course announcement creation, listing, and deletion.
-/// Enforces RBAC: only Admin / assigned Tutor can create/delete.
+/// Implements course announcement creation, listing, deletion, and manual reordering.
+/// Enforces RBAC: only Admin / assigned Tutor can create/delete/reorder.
 /// Any course-accessible user (enrolled student or Admin/Tutor) can list.
-/// Important announcements are pinned at the top of the feed.
+/// Important announcements are pinned at the top of the feed;
+/// within each priority group, announcements are sorted by DisplayOrder (ascending).
 /// </summary>
 public class AnnouncementService : IAnnouncementService
 {
@@ -58,6 +59,14 @@ public class AnnouncementService : IAnnouncementService
         var creator = await _db.Users.FindAsync(new object[] { requestingUserId }, ct)
             ?? throw new NotFoundException("User", requestingUserId);
 
+        // Auto-assign DisplayOrder: append to the bottom of this priority group
+        var maxOrder = await _db.Announcements
+            .Where(a => a.CourseId == courseId && a.Priority == priority)
+            .Select(a => (int?)a.DisplayOrder)
+            .MaxAsync(ct);
+
+        var newDisplayOrder = (maxOrder ?? -1) + 1;
+
         var announcement = new Announcement
         {
             CourseId = courseId,
@@ -65,6 +74,7 @@ public class AnnouncementService : IAnnouncementService
             Title = request.Title.Trim(),
             Content = request.Content.Trim(),
             Priority = priority,
+            DisplayOrder = newDisplayOrder,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -125,9 +135,9 @@ public class AnnouncementService : IAnnouncementService
         var announcements = await _db.Announcements
             .Include(a => a.CreatedByUser)
             .Where(a => a.CourseId == courseId)
-            // Important first, then by date descending (newest on top)
+            // Important group first, then ordered by the admin/tutor-defined DisplayOrder
             .OrderByDescending(a => a.Priority == AnnouncementPriority.Important)
-            .ThenByDescending(a => a.CreatedAt)
+            .ThenBy(a => a.DisplayOrder)
             .ToListAsync(ct);
 
         return announcements.Select(a => MapToResponse(a, a.CreatedByUser!)).ToList();
@@ -154,6 +164,59 @@ public class AnnouncementService : IAnnouncementService
         await _db.SaveChangesAsync(ct);
     }
 
+    // ── Reorder ───────────────────────────────────────────────────────────
+
+    /// <inheritdoc/>
+    public async Task ReorderAnnouncementsAsync(
+        Guid courseId,
+        ReorderAnnouncementsRequest request,
+        Guid requestingUserId,
+        string requestingUserRole,
+        CancellationToken ct = default)
+    {
+        // Verify course exists
+        var course = await _db.Courses
+            .FirstOrDefaultAsync(c => c.Id == courseId, ct)
+            ?? throw new NotFoundException("Course", courseId);
+
+        // Authorization: Admin always allowed; Tutor only if assigned to this course
+        if (requestingUserRole == "Tutor" && course.AssignedTutorId != requestingUserId)
+            throw new ForbiddenException("You can only reorder announcements for courses assigned to you.");
+
+        // Validate that Items is not empty
+        if (request.Items == null || request.Items.Count == 0)
+            throw new BusinessRuleException("Reorder request must contain at least one item.");
+
+        // Load all existing announcements for this course
+        var existingAnnouncements = await _db.Announcements
+            .Where(a => a.CourseId == courseId)
+            .ToListAsync(ct);
+
+        // Validate: every submitted ID must belong to this course
+        var existingIds = existingAnnouncements.Select(a => a.Id).ToHashSet();
+        var submittedIds = request.Items.Select(i => i.Id).ToHashSet();
+
+        var invalidIds = submittedIds.Except(existingIds).ToList();
+        if (invalidIds.Count > 0)
+            throw new BusinessRuleException(
+                $"The following announcement IDs do not belong to this course: {string.Join(", ", invalidIds)}.");
+
+        // Apply new DisplayOrder values
+        // Build a lookup from ID → entity
+        var lookup = existingAnnouncements.ToDictionary(a => a.Id);
+
+        foreach (var item in request.Items)
+        {
+            if (lookup.TryGetValue(item.Id, out var ann))
+            {
+                ann.DisplayOrder = item.DisplayOrder;
+                ann.UpdatedAt = DateTime.UtcNow;
+            }
+        }
+
+        await _db.SaveChangesAsync(ct);
+    }
+
     // ── Mapping Helper ────────────────────────────────────────────────────
 
     private static AnnouncementResponse MapToResponse(Announcement a, User creator) => new(
@@ -162,6 +225,7 @@ public class AnnouncementService : IAnnouncementService
         a.Title,
         a.Content,
         a.Priority.ToString(),
+        a.DisplayOrder,
         a.CreatedByUserId,
         $"{creator.FirstName} {creator.LastName}",
         a.CreatedAt,
