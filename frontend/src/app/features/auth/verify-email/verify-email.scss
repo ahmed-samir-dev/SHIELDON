@@ -162,3 +162,14 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+@media (max-width: 480px) {
+  .verify-page {
+    padding: $spacing-3;
+  }
+
+  .verify-panel {
+    padding: $spacing-6 $spacing-4;
+  }
+}
+

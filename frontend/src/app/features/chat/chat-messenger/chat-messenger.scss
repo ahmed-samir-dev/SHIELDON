@@ -576,6 +576,8 @@
     display: flex;
     gap: v.$spacing-4;
     align-items: flex-end;
+    position: relative;
+    z-index: 10;
 
     textarea {
       flex: 1;
@@ -595,26 +597,33 @@
       }
     }
 
-    .send-btn {
+    .send-btn, .mic-btn {
       @include m.flex-center;
       width: 40px;
       height: 40px;
       border-radius: v.$border-radius-round;
-      background-color: v.$color-primary-base;
-      color: white;
+      background-color: v.$color-primary-base !important;
+      color: white !important;
       border: none;
       cursor: pointer;
-      transition: background-color 0.2s;
+      transition: background-color 0.2s, transform 0.15s, box-shadow 0.2s;
       flex-shrink: 0;
 
       &:hover:not(:disabled) {
-        background-color: color-mix(in srgb, var(--theme-primary) 80%, black);
+        background-color: v.$color-primary-dark !important;
+        color: white !important;
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px rgba(33, 93, 174, 0.3);
       }
 
       &:disabled {
-        background-color: var(--theme-bg-secondary);
-        color: var(--theme-text-muted);
+        background-color: var(--theme-bg-secondary) !important;
+        color: var(--theme-text-muted) !important;
         cursor: not-allowed;
+      }
+
+      svg {
+        stroke: currentColor;
       }
     }
   }
@@ -2397,11 +2406,66 @@ audio {
       line-height: 1.18;
 
       .own-message & {
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.88);
       }
     }
   }
 }
+
+.mobile-back-btn {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--theme-text-main);
+  padding: v.$spacing-2;
+  border-radius: v.$border-radius-md;
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--theme-bg-hover);
+  }
+}
+
+// ── Mobile Responsive Overrides (Decision Q4: Toggle Approach) ─────────────
+@media (max-width: 768px) {
+  .chat-container {
+    margin: 0;
+    height: calc(100vh - 70px);
+    border-radius: 0;
+    border: none;
+  }
+
+  .mobile-back-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: v.$spacing-2;
+  }
+
+  // When active conversation is open
+  .chat-container:has(.chat-header) {
+    .chat-sidebar {
+      display: none;
+    }
+    .chat-main {
+      display: flex;
+      width: 100%;
+    }
+  }
+
+  // When no active conversation is open (showing contact list default)
+  .chat-container:not(:has(.chat-header)) {
+    .chat-sidebar {
+      display: flex;
+      width: 100%;
+      border-right: none;
+    }
+    .chat-main {
+      display: none;
+    }
+  }
+}
+
 
 
 

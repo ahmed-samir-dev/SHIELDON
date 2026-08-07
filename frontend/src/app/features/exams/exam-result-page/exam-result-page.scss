@@ -578,3 +578,49 @@
     }
   }
 }
+
+// ── Mobile Responsive Overrides ───────────────────────────────────────────
+@media (max-width: 600px) {
+  .result-header {
+    flex-direction: column;
+    gap: $spacing-3;
+    text-align: center;
+
+    .header-left, .header-right {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+  }
+
+  .question-review-section {
+    .review-item {
+      .q-answers {
+        .answer-row {
+          flex-direction: column;
+          gap: 4px;
+
+          .label {
+            min-width: unset;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .result-page-container {
+    padding: $spacing-4 $spacing-3;
+  }
+
+  .score-circle-wrapper {
+    width: 130px;
+    height: 130px;
+
+    .score-text .score-value {
+      font-size: 24px;
+    }
+  }
+}
+

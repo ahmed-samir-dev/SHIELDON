@@ -1,4 +1,4 @@
-<div class="chat-container">
+<div class="chat-container" [class.has-active-chat]="!!activeConversation()">
   
   <!-- Sidebar: Inbox -->
   <aside class="chat-sidebar">
@@ -84,6 +84,9 @@
     @if (activeConversation(); as active) {
       <!-- Active Chat Header -->
       <header class="chat-header">
+        <button class="mobile-back-btn" (click)="activeConversation.set(null)" title="Back to Inbox">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        </button>
         <div class="chat-header-info">
           <div class="header-avatar-wrapper">
             @if (active.isGroup) {

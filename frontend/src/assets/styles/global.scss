@@ -169,3 +169,13 @@ button {
   
   // Custom scrollbar position in RTL browsers is automatic, but styles remain the same
 }
+
+// Hide SHIELDON AI Assistant floating button when an active message chat conversation is open (small screen sizes only)
+@media (max-width: 768px) {
+  body:has(.chat-container.has-active-chat) .ai-trigger-btn,
+  body:has(.chat-main .chat-header) .ai-trigger-btn,
+  body:has(.chat-input-area) .ai-trigger-btn {
+    display: none !important;
+  }
+}
+
