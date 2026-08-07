@@ -809,18 +809,36 @@
   color: var(--theme-text-muted);
 }
 
-.error-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-  padding: 4px 12px;
-  background: rgba($color-danger-base, 0.08);
-  border: 1px solid rgba($color-danger-base, 0.25);
-  border-radius: $border-radius-md;
-  color: $color-danger-base;
-  font-size: $font-size-xs;
-  font-weight: $font-weight-medium;
-
   svg { flex-shrink: 0; }
+
+
+// ── Mobile Responsive Overrides ───────────────────────────────────────────
+@media (max-width: 600px) {
+  .features-wrapper {
+    padding: $spacing-2;
+  }
+
+  .profile-card.tab-pane {
+    padding: $spacing-4 $spacing-3;
+  }
+
+  .profile-tabs-nav {
+    justify-content: flex-start;
+
+    .tab-btn {
+      flex: 0 0 auto;
+      padding: 0 $spacing-3;
+    }
+  }
+
+  .tour-settings-card {
+    flex-direction: column;
+    align-items: stretch;
+
+    .tour-replay-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
 }
+

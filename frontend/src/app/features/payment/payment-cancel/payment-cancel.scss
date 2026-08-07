@@ -88,3 +88,15 @@
     }
   }
 }
+
+// ── Mobile Responsive Overrides ───────────────────────────────────────────
+@media (max-width: 480px) {
+  .payment-result-container {
+    padding: $spacing-4;
+
+    .result-card {
+      padding: $spacing-8 $spacing-4;
+    }
+  }
+}
+

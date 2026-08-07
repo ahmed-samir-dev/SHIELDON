@@ -20,13 +20,27 @@
   }
 }
 
-// Media Queries Focus
+// Media Queries Focus (Mobile-First min-width)
 @mixin breakpoint-up($size) {
   @if $size == sm { @media (min-width: 640px) { @content; } }
   @else if $size == md { @media (min-width: 768px) { @content; } }
   @else if $size == lg { @media (min-width: 1024px) { @content; } }
   @else if $size == xl { @media (min-width: 1280px) { @content; } }
   @else if $size == 2xl { @media (min-width: 1536px) { @content; } }
+}
+
+// Media Queries Max-Width Overrides
+@mixin breakpoint-down($size) {
+  @if $size == xs { @media (max-width: 479.98px) { @content; } }
+  @else if $size == sm { @media (max-width: 639.98px) { @content; } }
+  @else if $size == md { @media (max-width: 767.98px) { @content; } }
+  @else if $size == lg { @media (max-width: 1023.98px) { @content; } }
+  @else if $size == xl { @media (max-width: 1279.98px) { @content; } }
+}
+
+// Range Media Queries
+@mixin breakpoint-between($min, $max) {
+  @media (min-width: #{$min}) and (max-width: #{$max}) { @content; }
 }
 
 // Text Truncation
@@ -44,3 +58,22 @@
   border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: $shadow-md;
 }
+
+// Touch Target Minimum (44px)
+@mixin touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+// Smooth Horizontal Scroll Container (Mobile Tabs / Filters)
+@mixin scroll-horizontal {
+  display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+

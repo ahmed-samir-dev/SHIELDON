@@ -137,6 +137,13 @@ $z-index-toast: 9999;
   --theme-shadow-sm: #{$shadow-sm};
   --theme-shadow-md: #{$shadow-md};
   --theme-shadow-lg: #{$shadow-lg};
+
+  // Responsive Layout & Padding Tokens
+  --content-padding-mobile: 16px;
+  --content-padding-tablet: 24px;
+  --content-padding-desktop: 32px;
+  --sidebar-mobile-width: 280px;
+  --navbar-mobile-height: 56px;
 }
 
 [data-theme="dark"] {

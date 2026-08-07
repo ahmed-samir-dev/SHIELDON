@@ -1,19 +1,23 @@
 import { Routes } from '@angular/router';
-import { deviceGuard } from './core/guards/device.guard';
+import { examDeviceGuard } from './core/guards/exam-device.guard';
 import { authGuard, tutorGuard, adminGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
-  // ── Mobile Guard ──────────────────────────────────────────────────────────
+  // ── Mobile Guard (Legacy / Exam Blocked) ───────────────────────────────────
   {
     path: 'mobile-blocked',
     loadComponent: () => import('./features/public/mobile-blocked/mobile-blocked').then(m => m.MobileBlocked),
     title: 'Mobile Access Restricted - SHIELDON'
   },
+  {
+    path: 'exam-device-blocked',
+    loadComponent: () => import('./features/public/exam-device-blocked/exam-device-blocked').then(m => m.ExamDeviceBlocked),
+    title: 'Exam Engine Restricted - SHIELDON'
+  },
 
-  // ── Public Routes (Guest) ─────────────────────────────────────────────────
+  // ── Public Routes (Guest - Accessible on Mobile & Desktop) ────────────────
   {
     path: '',
-    canActivate: [deviceGuard],
     loadComponent: () => import('./layouts/public-layout/public-layout').then(m => m.PublicLayout),
     children: [
       {
@@ -42,35 +46,33 @@ export const routes: Routes = [
   // ── Auth Verification Routes (Standalone) ─────────────────────────────────
   {
     path: 'auth/verify-email',
-    canActivate: [deviceGuard],
     loadComponent: () => import('./features/auth/verify-email/verify-email').then(m => m.VerifyEmail),
     title: 'Verify Email - SHIELDON'
   },
   {
     path: 'auth/reset-password',
-    canActivate: [deviceGuard],
     loadComponent: () => import('./features/auth/reset-password/reset-password').then(m => m.ResetPassword),
     title: 'Reset Password - SHIELDON'
   },
 
-  // ── Exam Engine (Distraction-Free Authenticated) ────────────────────────
+  // ── Exam Engine (Distraction-Free Authenticated - Desktop Only) ───────────
   {
     path: 'exam-engine/:examId',
-    canActivate: [deviceGuard, authGuard],
+    canActivate: [examDeviceGuard, authGuard],
     loadComponent: () => import('./features/courses/exam-engine/exam-engine').then(m => m.ExamEngine),
     title: 'Exam Engine - SHIELDON'
   },
   {
     path: 'exam-results/:attemptId',
-    canActivate: [deviceGuard, authGuard],
+    canActivate: [authGuard],
     loadComponent: () => import('./features/exams/exam-result-page/exam-result-page').then(m => m.ExamResultPage),
     title: 'Exam Result - SHIELDON'
   },
 
-  // ── Authenticated Routes (Protected by authGuard) ─────────────────────────
+  // ── Authenticated Routes (Protected by authGuard - Accessible on Mobile & Desktop) ──
   {
     path: '',
-    canActivate: [deviceGuard, authGuard],
+    canActivate: [authGuard],
     loadComponent: () => import('./layouts/dashboard-layout/dashboard-layout').then(m => m.DashboardLayout),
     children: [
       { path: '', redirectTo: 'profile', pathMatch: 'full' },

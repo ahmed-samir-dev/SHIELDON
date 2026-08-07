@@ -195,3 +195,25 @@
     }
   }
 }
+
+// ── Mobile Responsive Overrides ───────────────────────────────────────────
+@media (max-width: 600px) {
+  .attendance-student-container {
+    padding: $spacing-4;
+
+    .scanner-card {
+      padding: $spacing-4;
+    }
+
+    .history-card {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+
+      .scan-details {
+        align-items: flex-start;
+      }
+    }
+  }
+}
+

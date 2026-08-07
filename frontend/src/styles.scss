@@ -311,4 +311,22 @@ button {
   }
 }
 
+// ── GLOBAL RESPONSIVE MODAL OVERRIDES ────────────────────────────────────────
+@media (max-width: 600px) {
+  .modal-content,
+  .swal2-popup,
+  .custom-modal-container {
+    width: 95vw !important;
+    max-width: 95vw !important;
+    margin: 10px auto !important;
+    padding: 16px !important;
+  }
+
+  .modal-body {
+    max-height: 75vh !important;
+    overflow-y: auto !important;
+  }
+}
+
+
 

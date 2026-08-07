@@ -799,6 +799,56 @@ $neon-teal-glow:   rgba(24, 152, 161, 0.35);
   100% { opacity: 1; transform: scale(1); }
 }
 
+// ── Mobile Responsive Overrides ───────────────────────────────────────────
+@media (max-width: 768px) {
+  .attendance-tutor-container {
+    padding: $spacing-3 0 $spacing-6;
+
+    .att-header {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+
+      .att-actions {
+        width: 100%;
+        .att-btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    }
+
+    .att-live-viewport {
+      grid-template-columns: 1fr;
+      height: auto;
+    }
+
+    .att-empty-overview {
+      .att-hero-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 24px;
+      }
+
+      .att-history-metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .att-history-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+
+        .att-history-stats-wrap {
+          width: 100%;
+          align-items: flex-start;
+        }
+      }
+    }
+  }
+}
+
+
 canvas.qr-flash {
   animation: qrFlash 0.4s ease-out;
 }

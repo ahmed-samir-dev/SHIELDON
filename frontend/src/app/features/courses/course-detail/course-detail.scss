@@ -325,3 +325,31 @@
     transform: translateY(0);
   }
 }
+
+// ── Mobile Responsive Overrides ───────────────────────────────────────────
+@media (max-width: 768px) {
+  .hub-header {
+    .header-content {
+      padding: $spacing-3 $spacing-4 $spacing-6;
+
+      .course-title {
+        font-size: 1.8rem;
+      }
+
+      .course-description {
+        font-size: $font-size-base;
+      }
+
+      .course-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: $spacing-2;
+
+        .stat-item {
+          justify-content: center;
+        }
+      }
+    }
+  }
+}
+
