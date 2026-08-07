@@ -381,6 +381,7 @@
                   }
                 </button>
               </div>
+              <app-password-strength-bar [password]="newPasswordControl.value || ''"></app-password-strength-bar>
               @if (newPasswordControl.hasError('required') && newPasswordControl.touched) {
                 <span class="field-error">{{ 'PROFILE.NEW_PASS_REQ' | translate }}</span>
               } @else if (newPasswordControl.hasError('minlength') && newPasswordControl.touched) {
@@ -404,6 +405,7 @@
                   }
                 </button>
               </div>
+              <app-password-match-bar [password]="newPasswordControl.value" [confirmPassword]="confirmNewPasswordControl.value"></app-password-match-bar>
               @if (confirmNewPasswordControl.hasError('required') && confirmNewPasswordControl.touched) {
                 <span class="field-error">{{ 'PROFILE.CONF_PASS_REQ' | translate }}</span>
               } @else if (confirmNewPasswordControl.hasError('passwordMismatch') && confirmNewPasswordControl.touched) {

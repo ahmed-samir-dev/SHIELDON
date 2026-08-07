@@ -32,6 +32,12 @@ public class AnnouncementConfiguration : IEntityTypeConfiguration<Announcement>
             .HasConversion<string>()
             .HasMaxLength(20);
 
+        // ── Manual Ordering ──────────────────────────────
+        builder.Property(a => a.DisplayOrder)
+            .IsRequired()
+            .HasColumnType("INT")
+            .HasDefaultValue(0);
+
         // ── Attachments ──────────────────────────────────────────
         builder.Property(a => a.AttachmentPath)
             .HasMaxLength(500);

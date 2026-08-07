@@ -33,6 +33,69 @@
     }
   }
 
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+  }
+
+  .reorder-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: $spacing-2;
+    padding: $spacing-2 $spacing-4;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    border-radius: $border-radius-lg;
+    border: 1px solid rgba($color-primary-base, 0.4);
+    background: linear-gradient(135deg, rgba($color-primary-base, 0.1) 0%, rgba($color-primary-light, 0.05) 100%);
+    color: $color-primary-dark;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba($color-primary-base, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    svg {
+      transition: transform 0.3s ease, color 0.3s ease;
+      color: $color-primary-base;
+    }
+
+    &:hover {
+      background: linear-gradient(135deg, $color-primary-base 0%, $color-primary-dark 100%);
+      color: #ffffff;
+      border-color: $color-primary-light;
+      box-shadow: 0 0 18px rgba($color-primary-base, 0.45), 0 4px 12px rgba(33, 93, 174, 0.25);
+      transform: translateY(-2px);
+
+      svg {
+        color: #ffffff;
+        transform: rotate(90deg);
+      }
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    // Active Re-ordering State (Solid SHIELDON Primary Blue glowing state)
+    &.active {
+      background: linear-gradient(135deg, $color-primary-base 0%, $color-primary-dark 100%);
+      color: #ffffff;
+      border-color: $color-primary-light;
+      box-shadow: 0 0 20px rgba(33, 93, 174, 0.6), 0 4px 12px rgba(22, 64, 123, 0.3);
+      animation: reorderGlow 2s infinite ease-in-out;
+
+      svg {
+        color: #ffffff;
+        transform: rotate(180deg);
+      }
+
+      &:hover {
+        background: linear-gradient(135deg, $color-primary-dark 0%, #0b315b 100%);
+        box-shadow: 0 0 24px rgba(33, 93, 174, 0.75);
+      }
+    }
+  }
+
   .post-btn {
     display: flex;
     align-items: center;
@@ -161,6 +224,12 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  &.reorder-mode-active {
+    .announcement-card {
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+  }
 }
 
 .announcement-card {
@@ -192,6 +261,52 @@
     border-color: transparent;
 
     &::before { opacity: 1; }
+  }
+
+  // Drag & drop styles
+  &.draggable-card {
+    cursor: grab;
+    user-select: none;
+
+    &:hover {
+      border-color: $color-primary-base;
+    }
+  }
+
+  &.dragging {
+    opacity: 0.4;
+    border: 2px dashed $color-primary-base !important;
+    cursor: grabbing !important;
+    transform: scale(0.98);
+    box-shadow: none !important;
+  }
+
+  &.drag-over {
+    border: 2px solid $color-secondary-base !important;
+    box-shadow: 0 0 16px rgba(24, 152, 161, 0.3) !important;
+    transform: translateY(-2px);
+  }
+
+  .drag-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--theme-text-muted);
+    cursor: grab;
+    padding: 6px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+
+    &:hover {
+      background-color: var(--theme-bg-secondary);
+      color: $color-primary-base;
+    }
+
+    svg {
+      width: 18px;
+      height: 18px;
+    }
   }
 
   // Important card overrides
@@ -326,6 +441,55 @@
   }
 }
 
+// ── Sticky Save Order Bar ────────────────────────────────────────────────────
+.save-order-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  width: calc(100% - 48px);
+  max-width: 680px;
+
+  .save-bar-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-3 $spacing-5;
+    background: var(--theme-bg-surface);
+    border: 1px solid var(--theme-border-strong);
+    border-radius: $border-radius-xl;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(12px);
+
+    .save-bar-info {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+      font-size: $font-size-sm;
+      color: var(--theme-text-main);
+      font-weight: $font-weight-medium;
+
+      svg {
+        color: $color-primary-base;
+        flex-shrink: 0;
+      }
+    }
+
+    .save-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: $spacing-2;
+
+      .btn-sm {
+        padding: $spacing-2 $spacing-4;
+        font-size: $font-size-sm;
+        border-radius: $border-radius-md;
+      }
+    }
+  }
+}
+
 // ── Loading State ─────────────────────────────────────────────────────────────
 .loading-state {
   display: flex;
@@ -349,3 +513,59 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+@keyframes reorderGlow {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(33, 93, 174, 0.35), 0 2px 6px rgba(22, 64, 123, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(33, 93, 174, 0.7), 0 4px 14px rgba(33, 93, 174, 0.35);
+  }
+}
+
+// ── Dark Mode & RTL Adjustments ─────────────────────────────────────────────
+[data-theme="dark"] {
+  .announcements-header .reorder-btn {
+    color: $color-primary-light;
+    background: linear-gradient(135deg, rgba(33, 93, 174, 0.2) 0%, rgba(77, 141, 232, 0.1) 100%);
+    border-color: rgba(77, 141, 232, 0.45);
+    box-shadow: 0 0 12px rgba(33, 93, 174, 0.25);
+
+    svg { color: $color-primary-light; }
+
+    &:hover {
+      color: #ffffff;
+      background: linear-gradient(135deg, $color-primary-base 0%, $color-primary-dark 100%);
+      border-color: $color-primary-light;
+      box-shadow: 0 0 22px rgba(77, 141, 232, 0.6);
+
+      svg { color: #ffffff; }
+    }
+
+    &.active {
+      background: linear-gradient(135deg, $color-primary-base 0%, $color-primary-dark 100%);
+      color: #ffffff;
+      border-color: $color-primary-light;
+      box-shadow: 0 0 24px rgba(77, 141, 232, 0.7);
+
+      svg { color: #ffffff; }
+    }
+  }
+}
+
+[dir="rtl"] {
+  .announcement-card {
+    &::before {
+      left: auto;
+      right: 0;
+      border-radius: 0 4px 4px 0;
+    }
+  }
+
+  .save-order-bar {
+    left: auto;
+    right: 50%;
+    transform: translateX(50%);
+  }
+}
+

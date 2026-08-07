@@ -227,12 +227,48 @@ public class CourseService : ICourseService
         return await BuildCourseResponseAsync(course.Id, ct);
     }
 
-    public async Task DeleteCourseAsync(Guid courseId, CancellationToken ct = default)
+    public async Task HardDeleteCourseAsync(Guid courseId, Guid adminId, CancellationToken ct = default)
     {
-        var course = await _db.Courses.FindAsync([courseId], ct)
+        var course = await _db.Courses
+            .FirstOrDefaultAsync(c => c.Id == courseId, ct)
             ?? throw new NotFoundException("Course", courseId);
 
+        // ── Smart Deletion Gate: Block if any confirmed payment exists ───────
+        var hasPaidTransactions = await _db.PaymentRecords
+            .AnyAsync(p => p.CourseId == courseId && p.Status == PaymentRecordStatus.Paid, ct);
+
+        if (hasPaidTransactions)
+            throw new BusinessRuleException(
+                "This course has paid financial records and cannot be permanently deleted. You can archive it instead.");
+
+        // ── Smart Deletion Gate: Block if any completed exam attempt exists ──
+        // Completed = Submitted, Graded, or ForceSubmitted (anything except InProgress)
+        var hasCompletedAttempts = await _db.ExamAttempts
+            .AnyAsync(a => a.Exam!.CourseId == courseId && a.Status != AttemptStatus.InProgress, ct);
+
+        if (hasCompletedAttempts)
+            throw new BusinessRuleException(
+                "This course has student exam records and cannot be permanently deleted. You can archive it instead.");
+
+        // ── Audit Log: Write snapshot before any data is removed ────────────
+        var admin = await _db.Users.FindAsync([adminId], ct)
+            ?? throw new NotFoundException("Admin", adminId);
+
+        _db.CourseDeleteAuditLogs.Add(new CourseDeleteAuditLog
+        {
+            DeletedByAdminId = adminId,
+            AdminFullName    = admin.FullName,
+            CourseId         = course.Id,
+            CourseCode       = course.CourseCode,
+            CourseTitle      = course.Title,
+            DeletedAt        = DateTime.UtcNow
+        });
+
+        // ── Hard Delete: EF Core cascade configuration removes all child records
+        // (Materials, Announcements, Assignments, Exams → Attempts → Answers,
+        //  Enrollments, LeaderboardSettings, LeaderboardRankSnapshots, etc.)
         _db.Courses.Remove(course);
+
         await _db.SaveChangesAsync(ct);
     }
 

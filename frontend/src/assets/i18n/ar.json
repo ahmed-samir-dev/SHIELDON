@@ -17,6 +17,18 @@
     "CONFIRM_LOGOUT_YES": "نعم، خروج",
     "CONFIRM_LOGOUT_NO": "إلغاء"
   },
+  "COURSES": {
+    "HARD_DELETE_CONFIRM_TITLE": "حذف الدورة نهائياً؟",
+    "HARD_DELETE_CONFIRM_TEXT": "هذا الإجراء <strong>لا يمكن التراجع عنه</strong>. ستُحذف جميع المواد والامتحانات والتسجيلات وبيانات الدورة إلى الأبد.<br><br>اكتب رمز الدورة <strong>{{code}}</strong> لتفعيل زر الحذف.",
+    "HARD_DELETE_INPUT_PLACEHOLDER": "اكتب رمز الدورة هنا...",
+    "HARD_DELETE_BTN": "حذف نهائي",
+    "HARD_DELETE_SUCCESS": "تم حذف الدورة '{{title}}' نهائياً.",
+    "HARD_DELETE_BLOCKED_TITLE": "لا يمكن حذف هذه الدورة",
+    "HARD_DELETE_BLOCKED": "تحتوي هذه الدورة على درجات طلاب أو معاملات مدفوعة ولا يمكن حذفها نهائياً. يمكنك أرشفتها بدلاً من ذلك.",
+    "HARD_DELETE_BLOCKED_EXAMS": "تحتوي هذه الدورة على سجلات امتحانات للطلاب ولا يمكن حذفها نهائياً. يمكنك أرشفتها بدلاً من ذلك.",
+    "HARD_DELETE_BLOCKED_PAYMENTS": "تحتوي هذه الدورة على معاملات مالية مدفوعة ولا يمكن حذفها نهائياً. يمكنك أرشفتها بدلاً من ذلك.",
+    "HARD_DELETE_MISMATCH": "رمز الدورة غير متطابق. تم إلغاء الحذف."
+  },
   "SIDEBAR": {
     "DASHBOARD": "لوحة التحكم",
     "COURSES": "المقررات",
@@ -466,7 +478,31 @@
     "SWAL_DELETE_DESC": "سيؤدي هذا إلى إزالة هذا الإعلان بشكل دائم لجميع الطلاب.",
     "SWAL_DELETE_CONFIRM": "نعم، احذفه",
     "TOAST_DELETE_SUCCESS": "تم حذف الإعلان بنجاح",
-    "TOAST_DELETE_ERR": "فشل في حذف الإعلان"
+    "TOAST_DELETE_ERR": "فشل في حذف الإعلان",
+    "REORDER_BTN": "إعادة الترتيب",
+    "REORDER_DONE_BTN": "تم",
+    "SAVE_ORDER_BTN": "حفظ الترتيب",
+    "CANCEL_REORDER_BTN": "إلغاء",
+    "TOAST_REORDER_SUCCESS": "تم حفظ ترتيب الإعلانات بنجاح!",
+    "TOAST_REORDER_ERR": "فشل حفظ ترتيب الإعلانات",
+    "REORDER_HINT": "اسحب الإعلانات لإعادة ترتيبها"
+  },
+  "PASSWORD_STRENGTH": {
+    "TITLE": "قوة كلمة المرور",
+    "WEAK": "ضعيفة",
+    "FAIR": "مقبولة",
+    "GOOD": "جيدة",
+    "STRONG": "قوية",
+    "REQ_MIN_LENGTH": "8 أحرف على الأقل",
+    "REQ_CASES": "أحرف كبيرة وصغيرة (A-Z, a-z)",
+    "REQ_NUMBER": "أرقام (0-9)",
+    "REQ_SPECIAL": "رموز خاصة (!@#$)"
+  },
+  "PASSWORD_MATCH": {
+    "TITLE": "تطابق كلمة المرور",
+    "MATCH": "كلمتا المرور متطابقتان",
+    "MISMATCH": "كلمتا المرور غير متطابقتين",
+    "ENTER_CONFIRM": "أعد كتابة كلمة المرور للتأكيد"
   },
   "COURSE_ASSIGNMENTS": {
     "TITLE": "الواجبات",

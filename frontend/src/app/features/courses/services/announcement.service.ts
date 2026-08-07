@@ -10,6 +10,7 @@ export interface AnnouncementResponse {
   title: string;
   content: string;
   priority: 'Normal' | 'Important';
+  displayOrder: number;
   createdByUserId: string;
   createdByName: string;
   createdAt: string;
@@ -20,6 +21,15 @@ export interface CreateAnnouncementRequest {
   title: string;
   content: string;
   priority: string;
+}
+
+export interface AnnouncementOrderItem {
+  id: string;
+  displayOrder: number;
+}
+
+export interface ReorderAnnouncementsRequest {
+  items: AnnouncementOrderItem[];
 }
 
 @Injectable({
@@ -44,6 +54,12 @@ export class AnnouncementService {
   deleteAnnouncement(courseId: string, announcementId: string): Observable<ApiResponse<void>> {
     return this.http.delete<ApiResponse<void>>(
       `${this.apiUrl}/courses/${courseId}/announcements/${announcementId}`
+    );
+  }
+
+  reorderAnnouncements(courseId: string, request: ReorderAnnouncementsRequest): Observable<ApiResponse<void>> {
+    return this.http.put<ApiResponse<void>>(
+      `${this.apiUrl}/courses/${courseId}/announcements/reorder`, request
     );
   }
 }

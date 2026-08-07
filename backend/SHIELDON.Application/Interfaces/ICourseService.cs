@@ -23,8 +23,14 @@ public interface ICourseService
     /// <summary>Updates course fields (title, description, assigned tutor, active status). Admin only.</summary>
     Task<CourseResponse> UpdateCourseAsync(Guid courseId, UpdateCourseRequest request, Guid requestingUserId, string requestingUserRole, CancellationToken ct = default);
 
-    /// <summary>Deletes a course. Admin only. Cascades to enrollments, materials, announcements.</summary>
-    Task DeleteCourseAsync(Guid courseId, CancellationToken ct = default);
+    /// <summary>
+    /// Permanently removes a course and ALL its related data from the database.
+    /// Admin only. Enforces the Smart Deletion Gate:
+    ///   — Blocked if any PaymentRecord with Status == Paid exists for this course.
+    ///   — Blocked if any completed ExamAttempt (Status != InProgress) exists for this course.
+    /// Writes a CourseDeleteAuditLog entry before executing the removal.
+    /// </summary>
+    Task HardDeleteCourseAsync(Guid courseId, Guid adminId, CancellationToken ct = default);
 
     // ── Enrollment Workflow ───────────────────────────────────────────────
 

@@ -33,6 +33,16 @@ public class Announcement : ITranslatable
     /// </summary>
     public AnnouncementPriority Priority { get; set; } = AnnouncementPriority.Normal;
 
+    // ── Manual Ordering ──────────────────────────────────────
+    /// <summary>
+    /// Controls the admin/tutor-defined display order within each priority group.
+    /// Important announcements are sorted by DisplayOrder within the Important group;
+    /// Normal announcements are sorted by DisplayOrder within the Normal group.
+    /// Lower value = appears higher in the list.
+    /// Defaults to 0; new announcements are appended by assigning max+1.
+    /// </summary>
+    public int DisplayOrder { get; set; } = 0;
+
     // ── Attachment (optional) ────────────────────────────────────
     /// <summary>Server-relative path to an attached file, if any.</summary>
     public string? AttachmentPath { get; set; }
