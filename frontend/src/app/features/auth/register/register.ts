@@ -11,11 +11,13 @@ import { environment } from '../../../../environments/environment';
 import { COUNTRY_CODES, CountryCode } from '../../../core/constants/country-codes.constant';
 
 import { CountryPickerComponent } from '../../../shared/components/country-picker/country-picker';
+import { PasswordStrengthBarComponent } from '../../../shared/components/password-strength-bar/password-strength-bar';
+import { PasswordMatchBarComponent } from '../../../shared/components/password-match-bar/password-match-bar';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslateModule, CountryPickerComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslateModule, CountryPickerComponent, PasswordStrengthBarComponent, PasswordMatchBarComponent],
   templateUrl: './register.html',
   styleUrl: './register.scss'
 })

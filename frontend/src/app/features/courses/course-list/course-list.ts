@@ -331,6 +331,66 @@ export class CourseList implements OnInit, OnDestroy {
     });
   }
 
+  async onHardDelete(course: CourseResponse): Promise<void> {
+    const isRtl = this.languageService.getCurrentLanguage() === 'ar';
+
+    const { value: typedCode } = await Swal.fire({
+      title: this.translate.instant('COURSES.HARD_DELETE_CONFIRM_TITLE'),
+      html: this.translate.instant('COURSES.HARD_DELETE_CONFIRM_TEXT', { code: course.courseCode }),
+      icon: 'warning',
+      input: 'text',
+      inputPlaceholder: this.translate.instant('COURSES.HARD_DELETE_INPUT_PLACEHOLDER'),
+      showCancelButton: true,
+      confirmButtonText: this.translate.instant('COURSES.HARD_DELETE_BTN'),
+      cancelButtonText: this.translate.instant('COMMON.CANCEL'),
+      confirmButtonColor: '#EF4444',
+      cancelButtonColor: '#6B7280',
+      inputAttributes: { autocomplete: 'off', spellcheck: 'false' },
+      customClass: { popup: isRtl ? 'swal-rtl' : '' },
+      didOpen: () => {
+        const confirmBtn = Swal.getConfirmButton();
+        const input = Swal.getInput();
+        if (confirmBtn) confirmBtn.disabled = true;
+        input?.addEventListener('input', () => {
+          if (confirmBtn)
+            confirmBtn.disabled =
+              input.value.trim().toLowerCase() !== course.courseCode.toLowerCase();
+        });
+      }
+    });
+
+    if (!typedCode) return;
+
+    this.courseService.hardDeleteCourse(course.id).subscribe({
+      next: () => {
+        this.toastr.success(
+          this.translate.instant('COURSES.HARD_DELETE_SUCCESS', { title: course.title })
+        );
+        this.loadCourses();
+      },
+      error: (err) => {
+        const rawMsg = (err?.error?.message || '').toLowerCase();
+        let displayMsg = this.translate.instant('COURSES.HARD_DELETE_BLOCKED');
+
+        if (rawMsg.includes('paid financial')) {
+          displayMsg = this.translate.instant('COURSES.HARD_DELETE_BLOCKED_PAYMENTS');
+        } else if (rawMsg.includes('exam records') || rawMsg.includes('exam attempts')) {
+          displayMsg = this.translate.instant('COURSES.HARD_DELETE_BLOCKED_EXAMS');
+        } else if (err?.error?.message) {
+          displayMsg = err.error.message;
+        }
+
+        Swal.fire({
+          title: this.translate.instant('COURSES.HARD_DELETE_BLOCKED_TITLE'),
+          text: displayMsg,
+          icon: 'info',
+          confirmButtonColor: '#215DAE',
+          customClass: { popup: isRtl ? 'swal-rtl' : '' }
+        });
+      }
+    });
+  }
+
   requestEnrollment(courseId: string) {
     this.courseService.requestEnrollment(courseId).subscribe({
       next: () => {

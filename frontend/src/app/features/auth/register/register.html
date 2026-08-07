@@ -137,6 +137,7 @@
             }
           </button>
         </div>
+        <app-password-strength-bar [password]="passwordControl.value || ''"></app-password-strength-bar>
         <div class="error-text" *ngIf="passwordControl.invalid && (passwordControl.dirty || passwordControl.touched)">
            <span *ngIf="passwordControl.errors?.['required']">{{ 'REGISTER.PASS_REQ' | translate }}</span>
            <span *ngIf="passwordControl.errors?.['minlength']">{{ 'REGISTER.PASS_MIN' | translate }}</span>
@@ -164,6 +165,7 @@
             }
           </button>
         </div>
+        <app-password-match-bar [password]="passwordControl.value" [confirmPassword]="confirmPasswordControl.value"></app-password-match-bar>
         <div class="error-text" *ngIf="confirmPasswordControl.errors?.['passwordMismatch'] && confirmPasswordControl.touched">
           {{ 'REGISTER.PASS_MISMATCH' | translate }}
         </div>

@@ -12,8 +12,10 @@ public record AnnouncementResponse(
     string Title,
     string Content,
     string Priority,            // "Normal" or "Important"
+    int DisplayOrder,           // Manual ordering index within the priority group
     Guid CreatedByUserId,
     string CreatedByName,
     DateTime CreatedAt,
     DateTime UpdatedAt
 );
+

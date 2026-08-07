@@ -82,6 +82,9 @@ public class AppDbContext : DbContext
     public DbSet<LeaderboardSettings> LeaderboardSettings { get; set; } = null!;
     public DbSet<LeaderboardRankSnapshot> LeaderboardRankSnapshots { get; set; } = null!;
 
+    // ── Admin Audit Trail ──────────────────────────────────────────────────────
+    public DbSet<CourseDeleteAuditLog> CourseDeleteAuditLogs { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

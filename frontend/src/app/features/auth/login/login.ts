@@ -25,9 +25,16 @@ export class Login {
 
   isLoading = signal(false);
   showPassword = signal(false);
+  isCapsLockOn = signal(false);
   errorMessage = signal<string | null>(null);
   showRoleModal = signal(false);
   selectedRole = signal<'Student' | 'Tutor'>('Student');
+
+  checkCapsLock(event: KeyboardEvent): void {
+    if (event.getModifierState) {
+      this.isCapsLockOn.set(event.getModifierState('CapsLock'));
+    }
+  }
 
   onGoogleSignIn(): void {
     this.showRoleModal.set(true);

@@ -363,6 +363,15 @@
             color: $color-primary-base; 
             border-color: rgba($color-primary-base, 0.3);
           }
+
+          &.btn-icon-danger {
+            color: $color-danger-base;
+            &:hover {
+              background: rgba(239, 68, 68, 0.08);
+              color: $color-danger-base;
+              border-color: rgba(239, 68, 68, 0.3);
+            }
+          }
         }
       }
     }

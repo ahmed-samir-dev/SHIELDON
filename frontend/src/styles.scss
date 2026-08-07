@@ -294,3 +294,21 @@ button {
   }
 }
 
+// ── SWEETALERT2 RTL ──────────────────────────────────────────────────────────
+.swal-rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+// ── DANGER BUTTON DARK THEME OVERRIDE ────────────────────────────────────────
+[data-theme="dark"] .btn-icon-danger,
+[data-theme="dark"] .action-btn--danger {
+  color: #f87171 !important;
+  &:hover {
+    background: rgba(248, 113, 113, 0.15) !important;
+    border-color: rgba(248, 113, 113, 0.4) !important;
+    color: #f87171 !important;
+  }
+}
+
+

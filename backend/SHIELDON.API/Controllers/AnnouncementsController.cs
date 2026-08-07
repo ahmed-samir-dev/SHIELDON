@@ -97,4 +97,31 @@ public class AnnouncementsController : ControllerBase
 
         return Ok(ApiResponse<object>.Ok("Announcement deleted successfully."));
     }
+
+    // ── Reorder ───────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// PUT /api/courses/{courseId}/announcements/reorder
+    /// Updates the DisplayOrder of all announcements for a course in one transaction.
+    /// The request body must contain a complete ordered list of all announcement IDs
+    /// with their new DisplayOrder values.
+    /// Admin or assigned Tutor only.
+    /// </summary>
+    [HttpPut("reorder")]
+    [Authorize(Roles = "Admin,Tutor")]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ReorderAnnouncements(
+        Guid courseId,
+        [FromBody] ReorderAnnouncementsRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _announcementService.ReorderAnnouncementsAsync(
+            courseId, request, GetUserId(), GetUserRole(), cancellationToken);
+
+        return Ok(ApiResponse<object>.Ok("Announcement order updated successfully."));
+    }
 }
+
