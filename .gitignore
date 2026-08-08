@@ -28,6 +28,7 @@ start-dev.ps1
 *.userosscache
 *.sln.docstates
 .vs/
+.idea/
 [Dd]ebug/
 [Rr]elease/
 [Bb]in/
@@ -37,19 +38,32 @@ start-dev.ps1
 *.pdb
 *.cache
 *.log
+*_logs.txt
+backend_logs.txt
 TestResults/
+*.trx
 *.nupkg
 *.snupkg
 project.lock.json
 project.fragment.lock.json
 artifacts/
 
-# ── Entity Framework Core ───────────────────────────────────
-# Do NOT ignore Migrations — they are part of version control
+# ── Databases & Security Certificates ────────────────────────
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.pem
+*.key
+*.pfx
+*.p12
 
-# ── Angular / Node ──────────────────────────────────────────
+# ── Angular / Node / Test Coverage ──────────────────────────
 node_modules/
 dist/
+coverage/
+.nyc_output/
 .angular/
 .cache/
 npm-debug.log*

@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DOCUMENT } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
@@ -9,6 +9,8 @@ import { skip } from 'rxjs/operators';
 })
 export class LanguageService {
   private readonly LANG_KEY = 'shieldon_lang';
+  private translate = inject(TranslateService);
+  private document = inject(DOCUMENT);
 
   // Reactive stream - components subscribe to auto-reload translated data.
   // skip(1) is used by consumers to ignore the initial "boot" emission.
@@ -16,38 +18,40 @@ export class LanguageService {
   /** Emits the new language code every time the user switches language. */
   public readonly languageChange$ = this._languageChange.asObservable().pipe(skip(1));
 
-  constructor(
-    private translate: TranslateService,
-    @Inject(DOCUMENT) private document: Document
-  ) {
+  constructor() {
     this.initLanguage();
   }
 
   private initLanguage(): void {
-    this.translate.setDefaultLang('en');
-    const savedLang = localStorage.getItem(this.LANG_KEY) as 'en' | 'ar' || 'en';
+    const savedLang = localStorage.getItem(this.LANG_KEY) || 'en';
     this.setLanguage(savedLang);
   }
 
-  public setLanguage(lang: 'en' | 'ar'): void {
-    localStorage.setItem(this.LANG_KEY, lang);
-    this.translate.use(lang);
+  public setLanguage(lang: string): void {
+    const validLang = lang === 'ar' ? 'ar' : 'en';
 
-    // Update HTML attributes for RTL/LTR layout
-    const htmlTag = this.document.documentElement;
-    htmlTag.lang = lang;
-    htmlTag.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    // Set NGX-Translate active language
+    this.translate.use(validLang);
 
-    // Notify all subscribers so they can re-fetch translated data
-    this._languageChange.next(lang);
+    // Save to LocalStorage
+    localStorage.setItem(this.LANG_KEY, validLang);
+
+    // Update HTML attributes for DOM/CSS (RTL support)
+    const htmlElement = this.document.documentElement;
+    htmlElement.setAttribute('lang', validLang);
+    htmlElement.setAttribute('dir', validLang === 'ar' ? 'rtl' : 'ltr');
+
+    // Emit reactive event to all subscribed components (skip(1) will pass this for explicit switches)
+    this._languageChange.next(validLang);
   }
 
   public getCurrentLanguage(): string {
-    return this.translate.currentLang || localStorage.getItem(this.LANG_KEY) || 'en';
+    return localStorage.getItem(this.LANG_KEY) || 'en';
   }
 
   public toggleLanguage(): void {
     const current = this.getCurrentLanguage();
-    this.setLanguage(current === 'en' ? 'ar' : 'en');
+    const next = current === 'en' ? 'ar' : 'en';
+    this.setLanguage(next);
   }
 }

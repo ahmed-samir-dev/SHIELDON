@@ -83,7 +83,12 @@ public class ExceptionHandlingMiddleware
             default:
                 // Unexpected error - log full details server-side, return generic message to client
                 statusCode = HttpStatusCode.InternalServerError;
-                message = "An unexpected error occurred. Please try again later.";
+                var isProd = context.RequestServices.GetService<IWebHostEnvironment>()?.EnvironmentName == "Production";
+                message = isProd ? "An unexpected error occurred. Please try again later." : $"{exception.GetType().Name}: {exception.Message}";
+                if (!isProd && exception.InnerException != null)
+                {
+                    message += $" | Inner: {exception.InnerException.Message}";
+                }
                 _logger.LogError(exception,
                     "Unhandled exception: {ExceptionType} - {Message}",
                     exception.GetType().Name,

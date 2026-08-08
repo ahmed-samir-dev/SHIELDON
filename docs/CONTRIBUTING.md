@@ -1,4 +1,4 @@
-# 🤝 Contributing to SHIELDON
+# Contributing to SHIELDON
 
 Thank you for your interest in contributing to **SHIELDON**! 
 

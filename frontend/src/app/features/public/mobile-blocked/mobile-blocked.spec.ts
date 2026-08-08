@@ -1,14 +1,31 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
+import { vi } from 'vitest';
 import { MobileBlocked } from './mobile-blocked';
 
-describe('MobileBlocked', () => {
+describe('MobileBlocked Component (Device Guard Vertical Slice)', () => {
   let component: MobileBlocked;
   let fixture: ComponentFixture<MobileBlocked>;
 
   beforeEach(async () => {
+    const translateMock = {
+      get: vi.fn().mockReturnValue(of('')),
+      instant: vi.fn().mockReturnValue(''),
+      use: vi.fn().mockReturnValue(of({}))
+    };
+
     await TestBed.configureTestingModule({
       imports: [MobileBlocked],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        provideRouter([]),
+        { provide: TranslateService, useValue: translateMock }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(MobileBlocked);
@@ -16,7 +33,7 @@ describe('MobileBlocked', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create the mobile-blocked component', () => {
     expect(component).toBeTruthy();
   });
 });

@@ -1,4 +1,4 @@
-# 🛡️ SHIELDON - Backend
+# SHIELDON - Backend
 
 <div align="center">
   <img src="https://img.shields.io/badge/.NET_9-5C2D91?style=for-the-badge&logo=.net&logoColor=white" alt=".NET 9" />

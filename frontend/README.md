@@ -1,4 +1,4 @@
-# 🛡️ SHIELDON - Frontend
+# SHIELDON - Frontend
 
 <div align="center">
   <img src="https://img.shields.io/badge/Angular_21-DD0031?style=for-the-badge&logo=angular&logoColor=white" alt="Angular 21" />

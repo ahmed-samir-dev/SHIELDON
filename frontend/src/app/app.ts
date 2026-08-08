@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { GlobalProgressBar } from './shared/components/global-progress-bar/global-progress-bar';
 import { LanguageService } from './core/services/language.service';
@@ -11,5 +11,5 @@ import { LanguageService } from './core/services/language.service';
   styleUrl: './app.scss'
 })
 export class App {
-  constructor(private languageService: LanguageService) {}
+  private languageService = inject(LanguageService);
 }

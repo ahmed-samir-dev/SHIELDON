@@ -1,14 +1,14 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { CommonModule } from '@angular/common';
 import { GlobalProgressBar } from './global-progress-bar';
 
-describe('GlobalProgressBar', () => {
+describe('GlobalProgressBar Component', () => {
   let component: GlobalProgressBar;
   let fixture: ComponentFixture<GlobalProgressBar>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GlobalProgressBar],
+      imports: [GlobalProgressBar, CommonModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(GlobalProgressBar);
@@ -16,7 +16,7 @@ describe('GlobalProgressBar', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create the global progress bar component', () => {
     expect(component).toBeTruthy();
   });
 });

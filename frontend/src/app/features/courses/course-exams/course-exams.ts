@@ -320,7 +320,7 @@ export class CourseExamsComponent implements OnInit, OnDestroy {
             this.toastr.success(this.translate.instant('COURSE_EXAMS.TOAST_PUBLISH_SUCCESS'));
             this.loadExams();
           },
-          error: (err) => {
+          error: (err: any) => {
             this.toastr.error(err.error?.message || this.translate.instant('COURSE_EXAMS.TOAST_PUBLISH_ERR'));
           }
         });

@@ -10,6 +10,8 @@ using Xunit;
 using SHIELDON.Application.Features.Auth.DTOs;
 using SHIELDON.Domain.Enums;
 using SHIELDON.Infrastructure.Persistence;
+using SHIELDON.Application.Interfaces;
+using Moq;
 
 namespace SHIELDON.Tests.Integration;
 
@@ -42,9 +44,10 @@ public class RegistrationIntegrationTests : IClassFixture<RegistrationWebAppFact
 
         // Act
         var response = await client.PostAsJsonAsync("/api/auth/register", request);
+        var responseText = await response.Content.ReadAsStringAsync();
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        response.StatusCode.Should().Be(HttpStatusCode.Created, because: $"Response body: {responseText}");
     }
 
     [Fact]
@@ -71,8 +74,7 @@ public class RegistrationIntegrationTests : IClassFixture<RegistrationWebAppFact
 
 /// <summary>
 /// A custom WebApplicationFactory that replaces SQL Server with an InMemory DB
-/// and provides test-only configuration (JWT key, email settings) so the host can start
-/// without a real database or SMTP server.
+/// and mocks external IEmailService so the host can execute without a real SMTP connection.
 /// </summary>
 public class RegistrationWebAppFactory : WebApplicationFactory<Program>
 {
@@ -82,7 +84,6 @@ public class RegistrationWebAppFactory : WebApplicationFactory<Program>
     {
         builder.UseEnvironment("Testing");
 
-        // Provide test-only config values so Program.cs startup doesn't throw
         builder.ConfigureAppConfiguration((ctx, config) =>
         {
             config.AddInMemoryCollection(new Dictionary<string, string?>
@@ -107,15 +108,37 @@ public class RegistrationWebAppFactory : WebApplicationFactory<Program>
 
         builder.ConfigureServices(services =>
         {
-            // 1. Remove the existing SQL Server DbContext registration
-            var descriptor = services.SingleOrDefault(
-                d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
-            if (descriptor != null)
+            // 1. Remove all existing DbContext options & context registrations to prevent dual-provider error
+            var descriptorsToRemove = services.Where(d =>
+                d.ServiceType == typeof(DbContextOptions<AppDbContext>) ||
+                d.ServiceType == typeof(DbContextOptions) ||
+                d.ServiceType == typeof(AppDbContext) ||
+                d.ServiceType.Name.Contains("DbContext") ||
+                d.ServiceType.FullName?.Contains("EntityFrameworkCore") == true).ToList();
+
+            foreach (var descriptor in descriptorsToRemove)
+            {
                 services.Remove(descriptor);
+            }
 
             // 2. Add InMemory DB instead
             services.AddDbContext<AppDbContext>(options =>
                 options.UseInMemoryDatabase(_dbName));
+
+            // 3. Mock IEmailService
+            var emailServiceDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IEmailService));
+            if (emailServiceDescriptor != null)
+                services.Remove(emailServiceDescriptor);
+
+            var mockEmailService = new Mock<IEmailService>();
+            mockEmailService.Setup(x => x.SendEmailVerificationAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                            .Returns(Task.CompletedTask);
+            mockEmailService.Setup(x => x.SendPasswordResetEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+                            .Returns(Task.CompletedTask);
+
+            services.AddSingleton(mockEmailService.Object);
         });
     }
 }
+
+
