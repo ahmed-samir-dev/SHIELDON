@@ -6,6 +6,8 @@ using SHIELDON.Domain.Enums;
 using SHIELDON.Domain.Exceptions;
 using SHIELDON.Infrastructure.Persistence;
 
+using SHIELDON.Application.Common;
+
 namespace SHIELDON.Infrastructure.Services;
 
 /// <summary>
@@ -19,11 +21,13 @@ public class AnnouncementService : IAnnouncementService
 {
     private readonly AppDbContext _db;
     private readonly INotificationService _notificationService;
+    private readonly IUserActivityLogger _activityLogger;
 
-    public AnnouncementService(AppDbContext db, INotificationService notificationService)
+    public AnnouncementService(AppDbContext db, INotificationService notificationService, IUserActivityLogger? activityLogger = null)
     {
         _db = db;
         _notificationService = notificationService;
+        _activityLogger = activityLogger ?? new NullUserActivityLogger();
     }
 
     // ── Create ────────────────────────────────────────────────────────────
@@ -72,7 +76,7 @@ public class AnnouncementService : IAnnouncementService
             CourseId = courseId,
             CreatedByUserId = requestingUserId,
             Title = request.Title.Trim(),
-            Content = request.Content.Trim(),
+            Content = SHIELDON.Infrastructure.Common.SanitizationHelper.StripHtml(request.Content),
             Priority = priority,
             DisplayOrder = newDisplayOrder,
             CreatedAt = DateTime.UtcNow,
@@ -81,6 +85,15 @@ public class AnnouncementService : IAnnouncementService
 
         _db.Announcements.Add(announcement);
         await _db.SaveChangesAsync(ct);
+
+        await _activityLogger.LogAsync(
+            requestingUserId,
+            "CONTENT",
+            "AnnouncementPosted",
+            $"Posted announcement '{announcement.Title}' in course: {course.Title}",
+            entityId: announcement.Id.ToString(),
+            entityType: "Announcement",
+            ct: ct);
 
         // Notify enrolled students
         var enrolledStudentIds = await _db.CourseEnrollments
@@ -160,8 +173,18 @@ public class AnnouncementService : IAnnouncementService
         if (requestingUserRole == "Tutor" && announcement.Course!.AssignedTutorId != requestingUserId)
             throw new ForbiddenException("You can only delete announcements from courses assigned to you.");
 
-        _db.Announcements.Remove(announcement);
+        announcement.IsDeleted = true;
+        announcement.DeletedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync(ct);
+
+        await _activityLogger.LogAsync(
+            requestingUserId,
+            "CONTENT",
+            "AnnouncementDeleted",
+            $"Deleted announcement '{announcement.Title}'",
+            entityId: announcement.Id.ToString(),
+            entityType: "Announcement",
+            ct: ct);
     }
 
     // ── Reorder ───────────────────────────────────────────────────────────

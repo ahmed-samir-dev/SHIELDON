@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using SHIELDON.Domain.Entities;
 using SHIELDON.Domain.Enums;
 
+using SHIELDON.Application.Common;
+
 namespace SHIELDON.Infrastructure.Services;
 
 public class ProfileService : IProfileService
@@ -14,6 +16,7 @@ public class ProfileService : IProfileService
     private readonly AppDbContext _db;
     private readonly IFileService _fileService;
     private readonly IOtpService _otpService;
+    private readonly IUserActivityLogger _activityLogger;
 
     /// <summary>Maximum failed OTP attempts before the code is invalidated and a new send is required.</summary>
     private const int MAX_OTP_ATTEMPTS = 5;
@@ -24,11 +27,12 @@ public class ProfileService : IProfileService
     /// <summary>Minutes before an OTP code expires after being sent.</summary>
     private const int OTP_EXPIRY_MINUTES = 10;
 
-    public ProfileService(AppDbContext db, IFileService fileService, IOtpService otpService)
+    public ProfileService(AppDbContext db, IFileService fileService, IOtpService otpService, IUserActivityLogger? activityLogger = null)
     {
         _db = db;
         _fileService = fileService;
         _otpService = otpService;
+        _activityLogger = activityLogger ?? new NullUserActivityLogger();
     }
 
     public async Task<UserProfileResponse> GetProfileAsync(Guid userId, CancellationToken ct = default)
@@ -280,13 +284,6 @@ public class ProfileService : IProfileService
 
     private void RecordActivityLog(Guid userId, string eventType)
     {
-        var log = new UserActivityLog
-        {
-            UserId = userId,
-            EventType = eventType,
-            CreatedAt = DateTime.UtcNow,
-            IpAddress = "127.0.0.1" // Placeholder
-        };
-        _db.UserActivityLogs.Add(log);
+        _ = _activityLogger.LogAsync(userId, "PROFILE", eventType, $"User profile activity: {eventType}", entityId: userId.ToString(), entityType: "User");
     }
 }

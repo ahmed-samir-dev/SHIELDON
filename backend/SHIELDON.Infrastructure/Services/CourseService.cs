@@ -17,16 +17,18 @@ public class CourseService : ICourseService
 {
     private readonly AppDbContext _db;
     private readonly INotificationService _notificationService;
+    private readonly IUserActivityLogger _activityLogger;
 
     // Rejection limits per CLAUDE.md spec
     private const int ConsecutiveRejectionsBeforeCooldown = 2;
     private const int MaxTotalRejectionsBeforePermanentBlock = 3;
     private static readonly TimeSpan CooldownDuration = TimeSpan.FromHours(24);
 
-    public CourseService(AppDbContext db, INotificationService notificationService)
+    public CourseService(AppDbContext db, INotificationService notificationService, IUserActivityLogger? activityLogger = null)
     {
         _db = db;
         _notificationService = notificationService;
+        _activityLogger = activityLogger ?? new NullUserActivityLogger();
     }
 
     // ── Course CRUD ──────────────────────────────────────────────────────
@@ -61,6 +63,15 @@ public class CourseService : ICourseService
 
         _db.Courses.Add(course);
         await _db.SaveChangesAsync(ct);
+
+        await _activityLogger.LogAsync(
+            adminId,
+            "COURSE",
+            "CourseCreated",
+            $"Created course: {course.Title} ({course.CourseCode})",
+            entityId: course.Id.ToString(),
+            entityType: "Course",
+            ct: ct);
 
         return await BuildCourseResponseAsync(course.Id, ct);
     }
@@ -144,10 +155,13 @@ public class CourseService : ICourseService
             ? $"{course.AssignedTutor.FirstName} {course.AssignedTutor.LastName}"
             : null;
 
-        var approvedEnrollments = course.Enrollments
-            .Count(e => e.Status == CourseEnrollmentStatus.Approved);
+        var approvedEnrollments = course.Enrollments is not null
+            ? course.Enrollments.Count(e => e.Status == CourseEnrollmentStatus.Approved)
+            : 0;
 
-        var publishedExamCount = course.Exams.Count(e => e.Status == ExamStatus.Published);
+        var publishedExamCount = course.Exams is not null
+            ? course.Exams.Count(e => e.Status == ExamStatus.Published)
+            : 0;
 
         return new CourseDetailResponse(
             course.Id,
@@ -159,10 +173,10 @@ public class CourseService : ICourseService
             course.IsActive,
             course.CourseFee,
             approvedEnrollments,
-            course.Materials.Count,
-            course.Announcements.Count,
-            course.Assignments.Count,
-            course.Exams.Count,
+            course.Materials?.Count ?? 0,
+            course.Announcements?.Count ?? 0,
+            course.Assignments?.Count ?? 0,
+            course.Exams?.Count ?? 0,
             publishedExamCount,
             course.CreatedAt
         );
@@ -224,6 +238,16 @@ public class CourseService : ICourseService
         }
 
         await _db.SaveChangesAsync(ct);
+
+        await _activityLogger.LogAsync(
+            requestingUserId,
+            "COURSE",
+            "CourseUpdated",
+            $"Updated course '{course.Title}' ({course.CourseCode})",
+            entityId: course.Id.ToString(),
+            entityType: "Course",
+            ct: ct);
+
         return await BuildCourseResponseAsync(course.Id, ct);
     }
 
@@ -270,6 +294,16 @@ public class CourseService : ICourseService
         _db.Courses.Remove(course);
 
         await _db.SaveChangesAsync(ct);
+
+        await _activityLogger.LogAsync(
+            adminId,
+            "COURSE",
+            "CourseDeleted",
+            $"Permanently deleted course '{course.Title}' ({course.CourseCode})",
+            entityId: course.Id.ToString(),
+            entityType: "Course",
+            metadata: new { CourseCode = course.CourseCode, Title = course.Title },
+            ct: ct);
     }
 
     // ── Enrollment Workflow ──────────────────────────────────────────────
@@ -355,6 +389,15 @@ public class CourseService : ICourseService
 
         _db.CourseEnrollments.Add(enrollment);
         await _db.SaveChangesAsync(ct);
+
+        await _activityLogger.LogAsync(
+            studentId,
+            "COURSE",
+            "CourseEnrollmentRequested",
+            $"Requested enrollment in course: {course.Title}",
+            entityId: course.Id.ToString(),
+            entityType: "Course",
+            ct: ct);
 
         await NotifyAdminsAndTutorOfRequestAsync(course.Id, course.Title, studentId, ct);
 
@@ -632,6 +675,17 @@ public class CourseService : ICourseService
 
         await _db.SaveChangesAsync(ct);
 
+        await _activityLogger.LogAsync(
+            reviewerId,
+            "COURSE",
+            request.Approved ? "CourseEnrollmentApproved" : "CourseEnrollmentRejected",
+            request.Approved 
+                ? $"Approved enrollment for student in course: {enrollment.Course!.Title}"
+                : $"Rejected enrollment for student in course: {enrollment.Course!.Title}",
+            entityId: enrollment.Id.ToString(),
+            entityType: "CourseEnrollment",
+            ct: ct);
+
         var freshEnrollment = await _db.CourseEnrollments
             .Include(e => e.Student)
             .Include(e => e.Course)
@@ -764,7 +818,7 @@ public class CourseService : ICourseService
 
         return new PagedResponse<StudentEnrollmentStatusResponse>
         {
-            Items = enrollments.Select(e => MapToStudentStatus(e, e.Course!.Title)).ToList(),
+            Items = enrollments.Select(e => MapToStudentStatus(e, e.Course?.Title ?? "Unknown Course")).ToList(),
             TotalCount = totalCount,
             PageNumber = query.Page,
             PageSize = query.PageSize

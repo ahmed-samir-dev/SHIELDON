@@ -4,15 +4,21 @@ using SHIELDON.Application.Interfaces;
 using SHIELDON.Domain.Entities;
 using SHIELDON.Infrastructure.Persistence;
 
+using SHIELDON.Application.Common;
+
 namespace SHIELDON.Infrastructure.Services;
 
 public class AttendanceService : IAttendanceService
 {
     private readonly AppDbContext _db;
+    private readonly ITimeProvider _timeProvider;
+    private readonly IUserActivityLogger _activityLogger;
 
-    public AttendanceService(AppDbContext db)
+    public AttendanceService(AppDbContext db, ITimeProvider? timeProvider = null, IUserActivityLogger? activityLogger = null)
     {
         _db = db;
+        _timeProvider = timeProvider ?? new SystemTimeProvider();
+        _activityLogger = activityLogger ?? new NullUserActivityLogger();
     }
 
     public async Task<AttendanceCheckDto> StartCheckAsync(Guid courseId, Guid tutorId, string? title)
@@ -42,6 +48,14 @@ public class AttendanceService : IAttendanceService
         _db.AttendanceChecks.Add(check);
         await _db.SaveChangesAsync();
 
+        await _activityLogger.LogAsync(
+            tutorId,
+            "ATTENDANCE",
+            "AttendanceCheckStarted",
+            $"Launched attendance check: {check.Title}",
+            entityId: check.Id.ToString(),
+            entityType: "AttendanceCheck");
+
         var course = await _db.Courses.FindAsync(courseId);
         return MapToDto(check, course?.Title ?? "", "");
     }
@@ -63,7 +77,7 @@ public class AttendanceService : IAttendanceService
             ?? throw new InvalidOperationException("Attendance check is not active or does not exist.");
 
         // Validate the secret is current and not expired
-        if (check.CurrentSecret != secret || DateTime.UtcNow > check.SecretExpiresAt)
+        if (check.CurrentSecret != secret || _timeProvider.UtcNow > check.SecretExpiresAt)
             throw new InvalidOperationException("QR code has expired. Please scan the latest code.");
 
         // Check for duplicate scan
@@ -78,12 +92,20 @@ public class AttendanceService : IAttendanceService
             Id = Guid.NewGuid(),
             AttendanceCheckId = checkId,
             StudentId = studentId,
-            ScannedAt = DateTime.UtcNow,
+            ScannedAt = _timeProvider.UtcNow,
             IsManual = false
         };
 
         _db.AttendanceRecords.Add(record);
         await _db.SaveChangesAsync();
+
+        await _activityLogger.LogAsync(
+            studentId,
+            "ATTENDANCE",
+            "AttendanceQrScanned",
+            $"Student scanned attendance QR code",
+            entityId: checkId.ToString(),
+            entityType: "AttendanceCheck");
 
         var student = await _db.Users.FindAsync(studentId);
         return new AttendanceRecordDto

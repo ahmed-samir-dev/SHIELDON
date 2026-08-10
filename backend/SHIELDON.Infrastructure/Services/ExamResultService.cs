@@ -33,6 +33,7 @@ public class ExamResultService : IExamResultService
         CancellationToken ct = default)
     {
         var attempt = await _db.ExamAttempts
+            .AsNoTracking()
             .Include(a => a.Exam)
                 .ThenInclude(e => e!.Course)
             .Include(a => a.AttemptQuestions)

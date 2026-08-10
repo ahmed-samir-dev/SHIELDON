@@ -28,10 +28,34 @@
 
   <footer class="footer">
     <div class="container footer-content">
-      <div class="brand">
-        SHIELDON
+      <!-- Line 1: Centered Brand & Copyright -->
+      <div class="footer-main-row">
+        <span class="brand">SHIELDON</span>
+        <span class="copyright-text">{{ 'PUBLIC.FOOTER_COPYRIGHT' | translate }}</span>
       </div>
-      <p>{{ 'PUBLIC.FOOTER_COPYRIGHT' | translate }}</p>
+
+      <!-- Line 2: Centered Developer Attribution Pill -->
+      <div class="footer-dev-row">
+        <div class="developer-attribution">
+          <span class="dev-text">
+            <lucide-icon [img]="Code" size="14" class="code-icon"></lucide-icon>
+            {{ 'PUBLIC.CRAFTED_BY' | translate }} <lucide-icon [img]="Heart" size="14" class="heart-icon"></lucide-icon> {{ 'PUBLIC.BY_AUTHOR' | translate }} 
+            <span class="dev-name">{{ 'PUBLIC.DEV_NAME' | translate }}</span>
+          </span>
+
+          <div class="social-pills">
+            <a href="mailto:ahmed.samir.software@gmail.com" class="social-pill pill-email" title="Email: ahmed.samir.software@gmail.com" aria-label="Email Ahmed Samir">
+              <lucide-icon [img]="Mail" size="14"></lucide-icon>
+            </a>
+            <a href="https://github.com/ahmed-samir-dev" target="_blank" rel="noopener noreferrer" class="social-pill pill-github" title="GitHub: ahmed-samir-dev" aria-label="GitHub Profile">
+              <lucide-icon [img]="Github" size="14"></lucide-icon>
+            </a>
+            <a href="https://www.linkedin.com/in/swe-ahmed-samir/" target="_blank" rel="noopener noreferrer" class="social-pill pill-linkedin" title="LinkedIn: swe-ahmed-samir" aria-label="LinkedIn Profile">
+              <lucide-icon [img]="Linkedin" size="14"></lucide-icon>
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
   </footer>
 </div>

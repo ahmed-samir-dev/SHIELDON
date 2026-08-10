@@ -80,8 +80,8 @@ export class CourseDetail implements OnInit {
               this.course.set(res.data);
               this.isLoading.set(false);
             },
-            error: () => {
-              this.toastr.error(this.translate.instant('COURSE_DETAIL.TOAST_LOAD_ERR'));
+            error: (err) => {
+              this.toastr.error(err.error?.message || this.translate.instant('COURSE_DETAIL.TOAST_LOAD_ERR'));
               this.router.navigateByUrl('/courses');
               this.isLoading.set(false);
             }
@@ -91,8 +91,8 @@ export class CourseDetail implements OnInit {
           this.isLoading.set(false);
         }
       },
-      error: () => {
-        this.toastr.error(this.translate.instant('COURSE_DETAIL.TOAST_LOAD_ERR'));
+      error: (err) => {
+        this.toastr.error(err.error?.message || this.translate.instant('COURSE_DETAIL.TOAST_LOAD_ERR'));
         this.isLoading.set(false);
       }
     });

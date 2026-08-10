@@ -7,6 +7,8 @@ using SHIELDON.Domain.Enums;
 using SHIELDON.Domain.Exceptions;
 using SHIELDON.Infrastructure.Persistence;
 
+using SHIELDON.Application.Common;
+
 namespace SHIELDON.Infrastructure.Services;
 
 /// <summary>
@@ -20,6 +22,7 @@ public class MaterialService : IMaterialService
     private readonly AppDbContext _db;
     private readonly IWebHostEnvironment _env;
     private readonly INotificationService _notificationService;
+    private readonly IUserActivityLogger _activityLogger;
 
     // ── Allowed File Types ────────────────────────────────────────────────
     private static readonly HashSet<string> AllowedMimeTypes = new(StringComparer.OrdinalIgnoreCase)
@@ -44,11 +47,12 @@ public class MaterialService : IMaterialService
 
     private const long MaxFileSizeBytes = 100 * 1024 * 1024; // 100 MB
 
-    public MaterialService(AppDbContext db, IWebHostEnvironment env, INotificationService notificationService)
+    public MaterialService(AppDbContext db, IWebHostEnvironment env, INotificationService notificationService, IUserActivityLogger? activityLogger = null)
     {
         _db = db;
         _env = env;
         _notificationService = notificationService;
+        _activityLogger = activityLogger ?? new NullUserActivityLogger();
     }
 
     // ── Add Material ──────────────────────────────────────────────────────
@@ -147,6 +151,15 @@ public class MaterialService : IMaterialService
 
         _db.CourseMaterials.Add(material);
         await _db.SaveChangesAsync(ct);
+
+        await _activityLogger.LogAsync(
+            requestingUserId,
+            "CONTENT",
+            "MaterialUploaded",
+            $"Uploaded material '{material.Title}' for course: {course.Title}",
+            entityId: material.Id.ToString(),
+            entityType: "CourseMaterial",
+            ct: ct);
 
         // Notify enrolled students
         var enrolledStudentIds = await _db.CourseEnrollments
@@ -265,8 +278,18 @@ public class MaterialService : IMaterialService
                 File.Delete(absolutePath);
         }
 
-        _db.CourseMaterials.Remove(material);
+        material.IsDeleted = true;
+        material.DeletedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync(ct);
+
+        await _activityLogger.LogAsync(
+            requestingUserId,
+            "CONTENT",
+            "MaterialDeleted",
+            $"Deleted material '{material.Title}'",
+            entityId: material.Id.ToString(),
+            entityType: "CourseMaterial",
+            ct: ct);
     }
 
     // ── Private Helpers ───────────────────────────────────────────────────

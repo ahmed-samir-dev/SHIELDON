@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using SHIELDON.Application.Common;
 using SHIELDON.Application.Features.Courses.DTOs;
 using SHIELDON.Application.Interfaces;
 using SHIELDON.Domain.Entities;
@@ -26,6 +27,7 @@ public class AssignmentService : IAssignmentService
     private readonly AppDbContext _db;
     private readonly IWebHostEnvironment _env;
     private readonly INotificationService _notificationService;
+    private readonly IUserActivityLogger _activityLogger;
 
     // ── Allowed file types ─────────────────────────────────────────────────
 
@@ -70,11 +72,12 @@ public class AssignmentService : IAssignmentService
     private const long MaxReferenceSizeBytes  = 50L  * 1024 * 1024; // 50 MB
     private const long MaxSubmissionSizeBytes = 100L * 1024 * 1024; // 100 MB
 
-    public AssignmentService(AppDbContext db, IWebHostEnvironment env, INotificationService notificationService)
+    public AssignmentService(AppDbContext db, IWebHostEnvironment env, INotificationService notificationService, IUserActivityLogger? activityLogger = null)
     {
         _db  = db;
         _env = env;
         _notificationService = notificationService;
+        _activityLogger = activityLogger ?? new NullUserActivityLogger();
     }
 
     // ── Create Assignment ──────────────────────────────────────────────────
@@ -139,7 +142,7 @@ public class AssignmentService : IAssignmentService
             CourseId         = courseId,
             CreatedByUserId  = requestingUserId,
             Title            = request.Title.Trim(),
-            Instructions     = request.Instructions?.Trim(),
+            Instructions     = SHIELDON.Infrastructure.Common.SanitizationHelper.StripHtml(request.Instructions),
             DueDate          = request.DueDate?.ToUniversalTime(),
             Weight           = request.Weight,
             CreatedAt        = DateTime.UtcNow,
@@ -148,6 +151,15 @@ public class AssignmentService : IAssignmentService
 
         _db.Assignments.Add(assignment);
         await _db.SaveChangesAsync(ct); // Save to get the Guid Id
+
+        await _activityLogger.LogAsync(
+            requestingUserId,
+            "ASSIGNMENT",
+            "AssignmentCreated",
+            $"Created assignment '{assignment.Title}' for course: {course.Title}",
+            entityId: assignment.Id.ToString(),
+            entityType: "Assignment",
+            ct: ct);
 
         // ── Write reference file to disk now that we have the assignment Id ──
         if (referenceFile is not null && referenceFile.Length > 0)
@@ -492,6 +504,15 @@ public class AssignmentService : IAssignmentService
         }
 
         await _db.SaveChangesAsync(ct);
+
+        await _activityLogger.LogAsync(
+            studentId,
+            "ASSIGNMENT",
+            "AssignmentSubmitted",
+            $"Submitted assignment solution for assignment: {assignment.Title}",
+            entityId: submission.Id.ToString(),
+            entityType: "AssignmentSubmission",
+            ct: ct);
 
         // Load student for response
         var student = await _db.Users.FindAsync(new object[] { studentId }, ct);

@@ -1,4 +1,5 @@
 using SHIELDON.Application.Interfaces;
+using SHIELDON.Application.Common;
 using SHIELDON.Application.Features.Calendar.Interfaces;
 using SHIELDON.Application.Features.Payment.Interfaces;
 using SHIELDON.Infrastructure.BackgroundServices;
@@ -49,6 +50,9 @@ public static class DependencyInjection
             var autoInterceptor = sp.GetRequiredService<AutoTranslationInterceptor>();
             var matInterceptor = sp.GetRequiredService<TranslationMaterializationInterceptor>();
             options.AddInterceptors(autoInterceptor, matInterceptor);
+
+            // Suppress EF Core 9 pending model changes warning on startup migration check
+            options.ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning));
         });
 
         // ── Services ──────────────────────────────────────────────────────
@@ -78,6 +82,7 @@ public static class DependencyInjection
         services.AddScoped<ICurrentLanguageProvider, CurrentLanguageProvider>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<ILeaderboardService, LeaderboardService>();
+        services.AddScoped<IUserActivityLogger, UserActivityLogger>();
         services.AddSingleton<PresenceTracker>();
 
         // ── HTTP Clients ───────────────────────────────────────────────────

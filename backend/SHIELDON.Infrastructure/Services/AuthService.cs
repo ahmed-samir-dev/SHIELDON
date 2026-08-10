@@ -8,6 +8,8 @@ using SHIELDON.Domain.Enums;
 using SHIELDON.Domain.Exceptions;
 using SHIELDON.Infrastructure.Persistence;
 
+using SHIELDON.Application.Common;
+
 namespace SHIELDON.Infrastructure.Services;
 
 /// <summary>
@@ -25,14 +27,17 @@ public class AuthService : IAuthService
     private readonly IJwtService _jwtService;
     private readonly IEmailService _emailService;
     private readonly IConfiguration _configuration;
+    private readonly IUserActivityLogger _activityLogger;
 
     public AuthService(AppDbContext db, IJwtService jwtService,
-        IEmailService emailService, IConfiguration configuration)
+        IEmailService emailService, IConfiguration configuration,
+        IUserActivityLogger? activityLogger = null)
     {
         _db = db;
         _jwtService = jwtService;
         _emailService = emailService;
         _configuration = configuration;
+        _activityLogger = activityLogger ?? new NullUserActivityLogger();
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -93,6 +98,15 @@ public class AuthService : IAuthService
         _db.Users.Add(user);
         await _db.SaveChangesAsync(ct);
 
+        await _activityLogger.LogAsync(
+            user.Id,
+            "AUTH",
+            "UserRegister",
+            $"User registered: {user.Email}",
+            entityId: user.Id.ToString(),
+            entityType: "User",
+            ct: ct);
+
         // 5. Send Email Verification
         _ = _emailService.SendEmailVerificationAsync(user.Email, user.FullName, token);
     }
@@ -107,7 +121,15 @@ public class AuthService : IAuthService
             .FirstOrDefaultAsync(u => u.Email == email, ct);
 
         if (user is null)
+        {
+            _ = _activityLogger.LogAsync(
+                null,
+                "AUTH",
+                "UserLoginFailed",
+                $"Failed login attempt for: {email}",
+                metadata: new { Reason = "Invalid email or password" });
             throw new UnauthorizedException("Invalid email or password.");
+        }
 
         // 3. Check account status before verifying the password
         switch (user.AccountStatus)
@@ -250,6 +272,18 @@ public class AuthService : IAuthService
             storedToken.RevokedReason = "Logout";
             await _db.SaveChangesAsync(ct);
         }
+
+        var user = await _db.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId, ct);
+
+        await _activityLogger.LogAsync(
+            userId,
+            "AUTH",
+            "UserLogout",
+            user is not null ? $"User logged out: {user.Email}" : "User logged out",
+            entityId: userId.ToString(),
+            entityType: "User",
+            metadata: user is not null ? new { Email = user.Email, Role = user.Role.ToString() } : null,
+            ct: ct);
         // Silently succeed even if token not found - idempotent logout
     }
 
@@ -608,6 +642,15 @@ public class AuthService : IAuthService
             IpAddress = "127.0.0.1" 
         };
         _db.LoginActivityLogs.Add(log);
+
+        _ = _activityLogger.LogAsync(
+            user.Id,
+            "AUTH",
+            success ? "UserLoginSuccess" : "UserLoginFailed",
+            success ? $"User logged in: {user.Email}" : $"Failed login attempt for: {user.Email}",
+            entityId: user.Id.ToString(),
+            entityType: "User",
+            metadata: new { Email = user.Email, Role = user.Role.ToString(), IsSuccess = success });
     }
 
     private static string GenerateRoleId(string prefix)

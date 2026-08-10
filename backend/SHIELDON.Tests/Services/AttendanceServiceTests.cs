@@ -50,4 +50,78 @@ public class AttendanceServiceTests
         // Assert
         await act.Should().ThrowAsync<KeyNotFoundException>();
     }
+
+    [Fact]
+    public async Task QrCode_ScannedAtExactExpirationMillisecond_ShouldSucceed()
+    {
+        // Arrange
+        using var dbContext = new AppDbContext(_dbOptions);
+        var checkId = Guid.NewGuid();
+        var studentId = Guid.NewGuid();
+        var secret = "secret123";
+        var baseTime = DateTime.UtcNow;
+        var expiresAt = baseTime.AddSeconds(15);
+
+        dbContext.AttendanceChecks.Add(new AttendanceCheck
+        {
+            Id = checkId,
+            CourseId = Guid.NewGuid(),
+            TutorId = Guid.NewGuid(),
+            Title = "Test Check",
+            IsActive = true,
+            CurrentSecret = secret,
+            SecretExpiresAt = expiresAt,
+            CreatedAt = baseTime
+        });
+        await dbContext.SaveChangesAsync();
+
+        var mockTime = new Mock<SHIELDON.Application.Common.ITimeProvider>();
+        mockTime.Setup(t => t.UtcNow).Returns(expiresAt); // Exact millisecond boundary
+
+        var service = new AttendanceService(dbContext, mockTime.Object);
+
+        // Act
+        var result = await service.VerifyAndMarkAsync(studentId, checkId, secret);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.StudentId.Should().Be(studentId);
+    }
+
+    [Fact]
+    public async Task QrCode_ScannedOneMillisecondAfterExpiration_ShouldFail()
+    {
+        // Arrange
+        using var dbContext = new AppDbContext(_dbOptions);
+        var checkId = Guid.NewGuid();
+        var studentId = Guid.NewGuid();
+        var secret = "secret123";
+        var baseTime = DateTime.UtcNow;
+        var expiresAt = baseTime.AddSeconds(15);
+
+        dbContext.AttendanceChecks.Add(new AttendanceCheck
+        {
+            Id = checkId,
+            CourseId = Guid.NewGuid(),
+            TutorId = Guid.NewGuid(),
+            Title = "Test Check",
+            IsActive = true,
+            CurrentSecret = secret,
+            SecretExpiresAt = expiresAt,
+            CreatedAt = baseTime
+        });
+        await dbContext.SaveChangesAsync();
+
+        var mockTime = new Mock<SHIELDON.Application.Common.ITimeProvider>();
+        mockTime.Setup(t => t.UtcNow).Returns(expiresAt.AddMilliseconds(1)); // 1ms after boundary
+
+        var service = new AttendanceService(dbContext, mockTime.Object);
+
+        // Act
+        Func<Task> act = async () => await service.VerifyAndMarkAsync(studentId, checkId, secret);
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("QR code has expired. Please scan the latest code.");
+    }
 }

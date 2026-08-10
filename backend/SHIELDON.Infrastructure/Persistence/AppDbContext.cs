@@ -92,5 +92,10 @@ public class AppDbContext : DbContext
         // Apply all IEntityTypeConfiguration<T> classes found in this assembly
         // Each entity has its own configuration file in Persistence/Configurations/
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+
+        // ── Global Query Filters for Soft Deletion (W5) ─────────────────────
+        modelBuilder.Entity<CourseMaterial>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<Announcement>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<ExamQuestion>().HasQueryFilter(e => !e.IsDeleted);
     }
 }

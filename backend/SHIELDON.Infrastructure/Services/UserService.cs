@@ -16,10 +16,12 @@ namespace SHIELDON.Infrastructure.Services;
 public class UserService : IUserService
 {
     private readonly AppDbContext _db;
+    private readonly IUserActivityLogger _activityLogger;
 
-    public UserService(AppDbContext db)
+    public UserService(AppDbContext db, IUserActivityLogger? activityLogger = null)
     {
         _db = db;
+        _activityLogger = activityLogger ?? new NullUserActivityLogger();
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -146,6 +148,15 @@ public class UserService : IUserService
         user.UpdatedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync(ct);
+
+        await _activityLogger.LogAsync(
+            null,
+            "SECURITY",
+            "UserAccountLocked",
+            $"Account locked for user: {user.Email} ({user.Role})",
+            entityId: user.Id.ToString(),
+            entityType: "User",
+            ct: ct);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -163,5 +174,14 @@ public class UserService : IUserService
         user.UpdatedAt = DateTime.UtcNow;
 
         await _db.SaveChangesAsync(ct);
+
+        await _activityLogger.LogAsync(
+            null,
+            "SECURITY",
+            "UserAccountUnlocked",
+            $"Account unlocked for user: {user.Email} ({user.Role})",
+            entityId: user.Id.ToString(),
+            entityType: "User",
+            ct: ct);
     }
 }

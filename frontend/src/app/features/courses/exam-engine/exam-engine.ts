@@ -9,7 +9,7 @@ import { takeUntil, debounceTime } from 'rxjs/operators';
 import Swal from 'sweetalert2';
 import { ExamService } from '../services/exam.service';
 import { ExamDetailResponse } from '../../../core/models/exam.model';
-import { ExamAttemptService, StartExamResponse, StudentQuestionDto, QuestionType } from '../services/exam-attempt';
+import { ExamAttemptService, StartExamResponse, StudentQuestionDto, QuestionType, SaveAnswerRequest } from '../services/exam-attempt';
 import { AntiCheatService } from '../../anti-cheat/anti-cheat.service';
 import { AntiCheatOverlayComponent } from '../../anti-cheat/anti-cheat-overlay/anti-cheat-overlay';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -65,6 +65,7 @@ export class ExamEngine implements OnInit, OnDestroy {
   allRulesAcknowledged = computed(() => this.rulesChecked().every(Boolean));
 
   strikeCount = computed(() => this.antiCheat.getFormattedStrikeCount());
+  numericStrikeCount = computed(() => Number(this.strikeCount()) || 0);
 
   // Timer & Heartbeat
   timeRemainingSeconds = signal<number>(0);
@@ -170,10 +171,15 @@ export class ExamEngine implements OnInit, OnDestroy {
     });
   }
 
+  private onlineListener?: () => void;
+
   ngOnInit(): void {
     // ✅ Always hard-reset anti-cheat state when entering the exam engine
     // This guarantees no overlay from a previous session is ever shown on the rules page
     this.antiCheat.resetState();
+
+    this.onlineListener = () => this.flushPendingDrafts();
+    window.addEventListener('online', this.onlineListener);
 
     const id = this.route.snapshot.paramMap.get('examId');
     if (!id) {
@@ -384,21 +390,77 @@ export class ExamEngine implements OnInit, OnDestroy {
     this.answerChange$.next({question, value});
   }
 
+  private getDraftKey(attemptId: string): string {
+    return `shieldon_draft_${attemptId}`;
+  }
+
+  private queueUnsavedDraft(attemptId: string, questionId: string, value: string, isOption: boolean): void {
+    const draftKey = this.getDraftKey(attemptId);
+    const existingRaw = sessionStorage.getItem(draftKey);
+    const queue: Record<string, SaveAnswerRequest> = existingRaw ? JSON.parse(existingRaw) : {};
+    
+    queue[questionId] = {
+      questionId,
+      selectedOptionId: isOption ? value : null,
+      textAnswer: isOption ? null : value
+    };
+
+    sessionStorage.setItem(draftKey, JSON.stringify(queue));
+  }
+
+  private removeDraftFromQueue(attemptId: string, questionId: string): void {
+    const draftKey = this.getDraftKey(attemptId);
+    const existingRaw = sessionStorage.getItem(draftKey);
+    if (!existingRaw) return;
+
+    const queue: Record<string, SaveAnswerRequest> = JSON.parse(existingRaw);
+    delete queue[questionId];
+
+    if (Object.keys(queue).length === 0) {
+      sessionStorage.removeItem(draftKey);
+    } else {
+      sessionStorage.setItem(draftKey, JSON.stringify(queue));
+    }
+  }
+
+  private flushPendingDrafts(): void {
+    const attemptId = this.attemptData()?.attemptId;
+    if (!attemptId) return;
+
+    const draftKey = this.getDraftKey(attemptId);
+    const existingRaw = sessionStorage.getItem(draftKey);
+    if (!existingRaw) return;
+
+    const queue: Record<string, SaveAnswerRequest> = JSON.parse(existingRaw);
+    const requests = Object.values(queue);
+    if (requests.length === 0) return;
+
+    for (const req of requests) {
+      this.attemptService.saveAnswer(attemptId, req).subscribe({
+        next: () => this.removeDraftFromQueue(attemptId, req.questionId),
+        error: () => {} // Kept in queue for next online event
+      });
+    }
+  }
+
   private executeSaveAnswer(question: StudentQuestionDto, value: string): void {
     const attemptId = this.attemptData()?.attemptId;
     if (!attemptId) return;
 
     const isOption = question.type !== 'ShortAnswer'; // In our enum: MCQ | TrueFalse
-    
-    this.attemptService.saveAnswer(attemptId, {
+    const reqPayload: SaveAnswerRequest = {
       questionId: question.id,
       selectedOptionId: isOption ? value : null,
       textAnswer: isOption ? null : value
-    }).subscribe({
+    };
+    
+    this.attemptService.saveAnswer(attemptId, reqPayload).subscribe({
       next: () => {
+        this.removeDraftFromQueue(attemptId, question.id);
         this.savingState.update(s => ({ ...s, [question.id]: false }));
       },
       error: () => {
+        this.queueUnsavedDraft(attemptId, question.id, value, isOption);
         this.toastr.error(this.translate.instant('EXAM_ENGINE.TOAST_ERR_SAVE'));
         this.savingState.update(s => ({ ...s, [question.id]: false }));
       }
@@ -434,6 +496,7 @@ export class ExamEngine implements OnInit, OnDestroy {
     const attemptId = this.attemptData()?.attemptId;
     if (!attemptId) return;
 
+    sessionStorage.removeItem(this.getDraftKey(attemptId));
     this.state.set('submitting');
     this.timerSub?.unsubscribe();
     this.antiCheat.stopMonitoring();

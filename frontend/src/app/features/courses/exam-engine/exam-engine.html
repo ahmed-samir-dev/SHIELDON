@@ -110,9 +110,42 @@
       </div>
       
       <div class="header-metrics">
-        <div class="violations-container" [title]="'EXAM_ENGINE.VIOLATIONS_TOOLTIP' | translate:{ strikes: strikeCount() }">
-          <lucide-icon [img]="AlertTriangle" size="20"></lucide-icon>
-          <span class="count">{{ strikeCount() }}/3</span>
+        <!-- Modern Violation Stepper -->
+        <div class="violations-stepper-container" 
+             [ngClass]="'strikes-' + (numericStrikeCount() > 3 ? 3 : numericStrikeCount())" 
+             [title]="'EXAM_ENGINE.VIOLATIONS_TOOLTIP' | translate:{ strikes: strikeCount() }">
+          <div class="stepper-header-badge">
+            <lucide-icon [img]="AlertTriangle" class="warning-icon" size="16"></lucide-icon>
+            <span class="stepper-label">{{ 'EXAM_ENGINE.STRIKES_LABEL' | translate }}</span>
+            <span class="stepper-count">{{ strikeCount() }}/3</span>
+          </div>
+
+          <div class="stepper-track">
+            <div class="stepper-node" [class.active]="numericStrikeCount() >= 1" [class.current]="numericStrikeCount() === 1">
+              <span class="node-dot">
+                <span class="node-inner">1</span>
+              </span>
+              <span class="node-pulse" *ngIf="numericStrikeCount() === 1"></span>
+            </div>
+
+            <div class="stepper-line" [class.active]="numericStrikeCount() >= 2"></div>
+
+            <div class="stepper-node" [class.active]="numericStrikeCount() >= 2" [class.current]="numericStrikeCount() === 2">
+              <span class="node-dot">
+                <span class="node-inner">2</span>
+              </span>
+              <span class="node-pulse" *ngIf="numericStrikeCount() === 2"></span>
+            </div>
+
+            <div class="stepper-line" [class.active]="numericStrikeCount() >= 3"></div>
+
+            <div class="stepper-node node-limit" [class.active]="numericStrikeCount() >= 3" [class.current]="numericStrikeCount() >= 3">
+              <span class="node-dot">
+                <span class="node-inner">3</span>
+              </span>
+              <span class="node-pulse" *ngIf="numericStrikeCount() >= 3"></span>
+            </div>
+          </div>
         </div>
 
         <div class="timer-container" [ngClass]="'status-' + timerStatus()">
@@ -251,9 +284,11 @@
         SHIELDON <span class="separator">|</span> <span class="exam-title">{{ examDetails()?.title }}</span>
       </div>
       
-      <div class="timer-container" [ngClass]="'status-' + timerStatus()">
-        <lucide-icon [img]="Clock" size="20"></lucide-icon>
-        {{ formattedTime() }}
+      <div class="header-metrics">
+        <div class="timer-container" [ngClass]="'status-' + timerStatus()">
+          <lucide-icon [img]="Clock" size="20"></lucide-icon>
+          {{ formattedTime() }}
+        </div>
       </div>
 
       <button class="submit-btn" (click)="submitFinal()">

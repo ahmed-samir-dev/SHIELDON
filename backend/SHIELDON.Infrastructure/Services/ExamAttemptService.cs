@@ -15,12 +15,18 @@ public class ExamAttemptService : IExamAttemptService
     private readonly AppDbContext _db;
     private readonly INotificationService _notifications;
     private readonly IDashboardNotificationService _dashboardNotifications;
+    private readonly IUserActivityLogger _activityLogger;
 
-    public ExamAttemptService(AppDbContext db, INotificationService notifications, IDashboardNotificationService dashboardNotifications)
+    public ExamAttemptService(
+        AppDbContext db,
+        INotificationService notifications,
+        IDashboardNotificationService dashboardNotifications,
+        IUserActivityLogger? activityLogger = null)
     {
         _db = db;
         _notifications = notifications;
         _dashboardNotifications = dashboardNotifications;
+        _activityLogger = activityLogger ?? new NullUserActivityLogger();
     }
 
     public async Task<ApiResponse<StartExamResponse>> StartExamAsync(Guid examId, Guid studentId, CancellationToken ct = default)
@@ -71,6 +77,7 @@ public class ExamAttemptService : IExamAttemptService
 
         // Check for active attempt
         var activeAttempt = await _db.ExamAttempts
+            .AsNoTracking()
             .Include(a => a.Token)
             .Include(a => a.Answers)
             .Include(a => a.AttemptQuestions)
@@ -197,6 +204,15 @@ public class ExamAttemptService : IExamAttemptService
 
         await _db.SaveChangesAsync(ct);
         await _dashboardNotifications.NotifyDashboardUpdatedAsync();
+
+        await _activityLogger.LogAsync(
+            studentId,
+            "EXAM",
+            "ExamAttemptStarted",
+            $"Started attempt for exam: {exam.Title}",
+            entityId: attempt.Id.ToString(),
+            entityType: "ExamAttempt",
+            ct: ct);
 
         // Reload with options for the response
         await _db.Entry(attempt).Collection(a => a.AttemptQuestions).Query()
@@ -326,6 +342,20 @@ public class ExamAttemptService : IExamAttemptService
 
         await _db.SaveChangesAsync(ct);
         await _dashboardNotifications.NotifyDashboardUpdatedAsync();
+
+        string actionName = isForceSubmit ? "ExamAutoSubmitted_Violation" : "ExamAttemptSubmitted";
+        string desc = isForceSubmit 
+            ? $"Exam attempt force-submitted due to 3 integrity strikes."
+            : $"Exam attempt submitted cleanly by student.";
+
+        await _activityLogger.LogAsync(
+            attempt.StudentId,
+            "EXAM",
+            actionName,
+            desc,
+            entityId: attempt.Id.ToString(),
+            entityType: "ExamAttempt",
+            ct: ct);
 
         // ── Create / update GradeRecord & handle result visibility ────────────
         // Only create GradeRecord when the attempt is fully graded (not awaiting manual review)

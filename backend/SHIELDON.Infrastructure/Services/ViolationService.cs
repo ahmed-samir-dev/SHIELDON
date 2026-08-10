@@ -23,11 +23,13 @@ public class ViolationService : IViolationService
 {
     private readonly AppDbContext _db;
     private readonly IDashboardNotificationService _notificationService;
+    private readonly IUserActivityLogger _activityLogger;
 
-    public ViolationService(AppDbContext db, IDashboardNotificationService notificationService)
+    public ViolationService(AppDbContext db, IDashboardNotificationService notificationService, IUserActivityLogger? activityLogger = null)
     {
         _db = db;
         _notificationService = notificationService;
+        _activityLogger = activityLogger ?? new NullUserActivityLogger();
     }
 
     // ── Constants ───────────────────────────────────────────────────────────────
@@ -90,6 +92,17 @@ public class ViolationService : IViolationService
             _db.ViolationLogs.AddRange(logsToInsert);
             await _db.SaveChangesAsync(ct);
             await _notificationService.NotifyDashboardUpdatedAsync();
+
+            var firstViolation = logsToInsert[0];
+            await _activityLogger.LogAsync(
+                studentId,
+                "EXAM",
+                "AntiCheatViolationLogged",
+                $"Logged {logsToInsert.Count} anti-cheat violation(s): {firstViolation.Type} ({firstViolation.Severity})",
+                entityId: firstViolation.AttemptId.ToString(),
+                entityType: "ExamAttempt",
+                metadata: new { TotalBatchCount = logsToInsert.Count, PrimaryType = firstViolation.Type.ToString() },
+                ct: ct);
         }
 
         return ApiResponse<string>.Ok($"{logsToInsert.Count} violation(s) logged successfully.");

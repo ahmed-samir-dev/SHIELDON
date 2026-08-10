@@ -1,5 +1,6 @@
 using SHIELDON.Domain.Enums;
 using SHIELDON.Domain.Common;
+using SHIELDON.Domain.Interfaces;
 
 namespace SHIELDON.Domain.Entities;
 
@@ -7,9 +8,13 @@ namespace SHIELDON.Domain.Entities;
 /// A single question that lives in a course's centralized question bank.
 /// Questions are no longer exam-specific; any exam in the course can draw from this bank.
 /// </summary>
-public class ExamQuestion : ITranslatable
+public class ExamQuestion : ITranslatable, ISoftDeletable
 {
     public Guid Id { get; set; }
+
+    // ── Soft Delete ──────────────────────────────────────────────
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
 
     // ── Ownership (course-level, not exam-level) ─────────────────
     public Guid CourseId { get; set; }

@@ -1,4 +1,5 @@
-import { Injectable, inject, signal, computed, NgZone, OnDestroy } from '@angular/core';
+import { Injectable, NgZone, OnDestroy, inject, DestroyRef, signal, computed } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpClient } from '@angular/common/http';
 import { Subject, Subscription, interval } from 'rxjs';
 import { ViolationService, ViolationLogRequest, ViolationType, ViolationSeverity } from '../../core/services/violation.service';
@@ -104,8 +105,10 @@ export class AntiCheatService implements OnDestroy {
   private boundHandleOnline = this.handleOnline.bind(this);
   private boundHandleOffline = this.handleOffline.bind(this);
 
+  private destroyRef = inject(DestroyRef);
+
   constructor() {
-    this.violations$.subscribe(v => {
+    this.violations$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(v => {
       this.processViolation(v);
     });
   }

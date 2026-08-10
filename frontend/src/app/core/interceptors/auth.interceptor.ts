@@ -1,74 +1,91 @@
+import { Injectable, inject } from '@angular/core';
 import { HttpInterceptorFn, HttpErrorResponse, HttpRequest, HttpHandlerFn } from '@angular/common/http';
-import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, throwError, switchMap, BehaviorSubject, filter, take } from 'rxjs';
+import { catchError, throwError, switchMap, BehaviorSubject, filter, take, Observable } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
-let isRefreshing = false;
-const refreshSubject = new BehaviorSubject<string | null>(null);
+@Injectable({ providedIn: 'root' })
+export class AuthInterceptorService {
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
+  private isRefreshing = false;
+  private refreshSubject = new BehaviorSubject<string | null>(null);
 
-  // Skip auth endpoints to avoid infinite loops
-  if (isAuthRoute(req.url)) {
-    return next(req);
-  }
+  public intercept(req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<any> {
+    // Skip auth endpoints to avoid infinite loops & handling 401s on auth routes
+    if (this.isAuthRoute(req.url)) {
+      return next(req);
+    }
 
-  const token = authService.getAccessToken();
-  const authReq = token ? addToken(req, token) : req;
+    const token = this.authService.getAccessToken();
+    const authReq = token ? this.addToken(req, token) : req;
 
-  return next(authReq).pipe(
-    catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && authService.getRefreshToken()) {
-        return handle401Error(req, next, authService, router);
-      }
-      return throwError(() => error);
-    })
-  );
-};
-
-function handle401Error(
-  req: HttpRequest<unknown>,
-  next: HttpHandlerFn,
-  authService: AuthService,
-  router: Router
-) {
-  if (!isRefreshing) {
-    isRefreshing = true;
-    refreshSubject.next(null);
-
-    return authService.refreshAccessToken().pipe(
-      switchMap(response => {
-        isRefreshing = false;
-        const newToken = response.data.accessToken;
-        refreshSubject.next(newToken);
-        return next(addToken(req, newToken));
-      }),
-      catchError(err => {
-        isRefreshing = false;
-        authService.logout();
-        router.navigate(['/login']);
-        return throwError(() => err);
+    return next(authReq).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 401 && this.authService.getRefreshToken()) {
+          return this.handle401Error(req, next);
+        }
+        return throwError(() => error);
       })
     );
   }
 
-  // If already refreshing, queue subsequent requests to wait for the new token
-  return refreshSubject.pipe(
-    filter(token => token !== null),
-    take(1),
-    switchMap(token => next(addToken(req, token!)))
-  );
+  public resetState(): void {
+    this.isRefreshing = false;
+    this.refreshSubject.next(null);
+  }
+
+  private handle401Error(req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<any> {
+    if (!this.isRefreshing) {
+      this.isRefreshing = true;
+      this.refreshSubject.next(null);
+
+      return this.authService.refreshAccessToken().pipe(
+        switchMap(response => {
+          this.isRefreshing = false;
+          const newToken = response.data.accessToken;
+          this.refreshSubject.next(newToken);
+          return next(this.addToken(req, newToken));
+        }),
+        catchError(err => {
+          this.isRefreshing = false;
+          this.authService.logout();
+          this.router.navigate(['/login']);
+          return throwError(() => err);
+        })
+      );
+    }
+
+    // If already refreshing, queue subsequent requests to wait for the new token
+    return this.refreshSubject.pipe(
+      filter(token => token !== null),
+      take(1),
+      switchMap(token => next(this.addToken(req, token!)))
+    );
+  }
+
+  private addToken(req: HttpRequest<unknown>, token: string): HttpRequest<unknown> {
+    return req.clone({
+      setHeaders: { Authorization: `Bearer ${token}` }
+    });
+  }
+
+  private isAuthRoute(url: string): boolean {
+    return (
+      url.includes('/auth/login') ||
+      url.includes('/auth/refresh') ||
+      url.includes('/auth/register') ||
+      url.includes('/auth/forgot-password') ||
+      url.includes('/auth/reset-password') ||
+      url.includes('/auth/verify-email') ||
+      url.includes('/auth/resend-verification') ||
+      url.includes('/auth/google')
+    );
+  }
 }
 
-function addToken(req: HttpRequest<unknown>, token: string): HttpRequest<unknown> {
-  return req.clone({
-    setHeaders: { Authorization: `Bearer ${token}` }
-  });
-}
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  return inject(AuthInterceptorService).intercept(req, next);
+};
 
-function isAuthRoute(url: string): boolean {
-  return url.includes('/auth/login') || url.includes('/auth/refresh');
-}

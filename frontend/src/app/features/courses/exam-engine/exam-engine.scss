@@ -270,11 +270,26 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes stepperPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  70% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+}
+
 /* ── Active Engine State ──────────────────────────────────────────────── */
 .engine-header {
-  height: 72px;
+  height: 76px;
   background: var(--theme-bg-surface);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--theme-border);
   display: flex;
   align-items: center;
@@ -312,35 +327,205 @@
   .header-metrics {
     display: flex;
     align-items: center;
-    gap: $spacing-4;
+    gap: $spacing-5;
 
-    .violations-container {
+    /* ── Modern Violation Stepper Capsule ─────────────────────────── */
+    .violations-stepper-container {
       display: flex;
       align-items: center;
-      gap: $spacing-2;
-      padding: 8px 16px;
-      border-radius: $border-radius-round;
-      background: rgba($color-danger-base, 0.1);
-      border: 1px solid rgba($color-danger-base, 0.3);
-      color: $color-danger-dark;
-      font-weight: $font-weight-bold;
-      font-size: $font-size-base;
+      gap: 12px;
+      padding: 5px 14px 5px 10px;
+      border-radius: 36px;
+      background: var(--theme-bg-secondary);
+      border: 1px solid var(--theme-border);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
       cursor: help;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      height: 44px;
 
-      lucide-icon { color: $color-danger-dark; }
+      .stepper-header-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
 
-      &:hover {
-        background: rgba($color-danger-base, 0.15);
-        border-color: rgba($color-danger-base, 0.5);
+        .warning-icon {
+          transition: transform 0.3s ease;
+        }
+
+        .stepper-label {
+          font-weight: 700;
+          letter-spacing: 0.5px;
+        }
+
+        .stepper-count {
+          font-weight: 800;
+          font-size: 0.85rem;
+          font-variant-numeric: tabular-nums;
+          margin-left: 2px;
+        }
+      }
+
+      .stepper-track {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        .stepper-node {
+          position: relative;
+          width: 26px;
+          height: 26px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: var(--theme-bg-surface);
+          border: 2px solid var(--theme-border-strong);
+          color: var(--theme-text-muted);
+          font-size: 0.72rem;
+          font-weight: 800;
+          transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+          .node-inner {
+            position: relative;
+            z-index: 2;
+          }
+
+          .node-pulse {
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            z-index: 1;
+            animation: stepperPulse 1.8s ease-in-out infinite;
+          }
+        }
+
+        .stepper-line {
+          width: 14px;
+          height: 3px;
+          background: var(--theme-border-strong);
+          border-radius: 2px;
+          transition: background 0.3s ease;
+        }
+      }
+
+      /* State 0: Safe State */
+      &.strikes-0 {
+        border-color: rgba(16, 185, 129, 0.3);
+
+        .stepper-header-badge {
+          background: rgba(16, 185, 129, 0.1);
+          color: #10b981;
+          .warning-icon { color: #10b981; }
+        }
+
+        &:hover {
+          border-color: rgba(16, 185, 129, 0.5);
+          box-shadow: 0 4px 14px rgba(16, 185, 129, 0.12);
+        }
+      }
+
+      /* State 1: Warning 1 */
+      &.strikes-1 {
+        border-color: rgba(245, 158, 11, 0.5);
+        box-shadow: 0 0 12px rgba(245, 158, 11, 0.15);
+
+        .stepper-header-badge {
+          background: rgba(245, 158, 11, 0.15);
+          color: #d97706;
+          .warning-icon { color: #d97706; }
+        }
+
+        .stepper-node.active {
+          background: #f59e0b;
+          border-color: #d97706;
+          color: #ffffff;
+          box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4);
+
+          &.current {
+            transform: scale(1.08);
+            .node-pulse {
+              border: 2px solid rgba(245, 158, 11, 0.6);
+            }
+          }
+        }
+      }
+
+      /* State 2: Warning 2 */
+      &.strikes-2 {
+        border-color: rgba(249, 115, 22, 0.6);
+        box-shadow: 0 0 16px rgba(249, 115, 22, 0.22);
+
+        .stepper-header-badge {
+          background: rgba(249, 115, 22, 0.18);
+          color: #ea580c;
+          .warning-icon { color: #ea580c; }
+        }
+
+        .stepper-node.active {
+          background: #f97316;
+          border-color: #ea580c;
+          color: #ffffff;
+          box-shadow: 0 2px 8px rgba(249, 115, 22, 0.4);
+
+          &.current {
+            transform: scale(1.12);
+            .node-pulse {
+              border: 2px solid rgba(249, 115, 22, 0.7);
+            }
+          }
+        }
+
+        .stepper-line.active {
+          background: #f97316;
+        }
+      }
+
+      /* State 3: Critical Limit */
+      &.strikes-3 {
+        border-color: rgba(239, 68, 68, 0.7);
+        box-shadow: 0 0 20px rgba(239, 68, 68, 0.35);
+
+        .stepper-header-badge {
+          background: rgba(239, 68, 68, 0.22);
+          color: #dc2626;
+          .warning-icon { color: #dc2626; }
+        }
+
+        .stepper-node.active {
+          background: #ef4444;
+          border-color: #b91c1c;
+          color: #ffffff;
+          box-shadow: 0 2px 10px rgba(239, 68, 68, 0.5);
+
+          &.node-limit {
+            transform: scale(1.15);
+            .node-pulse {
+              border: 2px solid rgba(239, 68, 68, 0.8);
+            }
+          }
+        }
+
+        .stepper-line.active {
+          background: #ef4444;
+        }
       }
     }
 
     .timer-container {
+      height: 44px;
       display: flex;
       align-items: center;
       gap: $spacing-2;
-      padding: 8px 20px;
+      padding: 0 20px;
       border-radius: $border-radius-round;
       background: var(--theme-bg-secondary);
       border: 1px solid var(--theme-border);

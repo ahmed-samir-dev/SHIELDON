@@ -51,7 +51,10 @@
   "PUBLIC": {
     "LOGIN": "Login",
     "GET_STARTED": "Get Started",
-    "FOOTER_COPYRIGHT": "© 2026 SHIELDON. All Rights Reserved."
+    "FOOTER_COPYRIGHT": "© 2026 SHIELDON. All Rights Reserved.",
+    "CRAFTED_BY": "Crafted with",
+    "BY_AUTHOR": "by",
+    "DEV_NAME": "Ahmed Samir"
   },
   "LANDING": {
     "HERO_BADGE": "Next-Gen LMS",
@@ -886,7 +889,8 @@
     "SWAL_RESUME_TITLE": "Exam Resumed",
     "SWAL_RESUME_DESC": "You currently have <strong>{{strikes}} out of 3</strong> allowed violations.<br><br><span style='color: #dc3545; font-weight: bold;'>Warning:</span> Reaching 3 violations will immediately terminate your exam.",
     "BTN_UNDERSTOOD": "I Understand",
-    "VIOLATIONS_TOOLTIP": "3 violations will terminate the exam. You have {{strikes}} out of 3."
+    "VIOLATIONS_TOOLTIP": "3 violations will terminate the exam. You have {{strikes}} out of 3.",
+    "STRIKES_LABEL": "STRIKES"
   },
   "EXAM_RESULT_PAGE": {
     "LOADING": "Loading your results...",

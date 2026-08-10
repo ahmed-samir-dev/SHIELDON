@@ -50,9 +50,13 @@ export class AuthService {
 
   logout(): void {
     const refreshToken = this.getRefreshToken();
-    if (refreshToken) {
-      // Fire-and-forget: revoke on server, don't wait for response
-      this.http.post(`${environment.apiUrl}/auth/logout`, { refreshToken }).subscribe({
+    const accessToken = this.getAccessToken();
+
+    if (refreshToken && accessToken) {
+      // Fire-and-forget: revoke on server, attach token so backend records UserLogout log
+      this.http.post(`${environment.apiUrl}/auth/logout`, { refreshToken }, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      }).subscribe({
         error: () => {} // Silently ignore network errors on logout
       });
     }

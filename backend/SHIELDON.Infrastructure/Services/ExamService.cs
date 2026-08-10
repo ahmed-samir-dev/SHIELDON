@@ -19,11 +19,13 @@ public class ExamService : IExamService
 {
     private readonly AppDbContext _db;
     private readonly INotificationService _notificationService;
+    private readonly IUserActivityLogger _activityLogger;
 
-    public ExamService(AppDbContext db, INotificationService notificationService)
+    public ExamService(AppDbContext db, INotificationService notificationService, IUserActivityLogger? activityLogger = null)
     {
         _db = db;
         _notificationService = notificationService;
+        _activityLogger = activityLogger ?? new NullUserActivityLogger();
     }
 
     // ── Create ────────────────────────────────────────────────────────────────
@@ -94,6 +96,15 @@ public class ExamService : IExamService
         }
 
         await _db.SaveChangesAsync(ct);
+
+        await _activityLogger.LogAsync(
+            requestingUserId,
+            "EXAM",
+            "ExamCreated",
+            $"Created exam '{exam.Title}' for course: {course.Title}",
+            entityId: exam.Id.ToString(),
+            entityType: "Exam",
+            ct: ct);
 
         var bankCount = await _db.ExamQuestions.CountAsync(q => q.CourseId == courseId, ct);
         return MapToSummary(exam, course.Title, bankCount, []);
@@ -438,6 +449,15 @@ public class ExamService : IExamService
         exam.Status = ExamStatus.Published;
         exam.UpdatedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync(ct);
+
+        await _activityLogger.LogAsync(
+            requestingUserId,
+            "EXAM",
+            "ExamPublished",
+            $"Published exam '{exam.Title}' for course: {exam.Course!.Title}",
+            entityId: exam.Id.ToString(),
+            entityType: "Exam",
+            ct: ct);
 
         // ── Notify all enrolled students ──────────────────────────────────────
         var enrolledStudentIds = await _db.CourseEnrollments

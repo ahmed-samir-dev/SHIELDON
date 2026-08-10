@@ -39,6 +39,10 @@ var builder = WebApplication.CreateBuilder(args);
     // ── INFRASTRUCTURE: Register all services (DB, Email, JWT, Files, etc.) ─
     builder.Services.AddInfrastructure(builder.Configuration);
 
+    // ── HEALTH CHECKS ─────────────────────────────────────────────────────
+    builder.Services.AddHealthChecks()
+        .AddDbContextCheck<SHIELDON.Infrastructure.Persistence.AppDbContext>("database");
+
     // ── STRIPE: Initialize global configuration ───────────────────────────
     Stripe.StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
@@ -287,6 +291,21 @@ app.UseSerilogRequestLogging();
 
 // ── CONTROLLERS ───────────────────────────────────────────────────────
 app.MapControllers();
+
+// ── HEALTH CHECKS ─────────────────────────────────────────────────────
+app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json";
+        var result = JsonSerializer.Serialize(new
+        {
+            status = report.Status.ToString(),
+            checks = report.Entries.Select(e => new { name = e.Key, status = e.Value.Status.ToString() })
+        });
+        await context.Response.WriteAsync(result);
+    }
+}).AllowAnonymous();
 
 // ── SIGNALR HUBS ──────────────────────────────────────────────────────
 app.MapHub<ChatHub>("/hubs/chat");

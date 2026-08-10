@@ -1,5 +1,6 @@
 using SHIELDON.Domain.Enums;
 using SHIELDON.Domain.Common;
+using SHIELDON.Domain.Interfaces;
 
 namespace SHIELDON.Domain.Entities;
 
@@ -8,9 +9,13 @@ namespace SHIELDON.Domain.Entities;
 /// Important-priority announcements are pinned at the top and
 /// bypass notification aggregation for immediate delivery.
 /// </summary>
-public class Announcement : ITranslatable
+public class Announcement : ITranslatable, ISoftDeletable
 {
     public Guid Id { get; set; }
+
+    // ── Soft Delete ──────────────────────────────────────────────
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
 
     // ── Relationship Keys ────────────────────────────────────────
     public Guid CourseId { get; set; }

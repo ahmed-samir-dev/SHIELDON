@@ -238,7 +238,8 @@ public class QuestionService : IQuestionService
         var question = await LoadQuestionAsync(questionId, ct);
         AuthorizeForCourse(question.Course!, requestingUserId, requestingUserRole);
 
-        _db.ExamQuestions.Remove(question);
+        question.IsDeleted = true;
+        question.DeletedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync(ct);
 
         // Re-normalize OrderIndex for remaining questions

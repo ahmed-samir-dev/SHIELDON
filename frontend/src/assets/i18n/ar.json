@@ -51,7 +51,10 @@
   "PUBLIC": {
     "LOGIN": "تسجيل الدخول",
     "GET_STARTED": "ابدأ الآن",
-    "FOOTER_COPYRIGHT": "© 2026 شيلدون. جميع الحقوق محفوظة."
+    "FOOTER_COPYRIGHT": "© 2026 شيلدون. جميع الحقوق محفوظة.",
+    "CRAFTED_BY": "تم التطوير بـ",
+    "BY_AUTHOR": "بواسطة",
+    "DEV_NAME": "أحمد سمير"
   },
   "LANDING": {
     "HERO_BADGE": "نظام إدارة تعلم من الجيل القادم",
@@ -886,7 +889,8 @@
     "SWAL_RESUME_TITLE": "استئناف الامتحان",
     "SWAL_RESUME_DESC": "لديك حاليًا <strong>{{strikes}} من أصل 3</strong> انتهاكات مسموح بها.<br><br><span style='color: #dc3545; font-weight: bold;'>تحذير:</span> الوصول إلى 3 انتهاكات سيؤدي إلى إنهاء امتحانك فورًا.",
     "BTN_UNDERSTOOD": "أفهم ذلك",
-    "VIOLATIONS_TOOLTIP": "الوصول إلى 3 انتهاكات سينهي الامتحان. لديك حالياً {{strikes}} من 3."
+    "VIOLATIONS_TOOLTIP": "الوصول إلى 3 انتهاكات سينهي الامتحان. لديك حالياً {{strikes}} من 3.",
+    "STRIKES_LABEL": "الإنذارات"
   },
   "EXAM_RESULT_PAGE": {
     "LOADING": "جاري تحميل نتائجك...",

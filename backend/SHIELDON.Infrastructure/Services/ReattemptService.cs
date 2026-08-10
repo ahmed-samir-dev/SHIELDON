@@ -21,16 +21,22 @@ public class ReattemptService : IReattemptService
     private readonly AppDbContext _db;
     private readonly INotificationService _notificationService;
     private readonly IWebHostEnvironment _env;
+    private readonly IUserActivityLogger _activityLogger;
 
     private static readonly HashSet<string> AllowedAttachmentExtensions =
         [".jpg", ".jpeg", ".png", ".pdf", ".docx"];
     private const long MaxAttachmentSizeBytes = 10 * 1024 * 1024; // 10 MB
 
-    public ReattemptService(AppDbContext db, INotificationService notificationService, IWebHostEnvironment env)
+    public ReattemptService(
+        AppDbContext db,
+        INotificationService notificationService,
+        IWebHostEnvironment env,
+        IUserActivityLogger? activityLogger = null)
     {
         _db = db;
         _notificationService = notificationService;
         _env = env;
+        _activityLogger = activityLogger ?? new NullUserActivityLogger();
     }
 
     // ── Submit ────────────────────────────────────────────────────────────────
@@ -135,6 +141,15 @@ public class ReattemptService : IReattemptService
 
         _db.ReattemptRequests.Add(reattempt);
         await _db.SaveChangesAsync(ct);
+
+        await _activityLogger.LogAsync(
+            studentId,
+            "EXAM",
+            "ReattemptRequested",
+            $"Submitted re-attempt request for exam: {exam.Title}",
+            entityId: reattempt.Id.ToString(),
+            entityType: "ReattemptRequest",
+            ct: ct);
 
         // Notify Admin(s) and the course Tutor
         await NotifyReviewersAsync(
@@ -338,6 +353,17 @@ public class ReattemptService : IReattemptService
         }
 
         await _db.SaveChangesAsync(ct);
+
+        await _activityLogger.LogAsync(
+            reviewerId,
+            "EXAM",
+            request.Approved ? "ReattemptApproved" : "ReattemptRejected",
+            request.Approved
+                ? $"Approved re-attempt request for exam: {reattempt.Exam!.Title}"
+                : $"Rejected re-attempt request for exam: {reattempt.Exam!.Title}",
+            entityId: reattempt.Id.ToString(),
+            entityType: "ReattemptRequest",
+            ct: ct);
 
         // Notify the student
         if (request.Approved)

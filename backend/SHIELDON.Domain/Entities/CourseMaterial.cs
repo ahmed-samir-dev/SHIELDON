@@ -1,5 +1,6 @@
 using SHIELDON.Domain.Enums;
 using SHIELDON.Domain.Common;
+using SHIELDON.Domain.Interfaces;
 
 namespace SHIELDON.Domain.Entities;
 
@@ -7,9 +8,13 @@ namespace SHIELDON.Domain.Entities;
 /// Represents a file or external link shared by a Tutor within a course.
 /// Only enrolled students can access materials.
 /// </summary>
-public class CourseMaterial : ITranslatable
+public class CourseMaterial : ITranslatable, ISoftDeletable
 {
     public Guid Id { get; set; }
+
+    // ── Soft Delete ──────────────────────────────────────────────
+    public bool IsDeleted { get; set; }
+    public DateTime? DeletedAt { get; set; }
 
     // ── Relationship Keys ────────────────────────────────────────
     public Guid CourseId { get; set; }

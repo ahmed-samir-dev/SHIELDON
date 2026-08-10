@@ -25,6 +25,7 @@ public class ChatService : IChatService
     {
         // Fetch both DM and group conversations the user participates in
         var dmConversations = await _db.ChatConversations
+            .AsNoTracking()
             .Where(c => !c.IsGroup && (c.InitiatorId == currentUserId || c.ParticipantId == currentUserId))
             .Include(c => c.Initiator)
             .Include(c => c.Participant)
@@ -33,6 +34,7 @@ public class ChatService : IChatService
             .ToListAsync();
 
         var groupConversations = await _db.ChatConversations
+            .AsNoTracking()
             .Where(c => c.IsGroup && c.Participants.Any(p => p.UserId == currentUserId))
             .Include(c => c.Participants).ThenInclude(p => p.User)
             .Include(c => c.Messages.OrderByDescending(m => m.SentAt).Take(1))
@@ -146,7 +148,7 @@ public class ChatService : IChatService
             Id = Guid.NewGuid(),
             ConversationId = conversation.Id,
             SenderId = senderId,
-            Content = request.Content?.Trim() ?? string.Empty,
+            Content = SHIELDON.Infrastructure.Common.SanitizationHelper.StripHtml(request.Content),
             AttachmentUrl = request.AttachmentUrl,
             AttachmentType = request.AttachmentType,
             Status = MessageStatus.Sent,
