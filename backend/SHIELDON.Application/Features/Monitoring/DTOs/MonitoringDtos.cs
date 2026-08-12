@@ -8,7 +8,7 @@ namespace SHIELDON.Application.Features.Monitoring.DTOs;
 public class HeartbeatRequest
 {
     /// <summary>
-    /// Optional — if true, the frontend is telling us this is a page refresh / session resume.
+    /// Optional - if true, the frontend is telling us this is a page refresh / session resume.
     /// This will be logged as a PageRefreshed presence event.
     /// </summary>
     public bool IsPageRefresh { get; set; } = false;
@@ -218,7 +218,7 @@ public class ExamStatisticsQueryParams
 /// <summary>Full admin dashboard payload with platform-wide historical stats and analytics.</summary>
 public class AdminDashboardResponse
 {
-    // ── KPI Cards — Row 1 ────────────────────────────────────────────────────
+    // ── KPI Cards - Row 1 ────────────────────────────────────────────────────
     /// <summary>Total number of currently active (non-archived) courses on the platform.</summary>
     public int TotalActiveCourses { get; set; }
 
@@ -234,7 +234,7 @@ public class AdminDashboardResponse
     /// <summary>Total number of all violation events ever logged on the platform.</summary>
     public int TotalViolations { get; set; }
 
-    // ── KPI Cards — Row 2 ────────────────────────────────────────────────────
+    // ── KPI Cards - Row 2 ────────────────────────────────────────────────────
     /// <summary>Total number of registered Student accounts.</summary>
     public int TotalStudents { get; set; }
 
@@ -254,13 +254,13 @@ public class AdminDashboardResponse
     public decimal TotalRevenueUSD { get; set; }
 
     // ── Charts ────────────────────────────────────────────────────────────────
-    /// <summary>Violation counts grouped by course — for the "Violations by Course" chart.</summary>
+    /// <summary>Violation counts grouped by course - for the "Violations by Course" chart.</summary>
     public List<CourseViolationStat> ViolationsByCourse { get; set; } = [];
 
-    /// <summary>Submission outcome breakdown — for the "Global Submission Outcomes" chart.</summary>
+    /// <summary>Submission outcome breakdown - for the "Global Submission Outcomes" chart.</summary>
     public List<SubmissionOutcomeStat> GlobalSubmissionOutcomes { get; set; } = [];
 
-    /// <summary>Recent successful payments — for the "Recent Payments" bar chart.</summary>
+    /// <summary>Recent successful payments - for the "Recent Payments" bar chart.</summary>
     public List<RecentPaymentStat> RecentPayments { get; set; } = [];
 
     /// <summary>Top violation types for the ECharts horizontal bar chart.</summary>
@@ -334,7 +334,7 @@ public class DailyActivityPoint
     public int ViolationCount { get; set; }
 }
 
-/// <summary>Violation count per course — for the "Violations by Course" chart.</summary>
+/// <summary>Violation count per course - for the "Violations by Course" chart.</summary>
 public class CourseViolationStat
 {
     public string CourseTitle { get; set; } = string.Empty;

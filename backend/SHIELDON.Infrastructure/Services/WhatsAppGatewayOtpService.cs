@@ -7,7 +7,7 @@ namespace SHIELDON.Infrastructure.Services;
 
 /// <summary>
 /// Delivers OTP codes via a self-hosted WhatsApp Gateway microservice (Node.js + Baileys).
-/// The gateway uses WhatsApp Web socket protocol to send real WhatsApp messages — no Twilio, no per-message cost.
+/// The gateway uses WhatsApp Web socket protocol to send real WhatsApp messages - no Twilio, no per-message cost.
 /// Code generation, hashing, and verification are fully handled by ProfileService in C#.
 /// </summary>
 public class WhatsAppGatewayOtpService : IOtpService

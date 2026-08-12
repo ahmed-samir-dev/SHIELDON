@@ -1,8 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { SeoService } from '../../../core/services/seo.service';
 import { ToastrService } from 'ngx-toastr';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
@@ -13,11 +14,20 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.scss'
 })
-export class ForgotPassword {
+export class ForgotPassword implements OnInit {
   private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private seoService = inject(SeoService);
   private toastr = inject(ToastrService);
+
+  ngOnInit() {
+    this.seoService.updateSeoData({
+      title: 'Reset Password - SHIELDON',
+      description: 'Request a secure password reset link to recover access to your SHIELDON LMS account.',
+      keywords: 'Forgot Password, Reset Password, SHIELDON Account Recovery'
+    });
+  }
 
   isLoading = signal(false);
   isSuccess = signal(false);

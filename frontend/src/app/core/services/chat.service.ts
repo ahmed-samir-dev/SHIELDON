@@ -51,7 +51,7 @@ export class ChatService {
   readonly typingIndicators = signal<{conversationId: string, userId: string, userName: string}[]>([]);
   private typingTimeouts = new Map<string, any>();
 
-  // WebRTC Signals — set by incoming SignalR events, consumed by the component via effect()
+  // WebRTC Signals - set by incoming SignalR events, consumed by the component via effect()
   readonly incomingCall = signal<{callerId: string, signal: string} | null>(null);
   readonly callAnswered = signal<{answererId: string, signal: string} | null>(null);
   readonly iceCandidateReceived = signal<{senderId: string, signal: string} | null>(null);

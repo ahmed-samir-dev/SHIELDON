@@ -78,7 +78,7 @@ export class LeaderboardService {
       try {
         await this.hubConnection.invoke('LeaveCourseLeaderboard', courseId);
       } catch {
-        // Ignore errors on leave — connection may already be closing
+        // Ignore errors on leave - connection may already be closing
       }
       await this.hubConnection.stop();
     }

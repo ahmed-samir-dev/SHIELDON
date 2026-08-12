@@ -33,6 +33,7 @@
 This directory contains the backend for **SHIELDON**, organized using **Clean Architecture** with a **Vertical Slice Hybrid** approach in .NET 9, plus a Node.js microservice for WhatsApp integration.
 
 Key backend responsibilities:
+
 - **Authentication & Security**: ASP.NET Core Identity, JWT access/refresh tokens, Google OAuth 2.0, single active session enforcement (`SecurityHub`), and IP audit trail logging.
 - **WhatsApp OTP Verification**: `IOtpService` integration with a Node.js Baileys microservice for zero-cost 6-digit WhatsApp OTP delivery.
 - **LMS Engine**: Full CRUD for courses, enrollments, materials, announcements, assignments, grading, attendance, and calendar events.
@@ -45,29 +46,31 @@ Key backend responsibilities:
 ## ⚙️ Technology Stack
 
 ### Backend (.NET 9)
-| Technology | Purpose |
-|---|---|
-| **.NET 9 ASP.NET Core** | Web API framework |
-| **C#** | Language (Nullable reference types enabled) |
-| **Entity Framework Core 9** | Code-First ORM & database migrations |
-| **Microsoft SQL Server 2022** | Relational database storage |
-| **SignalR** | Real-time WebSockets (Chat, Presence, Leaderboard, Security, Attendance, Dashboard) |
-| **ASP.NET Core Identity** | User authentication & role management |
-| **Google OAuth 2.0** | Passwordless social authentication |
-| **MailKit / MimeKit** | Email dispatch (Mailtrap for dev, Gmail SMTP for prod) |
-| **FluentValidation** | Request validation layer |
-| **Stripe.net** | Payment processing & webhook listener |
-| **Google Gemini API** | AI assistant backend proxy |
-| **Serilog** | Structured logging |
-| **Swashbuckle / Swagger** | Interactive OpenAPI documentation |
+
+| Technology                    | Purpose                                                                             |
+| ----------------------------- | ----------------------------------------------------------------------------------- |
+| **.NET 9 ASP.NET Core**       | Web API framework                                                                   |
+| **C#**                        | Language (Nullable reference types enabled)                                         |
+| **Entity Framework Core 9**   | Code-First ORM & database migrations                                                |
+| **Microsoft SQL Server 2022** | Relational database storage                                                         |
+| **SignalR**                   | Real-time WebSockets (Chat, Presence, Leaderboard, Security, Attendance, Dashboard) |
+| **ASP.NET Core Identity**     | User authentication & role management                                               |
+| **Google OAuth 2.0**          | Passwordless social authentication                                                  |
+| **MailKit / MimeKit**         | Email dispatch (Mailtrap for dev, Gmail SMTP for prod)                              |
+| **FluentValidation**          | Request validation layer                                                            |
+| **Stripe.net**                | Payment processing & webhook listener                                               |
+| **Google Gemini API**         | AI assistant backend proxy                                                          |
+| **Serilog**                   | Structured logging                                                                  |
+| **Swashbuckle / Swagger**     | Interactive OpenAPI documentation                                                   |
 
 ### WhatsApp Gateway Microservice (Node.js)
-| Technology | Purpose |
-|---|---|
-| **Node.js 18+** | Runtime environment (`backend/whatsapp-gateway`) |
-| **@whiskeysockets/baileys** | Self-hosted WhatsApp Web socket library |
-| **Express.js** | Internal HTTP API on port 3001 |
-| **qrcode-terminal** | QR code pairing for first-time setup |
+
+| Technology                  | Purpose                                          |
+| --------------------------- | ------------------------------------------------ |
+| **Node.js 18+**             | Runtime environment (`backend/whatsapp-gateway`) |
+| **@whiskeysockets/baileys** | Self-hosted WhatsApp Web socket library          |
+| **Express.js**              | Internal HTTP API on port 3001                   |
+| **qrcode-terminal**         | QR code pairing for first-time setup             |
 
 ---
 
@@ -95,55 +98,55 @@ Key backend responsibilities:
   └──────────────────────────────────────────────────────┘
 ```
 
-| Layer | Responsibility |
-|---|---|
-| **SHIELDON.API** | Entry point. Contains HTTP controllers and SignalR Hub endpoints. |
-| **SHIELDON.Application** | Core business use cases, DTOs, FluentValidation rules, and service interfaces. |
-| **SHIELDON.Infrastructure** | External services: EF Core DB Context, Stripe, Email, Storage, Gemini AI, and `WhatsAppGatewayOtpService`. |
-| **SHIELDON.Domain** | Core entities (`User`, `Course`, `Exam`, `ExamAttempt`, `Violation`, `ChatMessage`, etc.) with zero dependencies. |
-| **SHIELDON.Tests** | Unit and integration test suites. |
+| Layer                       | Responsibility                                                                                                    |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| **SHIELDON.API**            | Entry point. Contains HTTP controllers and SignalR Hub endpoints.                                                 |
+| **SHIELDON.Application**    | Core business use cases, DTOs, FluentValidation rules, and service interfaces.                                    |
+| **SHIELDON.Infrastructure** | External services: EF Core DB Context, Stripe, Email, Storage, Gemini AI, and `WhatsAppGatewayOtpService`.        |
+| **SHIELDON.Domain**         | Core entities (`User`, `Course`, `Exam`, `ExamAttempt`, `Violation`, `ChatMessage`, etc.) with zero dependencies. |
+| **SHIELDON.Tests**          | Unit and integration test suites.                                                                                 |
 
 ---
 
 ## 🚀 Comprehensive Feature List (F1 – F35)
 
-| # | Feature | Backend Implementation Details |
-|---|---|---|
-| F1 | **Secure Login & Role Redirect** | JWT access/refresh tokens, BCrypt password hashing |
-| F2 | **Google OAuth 2.0 Login** | Google token verification and automatic user registration |
-| F3 | **Email Verification** | Verification token generation and email dispatch |
-| F4 | **Password Reset via Email** | Secure password reset token lifecycle |
-| F5 | **WhatsApp OTP Phone Verification** | 6-digit OTP delivery via Node.js Baileys microservice, unique phone constraint, 2-min cooldown |
-| F6 | **Profile Management** | Avatar WebP file handling, password change, tour reset |
-| F7 | **Public Registration** | Student or Tutor user creation |
-| F8 | **Course Management & Enrollment** | Paginated enrollment queries, bulk review endpoints |
-| F9 | **File Sharing (Course Materials)** | File storage service, secure download stream |
-| F10 | **Announcements** | Priority pinning logic and course feed retrieval |
-| F11 | **Assignment System** | Submission handling, review/grading, ZIP bulk export |
-| F12 | **Notifications** | In-app notification store and email triggers |
-| F13 | **Exam Management** | CRUD, scheduling, publish state Machine |
-| F14 | **Re-Attempt & Re-Open Requests** | Student request handling, tutor time-extension approvals |
-| F15 | **Question Bank** | MCQ, True/False, Short Answer authoring & image uploads |
-| F16 | **Exam Engine + Secure Token** | Attempt token generation, cryptographic question randomization |
-| F17 | **Exam Results & Auto-Grading** | Auto-grading engine and manual short-answer grading |
-| F18 | **Gradebook Panel** | Grade calculation, CSV export generation |
-| F19 | **Anti-Cheating Engine** | Batch violation ingestion, score normalization, 3-strike force-submit |
-| F20 | **Session Timeline** | Event log timeline generation per attempt |
-| F21 | **Violation Analytics** | Aggregated density statistics endpoint for scatter plot |
-| F22 | **Tutor Dashboard** | Real-time monitoring feed and exam summary statistics |
-| F23 | **Admin Dashboard** | System-wide statistics and user account management |
-| F24 | **SHIELDON AI Assistant** | Secure backend proxy to Google Gemini API |
-| F25 | **Real-Time Chat System** | SignalR `ChatHub`, 1-on-1/Group messaging, WebRTC signaling, Voice notes, Link preview, Reactions |
-| F26 | **Onboarding Tours** | Tour completion state persistence |
-| F27 | **Analytics Dashboard** | ECharts statistical payload endpoints |
-| F28 | **Dynamic QR Attendance** | SignalR `AttendanceHub`, 15s rotating QR code validation |
-| F29 | **Calendar View** | System event aggregator endpoint |
-| F30 | **Online Payments (Stripe)** | Stripe Checkout Session creation & webhook signature verification |
-| F31 | **Theme Settings** | User theme preference persistence |
-| F32 | **Localization (i18n)** | Internationalized response messages |
-| F33 | **Mobile Guard** | Device user-agent inspection |
-| F34 | **Single Active Session** | SignalR `SecurityHub` token revocation and displacement broadcast |
-| F35 | **Live Course Leaderboard** | SignalR `LeaderboardHub` Top-10 ranking computation & tie-breaker engine |
+| #   | Feature                             | Backend Implementation Details                                                                    |
+| --- | ----------------------------------- | ------------------------------------------------------------------------------------------------- |
+| F1  | **Secure Login & Role Redirect**    | JWT access/refresh tokens, BCrypt password hashing                                                |
+| F2  | **Google OAuth 2.0 Login**          | Google token verification and automatic user registration                                         |
+| F3  | **Email Verification**              | Verification token generation and email dispatch                                                  |
+| F4  | **Password Reset via Email**        | Secure password reset token lifecycle                                                             |
+| F5  | **WhatsApp OTP Phone Verification** | 6-digit OTP delivery via Node.js Baileys microservice, unique phone constraint, 2-min cooldown    |
+| F6  | **Profile Management**              | Avatar WebP file handling, password change, tour reset                                            |
+| F7  | **Public Registration**             | Student or Tutor user creation                                                                    |
+| F8  | **Course Management & Enrollment**  | Paginated enrollment queries, bulk review endpoints                                               |
+| F9  | **File Sharing (Course Materials)** | File storage service, secure download stream                                                      |
+| F10 | **Announcements**                   | Priority pinning logic and course feed retrieval                                                  |
+| F11 | **Assignment System**               | Submission handling, review/grading, ZIP bulk export                                              |
+| F12 | **Notifications**                   | In-app notification store and email triggers                                                      |
+| F13 | **Exam Management**                 | CRUD, scheduling, publish state Machine                                                           |
+| F14 | **Re-Attempt & Re-Open Requests**   | Student request handling, tutor time-extension approvals                                          |
+| F15 | **Question Bank**                   | MCQ, True/False, Short Answer authoring & image uploads                                           |
+| F16 | **Exam Engine + Secure Token**      | Attempt token generation, cryptographic question randomization                                    |
+| F17 | **Exam Results & Auto-Grading**     | Auto-grading engine and manual short-answer grading                                               |
+| F18 | **Gradebook Panel**                 | Grade calculation, CSV export generation                                                          |
+| F19 | **Anti-Cheating Engine**            | Batch violation ingestion, score normalization, 3-strike force-submit                             |
+| F20 | **Session Timeline**                | Event log timeline generation per attempt                                                         |
+| F21 | **Violation Analytics**             | Aggregated density statistics endpoint for scatter plot                                           |
+| F22 | **Tutor Dashboard**                 | Real-time monitoring feed and exam summary statistics                                             |
+| F23 | **Admin Dashboard**                 | System-wide statistics and user account management                                                |
+| F24 | **SHIELDON AI Assistant**           | Secure backend proxy to Google Gemini API                                                         |
+| F25 | **Real-Time Chat System**           | SignalR `ChatHub`, 1-on-1/Group messaging, WebRTC signaling, Voice notes, Link preview, Reactions |
+| F26 | **Onboarding Tours**                | Tour completion state persistence                                                                 |
+| F27 | **Analytics Dashboard**             | ECharts statistical payload endpoints                                                             |
+| F28 | **Dynamic QR Attendance**           | SignalR `AttendanceHub`, 15s rotating QR code validation                                          |
+| F29 | **Calendar View**                   | System event aggregator endpoint                                                                  |
+| F30 | **Online Payments (Stripe)**        | Stripe Checkout Session creation & webhook signature verification                                 |
+| F31 | **Theme Settings**                  | User theme preference persistence                                                                 |
+| F32 | **Localization (i18n)**             | Internationalized response messages                                                               |
+| F33 | **Mobile Guard**                    | Device user-agent inspection                                                                      |
+| F34 | **Single Active Session**           | SignalR `SecurityHub` token revocation and displacement broadcast                                 |
+| F35 | **Live Course Leaderboard**         | SignalR `LeaderboardHub` Top-10 ranking computation & tie-breaker engine                          |
 
 ---
 
@@ -153,9 +156,11 @@ Interactive OpenAPI documentation is available when running the API:
 👉 `http://localhost:5000/swagger`
 
 ### 26 API Controllers (146 REST Endpoints)
+
 `AuthController`, `ProfileController`, `UsersController`, `CoursesController`, `AnnouncementsController`, `MaterialsController`, `AssignmentsController`, `QuestionBankController`, `ExamsController`, `ExamAttemptsController`, `ExamResultsController`, `ReattemptRequestsController`, `ViolationsController`, `MonitoringController`, `GradesController`, `NotificationsController`, `AttendanceController`, `ChatController`, `CalendarController`, `LeaderboardController`, `AuditTrailController`, `PaymentController`, `StripeWebhookController`, `AiController`, `FilesController`.
 
 ### 5 Real-Time SignalR Hubs
+
 1. **`ChatHub`** (`/hubs/chat`): Message delivery, typing indicators, read receipts, reactions, deletions, group updates.
 2. **`LeaderboardHub`** (`/hubs/leaderboard`): Real-time Top-10 leaderboard score broadcasts.
 3. **`SecurityHub`** (`/hubs/security`): Single-session displacement events.
@@ -195,5 +200,5 @@ Please review [docs/CONTRIBUTING.md](../docs/CONTRIBUTING.md) before submitting 
 ---
 
 <div align="center">
-  <strong>🛡️ SHIELDON Backend — "Integrity You Can Trust" 🛡️</strong>
+  <strong>🛡️ SHIELDON Backend - "Integrity You Can Trust" 🛡️</strong>
 </div>

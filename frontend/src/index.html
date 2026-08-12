@@ -3,19 +3,98 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Frontend</title>
+  <title>SHIELDON</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/png" href="/assets/images/favicon.png">
-  <!-- Premium Google Fonts -->
+
+  <!-- Resource Hints & Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800&family=JetBrains+Mono&family=Cairo:wght@400;500;600;700&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;700;800&family=JetBrains+Mono&family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <meta name="description"
-    content="SHIELDON - Next-Gen Learning Management System with Integrated Anti-Cheating Engine for absolute academic integrity.">
+  <!-- Primary Meta Tags -->
+  <meta name="title" content="SHIELDON">
+  <meta name="description" content="SHIELDON is a premium hybrid Learning Management System with an integrated, zero-download Anti-Cheating Engine for absolute academic integrity, proctored exams, and automated grading.">
+  <meta name="keywords" content="LMS, Anti-Cheat, Exam Engine, Online Proctoring, Academic Integrity, E-Learning, Automated Grading, Distance Learning, EdTech, Hybrid Learning">
+  <meta name="author" content="SHIELDON EdTech">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="/site.webmanifest">
+  <meta name="theme-color" content="#215DAE">
+
+  <!-- Open Graph / Facebook / LinkedIn Cards -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SHIELDON">
+  <meta property="og:title" content="SHIELDON">
+  <meta property="og:description" content="Secure hybrid Learning Management System featuring native browser anti-cheat proctoring, live exam monitoring, and real-time attendance management.">
+  <meta property="og:image" content="/assets/images/shieldon-og-banner.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter Card Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SHIELDON">
+  <meta name="twitter:description" content="Secure hybrid Learning Management System featuring native browser anti-cheat proctoring and real-time attendance management.">
+  <meta name="twitter:image" content="/assets/images/shieldon-og-banner.png">
+
+  <!-- Canonical & Bilingual Hreflang Tags -->
+  <link rel="canonical" href="https://shieldon-lms.com/">
+  <link rel="alternate" hreflang="en" href="https://shieldon-lms.com/">
+  <link rel="alternate" hreflang="ar" href="https://shieldon-lms.com/">
+  <link rel="alternate" hreflang="x-default" href="https://shieldon-lms.com/">
+
+  <!-- Rich EdTech JSON-LD Structured Data (schema.org) -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "SoftwareApplication",
+          "@id": "https://shieldon-lms.com/#software",
+          "name": "SHIELDON",
+          "applicationCategory": "EducationalApplication",
+          "operatingSystem": "Web Browser (Chrome, Firefox, Edge, Safari)",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "description": "Next-Gen hybrid Learning Management System with integrated browser-based anti-cheat exam guard, face verification, active exam heartbeat monitoring, assignment grading, and QR attendance scanning.",
+          "featureList": [
+            "Native Browser Anti-Cheat Proctoring Engine",
+            "Live Exam Conduct & Disconnection Heartbeat Monitoring",
+            "Automated & Manual Assignment Evaluation",
+            "Dynamic QR Code Attendance Verification",
+            "Bilingual English/Arabic Interface Support"
+          ]
+        },
+        {
+          "@type": "EducationalOrganization",
+          "@id": "https://shieldon-lms.com/#organization",
+          "name": "SHIELDON EdTech",
+          "url": "https://shieldon-lms.com/",
+          "logo": "https://shieldon-lms.com/assets/images/favicon.png",
+          "sameAs": [
+            "https://github.com/ahmed-samir-dev",
+            "https://www.linkedin.com/in/swe-ahmed-samir/"
+          ]
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://shieldon-lms.com/#website",
+          "url": "https://shieldon-lms.com/",
+          "name": "SHIELDON",
+          "description": "Next-Gen LMS & Anti-Cheat Exam Engine",
+          "publisher": {
+            "@id": "https://shieldon-lms.com/#organization"
+          },
+          "inLanguage": ["en", "ar"]
+        }
+      ]
+    }
+  </script>
 
   <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>

@@ -6,7 +6,7 @@ namespace SHIELDON.Domain.Enums;
 /// </summary>
 public enum AttachmentType
 {
-    /// <summary>No attachment — plain text message.</summary>
+    /// <summary>No attachment - plain text message.</summary>
     None = 0,
 
     /// <summary>Voice note recorded via MediaRecorder API (max 5 minutes).</summary>

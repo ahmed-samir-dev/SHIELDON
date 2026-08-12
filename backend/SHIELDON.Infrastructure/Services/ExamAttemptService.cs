@@ -146,13 +146,13 @@ public class ExamAttemptService : IExamAttemptService
 
             if (unseenQuestions.Count >= rule.Count)
             {
-                // Enough unseen questions — shuffle and pick from unseen pool only
+                // Enough unseen questions - shuffle and pick from unseen pool only
                 ShuffleInPlace(unseenQuestions);
                 chosen = unseenQuestions.Take(rule.Count).ToList();
             }
             else
             {
-                // Not enough unseen questions — fall back: shuffle the full bank and pick
+                // Not enough unseen questions - fall back: shuffle the full bank and pick
                 // This ensures the student always gets a full-length exam even if the bank is small.
                 usedFallbackRandomization = true;
                 ShuffleInPlace(allBankQuestions);
@@ -162,7 +162,7 @@ public class ExamAttemptService : IExamAttemptService
             selectedQuestions.AddRange(chosen);
         }
 
-        // ── Final cross-type shuffle — ensures MCQ/TF/SA are interleaved randomly ──
+        // ── Final cross-type shuffle - ensures MCQ/TF/SA are interleaved randomly ──
         ShuffleInPlace(selectedQuestions);
 
         // Log a warning in the attempt notes if fallback was used (visible to tutors)

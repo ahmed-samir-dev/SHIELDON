@@ -9,12 +9,12 @@ namespace SHIELDON.API.Controllers;
 
 /// <summary>
 /// IP Audit Trail endpoints.
-/// All endpoints are Admin/Tutor only — students cannot access IP data.
+/// All endpoints are Admin/Tutor only - students cannot access IP data.
 ///
 /// Routes:
-///   GET /api/admin/audit-trail             — Paginated system-wide audit log (Admin only)
-///   GET /api/users/{userId}/ip-logs        — IP logs for a specific user (Admin/Tutor)
-///   GET /api/attempts/{attemptId}/ip-logs  — IP logs for a specific exam attempt (Admin/Tutor)
+///   GET /api/admin/audit-trail             - Paginated system-wide audit log (Admin only)
+///   GET /api/users/{userId}/ip-logs        - IP logs for a specific user (Admin/Tutor)
+///   GET /api/attempts/{attemptId}/ip-logs  - IP logs for a specific exam attempt (Admin/Tutor)
 /// </summary>
 [ApiController]
 [Authorize(Roles = "Admin,Tutor")]
@@ -33,7 +33,7 @@ public class IpAuditController : ControllerBase
 
     /// <summary>
     /// Returns a paginated, filterable audit trail of all IP events across the system.
-    /// Admin only — gives a system-wide view of login and exam network events.
+    /// Admin only - gives a system-wide view of login and exam network events.
     /// Supports filters: userId, eventType, isVpnOrProxy, isDuplicateSession,
     ///                   isNetworkChangeDuringExam, fromDate, toDate.
     /// </summary>

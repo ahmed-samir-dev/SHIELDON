@@ -7,9 +7,9 @@ namespace SHIELDON.Infrastructure.Persistence.Configurations;
 /// <summary>
 /// EF Core configuration for the IpAuditLog entity.
 /// Indexes are optimised for the two primary query patterns:
-///   1. "All logs for a user" — (UserId, OccurredAt)
-///   2. "All logs for an attempt" — (ExamAttemptId, OccurredAt)
-///   3. "All logs matching an IP" — IpAddress (for cross-user VPN detection)
+///   1. "All logs for a user" - (UserId, OccurredAt)
+///   2. "All logs for an attempt" - (ExamAttemptId, OccurredAt)
+///   3. "All logs matching an IP" - IpAddress (for cross-user VPN detection)
 /// </summary>
 public class IpAuditLogConfiguration : IEntityTypeConfiguration<IpAuditLog>
 {

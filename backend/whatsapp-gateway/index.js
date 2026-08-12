@@ -4,7 +4,7 @@
  *
  * Features:
  * - One-time QR code scan to pair with any WhatsApp number
- * - Session persisted in ./auth_info/ — no re-scan after restart
+ * - Session persisted in ./auth_info/ - no re-scan after restart
  * - Exposes POST /api/send-otp for the C# backend to call
  * - Sends a formatted WhatsApp message with the 6-digit OTP code
  *
@@ -30,7 +30,7 @@ import qrcode from 'qrcode-terminal';
 const PORT = 3001;
 const AUTH_FOLDER = './auth_info';
 
-// Suppress verbose Baileys internal logs — only show errors
+// Suppress verbose Baileys internal logs - only show errors
 const logger = pino({ level: 'silent' });
 
 // ── WhatsApp Socket State ────────────────────────────────────────────────────
@@ -90,17 +90,17 @@ const app = express();
 app.use(express.json());
 
 /**
- * Health check — GET /health
+ * Health check - GET /health
  */
 app.get('/health', (req, res) => {
   res.json({
     status: isConnected ? 'connected' : 'disconnected',
-    message: isConnected ? 'WhatsApp Gateway is ready.' : 'WhatsApp not connected — scan the QR code.',
+    message: isConnected ? 'WhatsApp Gateway is ready.' : 'WhatsApp not connected - scan the QR code.',
   });
 });
 
 /**
- * Send OTP — POST /api/send-otp
+ * Send OTP - POST /api/send-otp
  * Called internally by SHIELDON C# ProfileService only. Never exposed to the browser.
  * Body: { "phone": "+201012345678", "code": "849201" }
  */

@@ -33,7 +33,7 @@ export class UsersManagementComponent implements OnInit, OnDestroy {
   Clock = Clock;
   XCircle = XCircle;
 
-  // State — prefixed with "users" to avoid conflicts with parent dashboard
+  // State - prefixed with "users" to avoid conflicts with parent dashboard
   usersLoading = signal(true);
   usersError = signal('');
 
@@ -207,7 +207,7 @@ export class UsersManagementComponent implements OnInit, OnDestroy {
 
 
   getRoleId(user: UserDetailDto): string {
-    return user.studentId || user.tutorId || '—';
+    return user.studentId || user.tutorId || '-';
   }
 
   trackByUserId(index: number, user: UserDetailDto): string {

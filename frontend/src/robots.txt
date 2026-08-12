@@ -1,0 +1,23 @@
+# SHIELDON Production Search Engine Robots Directives
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /register
+Allow: /forgot-password
+Allow: /assets/
+Allow: /site.webmanifest
+
+# Disallow private user dashboards, proctored exams & administrative interfaces
+Disallow: /profile
+Disallow: /exam-engine/
+Disallow: /exam-results/
+Disallow: /courses/*/attendance
+Disallow: /admin/
+Disallow: /monitoring/
+Disallow: /chat
+Disallow: /calendar
+Disallow: /payment-hub
+
+# Crawl Delay & Sitemap Location
+Crawl-delay: 2
+Sitemap: https://shieldon-lms.com/sitemap.xml

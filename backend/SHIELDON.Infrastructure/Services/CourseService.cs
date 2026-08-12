@@ -853,7 +853,7 @@ public class CourseService : ICourseService
         enrollment.ReviewedById = kickedById;
         enrollment.ReviewedAt = DateTime.UtcNow;
         enrollment.UpdatedAt = DateTime.UtcNow;
-        // Intentionally NOT incrementing RejectionCount — kick carries no enrollment penalty.
+        // Intentionally NOT incrementing RejectionCount - kick carries no enrollment penalty.
         // Student can re-enroll immediately after being kicked.
 
         var courseTitle = enrollment.Course!.Title;

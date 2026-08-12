@@ -71,7 +71,7 @@ public record ExamAttemptSummaryDto(
     bool IsGradePublished,
     /// <summary>
     /// System-generated note. Set when the question bank didn't have enough unseen questions
-    /// for a fully distinct retake — some previously-seen questions may have appeared.
+    /// for a fully distinct retake - some previously-seen questions may have appeared.
     /// </summary>
     string? Notes
 );

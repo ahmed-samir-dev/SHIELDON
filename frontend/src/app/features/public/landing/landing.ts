@@ -1,6 +1,7 @@
-import { Component, AfterViewInit, ElementRef, inject } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { SeoService } from '../../../core/services/seo.service';
 
 @Component({
   selector: 'app-landing',
@@ -9,8 +10,17 @@ import { TranslateModule } from '@ngx-translate/core';
   templateUrl: './landing.html',
   styleUrl: './landing.scss'
 })
-export class Landing implements AfterViewInit {
+export class Landing implements OnInit, AfterViewInit {
   private elementRef = inject(ElementRef);
+  private seoService = inject(SeoService);
+
+  ngOnInit() {
+    this.seoService.updateSeoData({
+      title: 'SHIELDON',
+      description: 'SHIELDON is a premium hybrid Learning Management System featuring an integrated, zero-download Anti-Cheating Engine for absolute academic integrity, proctored exams, and automated grading.',
+      keywords: 'LMS, Anti-Cheat, Exam Engine, Online Proctoring, Academic Integrity, E-Learning, Automated Grading, Distance Learning, EdTech, Hybrid Learning'
+    });
+  }
 
   ngAfterViewInit() {
     const observer = new IntersectionObserver((entries) => {

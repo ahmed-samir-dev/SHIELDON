@@ -3,7 +3,7 @@ namespace SHIELDON.Application.Features.Courses.DTOs;
 // ── Announcement Reorder DTOs ────────────────────────────────────────────────
 
 /// <summary>
-/// A single item in a reorder request — maps one announcement to its new position.
+/// A single item in a reorder request - maps one announcement to its new position.
 /// </summary>
 /// <param name="Id">The GUID of the announcement being repositioned.</param>
 /// <param name="DisplayOrder">

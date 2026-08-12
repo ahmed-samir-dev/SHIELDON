@@ -121,7 +121,7 @@ export class CourseList implements OnInit, OnDestroy {
         // Mark initialized AFTER the filter is set so the sidebar effect()
         // cannot fire loadCourses() with an empty filter beforehand.
         this.isInitialized = true;
-        // Allow the tab bar to paint now — correct tab is already set.
+        // Allow the tab bar to paint now - correct tab is already set.
         this.tabReady.set(true);
         this.loadCourses();
       },

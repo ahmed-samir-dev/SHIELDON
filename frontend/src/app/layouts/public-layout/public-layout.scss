@@ -242,11 +242,11 @@
 
           .code-icon {
             color: #215DAE;
-          }
+            animation: codePulse 2s ease-in-out infinite;
 
-          .heart-icon {
-            color: #ef4444;
-            animation: heartBeat 1.8s ease-in-out infinite;
+            :host-context([data-theme="dark"]) & {
+              color: #38bdf8;
+            }
           }
 
           .dev-name {
@@ -327,9 +327,16 @@
   }
 }
 
-@keyframes heartBeat {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
+@keyframes codePulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.22);
+    opacity: 0.85;
+    filter: drop-shadow(0 0 6px rgba(33, 93, 174, 0.6));
+  }
 }
 
 @keyframes gradientSweep {

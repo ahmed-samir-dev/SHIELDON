@@ -41,7 +41,7 @@ public class ChatService : IChatService
             .OrderByDescending(c => c.LastMessageAt)
             .ToListAsync();
 
-        // Batch fetch all unread counts in one query — avoids N+1
+        // Batch fetch all unread counts in one query - avoids N+1
         var allConversationIds = dmConversations.Select(c => c.Id)
             .Concat(groupConversations.Select(c => c.Id))
             .ToList();

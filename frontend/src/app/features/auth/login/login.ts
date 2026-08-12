@@ -1,8 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
+import { SeoService } from '../../../core/services/seo.service';
 import { UserRole } from '../../../core/models/user-role.enum';
 import { ToastrService } from 'ngx-toastr';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -15,13 +16,22 @@ import { environment } from '../../../../environments/environment';
   templateUrl: './login.html',
   styleUrl: './login.scss'
 })
-export class Login {
+export class Login implements OnInit {
   private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private seoService = inject(SeoService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private toastr = inject(ToastrService);
+
+  ngOnInit() {
+    this.seoService.updateSeoData({
+      title: 'Sign In - SHIELDON',
+      description: 'Log in to your SHIELDON account to access courses, proctored exams, grades, attendance checks, and real-time messaging.',
+      keywords: 'SHIELDON Login, LMS Sign In, Anti-Cheat Exam Login, Student Portal, Tutor Dashboard'
+    });
+  }
 
   isLoading = signal(false);
   showPassword = signal(false);
@@ -73,7 +83,7 @@ export class Login {
 
     google.accounts.id.prompt((notification: any) => {
       if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-        // One Tap was blocked/skipped — fall back to the popup flow
+        // One Tap was blocked/skipped - fall back to the popup flow
         google.accounts.oauth2.initTokenClient({
           client_id: this.GOOGLE_CLIENT_ID,
           scope: 'openid email profile',

@@ -38,7 +38,7 @@ export class AiChatPanelComponent implements OnInit, AfterViewChecked, OnDestroy
   constructor(public aiService: AiService) {}
 
   ngOnInit() {
-    // Delay enabling animations by one tick — prevents the
+    // Delay enabling animations by one tick - prevents the
     // 'in→out' flash visible on every page reload.
     setTimeout(() => this.isReady = true, 0);
   }

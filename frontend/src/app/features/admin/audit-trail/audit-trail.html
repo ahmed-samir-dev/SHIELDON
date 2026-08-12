@@ -26,13 +26,8 @@
       <!-- Search Input -->
       <div class="search-wrapper">
         <lucide-icon [img]="Search" [size]="16" class="input-icon"></lucide-icon>
-        <input 
-          type="text" 
-          class="enhanced-input" 
-          [placeholder]="'AUDIT_TRAIL.SEARCH_PLACEHOLDER' | translate"
-          [ngModel]="searchQuery()"
-          (ngModelChange)="onSearchKeyup($event)"
-        />
+        <input type="text" class="enhanced-input" [placeholder]="'AUDIT_TRAIL.SEARCH_PLACEHOLDER' | translate"
+          [ngModel]="searchQuery()" (ngModelChange)="onSearchKeyup($event)" />
       </div>
 
       <!-- Filters Row -->
@@ -40,11 +35,7 @@
         <!-- Event Type Filter -->
         <div class="filter-item">
           <label>{{ 'AUDIT_TRAIL.FILTER_EVENT_TYPE' | translate }}</label>
-          <select 
-            class="enhanced-input enhanced-select" 
-            [(ngModel)]="eventTypeFilter" 
-            (change)="onFilterChange()"
-          >
+          <select class="enhanced-input enhanced-select" [(ngModel)]="eventTypeFilter" (change)="onFilterChange()">
             <option value="">{{ 'AUDIT_TRAIL.FILTER_ALL_EVENTS' | translate }}</option>
             <option value="Login">{{ 'AUDIT_TRAIL.EVENT_LOGIN' | translate }}</option>
             <option value="ExamStart">{{ 'AUDIT_TRAIL.EVENT_EXAM_START' | translate }}</option>
@@ -103,12 +94,12 @@
 
             <!-- IP Address -->
             <td>
-              <span class="ip-address-text font-mono">{{ log.ipAddress || '—' }}</span>
+              <span class="ip-address-text font-mono">{{ log.ipAddress || '-' }}</span>
             </td>
 
             <!-- User Agent / Device -->
             <td class="device-cell">
-              <span class="text-muted" [attr.title]="log.userAgent">{{ log.userAgent || '—' }}</span>
+              <span class="text-muted" [attr.title]="log.userAgent">{{ log.userAgent || '-' }}</span>
             </td>
 
             <!-- Timestamp -->
@@ -133,24 +124,17 @@
     <div class="table-footer" *ngIf="!loading() && totalPages() > 1">
       <div class="pagination-info">
         {{ 'ADMIN_DASHBOARD.PAGINATION_SHOWING' | translate:{
-          start: (currentPage() - 1) * pageSize + 1, 
-          end: showingEnd(), 
-          total: totalCount()
+        start: (currentPage() - 1) * pageSize + 1,
+        end: showingEnd(),
+        total: totalCount()
         } }}
       </div>
       <div class="pagination-buttons">
-        <button 
-          class="btn btn-outline" 
-          [disabled]="currentPage() === 1" 
-          (click)="onPageChange(currentPage() - 1)"
-        >
+        <button class="btn btn-outline" [disabled]="currentPage() === 1" (click)="onPageChange(currentPage() - 1)">
           <lucide-icon [img]="ChevronLeft" [size]="16"></lucide-icon>
         </button>
-        <button 
-          class="btn btn-outline" 
-          [disabled]="currentPage() >= totalPages()" 
-          (click)="onPageChange(currentPage() + 1)"
-        >
+        <button class="btn btn-outline" [disabled]="currentPage() >= totalPages()"
+          (click)="onPageChange(currentPage() + 1)">
           <lucide-icon [img]="ChevronRight" [size]="16"></lucide-icon>
         </button>
       </div>

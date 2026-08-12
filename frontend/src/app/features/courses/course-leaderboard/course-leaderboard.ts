@@ -61,7 +61,7 @@ export class CourseLeaderboardComponent implements OnInit, OnDestroy {
   readonly Check = Check;
   readonly Lock = Lock;
 
-  /** Base URL without /api — used to prefix relative avatar URLs from the backend. */
+  /** Base URL without /api - used to prefix relative avatar URLs from the backend. */
   private readonly apiBase = environment.apiUrl.replace('/api', '');
 
   // ── Reactive State ─────────────────────────────────────────────────────────
@@ -151,7 +151,7 @@ export class CourseLeaderboardComponent implements OnInit, OnDestroy {
         });
       },
       error: () => {
-        // Settings load failure is non-critical — silently ignore
+        // Settings load failure is non-critical - silently ignore
       }
     });
   }
@@ -163,7 +163,7 @@ export class CourseLeaderboardComponent implements OnInit, OnDestroy {
     if (!token) return;
 
     this.lbService.startConnection(this.courseId, token).catch(() => {
-      // Connection failure is non-blocking — REST data still works
+      // Connection failure is non-blocking - REST data still works
     });
 
     this.signalRSub = this.lbService.leaderboardUpdated$.subscribe((payload) => {

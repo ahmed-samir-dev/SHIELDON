@@ -37,7 +37,7 @@ public class MonitoringController : ControllerBase
     ///
     /// Called by the exam engine every 30 seconds to signal the student is still online.
     /// If IsPageRefresh = true, logs a PageRefreshed presence event.
-    /// Student role only — scoped to their own active attempt.
+    /// Student role only - scoped to their own active attempt.
     /// </summary>
     [HttpPost("api/exam-attempts/{attemptId:guid}/heartbeat")]
     [Authorize(Roles = "Student")]

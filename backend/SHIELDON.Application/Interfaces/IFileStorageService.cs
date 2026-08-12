@@ -28,7 +28,7 @@ public interface IFileStorageService
 
     /// <summary>
     /// Deletes a previously stored attachment file by its relative URL path.
-    /// Safe to call with null or empty — will silently no-op.
+    /// Safe to call with null or empty - will silently no-op.
     /// </summary>
     Task DeleteAsync(string? relativeUrl);
 }

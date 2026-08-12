@@ -195,14 +195,14 @@ public class ProfileService : IProfileService
         // Generate a cryptographically secure 6-digit OTP code
         var otpCode = GenerateOtpCode();
 
-        // Hash the code before storing — never persist plaintext OTP
+        // Hash the code before storing - never persist plaintext OTP
         user.PhoneOtpCodeHash = BCrypt.Net.BCrypt.HashPassword(otpCode);
         user.PhoneOtpLastSentAt = DateTime.UtcNow;
         user.PhoneOtpExpiresAt = DateTime.UtcNow.AddMinutes(OTP_EXPIRY_MINUTES);
         user.PhoneOtpFailedAttempts = 0;
         user.UpdatedAt = DateTime.UtcNow;
 
-        // Persist hash BEFORE delivering message — ensures the hash exists if delivery is instantaneous
+        // Persist hash BEFORE delivering message - ensures the hash exists if delivery is instantaneous
         RecordActivityLog(userId, "PhoneOtpSent_whatsapp");
         await _db.SaveChangesAsync(ct);
 
@@ -256,7 +256,7 @@ public class ProfileService : IProfileService
             throw new BusinessRuleException($"Invalid OTP code. {remaining} attempt(s) remaining.");
         }
 
-        // Verification successful — update user state and clear OTP fields
+        // Verification successful - update user state and clear OTP fields
         user.PhoneVerificationStatus = PhoneVerificationStatus.Verified;
         user.PhoneVerifiedAt = DateTime.UtcNow;
         user.PhoneOtpCodeHash = null;

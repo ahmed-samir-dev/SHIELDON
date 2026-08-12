@@ -8,7 +8,7 @@ namespace SHIELDON.Application.Interfaces;
 /// enforces session security policies.
 ///
 /// Called from: AuthController (login), ExamAttemptsController (start/end), ViolationsController (report).
-/// Lives in the Application layer — no dependency on ASP.NET Core.
+/// Lives in the Application layer - no dependency on ASP.NET Core.
 /// </summary>
 public interface IIpAuditService
 {
@@ -16,7 +16,7 @@ public interface IIpAuditService
     /// Records an IP audit log entry for a security event.
     /// Performs VPN/proxy detection, duplicate session detection,
     /// and network change detection (for exam events).
-    /// Does NOT throw — all errors are logged silently to avoid breaking the primary flow.
+    /// Does NOT throw - all errors are logged silently to avoid breaking the primary flow.
     /// </summary>
     /// <param name="userId">The user performing the action.</param>
     /// <param name="ipAddress">Client IP address (IPv4 or IPv6). May be null if unavailable.</param>
@@ -33,7 +33,7 @@ public interface IIpAuditService
 
     /// <summary>
     /// Returns all IP audit log entries for a specific user, ordered by OccurredAt descending.
-    /// Admin and Tutor only — never returned to students.
+    /// Admin and Tutor only - never returned to students.
     /// </summary>
     Task<List<IpAuditLogDto>> GetLogsForUserAsync(Guid userId, CancellationToken ct = default);
 
@@ -46,7 +46,7 @@ public interface IIpAuditService
 
     /// <summary>
     /// Returns a paginated, filterable audit trail of all IP logs system-wide.
-    /// Admin only — used on the Admin Dashboard Audit Trail page.
+    /// Admin only - used on the Admin Dashboard Audit Trail page.
     /// </summary>
     Task<AuditTrailPagedResult> GetAuditTrailAsync(AuditTrailQueryParams query, CancellationToken ct = default);
 }

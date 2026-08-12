@@ -9,7 +9,7 @@ namespace SHIELDON.Infrastructure.Persistence.Configurations;
 ///
 /// Each row represents one significant connectivity state change during a student's
 /// exam attempt (Disconnected, Reconnected, PageRefreshed).
-/// Heartbeats themselves are NOT stored as rows — only the state transitions are.
+/// Heartbeats themselves are NOT stored as rows - only the state transitions are.
 /// </summary>
 public class PresenceLogConfiguration : IEntityTypeConfiguration<PresenceLog>
 {

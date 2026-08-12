@@ -1,9 +1,9 @@
 # ============================================================
-# SHIELDON — Root .gitignore
+# SHIELDON - Root .gitignore
 # Covers: Angular, .NET, Visual Studio, VS Code, Windows
 # ============================================================
     
-# ── SECRETS — NEVER COMMIT ──────────────────────────────────
+# ── SECRETS - NEVER COMMIT ──────────────────────────────────
 appsettings.Development.json
 appsettings.Production.json
 appsettings.Staging.json
@@ -84,7 +84,7 @@ yarn-error.log*
 .LSOverride
 Thumbs.db
 
-# ── Uploads (local dev only — never commit uploaded files) ──
+# ── Uploads (local dev only - never commit uploaded files) ──
 backend/SHIELDON.API/wwwroot/uploads/
 backend/SHIELDON.API/wwwroot/Storage/
 backend/SHIELDON.API/Storage/

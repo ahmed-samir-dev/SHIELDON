@@ -297,14 +297,14 @@ export class ChatMessengerComponent implements OnInit, OnDestroy, AfterViewCheck
     // Check cache first for instant display
     const cached = this.linkPreviewService.getCachedPreview(url);
     if (cached !== undefined) {
-      // Already in cache — show instantly
+      // Already in cache - show instantly
       if (!this.isComposerPreviewDismissed()) {
         this.composerLinkPreview.set(cached);
       }
       return;
     }
 
-    // Not in cache — debounce fetch to avoid too many requests while typing
+    // Not in cache - debounce fetch to avoid too many requests while typing
     this.linkPreviewTimer = setTimeout(() => {
       this.linkPreviewService.fetchPreview(url).subscribe(preview => {
         if (!this.isComposerPreviewDismissed()) {
@@ -329,7 +329,7 @@ export class ChatMessengerComponent implements OnInit, OnDestroy, AfterViewCheck
       return currentMap.get(url) || null;
     }
 
-    // Not pre-fetched yet (e.g. new real-time message) — fetch now
+    // Not pre-fetched yet (e.g. new real-time message) - fetch now
     if (!this.pendingPreviewUrls.has(url)) {
       this.pendingPreviewUrls.add(url);
       this.linkPreviewService.fetchPreview(url).subscribe(preview => {

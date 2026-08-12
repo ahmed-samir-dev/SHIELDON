@@ -5,7 +5,7 @@ namespace SHIELDON.Application.Features.Chat.Validators;
 
 /// <summary>
 /// Validates the CreateGroupRequest payload.
-/// Only Admin and Tutor roles are authorized to call the group creation endpoint —
+/// Only Admin and Tutor roles are authorized to call the group creation endpoint -
 /// role enforcement is handled separately via [Authorize] in the controller.
 /// </summary>
 public class CreateGroupRequestValidator : AbstractValidator<CreateGroupRequest>

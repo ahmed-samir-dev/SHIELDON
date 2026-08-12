@@ -45,7 +45,7 @@ export class NotificationPanelComponent implements OnInit {
 
   ngOnInit() {
     this.notificationService.fetchUnreadCount();
-    // Delay enabling animations by one tick — prevents the
+    // Delay enabling animations by one tick - prevents the
     // open→closed flash visible on every page reload.
     setTimeout(() => this.isReady = true, 0);
   }

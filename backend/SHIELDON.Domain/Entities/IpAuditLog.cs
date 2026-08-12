@@ -7,8 +7,8 @@ namespace SHIELDON.Domain.Entities;
 /// logins, exam starts, exam ends, and violation reports.
 ///
 /// Serves two purposes:
-///   1. Forensic audit trail — visible on the Attempt Detail page and Admin Audit Trail.
-///   2. Active security enforcement — detects VPN/proxy usage and duplicate sessions.
+///   1. Forensic audit trail - visible on the Attempt Detail page and Admin Audit Trail.
+///   2. Active security enforcement - detects VPN/proxy usage and duplicate sessions.
 ///
 /// All timestamps are stored in UTC.
 /// IpAddress supports both IPv4 (max 15 chars) and IPv6 (max 45 chars).
@@ -47,7 +47,7 @@ public class IpAuditLog
     /// <summary>
     /// True if the IP address matched a known datacenter/VPN CIDR range
     /// from the SecuritySettings:KnownVpnCidrRanges configuration.
-    /// Advisory flag — does not automatically penalise the user.
+    /// Advisory flag - does not automatically penalise the user.
     /// </summary>
     public bool IsVpnOrProxy { get; set; } = false;
 
@@ -60,7 +60,7 @@ public class IpAuditLog
 
     /// <summary>
     /// True if the user's IP address changed between ExamStart and this event
-    /// during an active exam session. Passive observation — no automatic strike.
+    /// during an active exam session. Passive observation - no automatic strike.
     /// </summary>
     public bool IsNetworkChangeDuringExam { get; set; } = false;
 

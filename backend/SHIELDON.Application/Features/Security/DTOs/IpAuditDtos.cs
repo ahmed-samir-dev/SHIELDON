@@ -5,7 +5,7 @@ namespace SHIELDON.Application.Features.Security.DTOs;
 /// <summary>
 /// Data transfer object representing a single IP audit log entry.
 /// Returned by IIpAuditService for display in the Attempt Detail page and Admin Audit Trail.
-/// IP data is never returned to students — all endpoints are Admin/Tutor only.
+/// IP data is never returned to students - all endpoints are Admin/Tutor only.
 /// </summary>
 public class IpAuditLogDto
 {
@@ -26,7 +26,7 @@ public class IpAuditLogDto
 
 /// <summary>
 /// Query parameters for the paginated Admin Audit Trail endpoint.
-/// All filters are optional — omitting them returns all logs.
+/// All filters are optional - omitting them returns all logs.
 /// </summary>
 public class AuditTrailQueryParams
 {

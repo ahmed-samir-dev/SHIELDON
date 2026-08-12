@@ -1,8 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
+import { SeoService } from '../../../core/services/seo.service';
 import { UserRole } from '../../../core/models/user-role.enum';
 import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
@@ -21,12 +22,21 @@ import { PasswordMatchBarComponent } from '../../../shared/components/password-m
   templateUrl: './register.html',
   styleUrl: './register.scss'
 })
-export class Register {
+export class Register implements OnInit {
   private translate = inject(TranslateService);
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private seoService = inject(SeoService);
   private router = inject(Router);
   private toastr = inject(ToastrService);
+
+  ngOnInit() {
+    this.seoService.updateSeoData({
+      title: 'Register - SHIELDON',
+      description: 'Join SHIELDON as a Student or Tutor. Access interactive courses, take anti-cheat protected exams, submit assignments, and track grades.',
+      keywords: 'Register SHIELDON, Create LMS Account, Join E-Learning Platform, Student Sign Up, Tutor Sign Up'
+    });
+  }
 
   isLoading = signal(false);
   showPassword = signal(false);

@@ -23,7 +23,7 @@ namespace SHIELDON.Infrastructure.Services;
 /// which revokes existing refresh tokens on each new login and pushes a SignalR
 /// notification to the old session.
 ///
-/// All errors are caught and logged — this service must NEVER throw or break
+/// All errors are caught and logged - this service must NEVER throw or break
 /// the primary controller flow.
 /// </summary>
 public class IpAuditService : IIpAuditService
@@ -81,7 +81,7 @@ public class IpAuditService : IIpAuditService
         }
         catch (Exception ex)
         {
-            // Do NOT rethrow — IP logging must never break the primary user flow
+            // Do NOT rethrow - IP logging must never break the primary user flow
             _logger.LogError(ex, "IpAuditService.LogAsync failed for User {UserId}, Event {Event}", userId, eventType);
         }
     }
@@ -181,7 +181,7 @@ public class IpAuditService : IIpAuditService
 
     /// <summary>
     /// Checks if the given IP address falls within any known VPN/datacenter CIDR range.
-    /// Uses static configuration — no external API calls.
+    /// Uses static configuration - no external API calls.
     /// Returns false if the IP is null, malformed, or parsing fails.
     /// </summary>
     private bool IsKnownVpnOrProxy(string? ipAddress)
