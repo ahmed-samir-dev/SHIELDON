@@ -47,7 +47,7 @@ public class PaymentService : IPaymentService
             dbQuery = dbQuery.Where(r =>
                 r.Course!.Title.ToLower().Contains(search) ||
                 (r.Student != null && (r.Student.FirstName + " " + r.Student.LastName).ToLower().Contains(search)) ||
-                (r.Student != null && r.Student.StudentId.ToLower().Contains(search)));
+                (r.Student != null && r.Student.StudentId != null && r.Student.StudentId.ToLower().Contains(search)));
         }
 
         // Status filtering

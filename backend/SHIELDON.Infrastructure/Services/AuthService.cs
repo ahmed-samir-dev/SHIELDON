@@ -55,7 +55,7 @@ public class AuthService : IAuthService
             throw new BusinessRuleException("An account with this email already exists.");
         }
 
-        string formattedPhone = null;
+        string? formattedPhone = null;
         if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
         {
             formattedPhone = request.PhoneNumber.Trim();

@@ -6,6 +6,7 @@ using SHIELDON.Domain.Entities;
 using SHIELDON.Domain.Exceptions;
 using SHIELDON.Infrastructure.Persistence;
 using SHIELDON.Infrastructure.Services;
+using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Threading.Tasks;
 
@@ -14,6 +15,7 @@ namespace SHIELDON.Tests.Services;
 public class MonitoringServiceTests
 {
     private readonly DbContextOptions<AppDbContext> _dbOptions;
+    private readonly IMemoryCache _cache = new MemoryCache(new MemoryCacheOptions());
 
     public MonitoringServiceTests()
     {
@@ -28,7 +30,7 @@ public class MonitoringServiceTests
         // Arrange
         using var dbContext = new AppDbContext(_dbOptions);
         var tutorId = Guid.NewGuid();
-        var service = new MonitoringService(dbContext);
+        var service = new MonitoringService(dbContext, _cache);
 
         // Act
         var dashboard = await service.GetTutorDashboardAsync(tutorId);
@@ -42,7 +44,7 @@ public class MonitoringServiceTests
     {
         // Arrange
         using var dbContext = new AppDbContext(_dbOptions);
-        var service = new MonitoringService(dbContext);
+        var service = new MonitoringService(dbContext, _cache);
 
         // Act
         Func<Task> act = async () => await service.ProcessHeartbeatAsync(Guid.NewGuid(), Guid.NewGuid(), false);

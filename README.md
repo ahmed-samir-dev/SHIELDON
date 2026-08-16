@@ -15,7 +15,7 @@
   <img src="https://img.shields.io/badge/Lucide_Icons-F54E00?style=for-the-badge&logo=lucide&logoColor=white" alt="Lucide Icons" />
 </div>
 
-> A full-stack E-Learning Management System (LMS) with a built-in browser-native Anti-Cheating Engine with no external exam-locking software required.
+> **SHIELDON** is a next-generation, E-Learning Management System (LMS) featuring a **zero-install, browser-native Anti-Cheating Engine**. By leveraging real-time Web API telemetry, AI-driven proctoring, and live SignalR monitoring, SHIELDON guarantees uncompromised academic integrity directly inside the user's browser-**eliminating external lockdown software.**
 
 ---
 
@@ -24,12 +24,12 @@
 - [🔭 Project Overview](#-project-overview)
 - [⚙️ Technology Stack](#️-technology-stack)
 - [🏛️ Architecture](#️-architecture)
-- [🧪 Testing Layer & Quality Assurance](#-testing-layer--quality-assurance)
+- [🧪 QA Testing](#-qa-testing)
 - [👥 System Roles](#-system-roles)
 - [🚀 Comprehensive Feature List (F1 – F35)](#-comprehensive-feature-list-f1--f35)
 - [📋 Prerequisites (For Beginners)](#-prerequisites-for-beginners)
 - [🔧 Installation & Setup (Step-by-Step Guide)](#-installation--setup-step-by-step-guide)
-- [🧪 How to Test (Demo Accounts)](#-how-to-test-demo-accounts)
+- [🔑 How to Test (Demo Accounts)](#-how-to-test-demo-accounts)
 - [📡 API Endpoints Reference](#-api-endpoints-reference)
 - [🤝 Contributing & Git Workflow](#-contributing--git-workflow)
 
@@ -39,7 +39,7 @@
 
 **SHIELDON** is a comprehensive educational platform that combines a modern Learning Management System with a robust, browser-based Exam Integrity System.
 
-Most traditional LMS platforms depend on external software like Safe Exam Browser (SEB) or LockDown Browser to enforce exam security, requiring students to download and install external applications to avoid cheating. **SHIELDON eliminates this dependency entirely** by building the Anti-Cheating Engine directly into the web platform using standard Web APIs.
+Most traditional LMS platforms depend on external software like Safe Exam Browser (SEB) or LockDown Browser to enforce exam security, requiring students to download and install external applications. **SHIELDON eliminates this dependency entirely** by building the Anti-Cheating Engine directly into the web platform using standard Web APIs.
 
 ---
 
@@ -145,20 +145,24 @@ SHIELDON follows a **Clean Architecture + Vertical Slice Hybrid** approach for i
 
 ---
 
-## 🧪 Testing Layer & Quality Assurance
+## 🧪 QA Testing
 
-> 📖 **Full Testing Strategy Guide**: [docs/TESTING.md](docs/TESTING.md)
+> **Full Testing Strategy Guide**: [docs/TESTING.md](docs/TESTING.md) | **Security & Performance Report**: [docs/PERFORMANCE_SECURITY_REPORT.md](docs/PERFORMANCE_SECURITY_REPORT.md)
 
-SHIELDON implements a robust **100% Pass Rate** testing suite for both Backend (.NET 9) and Frontend (Angular 21 + Vitest), covering unit logic and end-to-end API integration testing across all platform module clusters.
+SHIELDON implements a robust **100% Pass Rate** testing suite for Backend (.NET 9), Frontend (Angular 21 + Vitest), and the Node.js WhatsApp Gateway microservice.
 
 ### 📊 Executive Test Metrics Summary
 
-| Category                         | Total Test Files  | Total Executed Tests | Passed | Failed | Pass Rate |
-| -------------------------------- | ----------------- | -------------------- | ------ | ------ | --------- |
-| 🔐 **Backend Unit Tests**        | 14 test classes   | 32 tests             | 32     | 0      | **100%**  |
-| 🌐 **Backend Integration Tests** | 10 test classes   | 13 tests             | 13     | 0      | **100%**  |
-| 🎨 **Frontend Unit Tests**       | 26 spec files     | 35 tests             | 35     | 0      | **100%**  |
-| 🏆 **TOTAL COMBINED SUITE**      | **50 test files** | **80 tests**         | **80** | **0**  | **100%**  |
+| Category                             | Total Test Files  | Total Executed Tests | Passed  | Failed | Pass Rate       |
+| ------------------------------------ | ----------------- | -------------------- | ------- | ------ | --------------- |
+| 🧪 **Backend Unit Testing**          | 14 test classes   | 75 tests             | 75      | 0      | **100%**        |
+| 🌐 **Backend Integration Testing**   | 10 test classes   | 13 tests             | 13      | 0      | **100%**        |
+| 🛡️ **Backend Security Testing**      | 14 test classes   | 60 tests             | 60      | 0      | **100%**        |
+| ⚡ **Backend Performance Load**      | 1 test class      | 65 tests (13 scenarios × 5 VU tiers) | 65       | 0      | **100%**        |
+| 🎨 **Frontend Unit Testing**         | 26 spec files     | 35 tests                             | 35      | 0      | **100%**        |
+| 🛡️ **Frontend Security Testing**     | 5 spec files      | 15 tests                             | 15      | 0      | **100%**        |
+| 📱 **WhatsApp Gateway Microservice** | 1 test file       | 12 tests                             | 12      | 0      | **100%**        |
+| 🏆 **TOTAL COMBINED SYSTEM SUITE**   | **71 test files** | **275 tests**                        | **275** | **0**  | **100% PASSED** |
 
 <details>
 <summary><b>🔍 Expand to view complete test suite breakdown & execution guide</b></summary>
@@ -166,69 +170,99 @@ SHIELDON implements a robust **100% Pass Rate** testing suite for both Backend (
 
 #### 1. Backend Test Breakdown (`SHIELDON.Tests`)
 
-| #   | Test File                         | Test Type            | Module / Domain Area Covered                                                                | Test Count | Result           |
-| --- | --------------------------------- | -------------------- | ------------------------------------------------------------------------------------------- | ---------- | ---------------- |
-| 1   | `AuthServiceTests.cs`             | **Unit Test**        | Module 1: Registration, bcrypt password hashing, login token generation, lockout counters   | 5          | `[x]` **PASSED** |
-| 2   | `RegistrationIntegrationTests.cs` | **Integration Test** | Module 1: End-to-end `POST /api/auth/register` API endpoint (201 Created vs 400 BadRequest) | 2          | `[x]` **PASSED** |
-| 3   | `ProfileServiceTests.cs`          | **Unit Test**        | Module 1: Profile fetching, user identity validation                                        | 2          | `[x]` **PASSED** |
-| 4   | `ProfileIntegrationTests.cs`      | **Integration Test** | Module 1: End-to-end `GET /api/profile` & `PUT /api/profile` user identity API pipeline     | 2          | `[x]` **PASSED** |
-| 5   | `CourseServiceTests.cs`           | **Unit Test**        | Module 2: Course CRUD, unique `CourseCode` generation, assigned tutor checks                | 3          | `[x]` **PASSED** |
-| 6   | `CourseIntegrationTests.cs`       | **Integration Test** | Module 2: End-to-end `GET /api/courses` authorization API pipeline                          | 1          | `[x]` **PASSED** |
-| 7   | `AnnouncementServiceTests.cs`     | **Unit Test**        | Module 2: Announcement creation, priority levels ('Normal'/'Important'), tutor RBAC         | 3          | `[x]` **PASSED** |
-| 8   | `AssignmentServiceTests.cs`       | **Unit Test**        | Module 2: Assignment fetching, non-existent course error handling                           | 2          | `[x]` **PASSED** |
-| 9   | `MaterialServiceTests.cs`         | **Unit Test**        | Module 2: Material upload limits, MIME security checks, deletion RBAC                       | 2          | `[x]` **PASSED** |
-| 10  | `ExamServiceTests.cs`             | **Unit Test**        | Module 3: Exam creation, query parameter filtering, exam retrieval                          | 2          | `[x]` **PASSED** |
-| 11  | `ExamIntegrationTests.cs`         | **Integration Test** | Module 3: End-to-end `GET /api/courses/{id}/exams` authorization API pipeline               | 1          | `[x]` **PASSED** |
-| 12  | `ExamResultServiceTests.cs`       | **Unit Test**        | Module 3: Attempt result fetching, Not Found handling, student cross-attempt security       | 2          | `[x]` **PASSED** |
-| 13  | `ViolationServiceTests.cs`        | **Unit Test**        | Module 4: Anti-Cheat violation batch logging, attempt ownership check, DB persistence       | 2          | `[x]` **PASSED** |
-| 14  | `ViolationIntegrationTests.cs`    | **Integration Test** | Module 4: End-to-end `POST /api/violations/attempt/{id}/log` Anti-Cheat API endpoint        | 2          | `[x]` **PASSED** |
-| 15  | `MonitoringServiceTests.cs`       | **Unit Test**        | Module 5: ProcessHeartbeat timeline aggregation, active session querying                    | 2          | `[x]` **PASSED** |
-| 16  | `MonitoringIntegrationTests.cs`   | **Integration Test** | Module 5: End-to-end `POST /api/monitoring/heartbeat` live proctoring API pipeline          | 2          | `[x]` **PASSED** |
-| 17  | `ChatServiceTests.cs`             | **Unit Test**        | Module 6: Real-Time Chat empty inbox handling, 1-on-1 DM conversation creation              | 2          | `[x]` **PASSED** |
-| 18  | `ChatIntegrationTests.cs`         | **Integration Test** | Module 6: End-to-end `GET /api/chat/conversations` direct messaging API pipeline            | 1          | `[x]` **PASSED** |
-| 19  | `LeaderboardServiceTests.cs`      | **Unit Test**        | Module 7: Non-existent course handling, hidden leaderboard student filtering                | 2          | `[x]` **PASSED** |
-| 20  | `LeaderboardIntegrationTests.cs`  | **Integration Test** | Module 7: End-to-end `GET /api/leaderboard/course/{id}` API pipeline                        | 1          | `[x]` **PASSED** |
-| 21  | `AttendanceServiceTests.cs`       | **Unit Test**        | Module 7: Dynamic 30s QR check creation, secret key generation, tutor check deactivation    | 2          | `[x]` **PASSED** |
-| 22  | `AttendanceIntegrationTests.cs`   | **Integration Test** | Module 7: End-to-end `GET /api/attendance/courses/{id}/active-session` API pipeline         | 1          | `[x]` **PASSED** |
-| 23  | `PaymentServiceTests.cs`          | **Unit Test**        | Module 7: Stripe payment history, paid course transaction filtering                         | 2          | `[x]` **PASSED** |
-| 24  | `PaymentIntegrationTests.cs`      | **Integration Test** | Module 7: End-to-end `GET /api/payments/history` Stripe integration API pipeline            | 1          | `[x]` **PASSED** |
-| 25  | `CalendarServiceTests.cs`         | **Unit Test**        | Module 7: User calendar event querying and deadline sync                                    | 1          | `[x]` **PASSED** |
+| #   | Test File                         | Test Type            | Module / Domain Area Covered                                                                 | Test Count | Result           |
+| --- | --------------------------------- | -------------------- | -------------------------------------------------------------------------------------------- | ---------- | ---------------- |
+| 1   | `AuthSecurityTests.cs`            | **Security Test**    | Module 1: Brute-force lockout (5 attempts), token invalidation, enumeration protection       | 10         | `[x]` **PASSED** |
+| 2   | `GoogleOAuthSecurityTests.cs`     | **Security Test**    | Module 1: Empty/malformed token rejection, locked account SSO blocking                       | 4          | `[x]` **PASSED** |
+| 3   | `AuthServiceTests.cs`             | **Unit Test**        | Module 1: Registration, bcrypt password hashing, login token generation, lockout counters    | 5          | `[x]` **PASSED** |
+| 4   | `RegistrationIntegrationTests.cs` | **Integration Test** | Module 1: End-to-end `POST /api/auth/register` API endpoint (201 Created vs 400 BadRequest)  | 2          | `[x]` **PASSED** |
+| 5   | `ProfileServiceTests.cs`          | **Unit Test**        | Module 1: Profile fetching, user identity validation                                         | 2          | `[x]` **PASSED** |
+| 6   | `ProfileIntegrationTests.cs`      | **Integration Test** | Module 1: End-to-end `GET /api/profile` & `PUT /api/profile` user identity API pipeline      | 2          | `[x]` **PASSED** |
+| 7   | `CoursesRBACTests.cs`             | **Security Test**    | Module 2: Tutor course assignment RBAC, enrollment cooldown, material access checks          | 6          | `[x]` **PASSED** |
+| 8   | `CourseInjectionTests.cs`         | **Security Test**    | Module 2: Announcement XSS HTML sanitization via `SanitizationHelper`, large payload safety  | 5          | `[x]` **PASSED** |
+| 9   | `CourseServiceTests.cs`           | **Unit Test**        | Module 2: Course CRUD, unique `CourseCode` generation, assigned tutor checks                 | 3          | `[x]` **PASSED** |
+| 10  | `CourseIntegrationTests.cs`       | **Integration Test** | Module 2: End-to-end `GET /api/courses` authorization API pipeline                           | 1          | `[x]` **PASSED** |
+| 11  | `AnnouncementServiceTests.cs`     | **Unit Test**        | Module 2: Announcement creation, priority levels ('Normal'/'Important'), tutor RBAC          | 3          | `[x]` **PASSED** |
+| 12  | `AssignmentServiceTests.cs`       | **Unit Test**        | Module 2: Assignment fetching, non-existent course error handling                            | 2          | `[x]` **PASSED** |
+| 13  | `MaterialServiceTests.cs`         | **Unit Test**        | Module 2: Material upload limits, MIME security checks, deletion RBAC                        | 2          | `[x]` **PASSED** |
+| 14  | `ExamTokenSecurityTests.cs`       | **Security Test**    | Module 3: Exam session token validation, submitted attempt answer immutability, expiry check | 5          | `[x]` **PASSED** |
+| 15  | `ExamResultAccessTests.cs`        | **Security Test**    | Module 3: Manual vs Immediate result release visibility, cross-student result isolation      | 5          | `[x]` **PASSED** |
+| 16  | `ExamServiceTests.cs`             | **Unit Test**        | Module 3: Exam creation, query parameter filtering, exam retrieval                           | 2          | `[x]` **PASSED** |
+| 17  | `ExamIntegrationTests.cs`         | **Integration Test** | Module 3: End-to-end `GET /api/courses/{id}/exams` authorization API pipeline                | 1          | `[x]` **PASSED** |
+| 18  | `ExamResultServiceTests.cs`       | **Unit Test**        | Module 3: Attempt result fetching, Not Found handling, student cross-attempt security        | 2          | `[x]` **PASSED** |
+| 19  | `ViolationSecurityTests.cs`       | **Security Test**    | Module 4: Batch violation deduplication, forged attempt ID rejection, heartbeat idempotency  | 7          | `[x]` **PASSED** |
+| 20  | `ViolationServiceTests.cs`        | **Unit Test**        | Module 4: Anti-Cheat violation batch logging, attempt ownership check, DB persistence        | 2          | `[x]` **PASSED** |
+| 21  | `ViolationIntegrationTests.cs`    | **Integration Test** | Module 4: End-to-end `POST /api/violations/attempt/{id}/log` Anti-Cheat API endpoint         | 2          | `[x]` **PASSED** |
+| 22  | `MonitoringRBACTests.cs`          | **Security Test**    | Module 5: Tutor live proctoring scope isolation, heartbeat student identity check            | 5          | `[x]` **PASSED** |
+| 23  | `MonitoringServiceTests.cs`       | **Unit Test**        | Module 5: ProcessHeartbeat timeline aggregation, active session querying                     | 2          | `[x]` **PASSED** |
+| 24  | `MonitoringIntegrationTests.cs`   | **Integration Test** | Module 5: End-to-end `POST /api/monitoring/heartbeat` live proctoring API pipeline           | 2          | `[x]` **PASSED** |
+| 25  | `ChatAccessTests.cs`              | **Security Test**    | Module 6: Participant conversation isolation, DM canonical GUID pairing checks               | 6          | `[x]` **PASSED** |
+| 26  | `ChatServiceTests.cs`             | **Unit Test**        | Module 6: Real-Time Chat empty inbox handling, 1-on-1 DM conversation creation               | 2          | `[x]` **PASSED** |
+| 27  | `ChatIntegrationTests.cs`         | **Integration Test** | Module 6: End-to-end `GET /api/chat/conversations` direct messaging API pipeline             | 1          | `[x]` **PASSED** |
+| 28  | `AttendanceSecurityTests.cs`      | **Security Test**    | Module 7: Dynamic 30s QR token rotation, expired QR scan rejection, tutor deactivation RBAC  | 7          | `[x]` **PASSED** |
+| 29  | `AttendanceServiceTests.cs`       | **Unit Test**        | Module 7: Dynamic 30s QR check creation, secret key generation, tutor check deactivation     | 2          | `[x]` **PASSED** |
+| 30  | `AttendanceIntegrationTests.cs`   | **Integration Test** | Module 7: End-to-end `GET /api/attendance/courses/{id}/active-session` API pipeline          | 1          | `[x]` **PASSED** |
+| 31  | `LeaderboardSecurityTests.cs`     | **Security Test**    | Module 7: Student hidden leaderboard filtering, admin vs tutor access controls               | 4          | `[x]` **PASSED** |
+| 32  | `LeaderboardServiceTests.cs`      | **Unit Test**        | Module 7: Non-existent course handling, hidden leaderboard student filtering                 | 2          | `[x]` **PASSED** |
+| 33  | `LeaderboardIntegrationTests.cs`  | **Integration Test** | Module 7: End-to-end `GET /api/leaderboard/course/{id}` API pipeline                         | 1          | `[x]` **PASSED** |
+| 34  | `StripeWebhookSecurityTests.cs`   | **Security Test**    | Module 7: Stripe signature header enforcement, forged signature 400 rejection                | 4          | `[x]` **PASSED** |
+| 35  | `AIProxySecurityTests.cs`         | **Security Test**    | Module 7: AI Proxy unauthenticated 401 rejection, OPTIONS preflight handling                 | 3          | `[x]` **PASSED** |
+| 36  | `SecurityHubTests.cs`             | **Security Test**    | Module 7: Unauthenticated SignalR hub negotiation 401 rejection across all 5 hubs            | 5          | `[x]` **PASSED** |
+| 37  | `APIHardeningTests.cs`            | **Security Test**    | API Layer: `X-Content-Type-Options: nosniff`, `X-Frame-Options`, CORS origin wildcard guard  | 6          | `[x]` **PASSED** |
+| 38  | `PerformanceLoadTests.cs`         | **Load Test**        | 13 API Scenarios × 5 VU Tiers (100, 500, 1,000, 5,000, 10,000 VUs)            | 65         | `[x]` **PASSED** |
+| 39  | `PaymentServiceTests.cs`          | **Unit Test**        | Module 7: Stripe payment history, paid course transaction filtering                          | 2          | `[x]` **PASSED** |
+| 40  | `PaymentIntegrationTests.cs`      | **Integration Test** | Module 7: End-to-end `GET /api/payments/history` Stripe integration API pipeline             | 1          | `[x]` **PASSED** |
+| 41  | `CalendarServiceTests.cs`         | **Unit Test**        | Module 7: User calendar event querying and deadline sync                                     | 1          | `[x]` **PASSED** |
 
 #### 2. Frontend Test Breakdown (`frontend`)
 
-> **Architecture Note**: All component specs are co-located right next to their implementation files within their respective **Vertical Slice** feature folders.
+| #   | Spec File                           | Test Type                 | Location / Purpose                                                                       | Test Count | Result           |
+| --- | ----------------------------------- | ------------------------- | ---------------------------------------------------------------------------------------- | ---------- | ---------------- |
+| 1   | `auth-interceptor.security.spec.ts` | **Security Spec**         | `src/app/core/interceptors/` - Bearer token injection, 401 refresh flow, logout redirect | 4          | `[x]` **PASSED** |
+| 2   | `login-security.spec.ts`            | **Security Spec**         | `src/app/features/auth/login/` - Form validation & email format rules                    | 3          | `[x]` **PASSED** |
+| 3   | `anti-cheat.security.spec.ts`       | **Security Spec**         | `src/app/features/exam-engine/` - Strike score reset & clean state initialization        | 3          | `[x]` **PASSED** |
+| 4   | `chat-security.spec.ts`             | **Security Spec**         | `src/app/features/chat/` - DOMPurify HTML sanitization for XSS script/event tags         | 3          | `[x]` **PASSED** |
+| 5   | `payment-security.spec.ts`          | **Security Spec**         | `src/app/features/payment/` - Stripe checkout URL domain & HTTPS validation              | 2          | `[x]` **PASSED** |
+| 6   | `theme.service.spec.ts`             | **Unit Test (Service)**   | `src/app/core/services/` - Light/Dark theme switching, `data-theme` attribute            | 3          | `[x]` **PASSED** |
+| 7   | `language.service.spec.ts`          | **Unit Test (Service)**   | `src/app/core/services/` - English/Arabic i18n switching, `dir="rtl"` / `dir="ltr"`      | 3          | `[x]` **PASSED** |
+| 8   | `exam-device.guard.spec.ts`         | **Unit Test (Guard)**     | `src/app/core/guards/` - Viewport width check (`< 1024px`), redirect bypass              | 1          | `[x]` **PASSED** |
+| 9   | `auth.service.spec.ts`              | **Unit Test (Service)**   | `src/app/core/services/` - Reactive Angular signals state, token storage, logout         | 2          | `[x]` **PASSED** |
+| 10  | `login.spec.ts`                     | **Unit Test (Component)** | `src/app/features/auth/login/` - Login form controls, validation state                   | 4          | `[x]` **PASSED** |
+| 11  | `register.spec.ts`                  | **Unit Test (Component)** | `src/app/features/auth/register/` - Register form controls, userType selection           | 2          | `[x]` **PASSED** |
+| 12  | `verify-email.spec.ts`              | **Unit Test (Component)** | `src/app/features/auth/verify-email/` - Verify email view & translation resolution       | 1          | `[x]` **PASSED** |
+| 13  | `landing.spec.ts`                   | **Unit Test (Component)** | `src/app/features/public/landing/` - Hero animations, IntersectionObserver               | 1          | `[x]` **PASSED** |
+| 14  | `mobile-blocked.spec.ts`            | **Unit Test (Component)** | `src/app/features/public/mobile-blocked/` - Device blocked redirect view creation        | 1          | `[x]` **PASSED** |
+| 15  | `my-grades.spec.ts`                 | **Unit Test (Component)** | `src/app/features/grades/my-grades/` - Student gradebook view & GradeService             | 1          | `[x]` **PASSED** |
+| 16  | `course-grades.spec.ts`             | **Unit Test (Component)** | `src/app/features/grades/course-grades/` - Tutor course gradebook management             | 1          | `[x]` **PASSED** |
+| 17  | `exam-result-page.spec.ts`          | **Unit Test (Component)** | `src/app/features/exams/exam-result-page/` - Student exam score result ring view         | 1          | `[x]` **PASSED** |
+| 18  | `tutor-results-panel.spec.ts`       | **Unit Test (Component)** | `src/app/features/exams/tutor-results-panel/` - Tutor exam results panel component       | 1          | `[x]` **PASSED** |
+| 19  | `global-progress-bar.spec.ts`       | **Unit Test (Component)** | `src/app/shared/components/global-progress-bar/` - Progress bar UI directive             | 1          | `[x]` **PASSED** |
+| 20  | `public-layout.spec.ts`             | **Unit Test (Component)** | `src/app/layouts/public-layout/` - Navbar layout wrapper & i18n controls                 | 1          | `[x]` **PASSED** |
+| 21  | `app.spec.ts`                       | **Unit Test (Component)** | `src/app/` - Root Angular App component instantiation                                    | 1          | `[x]` **PASSED** |
+| 22  | `global-call-overlay.spec.ts`       | **Unit Test (Component)** | `src/app/shared/components/global-call-overlay/` - Global WebRTC call overlay            | 1          | `[x]` **PASSED** |
 
-| #   | Spec File                     | Test Type                 | Vertical Slice / Location                                                           | Test Count | Result           |
-| --- | ----------------------------- | ------------------------- | ----------------------------------------------------------------------------------- | ---------- | ---------------- |
-| 1   | `theme.service.spec.ts`       | **Unit Test (Service)**   | `src/app/core/services/` - Light/Dark theme switching, `data-theme` attribute       | 3          | `[x]` **PASSED** |
-| 2   | `language.service.spec.ts`    | **Unit Test (Service)**   | `src/app/core/services/` - English/Arabic i18n switching, `dir="rtl"` / `dir="ltr"` | 3          | `[x]` **PASSED** |
-| 3   | `exam-device.guard.spec.ts`   | **Unit Test (Guard)**     | `src/app/core/guards/` - Viewport width check (`< 1024px`), redirect bypass         | 1          | `[x]` **PASSED** |
-| 4   | `auth.service.spec.ts`        | **Unit Test (Service)**   | `src/app/core/services/` - Reactive Angular signals state, token storage, logout    | 2          | `[x]` **PASSED** |
-| 5   | `login.spec.ts`               | **Unit Test (Component)** | `src/app/features/auth/login/` - Login form controls, validation state              | 4          | `[x]` **PASSED** |
-| 6   | `register.spec.ts`            | **Unit Test (Component)** | `src/app/features/auth/register/` - Register form controls, userType selection      | 2          | `[x]` **PASSED** |
-| 7   | `verify-email.spec.ts`        | **Unit Test (Component)** | `src/app/features/auth/verify-email/` - Verify email view & translation resolution  | 1          | `[x]` **PASSED** |
-| 8   | `landing.spec.ts`             | **Unit Test (Component)** | `src/app/features/public/landing/` - Hero animations, IntersectionObserver          | 1          | `[x]` **PASSED** |
-| 9   | `mobile-blocked.spec.ts`      | **Unit Test (Component)** | `src/app/features/public/mobile-blocked/` - Device blocked redirect view creation   | 1          | `[x]` **PASSED** |
-| 10  | `my-grades.spec.ts`           | **Unit Test (Component)** | `src/app/features/grades/my-grades/` - Student gradebook view & GradeService        | 1          | `[x]` **PASSED** |
-| 11  | `course-grades.spec.ts`       | **Unit Test (Component)** | `src/app/features/grades/course-grades/` - Tutor course gradebook management        | 1          | `[x]` **PASSED** |
-| 12  | `exam-result-page.spec.ts`    | **Unit Test (Component)** | `src/app/features/exams/exam-result-page/` - Student exam score result ring view    | 1          | `[x]` **PASSED** |
-| 13  | `tutor-results-panel.spec.ts` | **Unit Test (Component)** | `src/app/features/exams/tutor-results-panel/` - Tutor exam results panel component  | 1          | `[x]` **PASSED** |
-| 14  | `global-progress-bar.spec.ts` | **Unit Test (Component)** | `src/app/shared/components/global-progress-bar/` - Progress bar UI directive        | 1          | `[x]` **PASSED** |
-| 15  | `public-layout.spec.ts`       | **Unit Test (Component)** | `src/app/layouts/public-layout/` - Navbar layout wrapper & i18n controls            | 1          | `[x]` **PASSED** |
-| 16  | `app.spec.ts`                 | **Unit Test (Component)** | `src/app/` - Root Angular App component instantiation                               | 1          | `[x]` **PASSED** |
-| 17  | `global-call-overlay.spec.ts` | **Unit Test (Component)** | `src/app/shared/components/global-call-overlay/` - Global web RTC call overlay      | 1          | `[x]` **PASSED** |
+#### 3. WhatsApp Gateway Microservice (`backend/whatsapp-gateway`)
 
-#### 3. Execution Commands
+| #   | Test File                  | Test Type         | Scope / Verification                                                         | Test Count | Result           |
+| --- | -------------------------- | ----------------- | ---------------------------------------------------------------------------- | ---------- | ---------------- |
+| 1   | `gateway.security.test.js` | **Security Test** | E.164 phone number regex validation & 6-digit numeric OTP code format checks | 12         | `[x]` **PASSED** |
 
-- **Backend Test Runner**:
+#### 4. Execution Commands
+
+- **Backend tests** (unit, integration, security & NBomber load):
   ```bash
   cd backend
-  dotnet test
+  dotnet test bin/TestRelease/SHIELDON.Tests.dll
   ```
-- **Frontend Test Runner**:
+- **Frontend tests** (unit & security specs):
   ```bash
   cd frontend
   npx vitest run
+  ```
+- **WhatsApp Gateway tests**:
+  ```bash
+  cd backend/whatsapp-gateway
+  npm test
   ```
 
 </details>
@@ -555,7 +589,7 @@ Use Stripe's official test card numbers to simulate different payment scenarios.
 
 ---
 
-## 🧪 How to Test (Demo Accounts)
+## 🔑 How to Test (Demo Accounts)
 
 To test the different roles in the system:
 

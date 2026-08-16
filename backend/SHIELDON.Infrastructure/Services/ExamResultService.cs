@@ -536,14 +536,17 @@ public class ExamResultService : IExamResultService
         // CSV Header
         sb.AppendLine("StudentName,StudentId,AttemptNumber,Status,SubmittedAt,Score,Passed,IsGradePublished");
 
-        foreach (var a in attempts)
+        if (attempts != null)
         {
+            foreach (var a in attempts)
+            {
             var submittedAt = a.SubmittedAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? "N/A";
             var score = a.Score.HasValue ? a.Score.Value.ToString("F2") : "Pending";
             var passed = a.Passed.HasValue ? (a.Passed.Value ? "Yes" : "No") : "N/A";
             var published = a.IsGradePublished ? "Yes" : "No";
 
             sb.AppendLine($"\"{a.StudentName}\",\"{a.StudentDisplayId}\",{a.AttemptNumber},\"{a.Status}\",\"{submittedAt}\",\"{score}\",\"{passed}\",\"{published}\"");
+            }
         }
 
         return System.Text.Encoding.UTF8.GetBytes(sb.ToString());

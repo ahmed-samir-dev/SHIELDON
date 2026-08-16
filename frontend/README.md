@@ -8,7 +8,7 @@
   <img src="https://img.shields.io/badge/Lucide_Icons-F54E00?style=for-the-badge&logo=lucide&logoColor=white" alt="Lucide Icons" />
 </div>
 
-> 🖥️ The modern SPA user interface for the **SHIELDON** Learning Management System & Anti-Cheating Engine.
+> The modern SPA user interface for the **SHIELDON** Learning Management System & Anti-Cheating Engine.
 > Built with **Angular 21** using Standalone Components, Signals, and browser-native APIs.
 
 ---
@@ -182,6 +182,43 @@ Built entirely with standard Web APIs (no extensions required):
 
 ---
 
+## 🧪 QA Testing
+
+> 📖 **Full Testing Guide**: [docs/TESTING.md](../docs/TESTING.md) | **Audit Report**: [docs/PERFORMANCE_SECURITY_REPORT.md](../docs/PERFORMANCE_SECURITY_REPORT.md)
+
+SHIELDON frontend maintains a **100% Pass Rate** across **50 executed tests** in Vitest:
+
+### 📊 Frontend Test Metrics Summary
+
+| Category | Spec Files | Executed Specs | Status |
+| -------- | ---------- | -------------- | ------ |
+| **Frontend Unit Testing** | 26 spec files | 35 tests | ✅ 100% Passed |
+| **Frontend Security Testing** | 5 spec files | 15 tests | ✅ 100% Passed |
+| **TOTAL FRONTEND SUITE** | **31 files** | **50 tests** | **✅ 100% PASSED** |
+
+### 🎯 Security & Interceptors Coverage
+- `auth-interceptor.security.spec.ts`: Validates `Authorization: Bearer <token>` injection, 401 refresh token flow, and redirect to `/login` on refresh failure.
+- `login-security.spec.ts`: Validates email format rules and password control constraints.
+- `anti-cheat.security.spec.ts`: Validates strike state reset and clean state initialization on exam start.
+- `chat-security.spec.ts`: Validates `DOMPurify` HTML sanitization for script tags, event handlers (`onerror`), and `javascript:` links.
+- `payment-security.spec.ts`: Validates URL domain validation for Stripe checkout redirects.
+
+### ⚡ Lighthouse CI Performance Config
+Performance standards are defined in `frontend/lighthouserc.js` targeting **≥ 90/100** across Performance, Accessibility, Best Practices, and SEO.
+
+### 🚀 Running Frontend Tests
+
+```bash
+# Run all Vitest unit and security tests
+cd frontend
+npx vitest run
+
+# Run tests in interactive watch mode
+npx vitest watch
+```
+
+---
+
 ## 🤝 Contributing & Guidelines
 
 Please read [docs/CONTRIBUTING.md](../docs/CONTRIBUTING.md) before submitting pull requests.
@@ -189,5 +226,6 @@ Please read [docs/CONTRIBUTING.md](../docs/CONTRIBUTING.md) before submitting pu
 ---
 
 <div align="center">
-  <strong>🛡️ SHIELDON Frontend - "Integrity You Can Trust" 🛡️</strong>
+  <strong>SHIELDON Frontend - "Integrity You Can Trust"</strong>
 </div>
+

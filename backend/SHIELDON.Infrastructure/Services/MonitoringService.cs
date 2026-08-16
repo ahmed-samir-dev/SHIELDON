@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using SHIELDON.Application.Features.Monitoring.DTOs;
 using SHIELDON.Application.Interfaces;
 using SHIELDON.Domain.Entities;
@@ -17,10 +18,16 @@ namespace SHIELDON.Infrastructure.Services;
 public class MonitoringService : IMonitoringService
 {
     private readonly AppDbContext _db;
+    private readonly IMemoryCache _cache;
 
-    public MonitoringService(AppDbContext db)
+    /// <summary>TTL for the admin dashboard KPI + chart data cache entry.</summary>
+    private static readonly TimeSpan AdminDashboardKpiTtl = TimeSpan.FromSeconds(30);
+    private const string AdminDashboardKpiCacheKey = "admin_dashboard_kpi_v1";
+
+    public MonitoringService(AppDbContext db, IMemoryCache cache)
     {
-        _db = db;
+        _db    = db;
+        _cache = cache;
     }
 
     // ── Heartbeat / Presence ──────────────────────────────────────────────────
@@ -556,209 +563,225 @@ public class MonitoringService : IMonitoringService
     /// <inheritdoc/>
     public async Task<AdminDashboardResponse> GetAdminDashboardAsync(ExamStatisticsQueryParams queryParams)
     {
-        var now = DateTime.UtcNow;
-        var thirtyDaysAgo = now.AddDays(-30);
-
-        // ── KPI Row 1 ───────────────────────────────────────────────────────────
-        var totalActiveCourses = await _db.Courses.CountAsync(c => c.IsActive);
-        var totalExams = await _db.Exams.CountAsync();
-
-        var totalCompletedExams = await _db.ExamAttempts
-            .Where(a => a.Status != AttemptStatus.InProgress)
-            .Select(a => a.ExamId)
-            .Distinct()
-            .CountAsync();
-
-        var totalSubmissions      = await _db.ExamAttempts.CountAsync(a => a.Status != AttemptStatus.InProgress);
-        var totalForceSubmitted   = await _db.ExamAttempts.CountAsync(a => a.Status == AttemptStatus.ForceSubmitted);
-        var totalViolations       = await _db.ViolationLogs.CountAsync();
-
-        // ── KPI Row 2 ───────────────────────────────────────────────────────────
-        var totalStudents         = await _db.Users.CountAsync(u => u.Role == Domain.Enums.UserRole.Student);
-        var totalTutors           = await _db.Users.CountAsync(u => u.Role == Domain.Enums.UserRole.Tutor);
-        var activeExamsInProgress = await _db.ExamAttempts.CountAsync(a => a.Status == AttemptStatus.InProgress);
-
-        var forceSubmissionRate = totalSubmissions > 0
-            ? Math.Round((decimal)totalForceSubmitted / totalSubmissions * 100, 1)
-            : 0m;
-
-        var gradedAttemptsInfo = await _db.ExamAttempts
-            .Where(a => a.Status != AttemptStatus.InProgress)
-            .Select(a => new { a.Score, PassScore = a.Exam.PassScore })
-            .ToListAsync();
-            
-        var averagePassRate = gradedAttemptsInfo.Count > 0
-            ? Math.Round((decimal)gradedAttemptsInfo.Count(a => a.Score >= a.PassScore) / gradedAttemptsInfo.Count * 100, 1)
-            : 0m;
-
-        // ── Violations by Course Chart ───────────────────────────────────────────
-        // Join ViolationLogs → Exam → Course to group per course
-        var violationsByCourse = await _db.ViolationLogs
-            .Join(_db.Exams, v => v.ExamId, e => e.Id, (v, e) => new { v.Severity, e.CourseId })
-            .Join(_db.Courses, x => x.CourseId, c => c.Id, (x, c) => new { x.Severity, CourseTitle = c.Title })
-            .GroupBy(x => x.CourseTitle)
-            .Select(g => new CourseViolationStat
-            {
-                CourseTitle    = g.Key,
-                ViolationCount = g.Count(),
-                CriticalCount  = g.Count(x => x.Severity == ViolationSeverity.Critical),
-                MediumCount    = g.Count(x => x.Severity == ViolationSeverity.Medium),
-                MinorCount     = g.Count(x => x.Severity == ViolationSeverity.Minor)
-            })
-            .OrderByDescending(s => s.ViolationCount)
-            .Take(10)
-            .AsNoTracking()
-            .ToListAsync();
-
-        // ── Global Submission Outcomes Chart ─────────────────────────────────────
-        var allAttempts = await _db.ExamAttempts
-            .AsNoTracking()
-            .Select(a => new { a.Id, a.Status })
-            .ToListAsync();
-
-        var totalAttemptCount = allAttempts.Count;
-        var inProgressCount   = allAttempts.Count(a => a.Status == AttemptStatus.InProgress);
-
-        var autoExpiredExamIds = await _db.ViolationLogs
-            .Where(v => v.WasAutoSubmit)
-            .Select(v => v.AttemptId)
-            .Distinct()
-            .ToListAsync();
-
-        var autoExpiredCount = autoExpiredExamIds.Count;
-        
-        var forceSubmitCount = allAttempts.Count(a => 
-            a.Status == AttemptStatus.ForceSubmitted && !autoExpiredExamIds.Contains(a.Id));
-
-        var cleanSubmittedCount = allAttempts.Count(a => 
-            (a.Status == AttemptStatus.Submitted || a.Status == AttemptStatus.Graded) && !autoExpiredExamIds.Contains(a.Id));
-
-        var globalOutcomes = new List<SubmissionOutcomeStat>();
-        void AddOutcome(string label, int count)
+        // ── Cached KPI + Chart Block ──────────────────────────────────────────────
+        // Heavy aggregation queries (KPIs, violation charts, activity trend) are
+        // cached for 30 seconds. All concurrent requests within the window share
+        // one database round-trip instead of executing 11+ queries each.
+        // The exam statistics table is excluded from cache because it is
+        // user-parameterised (search / sort / page) and must always be fresh.
+        var kpi = await _cache.GetOrCreateAsync(AdminDashboardKpiCacheKey, async entry =>
         {
-            globalOutcomes.Add(new SubmissionOutcomeStat
+            entry.AbsoluteExpirationRelativeToNow = AdminDashboardKpiTtl;
+
+            var now          = DateTime.UtcNow;
+            var thirtyDaysAgo = now.AddDays(-30);
+
+            // ── KPI Row 1 ─────────────────────────────────────────────────────
+            var totalActiveCourses = await _db.Courses.CountAsync(c => c.IsActive);
+            var totalExams         = await _db.Exams.CountAsync();
+
+            var totalCompletedExams = await _db.ExamAttempts
+                .Where(a => a.Status != AttemptStatus.InProgress)
+                .Select(a => a.ExamId)
+                .Distinct()
+                .CountAsync();
+
+            var totalSubmissions    = await _db.ExamAttempts.CountAsync(a => a.Status != AttemptStatus.InProgress);
+            var totalForceSubmitted = await _db.ExamAttempts.CountAsync(a => a.Status == AttemptStatus.ForceSubmitted);
+            var totalViolations     = await _db.ViolationLogs.CountAsync();
+
+            // ── KPI Row 2 ─────────────────────────────────────────────────────
+            var totalStudents         = await _db.Users.CountAsync(u => u.Role == Domain.Enums.UserRole.Student);
+            var totalTutors           = await _db.Users.CountAsync(u => u.Role == Domain.Enums.UserRole.Tutor);
+            var activeExamsInProgress = await _db.ExamAttempts.CountAsync(a => a.Status == AttemptStatus.InProgress);
+
+            var forceSubmissionRate = totalSubmissions > 0
+                ? Math.Round((decimal)totalForceSubmitted / totalSubmissions * 100, 1)
+                : 0m;
+
+            var gradedAttemptsInfo = await _db.ExamAttempts
+                .Where(a => a.Status != AttemptStatus.InProgress && a.Exam != null)
+                .Select(a => new { a.Score, PassScore = a.Exam!.PassScore })
+                .ToListAsync();
+
+            var averagePassRate = gradedAttemptsInfo.Count > 0
+                ? Math.Round((decimal)gradedAttemptsInfo.Count(a => a.Score >= a.PassScore) / gradedAttemptsInfo.Count * 100, 1)
+                : 0m;
+
+            // ── Violations by Course Chart ─────────────────────────────────────
+            var violationsByCourse = await _db.ViolationLogs
+                .Join(_db.Exams, v => v.ExamId, e => e.Id, (v, e) => new { v.Severity, e.CourseId })
+                .Join(_db.Courses, x => x.CourseId, c => c.Id, (x, c) => new { x.Severity, CourseTitle = c.Title })
+                .GroupBy(x => x.CourseTitle)
+                .Select(g => new CourseViolationStat
+                {
+                    CourseTitle    = g.Key,
+                    ViolationCount = g.Count(),
+                    CriticalCount  = g.Count(x => x.Severity == ViolationSeverity.Critical),
+                    MediumCount    = g.Count(x => x.Severity == ViolationSeverity.Medium),
+                    MinorCount     = g.Count(x => x.Severity == ViolationSeverity.Minor)
+                })
+                .OrderByDescending(s => s.ViolationCount)
+                .Take(10)
+                .AsNoTracking()
+                .ToListAsync();
+
+            // ── Global Submission Outcomes Chart ───────────────────────────────
+            var allAttempts = await _db.ExamAttempts
+                .AsNoTracking()
+                .Select(a => new { a.Id, a.Status })
+                .ToListAsync();
+
+            var totalAttemptCount = allAttempts.Count;
+            var inProgressCount   = allAttempts.Count(a => a.Status == AttemptStatus.InProgress);
+
+            var autoExpiredExamIds = await _db.ViolationLogs
+                .Where(v => v.WasAutoSubmit)
+                .Select(v => v.AttemptId)
+                .Distinct()
+                .ToListAsync();
+
+            var autoExpiredCount = autoExpiredExamIds.Count;
+            var forceSubmitCount = allAttempts.Count(a =>
+                a.Status == AttemptStatus.ForceSubmitted && !autoExpiredExamIds.Contains(a.Id));
+            var cleanSubmittedCount = allAttempts.Count(a =>
+                (a.Status == AttemptStatus.Submitted || a.Status == AttemptStatus.Graded) && !autoExpiredExamIds.Contains(a.Id));
+
+            var globalOutcomes = new List<SubmissionOutcomeStat>();
+            void AddOutcome(string label, int count)
             {
-                Outcome    = label,
-                Count      = count,
-                Percentage = totalAttemptCount > 0 ? Math.Round((decimal)count / totalAttemptCount * 100, 1) : 0m
-            });
-        }
-        AddOutcome("Submitted", cleanSubmittedCount);
-        AddOutcome("ForceSubmitted", forceSubmitCount);
-        AddOutcome("AutoExpired", autoExpiredCount);
-        AddOutcome("InProgress", inProgressCount);
+                globalOutcomes.Add(new SubmissionOutcomeStat
+                {
+                    Outcome    = label,
+                    Count      = count,
+                    Percentage = totalAttemptCount > 0 ? Math.Round((decimal)count / totalAttemptCount * 100, 1) : 0m
+                });
+            }
+            AddOutcome("Submitted",     cleanSubmittedCount);
+            AddOutcome("ForceSubmitted", forceSubmitCount);
+            AddOutcome("AutoExpired",   autoExpiredCount);
+            AddOutcome("InProgress",    inProgressCount);
 
-        // ── Course-level Granular Data for Frontend Chart Filtering ──────────────
-        var activeCourseTitles = await _db.Courses
-            .Where(c => c.IsActive)
-            .Select(c => c.Title)
-            .Distinct()
-            .ToListAsync();
+            // ── Course-level Granular Data ─────────────────────────────────────
+            var activeCourseTitles = await _db.Courses
+                .Where(c => c.IsActive && c.Title != null)
+                .Select(c => c.Title!)
+                .Distinct()
+                .ToListAsync();
 
-        var courseViolationDetails = await _db.ViolationLogs
-            .Join(_db.Exams, v => v.ExamId, e => e.Id, (v, e) => new { v.Type, v.Severity, e.CourseId })
-            .Join(_db.Courses, x => x.CourseId, c => c.Id, (x, c) => new { x.Type, x.Severity, CourseTitle = c.Title })
-            .GroupBy(x => new { x.CourseTitle, x.Type, x.Severity })
-            .Select(g => new CourseViolationDetail
+            var courseViolationDetails = await _db.ViolationLogs
+                .Join(_db.Exams, v => v.ExamId, e => e.Id, (v, e) => new { v.Type, v.Severity, e.CourseId })
+                .Join(_db.Courses, x => x.CourseId, c => c.Id, (x, c) => new { x.Type, x.Severity, CourseTitle = c.Title })
+                .GroupBy(x => new { x.CourseTitle, x.Type, x.Severity })
+                .Select(g => new CourseViolationDetail
+                {
+                    CourseTitle   = g.Key.CourseTitle ?? "Other",
+                    ViolationType = g.Key.Type.ToString(),
+                    Severity      = g.Key.Severity.ToString(),
+                    Count         = g.Count()
+                })
+                .AsNoTracking()
+                .ToListAsync();
+
+            var courseOutcomesRaw = await _db.ExamAttempts
+                .Join(_db.Exams, a => a.ExamId, e => e.Id, (a, e) => new { a.Id, a.Status, e.CourseId })
+                .Join(_db.Courses, x => x.CourseId, c => c.Id, (x, c) => new { x.Id, x.Status, CourseTitle = c.Title })
+                .AsNoTracking()
+                .ToListAsync();
+
+            var courseSubmissionOutcomes = new List<CourseSubmissionOutcome>();
+            foreach (var group in courseOutcomesRaw.GroupBy(x => x.CourseTitle))
             {
-                CourseTitle = g.Key.CourseTitle ?? "Other",
-                ViolationType = g.Key.Type.ToString(),
-                Severity = g.Key.Severity.ToString(),
-                Count = g.Count()
-            })
-            .AsNoTracking()
-            .ToListAsync();
+                var ct        = group.Key;
+                var autoExpC  = group.Count(a => autoExpiredExamIds.Contains(a.Id));
+                var forceSubC = group.Count(a => a.Status == AttemptStatus.ForceSubmitted && !autoExpiredExamIds.Contains(a.Id));
+                var cleanSubC = group.Count(a => (a.Status == AttemptStatus.Submitted || a.Status == AttemptStatus.Graded) && !autoExpiredExamIds.Contains(a.Id));
+                var inProgC   = group.Count(a => a.Status == AttemptStatus.InProgress);
+                courseSubmissionOutcomes.Add(new CourseSubmissionOutcome { CourseTitle = ct, Outcome = "Submitted",     Count = cleanSubC });
+                courseSubmissionOutcomes.Add(new CourseSubmissionOutcome { CourseTitle = ct, Outcome = "ForceSubmitted", Count = forceSubC });
+                courseSubmissionOutcomes.Add(new CourseSubmissionOutcome { CourseTitle = ct, Outcome = "AutoExpired",   Count = autoExpC  });
+                courseSubmissionOutcomes.Add(new CourseSubmissionOutcome { CourseTitle = ct, Outcome = "InProgress",    Count = inProgC   });
+            }
 
-        var courseOutcomesRaw = await _db.ExamAttempts
-            .Join(_db.Exams, a => a.ExamId, e => e.Id, (a, e) => new { a.Id, a.Status, e.CourseId })
-            .Join(_db.Courses, x => x.CourseId, c => c.Id, (x, c) => new { x.Id, x.Status, CourseTitle = c.Title })
-            .AsNoTracking()
-            .ToListAsync();
+            // ── Top Violation Types Chart ──────────────────────────────────────
+            var topViolationTypes = await _db.ViolationLogs
+                .GroupBy(v => v.Type)
+                .Select(g => new ViolationTypeStat
+                {
+                    ViolationType = g.Key.ToString(),
+                    Count         = g.Count()
+                })
+                .OrderByDescending(s => s.Count)
+                .Take(10)
+                .AsNoTracking()
+                .ToListAsync();
 
-        var courseSubmissionOutcomes = new List<CourseSubmissionOutcome>();
-        var groupedOutcomes = courseOutcomesRaw.GroupBy(x => x.CourseTitle);
-        foreach (var group in groupedOutcomes)
-        {
-            var courseTitle = group.Key;
-            
-            var inProgressC = group.Count(a => a.Status == AttemptStatus.InProgress);
-            var autoExpC = group.Count(a => autoExpiredExamIds.Contains(a.Id));
-            var forceSubC = group.Count(a => a.Status == AttemptStatus.ForceSubmitted && !autoExpiredExamIds.Contains(a.Id));
-            var cleanSubC = group.Count(a => (a.Status == AttemptStatus.Submitted || a.Status == AttemptStatus.Graded) && !autoExpiredExamIds.Contains(a.Id));
-            
-            courseSubmissionOutcomes.Add(new CourseSubmissionOutcome { CourseTitle = courseTitle, Outcome = "Submitted", Count = cleanSubC });
-            courseSubmissionOutcomes.Add(new CourseSubmissionOutcome { CourseTitle = courseTitle, Outcome = "ForceSubmitted", Count = forceSubC });
-            courseSubmissionOutcomes.Add(new CourseSubmissionOutcome { CourseTitle = courseTitle, Outcome = "AutoExpired", Count = autoExpC });
-            courseSubmissionOutcomes.Add(new CourseSubmissionOutcome { CourseTitle = courseTitle, Outcome = "InProgress", Count = inProgressC });
-        }
+            // ── Financial Data ─────────────────────────────────────────────────
+            var totalRevenue = await _db.PaymentRecords
+                .Where(p => p.Status == PaymentRecordStatus.Paid)
+                .SumAsync(p => p.AmountUSD);
 
-        // ── Top Violation Types Chart ────────────────────────────────────────────
-        var topViolationTypes = await _db.ViolationLogs
-            .GroupBy(v => v.Type)
-            .Select(g => new ViolationTypeStat
-            {
-                ViolationType = g.Key.ToString(),
-                Count         = g.Count()
-            })
-            .OrderByDescending(s => s.Count)
-            .Take(10)
-            .AsNoTracking()
-            .ToListAsync();
+            var recentPayments = await _db.PaymentRecords
+                .Include(p => p.Student)
+                .Where(p => p.Status == PaymentRecordStatus.Paid && p.PaidAt != null)
+                .OrderByDescending(p => p.PaidAt)
+                .Take(15)
+                .Select(p => new RecentPaymentStat
+                {
+                    PaymentId   = p.Id,
+                    AmountUSD   = p.AmountUSD,
+                    PaidAt      = p.PaidAt!.Value,
+                    StudentName = p.Student != null ? $"{p.Student.FirstName} {p.Student.LastName}" : "Unknown"
+                })
+                .AsNoTracking()
+                .ToListAsync();
 
-        // ── Financial Data (Payment Module) ──────────────────────────────────────
-        var totalRevenue = await _db.PaymentRecords
-            .Where(p => p.Status == PaymentRecordStatus.Paid)
-            .SumAsync(p => p.AmountUSD);
+            // ── 30-Day Activity Trend ──────────────────────────────────────────
+            var activityTrend = await _db.ExamAttempts
+                .Where(a => a.StartedAt >= thirtyDaysAgo)
+                .GroupBy(a => a.StartedAt.Date)
+                .Select(g => new { Date = g.Key, Count = g.Count() })
+                .AsNoTracking()
+                .ToListAsync();
 
-        var recentPayments = await _db.PaymentRecords
-            .Include(p => p.Student)
-            .Where(p => p.Status == PaymentRecordStatus.Paid && p.PaidAt != null)
-            .OrderByDescending(p => p.PaidAt)
-            .Take(15)
-            .Select(p => new RecentPaymentStat
-            {
-                PaymentId = p.Id,
-                AmountUSD = p.AmountUSD,
-                PaidAt = p.PaidAt!.Value,
-                StudentName = p.Student != null ? $"{p.Student.FirstName} {p.Student.LastName}" : "Unknown"
-            })
-            .AsNoTracking()
-            .ToListAsync();
+            var violationsByDay = await _db.ViolationLogs
+                .Where(v => v.CreatedAt >= thirtyDaysAgo)
+                .GroupBy(v => v.CreatedAt.Date)
+                .Select(g => new { Date = g.Key, Count = g.Count() })
+                .AsNoTracking()
+                .ToDictionaryAsync(x => x.Date, x => x.Count);
 
-        // ── 30-Day Activity Trend ────────────────────────────────────────────────
-        var activityTrend = await _db.ExamAttempts
-            .Where(a => a.StartedAt >= thirtyDaysAgo)
-            .GroupBy(a => a.StartedAt.Date)
-            .Select(g => new { Date = g.Key, Count = g.Count() })
-            .AsNoTracking()
-            .ToListAsync();
+            var dailyPoints = activityTrend
+                .Select(d => new DailyActivityPoint
+                {
+                    Date           = DateOnly.FromDateTime(d.Date),
+                    ExamCount      = d.Count,
+                    ViolationCount = violationsByDay.GetValueOrDefault(d.Date, 0)
+                })
+                .OrderBy(d => d.Date)
+                .ToList();
 
-        var violationsByDay = await _db.ViolationLogs
-            .Where(v => v.CreatedAt >= thirtyDaysAgo)
-            .GroupBy(v => v.CreatedAt.Date)
-            .Select(g => new { Date = g.Key, Count = g.Count() })
-            .AsNoTracking()
-            .ToDictionaryAsync(x => x.Date, x => x.Count);
+            return new AdminDashboardKpiCache(
+                totalActiveCourses, totalExams, totalCompletedExams,
+                totalSubmissions, totalViolations,
+                totalStudents, totalTutors, activeExamsInProgress,
+                averagePassRate, forceSubmissionRate, totalRevenue,
+                violationsByCourse, globalOutcomes, recentPayments,
+                topViolationTypes, dailyPoints,
+                activeCourseTitles, courseViolationDetails, courseSubmissionOutcomes,
+                autoExpiredExamIds);
+        });
 
-        var dailyPoints = activityTrend.Select(d => new DailyActivityPoint
-        {
-            Date           = DateOnly.FromDateTime(d.Date),
-            ExamCount      = d.Count,
-            ViolationCount = violationsByDay.GetValueOrDefault(d.Date, 0)
-        })
-        .OrderBy(d => d.Date)
-        .ToList();
+        if (kpi == null)
+            throw new InvalidOperationException("Failed to retrieve or create admin dashboard KPI cache.");
 
         // ── Exam Statistics Table (server-side: search, sort, paginate) ──────────
-        // Step 1: build the base join in-memory using projections
-        // We need Exam + Course + CreatedByUser + aggregate stats
-        // Load candidate exams with their basic info
+        // NOT cached - parameterised by search/sort/page so must be fresh per request.
         var examIds = await _db.ExamAttempts
             .Select(a => a.ExamId)
             .Distinct()
             .ToListAsync();
 
-        // Also include exams with no attempts (show all published exams)
         var publishedExamIds = await _db.Exams
             .Where(e => e.Status == ExamStatus.Published)
             .Select(e => e.Id)
@@ -766,7 +789,6 @@ public class MonitoringService : IMonitoringService
 
         var allExamIds = examIds.Union(publishedExamIds).Distinct().ToList();
 
-        // Load exam info
         var examInfos = await _db.Exams
             .Where(e => allExamIds.Contains(e.Id))
             .Select(e => new
@@ -783,7 +805,6 @@ public class MonitoringService : IMonitoringService
             .AsNoTracking()
             .ToListAsync();
 
-        // Load attempt stats per exam
         var attemptStatsByExam = await _db.ExamAttempts
             .Where(a => allExamIds.Contains(a.ExamId))
             .GroupBy(a => a.ExamId)
@@ -799,7 +820,6 @@ public class MonitoringService : IMonitoringService
             .AsNoTracking()
             .ToDictionaryAsync(x => x.ExamId);
 
-        // Load violation counts per exam
         var violationCountsByExam = await _db.ViolationLogs
             .Where(v => allExamIds.Contains(v.ExamId))
             .GroupBy(v => v.ExamId)
@@ -807,7 +827,6 @@ public class MonitoringService : IMonitoringService
             .AsNoTracking()
             .ToDictionaryAsync(x => x.ExamId, x => x.Count);
 
-        // Load pass counts per exam (score >= PassScore)
         var passCounts = await _db.ExamAttempts
             .Where(a => allExamIds.Contains(a.ExamId) && a.Score.HasValue)
             .Join(_db.Exams, a => a.ExamId, e => e.Id, (a, e) => new { a.ExamId, a.Score, e.PassScore })
@@ -817,20 +836,15 @@ public class MonitoringService : IMonitoringService
             .AsNoTracking()
             .ToDictionaryAsync(x => x.ExamId, x => x.PassCount);
 
-        // Filter by Tutor if requested
         if (queryParams.TutorId.HasValue)
-        {
             examInfos = examInfos.Where(e => e.TutorId == queryParams.TutorId.Value).ToList();
-        }
 
-        // Build rows in memory
         var allRows = examInfos.Select(exam =>
         {
-            var stats      = attemptStatsByExam.GetValueOrDefault(exam.Id);
-            var submitted  = stats?.SubmittedCount ?? 0;
-            var passCount  = passCounts.GetValueOrDefault(exam.Id, 0);
-            var passRate   = submitted > 0 ? (decimal?)Math.Round((decimal)passCount / submitted * 100, 1) : null;
-
+            var stats     = attemptStatsByExam.GetValueOrDefault(exam.Id);
+            var submitted = stats?.SubmittedCount ?? 0;
+            var passCount = passCounts.GetValueOrDefault(exam.Id, 0);
+            var passRate  = submitted > 0 ? (decimal?)Math.Round((decimal)passCount / submitted * 100, 1) : null;
             return new ExamStatisticsRow
             {
                 ExamId              = exam.Id,
@@ -848,7 +862,6 @@ public class MonitoringService : IMonitoringService
             };
         }).ToList();
 
-        // Apply search filter
         if (!string.IsNullOrWhiteSpace(queryParams.Search))
         {
             var term = queryParams.Search.Trim().ToLower();
@@ -884,35 +897,52 @@ public class MonitoringService : IMonitoringService
         return new AdminDashboardResponse
         {
             // KPI Row 1
-            TotalActiveCourses  = totalActiveCourses,
-            TotalExams          = totalExams,
-            TotalCompletedExams = totalCompletedExams,
-            TotalSubmissions    = totalSubmissions,
-            TotalViolations     = totalViolations,
+            TotalActiveCourses  = kpi.TotalActiveCourses,
+            TotalExams          = kpi.TotalExams,
+            TotalCompletedExams = kpi.TotalCompletedExams,
+            TotalSubmissions    = kpi.TotalSubmissions,
+            TotalViolations     = kpi.TotalViolations,
             // KPI Row 2
-            TotalStudents         = totalStudents,
-            TotalTutors           = totalTutors,
-            ActiveExamsInProgress = activeExamsInProgress,
-            AveragePassRate       = averagePassRate,
-            ForceSubmissionRate   = forceSubmissionRate,
-            TotalRevenueUSD       = totalRevenue,
+            TotalStudents         = kpi.TotalStudents,
+            TotalTutors           = kpi.TotalTutors,
+            ActiveExamsInProgress = kpi.ActiveExamsInProgress,
+            AveragePassRate       = kpi.AveragePassRate,
+            ForceSubmissionRate   = kpi.ForceSubmissionRate,
+            TotalRevenueUSD       = kpi.TotalRevenueUSD,
             // Charts
-            ViolationsByCourse        = violationsByCourse,
-            GlobalSubmissionOutcomes  = globalOutcomes,
-            RecentPayments            = recentPayments,
-            TopViolationTypes         = topViolationTypes,
-            ActivityTrend             = dailyPoints,
+            ViolationsByCourse        = kpi.ViolationsByCourse,
+            GlobalSubmissionOutcomes  = kpi.GlobalSubmissionOutcomes,
+            RecentPayments            = kpi.RecentPayments,
+            TopViolationTypes         = kpi.TopViolationTypes,
+            ActivityTrend             = kpi.ActivityTrend,
             // Granular Data
-            ActiveCourseTitles        = activeCourseTitles,
-            CourseViolationDetails    = courseViolationDetails,
-            CourseSubmissionOutcomes  = courseSubmissionOutcomes,
-            // Exam Statistics Table
+            ActiveCourseTitles        = kpi.ActiveCourseTitles,
+            CourseViolationDetails    = kpi.CourseViolationDetails,
+            CourseSubmissionOutcomes  = kpi.CourseSubmissionOutcomes,
+            // Exam Statistics Table (always fresh - parameterised)
             ExamStatistics          = pagedRows,
             ExamStatisticsTotalCount = examTotalCount,
             ExamStatisticsPage       = page,
             ExamStatisticsPageSize   = size
         };
     }
+
+    // ── Cache record for admin dashboard KPI + chart data ────────────────────────
+    private sealed record AdminDashboardKpiCache(
+        int TotalActiveCourses, int TotalExams, int TotalCompletedExams,
+        int TotalSubmissions, int TotalViolations,
+        int TotalStudents, int TotalTutors, int ActiveExamsInProgress,
+        decimal AveragePassRate, decimal ForceSubmissionRate, decimal TotalRevenueUSD,
+        List<CourseViolationStat> ViolationsByCourse,
+        List<SubmissionOutcomeStat> GlobalSubmissionOutcomes,
+        List<RecentPaymentStat> RecentPayments,
+        List<ViolationTypeStat> TopViolationTypes,
+        List<DailyActivityPoint> ActivityTrend,
+        List<string> ActiveCourseTitles,
+        List<CourseViolationDetail> CourseViolationDetails,
+        List<CourseSubmissionOutcome> CourseSubmissionOutcomes,
+        List<Guid> AutoExpiredExamIds
+    );
     public async Task<PlatformActivityResponse> GetPlatformActivityAsync(int? days)
     {
         var queryExams = _db.ExamAttempts.AsQueryable();

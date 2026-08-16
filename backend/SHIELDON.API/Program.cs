@@ -103,7 +103,7 @@ var builder = WebApplication.CreateBuilder(args);
         {
             policy
                 .WithOrigins(
-                    builder.Configuration["AppSettings:FrontendUrl"] ?? "http://localhost:4200")
+                    builder.Configuration["AppSettings:FrontendUrl"] ?? "http://localhost:4201")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials()

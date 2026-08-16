@@ -144,7 +144,7 @@ public class NotificationService : INotificationService
             var user = await _context.Users.FindAsync(new object[] { recipientUserId }, ct);
             if (user != null)
             {
-                string frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:4200";
+                string frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:4201";
                 await _emailService.SendNotificationEmailAsync(user.Email, $"{user.FirstName} {user.LastName}", title, message, frontendUrl);
             }
         }

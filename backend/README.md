@@ -11,7 +11,7 @@
   <img src="https://img.shields.io/badge/Google_OAuth-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Google OAuth" />
 </div>
 
-> 🔧 The Web API framework, business logic orchestration, and database persistence layer for the **SHIELDON** LMS & Anti-Cheating Engine.
+> The Web API framework, business logic orchestration, and database persistence layer for the **SHIELDON** LMS & Anti-Cheating Engine.
 > Includes a dedicated Node.js Microservice for zero-cost WhatsApp OTP delivery.
 
 ---
@@ -193,6 +193,43 @@ Interactive OpenAPI documentation is available when running the API:
 
 ---
 
+## 🧪 QA Testing
+
+> 📖 **Full Testing Guide**: [docs/TESTING.md](../docs/TESTING.md) | 🛡️ **Audit Report**: [docs/PERFORMANCE_SECURITY_REPORT.md](../docs/PERFORMANCE_SECURITY_REPORT.md)
+
+SHIELDON backend maintains a **100% Pass Rate** across **213 executed tests** in `SHIELDON.Tests`:
+
+### 📊 Backend Test Metrics Summary
+
+| Category | Test Files | Executed Tests | Status |
+| -------- | ---------- | -------------- | ------ |
+| **Backend Unit Testing** | 14 classes | 75 tests | ✅ 100% Passed |
+| **Backend Integration Testing** | 10 classes | 13 tests | ✅ 100% Passed |
+| **Backend Security Testing** (`Security/`) | 14 classes | 60 tests | ✅ 100% Passed |
+| **Backend Performance Load** (`Performance/`) | 1 class | **65 tests** (13 scenarios × 5 VU tiers) | ✅ 100% Passed |
+| **WhatsApp Gateway Microservice** | 1 test file | 12 tests | ✅ 100% Passed |
+| **TOTAL BACKEND SUITE** | **40 files** | **225 tests** | **✅ 100% PASSED** |
+
+### 🚀 Running Backend Tests
+
+```bash
+# Run all backend unit, security, and integration tests
+cd backend
+dotnet test bin/TestRelease/SHIELDON.Tests.dll
+
+# Run only Security test suite
+dotnet test --filter "FullyQualifiedName~Security"
+
+# Run NBomber performance load tests
+dotnet test --filter "FullyQualifiedName~Performance"
+
+# Run WhatsApp gateway tests
+cd whatsapp-gateway
+npm test
+```
+
+---
+
 ## 🤝 Contributing & Guidelines
 
 Please review [docs/CONTRIBUTING.md](../docs/CONTRIBUTING.md) before submitting pull requests.
@@ -200,5 +237,6 @@ Please review [docs/CONTRIBUTING.md](../docs/CONTRIBUTING.md) before submitting 
 ---
 
 <div align="center">
-  <strong>🛡️ SHIELDON Backend - "Integrity You Can Trust" 🛡️</strong>
+  <strong>SHIELDON Backend - "Integrity You Can Trust"</strong>
 </div>
+

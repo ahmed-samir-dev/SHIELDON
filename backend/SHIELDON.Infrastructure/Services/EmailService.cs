@@ -26,7 +26,7 @@ public class EmailService : IEmailService
     private string FromEmail => _configuration["EmailSettings:FromEmail"] ?? "noreply@shieldon.com";
 
     // The publicly accessible URL of the frontend app (used to build verification links)
-    private string FrontendUrl => _configuration["AppSettings:FrontendUrl"] ?? "http://localhost:4200";
+    private string FrontendUrl => _configuration["AppSettings:FrontendUrl"] ?? "http://localhost:4201";
 
     public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
     {
